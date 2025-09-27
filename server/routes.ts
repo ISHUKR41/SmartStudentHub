@@ -1,11 +1,17 @@
-import type { Express } from "express";
+import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { insertActivitySchema, updateActivityStatusSchema } from "@shared/schema";
+import { AuthenticatedUser } from "../types/express";
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+
+// Extend Express Request interface for authenticated requests
+interface AuthenticatedRequest extends Request {
+  user: AuthenticatedUser;
+}
 
 // Configure multer for file uploads
 const uploadDir = path.join(process.cwd(), 'uploads');
@@ -42,7 +48,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   await setupAuth(app);
 
   // Auth routes
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+  app.get('/api/auth/user', isAuthenticated, async (req: AuthenticatedRequest, res: Response) => {
     try {
       const userId = req.user.claims.sub;
       const user = await storage.getUser(userId);
@@ -54,7 +60,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Student routes
-  app.get('/api/students/activities', isAuthenticated, async (req: any, res) => {
+  app.get('/api/students/activities', isAuthenticated, async (req: AuthenticatedRequest, res: Response) => {
     try {
       const userId = req.user.claims.sub;
       const activities = await storage.getActivitiesByStudent(userId);
@@ -65,7 +71,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/students/stats', isAuthenticated, async (req: any, res) => {
+  app.get('/api/students/stats', isAuthenticated, async (req: AuthenticatedRequest, res: Response) => {
     try {
       const userId = req.user.claims.sub;
       const stats = await storage.getStudentStats(userId);
@@ -77,7 +83,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Activity routes
-  app.post('/api/activities', isAuthenticated, upload.array('files', 5), async (req: any, res) => {
+  app.post('/api/activities', isAuthenticated, upload.array('files', 5), async (req: AuthenticatedRequest, res: Response) => {
     try {
       const userId = req.user.claims.sub;
       const activityData = insertActivitySchema.parse({
@@ -120,7 +126,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Faculty routes
-  app.get('/api/faculty/pending-activities', isAuthenticated, async (req: any, res) => {
+  app.get('/api/faculty/pending-activities', isAuthenticated, async (req: AuthenticatedRequest, res: Response) => {
     try {
       const user = await storage.getUser(req.user.claims.sub);
       if (!user || (user.role !== 'faculty' && user.role !== 'admin')) {
@@ -135,7 +141,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch('/api/faculty/activities/:activityId/status', isAuthenticated, async (req: any, res) => {
+  app.patch('/api/faculty/activities/:activityId/status', isAuthenticated, async (req: AuthenticatedRequest, res: Response) => {
     try {
       const user = await storage.getUser(req.user.claims.sub);
       if (!user || (user.role !== 'faculty' && user.role !== 'admin')) {
@@ -159,7 +165,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin routes
-  app.get('/api/admin/department-stats', isAuthenticated, async (req: any, res) => {
+  app.get('/api/admin/department-stats', isAuthenticated, async (req: AuthenticatedRequest, res: Response) => {
     try {
       const user = await storage.getUser(req.user.claims.sub);
       if (!user || user.role !== 'admin') {
@@ -174,7 +180,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/admin/category-stats', isAuthenticated, async (req: any, res) => {
+  app.get('/api/admin/category-stats', isAuthenticated, async (req: AuthenticatedRequest, res: Response) => {
     try {
       const user = await storage.getUser(req.user.claims.sub);
       if (!user || user.role !== 'admin') {
@@ -189,7 +195,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/admin/student-summary', isAuthenticated, async (req: any, res) => {
+  app.get('/api/admin/student-summary', isAuthenticated, async (req: AuthenticatedRequest, res: Response) => {
     try {
       const user = await storage.getUser(req.user.claims.sub);
       if (!user || user.role !== 'admin') {
@@ -219,13 +225,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/files/:filename', isAuthenticated, async (req, res) => {
     try {
       const { filename } = req.params;
-      const filePath = path.join(uploadDir, filename);
       
-      if (!fs.existsSync(filePath)) {
+      // Security: Prevent path traversal attacks
+      const resolvedFilePath = path.resolve(uploadDir, filename);
+      const resolvedUploadDir = path.resolve(uploadDir);
+      
+      if (!resolvedFilePath.startsWith(resolvedUploadDir)) {
+        return res.status(400).json({ message: "Invalid file path" });
+      }
+      
+      if (!fs.existsSync(resolvedFilePath)) {
         return res.status(404).json({ message: "File not found" });
       }
 
-      res.sendFile(filePath);
+      // Security: Set safe Content-Disposition header
+      res.setHeader('Content-Disposition', `attachment; filename="${path.basename(filename)}"`);
+      res.sendFile(resolvedFilePath);
     } catch (error) {
       console.error("Error downloading file:", error);
       res.status(500).json({ message: "Failed to download file" });
