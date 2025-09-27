@@ -1,7 +1,20 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Eye, Download, Calendar, Building2 } from "lucide-react";
+import { 
+  Eye, 
+  Download, 
+  Calendar, 
+  Building2, 
+  GraduationCap, 
+  Trophy, 
+  Target, 
+  Heart, 
+  Briefcase, 
+  Crown, 
+  Monitor,
+  FileText 
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface Activity {
@@ -53,16 +66,16 @@ export default function ActivityList({
 
   const getCategoryIcon = (category: string) => {
     const categoryIcons = {
-      academic: "🎓",
-      "co-curricular": "🏆",
-      "extra-curricular": "🎯",
-      volunteering: "❤️",
-      internship: "💼",
-      leadership: "👑",
-      mooc: "💻"
+      academic: <GraduationCap className="w-5 h-5 text-blue-600" />,
+      "co-curricular": <Trophy className="w-5 h-5 text-amber-600" />,
+      "extra-curricular": <Target className="w-5 h-5 text-green-600" />,
+      volunteering: <Heart className="w-5 h-5 text-red-600" />,
+      internship: <Briefcase className="w-5 h-5 text-purple-600" />,
+      leadership: <Crown className="w-5 h-5 text-yellow-600" />,
+      mooc: <Monitor className="w-5 h-5 text-indigo-600" />
     };
     
-    return categoryIcons[category as keyof typeof categoryIcons] || "📝";
+    return categoryIcons[category as keyof typeof categoryIcons] || <FileText className="w-5 h-5 text-gray-600" />;
   };
 
   const formatDate = (dateString: string) => {

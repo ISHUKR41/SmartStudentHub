@@ -159,13 +159,13 @@ export default function FileUpload({
       >
         <Upload className="w-12 h-12 text-muted-foreground mb-4 mx-auto" />
         <p className="text-sm font-medium text-foreground mb-2">
-          Drop files here or click to browse
+          Drag and drop files or click to select
         </p>
         <p className="text-xs text-muted-foreground">
-          Supports {acceptedFileTypes.join(', ').toUpperCase()} up to {(maxFileSize / (1024 * 1024)).toFixed(0)}MB
+          Supported formats: {acceptedFileTypes.join(', ').toUpperCase()} (up to {(maxFileSize / (1024 * 1024)).toFixed(0)}MB per file)
         </p>
         <p className="text-xs text-muted-foreground mt-1">
-          Maximum {maxFiles} files
+          Maximum {maxFiles} files allowed
         </p>
         
         <input

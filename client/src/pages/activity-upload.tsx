@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Bot, Save, Send } from "lucide-react";
+import { Cpu, Save, Send } from "lucide-react";
 import { z } from "zod";
 import { useLocation } from "wouter";
 
@@ -162,7 +162,7 @@ export default function ActivityUpload() {
                             <FormLabel>Activity Title</FormLabel>
                             <FormControl>
                               <Input 
-                                placeholder="Enter activity title" 
+                                placeholder="Activity or achievement title" 
                                 {...field} 
                                 data-testid="input-activity-title"
                               />
@@ -181,7 +181,7 @@ export default function ActivityUpload() {
                             <Select onValueChange={field.onChange} defaultValue={field.value}>
                               <FormControl>
                                 <SelectTrigger data-testid="select-category">
-                                  <SelectValue placeholder="Select category" />
+                                  <SelectValue placeholder="Choose activity category" />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
@@ -209,7 +209,7 @@ export default function ActivityUpload() {
                             <FormLabel>Organization/Institution</FormLabel>
                             <FormControl>
                               <Input 
-                                placeholder="Enter organization name" 
+                                placeholder="Organization or institution name" 
                                 {...field} 
                                 data-testid="input-organization"
                               />
@@ -247,7 +247,7 @@ export default function ActivityUpload() {
                           <FormLabel>Description</FormLabel>
                           <FormControl>
                             <Textarea 
-                              placeholder="Describe your achievement and learnings" 
+                              placeholder="Provide detailed description of your achievement and key learnings" 
                               className="min-h-[100px]"
                               {...field} 
                               data-testid="textarea-description"
@@ -273,9 +273,9 @@ export default function ActivityUpload() {
 
                     {/* AI Auto-extraction Info */}
                     <Alert className="bg-blue-50 border-blue-200">
-                      <Bot className="h-4 w-4 text-blue-600" />
+                      <Cpu className="h-4 w-4 text-blue-600" />
                       <AlertDescription>
-                        <h4 className="text-sm font-medium text-blue-900 mb-1">AI-Powered Data Extraction</h4>
+                        <h4 className="text-sm font-medium text-blue-900 mb-1">Automated Data Extraction</h4>
                         <p className="text-xs text-blue-700">
                           Our system will automatically extract event name, date, and organization details from your certificates using OCR technology.
                         </p>
