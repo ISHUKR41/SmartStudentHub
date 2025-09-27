@@ -52,7 +52,7 @@ export const users = pgTable("users", {
   profileImageUrl: varchar("profile_image_url"),
   role: userRoleEnum("role").default('student').notNull(),
   rollNumber: varchar("roll_number").unique(),
-  department: varchar("department"),
+  department: varchar("department").references(() => departments.code),
   currentSemester: integer("current_semester"),
   cgpa: decimal("cgpa", { precision: 3, scale: 2 }),
   createdAt: timestamp("created_at").defaultNow(),
