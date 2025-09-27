@@ -1,3 +1,25 @@
+/**
+ * API Routes for Student Activity Record Management System
+ * 
+ * This file defines all REST API endpoints for the application.
+ * The API follows RESTful conventions and includes proper authentication,
+ * validation, and error handling.
+ * 
+ * Route Categories:
+ * - Authentication: User login, logout, profile management
+ * - Student Routes: Activity management, portfolio generation
+ * - Faculty Routes: Activity approval/rejection workflow
+ * - Admin Routes: Analytics, reporting, department management
+ * - File Routes: Upload, download, and file management
+ * 
+ * Security Features:
+ * - Replit Auth integration for authentication
+ * - Role-based access control
+ * - Input validation using Zod schemas
+ * - File upload restrictions and validation
+ * - Path traversal protection
+ */
+
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
@@ -8,12 +30,31 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 
-// Extend Express Request interface for authenticated requests
+/**
+ * Extended Request Interface
+ * 
+ * Extends the standard Express Request to include authenticated user information.
+ * Used throughout the API to ensure type safety for authenticated routes.
+ */
 interface AuthenticatedRequest extends Request {
   user: AuthenticatedUser;
 }
 
-// Configure multer for file uploads
+/**
+ * File Upload Configuration
+ * 
+ * Configures multer middleware for secure file uploads.
+ * 
+ * Security Features:
+ * - File type restrictions (PDF, JPG, PNG only)
+ * - File size limits (10MB maximum)
+ * - Unique filename generation to prevent conflicts
+ * - Secure file storage in uploads directory
+ * 
+ * Supported File Types:
+ * - PDF: For certificates and official documents
+ * - JPG/PNG: For images and scanned documents
+ */
 const uploadDir = path.join(process.cwd(), 'uploads');
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
@@ -43,11 +84,26 @@ const upload = multer({
   }
 });
 
+/**
+ * Register All API Routes
+ * 
+ * Sets up all API endpoints and middleware for the application.
+ * Routes are organized by functionality and protected by appropriate
+ * authentication and authorization middleware.
+ * 
+ * @param app - Express application instance
+ * @returns HTTP server instance
+ */
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Auth middleware
+  // Initialize Replit Authentication middleware
   await setupAuth(app);
 
-  // Auth routes
+  /**
+   * Authentication Routes
+   * 
+   * Handles user authentication and profile management.
+   * All routes require valid authentication tokens.
+   */
   app.get('/api/auth/user', isAuthenticated, async (req: AuthenticatedRequest, res: Response) => {
     try {
       const userId = req.user.claims.sub;
@@ -59,7 +115,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Student routes
+  /**
+   * Student Routes
+   * 
+   * API endpoints for student-specific functionality.
+   * Students can manage their activities, view portfolios, and track progress.
+   */
   app.get('/api/students/activities', isAuthenticated, async (req: AuthenticatedRequest, res: Response) => {
     try {
       const userId = req.user.claims.sub;

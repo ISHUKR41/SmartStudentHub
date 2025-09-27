@@ -1,3 +1,30 @@
+/**
+ * Activity Upload Page Component
+ * 
+ * This component provides a comprehensive form for students to upload their
+ * activities and achievements. It includes form validation and file upload capabilities.
+ * 
+ * Key Features:
+ * - Single-page form with validation using Zod and React Hook Form
+ * - File upload with client-side type and size validation
+ * - Real-time form validation and error handling
+ * - Professional category selection for NAAC compliance
+ * - Certificate and document attachment support
+ * 
+ * Form Fields:
+ * - Activity title and description
+ * - Category (academic, co-curricular, etc.)
+ * - Organization/Institution name
+ * - Activity date
+ * - Supporting documents/certificates
+ * 
+ * Validation Features:
+ * - Client-side validation for better user experience
+ * - File type restrictions (PDF, JPG, PNG) 
+ * - File size limits for optimal performance
+ * - Form data validation using Zod schemas
+ */
+
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -18,6 +45,19 @@ import { Cpu, Save, Send } from "lucide-react";
 import { z } from "zod";
 import { useLocation } from "wouter";
 
+/**
+ * Activity Form Validation Schema
+ * 
+ * Defines validation rules for the activity upload form using Zod.
+ * Ensures data integrity and provides user-friendly error messages.
+ * 
+ * Validation Rules:
+ * - Title: Required, non-empty string
+ * - Category: Must be one of the predefined NAAC-compliant categories
+ * - Organization: Required, non-empty string
+ * - Activity Date: Required, valid date string
+ * - Description: Optional, detailed description of the activity
+ */
 const activityFormSchema = z.object({
   title: z.string().min(1, "Activity title is required"),
   category: z.enum(['academic', 'co-curricular', 'extra-curricular', 'volunteering', 'internship', 'leadership', 'mooc']),
@@ -26,19 +66,35 @@ const activityFormSchema = z.object({
   description: z.string().optional(),
 });
 
+// TypeScript types derived from validation schema
 type ActivityFormData = z.infer<typeof activityFormSchema>;
 
-// Extended type for form data with files
+/**
+ * Extended Activity Submission Data
+ * 
+ * Combines form data with uploaded files for complete submission.
+ * Used in the mutation function to handle both form fields and file uploads.
+ */
 interface ActivitySubmissionData extends ActivityFormData {
   files: File[];
 }
 
+/**
+ * Activity Upload Component
+ * 
+ * Main component that renders the activity upload form with all necessary
+ * state management, validation, and submission handling.
+ */
 export default function ActivityUpload() {
+  // State for managing uploaded files
   const [files, setFiles] = useState<File[]>([]);
+  
+  // Hooks for UI interactions and navigation
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [, setLocation] = useLocation();
 
+  // Initialize form with validation and default values
   const form = useForm<ActivityFormData>({
     resolver: zodResolver(activityFormSchema),
     defaultValues: {
@@ -50,11 +106,24 @@ export default function ActivityUpload() {
     },
   });
 
+  /**
+   * Activity Upload Mutation
+   * 
+   * Handles the submission of activity data and files to the backend.
+   * Uses FormData to support both text fields and file uploads.
+   * 
+   * Process:
+   * 1. Create FormData object with form fields
+   * 2. Append all uploaded files
+   * 3. Submit to API endpoint
+   * 4. Handle success/error responses
+   * 5. Update UI and navigate on success
+   */
   const uploadMutation = useMutation({
     mutationFn: async (data: ActivitySubmissionData) => {
       const formData = new FormData();
       
-      // Append form fields (excluding files)
+      // Append form fields to FormData for multipart submission
       formData.append('title', data.title);
       formData.append('category', data.category);
       formData.append('organization', data.organization);

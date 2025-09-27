@@ -1,3 +1,30 @@
+/**
+ * File Upload Component
+ * 
+ * A comprehensive file upload component with drag-and-drop support,
+ * file validation, and professional styling. Designed for uploading
+ * activity certificates and supporting documents.
+ * 
+ * Features:
+ * - Drag and drop file upload interface
+ * - File type and size validation
+ * - Multiple file support with limits
+ * - Visual file previews with metadata
+ * - Error handling and user feedback
+ * - Professional file type icons
+ * - Progress UI components (for future upload progress implementation)
+ * 
+ * Validation Features:
+ * - File type restrictions (PDF, JPG, PNG)
+ * - File size limits (configurable)
+ * - Client-side validation for user experience
+ * - File metadata handling
+ * 
+ * Supported File Types:
+ * - PDF: For certificates and official documents
+ * - JPG/PNG: For images and scanned documents
+ */
+
 import { useState, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -5,19 +32,31 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { X, Upload, FileText, Image, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+/**
+ * File Upload Component Props
+ * 
+ * Configuration interface for the file upload component.
+ * Allows customization of upload restrictions and behavior.
+ */
 interface FileUploadProps {
-  files: File[];
-  onFilesChange: (files: File[]) => void;
-  maxFiles?: number;
-  maxFileSize?: number;
-  acceptedFileTypes?: string[];
-  className?: string;
+  files: File[];                    // Current list of uploaded files
+  onFilesChange: (files: File[]) => void; // Callback when file list changes
+  maxFiles?: number;                // Maximum number of files allowed
+  maxFileSize?: number;             // Maximum file size in bytes
+  acceptedFileTypes?: string[];     // Allowed file extensions
+  className?: string;               // Additional CSS classes
 }
 
+/**
+ * Extended File Interface
+ * 
+ * Extends the standard File interface to include upload progress
+ * and error tracking for enhanced user feedback.
+ */
 interface FileWithProgress extends File {
-  id: string;
-  progress?: number;
-  error?: string;
+  id: string;           // Unique identifier for the file
+  progress?: number;    // Upload progress percentage (0-100)
+  error?: string;       // Error message if upload fails
 }
 
 export default function FileUpload({
@@ -32,19 +71,28 @@ export default function FileUpload({
   const [error, setError] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  /**
+   * File Validation Function
+   * 
+   * Validates uploaded files against size and type restrictions.
+   * Provides user-friendly error messages for validation failures.
+   * 
+   * @param file - File to validate
+   * @returns Error message if validation fails, null if valid
+   */
   const validateFile = (file: File): string | null => {
-    // Check file size
+    // Check file size against maximum allowed
     if (file.size > maxFileSize) {
       return `File size must be less than ${(maxFileSize / (1024 * 1024)).toFixed(1)}MB`;
     }
 
-    // Check file type
+    // Check file type against accepted extensions
     const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
     if (!acceptedFileTypes.includes(fileExtension || '')) {
       return `File type not supported. Accepted types: ${acceptedFileTypes.join(', ')}`;
     }
 
-    return null;
+    return null; // File is valid
   };
 
   const processFiles = useCallback((newFiles: FileList | File[]) => {

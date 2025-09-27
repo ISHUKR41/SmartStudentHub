@@ -1,3 +1,23 @@
+/**
+ * Data Storage Layer for Student Activity Management System
+ * 
+ * This file implements the data access layer using the Repository pattern.
+ * It provides a clean interface for all database operations while abstracting
+ * the underlying database implementation details.
+ * 
+ * Architecture:
+ * - IStorage interface defines all required operations
+ * - DatabaseStorage implements the interface using Drizzle ORM
+ * - All SQL queries are type-safe and follow security best practices
+ * 
+ * Key Features:
+ * - User management with Replit Auth integration
+ * - Activity CRUD operations with verification workflow
+ * - File attachment management
+ * - Department-based organization
+ * - Advanced analytics and reporting queries
+ */
+
 import {
   users,
   activities,
@@ -15,34 +35,76 @@ import {
 import { db } from "./db";
 import { eq, desc, and, count, sql } from "drizzle-orm";
 
-// Interface for storage operations
+/**
+ * Storage Interface Definition
+ * 
+ * Defines all required database operations for the application.
+ * This interface ensures consistency and enables easy testing with mock implementations.
+ * 
+ * Operation Categories:
+ * - User Management: Required for Replit Auth integration
+ * - Activity Management: Core functionality for student records
+ * - File Operations: Certificate and document handling
+ * - Department Management: Organizational structure
+ * - Analytics: Reporting and insights for administrators
+ */
 export interface IStorage {
-  // User operations (mandatory for Replit Auth)
+  /**
+   * User Management Operations
+   * 
+   * These operations are mandatory for Replit Auth integration.
+   * They handle user profile creation, updates, and retrieval.
+   */
   getUser(id: string): Promise<User | undefined>;
   upsertUser(user: UpsertUser): Promise<User>;
   
-  // Activity operations
+  /**
+   * Activity Management Operations
+   * 
+   * Core operations for managing student activities and achievements.
+   * Supports the complete workflow from creation to verification.
+   */
   getActivitiesByStudent(studentId: string): Promise<Activity[]>;
   getActivitiesByStatus(status: 'pending' | 'approved' | 'rejected'): Promise<Activity[]>;
   getAllActivities(): Promise<Activity[]>;
   createActivity(activity: InsertActivity): Promise<Activity>;
   updateActivityStatus(activityId: string, updates: UpdateActivityStatus, verifierId: string): Promise<Activity>;
   
-  // File operations
+  /**
+   * File Management Operations
+   * 
+   * Handles metadata for files attached to activities.
+   * Files are stored on disk, these operations manage the database records.
+   */
   addActivityFile(activityId: string, fileName: string, filePath: string, fileType: string, fileSize: number): Promise<ActivityFile>;
   getActivityFiles(activityId: string): Promise<ActivityFile[]>;
   
-  // Department operations
+  /**
+   * Department Management Operations
+   * 
+   * Manages organizational structure and department-based features.
+   */
   getDepartments(): Promise<Department[]>;
   createDepartment(department: InsertDepartment): Promise<Department>;
   
-  // Analytics operations
+  /**
+   * Analytics and Reporting Operations
+   * 
+   * Provides insights and statistics for administrators and students.
+   * Supports NAAC/NIRF reporting requirements.
+   */
   getStudentStats(studentId: string): Promise<{ totalActivities: number; skillCredits: number; pendingApprovals: number }>;
   getDepartmentStats(): Promise<{ department: string; studentCount: number; activityCount: number; avgActivitiesPerStudent: number }[]>;
   getCategoryStats(): Promise<{ category: string; count: number; percentage: number }[]>;
   getStudentSummary(): Promise<{ student: User; totalActivities: number; skillCredits: number; lastActivity: Date | null }[]>;
 }
 
+/**
+ * Database Storage Implementation
+ * 
+ * Concrete implementation of the IStorage interface using PostgreSQL and Drizzle ORM.
+ * All methods include proper error handling and follow database best practices.
+ */
 export class DatabaseStorage implements IStorage {
   // User operations (mandatory for Replit Auth)
   async getUser(id: string): Promise<User | undefined> {
