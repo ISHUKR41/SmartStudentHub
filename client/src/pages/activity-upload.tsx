@@ -28,6 +28,11 @@ const activityFormSchema = z.object({
 
 type ActivityFormData = z.infer<typeof activityFormSchema>;
 
+// Extended type for form data with files
+interface ActivitySubmissionData extends ActivityFormData {
+  files: File[];
+}
+
 export default function ActivityUpload() {
   const [files, setFiles] = useState<File[]>([]);
   const { toast } = useToast();
@@ -46,21 +51,24 @@ export default function ActivityUpload() {
   });
 
   const uploadMutation = useMutation({
-    mutationFn: async (data: ActivityFormData & { files: File[] }) => {
+    mutationFn: async (data: ActivitySubmissionData) => {
       const formData = new FormData();
       
-      // Append form data
-      Object.entries(data).forEach(([key, value]) => {
-        if (key !== 'files' && value !== undefined) {
-          formData.append(key, value);
-        }
-      });
+      // Append form fields (excluding files)
+      formData.append('title', data.title);
+      formData.append('category', data.category);
+      formData.append('organization', data.organization);
+      formData.append('activityDate', data.activityDate);
+      if (data.description) {
+        formData.append('description', data.description);
+      }
       
       // Append files
       data.files.forEach((file) => {
         formData.append('files', file);
       });
 
+      // Use fetch with explicit headers and better error handling
       const response = await fetch('/api/activities', {
         method: 'POST',
         body: formData,
@@ -68,8 +76,16 @@ export default function ActivityUpload() {
       });
 
       if (!response.ok) {
-        const error = await response.text();
-        throw new Error(error || 'Failed to upload activity');
+        let errorMessage = 'Failed to upload activity';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorMessage;
+        } catch {
+          // If JSON parsing fails, use text response
+          const errorText = await response.text();
+          errorMessage = errorText || errorMessage;
+        }
+        throw new Error(errorMessage);
       }
 
       return response.json();
@@ -93,7 +109,11 @@ export default function ActivityUpload() {
   });
 
   const onSubmit = (data: ActivityFormData) => {
-    uploadMutation.mutate({ ...data, files });
+    const submissionData: ActivitySubmissionData = {
+      ...data,
+      files
+    };
+    uploadMutation.mutate(submissionData);
   };
 
   const handleSaveDraft = () => {
