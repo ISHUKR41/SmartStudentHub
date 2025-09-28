@@ -27,7 +27,37 @@ neonConfig.webSocketConstructor = ws;
 // Get database URL with fallback handling for different Replit environments
 // This ensures compatibility across development and production environments
 function getDatabaseUrl(): string {
-  const dbUrl = process.env.DATABASE_URL;
+  let dbUrl = process.env.DATABASE_URL;
+  
+  // Try multiple ways to get DATABASE_URL in Replit environment
+  if (!dbUrl) {
+    // Try different environment variable names that Replit might use
+    dbUrl = process.env.REPLIT_DB_URL || 
+            process.env.DB_URL || 
+            process.env.POSTGRES_URL ||
+            process.env.PGURL;
+  }
+  
+  // Try to read from .replit or other config files if env var not available
+  if (!dbUrl) {
+    try {
+      const fs = require('fs');
+      const path = require('path');
+      
+      // Check if there's a .env file
+      const envPath = path.join(process.cwd(), '.env');
+      if (fs.existsSync(envPath)) {
+        const envContent = fs.readFileSync(envPath, 'utf8');
+        const dbMatch = envContent.match(/DATABASE_URL\s*=\s*["']?([^"'\n\r]+)["']?/);
+        if (dbMatch) {
+          dbUrl = dbMatch[1];
+        }
+      }
+    } catch (error) {
+      console.error('Could not read .env file:', error);
+    }
+  }
+  
   if (!dbUrl) {
     throw new Error(
       "DATABASE_URL must be set. Did you forget to provision a database?",

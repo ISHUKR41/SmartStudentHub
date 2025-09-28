@@ -127,6 +127,40 @@ const upload = multer({
  * @returns HTTP server instance
  */
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Database seeding endpoint (for development/testing) - BEFORE auth middleware
+  app.get('/seed-database', async (req, res) => {
+    try {
+      console.log("🌱 Starting database seeding via GET endpoint...");
+      
+      // Import the seedDatabase function dynamically
+      const { seedDatabase } = await import('./seed');
+      
+      console.log("📦 Seeding function imported successfully");
+      await seedDatabase();
+      
+      console.log("✅ Database seeding completed successfully!");
+      
+      res.setHeader('Content-Type', 'text/plain');
+      res.send('Database seeded successfully with professional sample data!\n\nCheck the server logs for details.');
+    } catch (error) {
+      console.error("❌ Database seeding failed:", error);
+      res.setHeader('Content-Type', 'text/plain');
+      res.status(500).send(`Failed to seed database: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  });
+
+  // Database status endpoint
+  app.get('/db-status', async (req, res) => {
+    try {
+      const dbUrl = process.env.DATABASE_URL;
+      res.setHeader('Content-Type', 'text/plain');
+      res.send(`Database URL exists: ${!!dbUrl}\nURL length: ${dbUrl ? dbUrl.length : 0}\nEnvironment: ${process.env.NODE_ENV || 'unknown'}`);
+    } catch (error) {
+      res.setHeader('Content-Type', 'text/plain');
+      res.status(500).send(`Error checking database status: ${error}`);
+    }
+  });
+
   // Initialize Replit Authentication middleware
   await setupAuth(app);
 
@@ -571,6 +605,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to fetch departments" });
     }
   });
+
 
   // File download route
   app.get('/api/files/:filename', isAuthenticated, async (req, res) => {

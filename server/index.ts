@@ -37,6 +37,30 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  // Auto-seed database in development if empty
+  if (process.env.NODE_ENV === 'development') {
+    try {
+      const { db } = await import('./db');
+      const { users } = await import('@shared/schema');
+      
+      // Check if database has any users
+      const existingUsers = await db().select().from(users).limit(1);
+      
+      if (existingUsers.length === 0) {
+        console.log('🌱 No users found in database. Auto-seeding with sample data...');
+        
+        const { seedDatabase } = await import('./seed');
+        await seedDatabase();
+        
+        console.log('✅ Database auto-seeding completed successfully!');
+      } else {
+        console.log('ℹ️ Database already contains data. Skipping auto-seeding.');
+      }
+    } catch (error) {
+      console.error('⚠️ Auto-seeding failed, but continuing server startup:', error);
+    }
+  }
+
   const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
