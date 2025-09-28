@@ -1,13 +1,12 @@
 /**
  * Database Connection Configuration
  * 
- * Sets up the database connection using Neon PostgreSQL for the Student Activity
+ * Sets up the database connection using PostgreSQL for the Student Activity
  * Record Management System. This file configures the connection pool and
  * initializes the Drizzle ORM with the complete schema.
  * 
  * Features:
- * - Serverless PostgreSQL connection via Neon
- * - WebSocket support for real-time features
+ * - Standard PostgreSQL connection (compatible with Replit)
  * - Connection pooling for performance
  * - Schema-aware ORM setup
  * 
@@ -15,14 +14,9 @@
  * - DATABASE_URL: PostgreSQL connection string (provided by Replit)
  */
 
-import { Pool, neonConfig } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-serverless';
-import ws from "ws";
+import { Pool } from 'pg';
+import { drizzle } from 'drizzle-orm/node-postgres';
 import * as schema from "@shared/schema";
-
-// Configure WebSocket constructor for Neon serverless connections
-// This enables real-time features and improves connection reliability
-neonConfig.webSocketConstructor = ws;
 
 // Get database URL with fallback handling for different Replit environments
 // This ensures compatibility across development and production environments
@@ -75,7 +69,7 @@ function getDb() {
   if (!db) {
     const connectionString = getDatabaseUrl();
     pool = new Pool({ connectionString });
-    db = drizzle({ client: pool, schema });
+    db = drizzle(pool, { schema });
   }
   return db;
 }
