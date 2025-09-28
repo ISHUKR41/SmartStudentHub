@@ -7,17 +7,25 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Share2, FileDown, Shield, Calendar, Building, Eye } from "lucide-react";
+import { Activity } from "@shared/schema";
+
+// Define types for API responses
+interface StudentStats {
+  totalActivities: number;
+  skillCredits: number;
+  pendingApprovals: number;
+}
 
 export default function DigitalPortfolio() {
   const { toast } = useToast();
   const { user } = useAuth();
 
-  const { data: activities, isLoading: activitiesLoading } = useQuery({
+  const { data: activities, isLoading: activitiesLoading } = useQuery<Activity[]>({
     queryKey: ["/api/students/activities"],
     retry: false,
   });
 
-  const { data: studentStats, isLoading: statsLoading } = useQuery({
+  const { data: studentStats, isLoading: statsLoading } = useQuery<StudentStats>({
     queryKey: ["/api/students/stats"],
     retry: false,
   });
@@ -47,10 +55,10 @@ export default function DigitalPortfolio() {
     return null;
   }
 
-  // Group activities by category
-  const academicActivities = activities?.filter((a: any) => a.category === 'academic' && a.status === 'approved') || [];
-  const coCurricularActivities = activities?.filter((a: any) => a.category === 'co-curricular' && a.status === 'approved') || [];
-  const volunteeringActivities = activities?.filter((a: any) => ['volunteering', 'extra-curricular'].includes(a.category) && a.status === 'approved') || [];
+  // Group activities by category with proper null checks
+  const academicActivities = activities?.filter((a) => a.category === 'academic' && a.status === 'approved') || [];
+  const coCurricularActivities = activities?.filter((a) => a.category === 'co-curricular' && a.status === 'approved') || [];
+  const volunteeringActivities = activities?.filter((a) => ['volunteering', 'extra-curricular'].includes(a.category) && a.status === 'approved') || [];
 
   return (
     <div className="min-h-screen bg-background">
@@ -158,7 +166,7 @@ export default function DigitalPortfolio() {
                       Academic Activities
                     </h3>
                     <div className="space-y-3">
-                      {academicActivities.map((activity: any, index: number) => (
+                      {academicActivities.map((activity, index: number) => (
                         <div 
                           key={activity.id} 
                           className="flex items-center justify-between p-4 bg-muted/20 rounded-lg"
@@ -200,7 +208,7 @@ export default function DigitalPortfolio() {
                       Co-Curricular Activities
                     </h3>
                     <div className="space-y-3">
-                      {coCurricularActivities.map((activity: any, index: number) => (
+                      {coCurricularActivities.map((activity, index: number) => (
                         <div 
                           key={activity.id} 
                           className="flex items-center justify-between p-4 bg-muted/20 rounded-lg"
@@ -242,7 +250,7 @@ export default function DigitalPortfolio() {
                       Volunteering & Community Service
                     </h3>
                     <div className="space-y-3">
-                      {volunteeringActivities.map((activity: any, index: number) => (
+                      {volunteeringActivities.map((activity, index: number) => (
                         <div 
                           key={activity.id} 
                           className="flex items-center justify-between p-4 bg-muted/20 rounded-lg"
@@ -278,7 +286,7 @@ export default function DigitalPortfolio() {
                 )}
 
                 {/* Empty State */}
-                {activities?.length === 0 && (
+                {(activities?.length === 0 || (!activitiesLoading && !activities)) && (
                   <div className="text-center py-8" data-testid="text-no-activities">
                     <p className="text-muted-foreground">No verified activities to display in your portfolio yet.</p>
                     <p className="text-muted-foreground">Start by uploading your achievements and certificates.</p>

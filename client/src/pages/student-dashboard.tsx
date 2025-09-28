@@ -20,6 +20,34 @@ interface StudentStats {
   pendingApprovals: number;
 }
 
+// Helper function to safely convert date strings to ISO strings
+const safeToISOString = (dateValue: string | Date | null | undefined): string => {
+  if (!dateValue) return '';
+  
+  try {
+    // If it's already a Date object, use it directly
+    if (dateValue instanceof Date) {
+      return dateValue.toISOString();
+    }
+    
+    // If it's a string, convert to Date first
+    if (typeof dateValue === 'string') {
+      const date = new Date(dateValue);
+      // Check if the date is valid
+      if (isNaN(date.getTime())) {
+        console.warn('Invalid date string:', dateValue);
+        return '';
+      }
+      return date.toISOString();
+    }
+    
+    return '';
+  } catch (error) {
+    console.error('Error converting date to ISO string:', error, 'Date value:', dateValue);
+    return '';
+  }
+};
+
 export default function StudentDashboard() {
   const { toast } = useToast();
   const { isAuthenticated, isLoading, user } = useAuth();
@@ -250,8 +278,8 @@ export default function StudentDashboard() {
                     activities={activities?.slice(0, 5).map(activity => ({
                       ...activity,
                       description: activity.description || undefined,
-                      activityDate: activity.activityDate ? activity.activityDate.toISOString() : '',
-                      createdAt: activity.createdAt ? activity.createdAt.toISOString() : '',
+                      activityDate: safeToISOString(activity.activityDate),
+                      createdAt: safeToISOString(activity.createdAt),
                       skillCredits: activity.skillCredits || undefined,
                       feedback: activity.feedback || undefined
                     })) || []} 
