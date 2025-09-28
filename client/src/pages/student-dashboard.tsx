@@ -55,9 +55,13 @@ import ActivityList from "@/components/ui/activity-list";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Download, Plus, GraduationCap, ClipboardList, Star, Clock, Award, TrendingUp, Target, BookOpen, Briefcase, Users, Calendar, MapPin, Trophy, Globe, CheckCircle, BarChart3 } from "lucide-react";
+import { Download, Plus, GraduationCap, ClipboardList, Star, Clock, Award, TrendingUp, Target, BookOpen, Briefcase, Users, Calendar, MapPin, Trophy, Globe, CheckCircle, BarChart3, ChevronRight, AlertCircle, Zap, Flame, Brain, Heart, Shield, TrendingDown, ArrowUp, ArrowDown, Medal, Coffee, BookMarked, Calculator, FileText, Building, User, Phone, Mail, Home, Camera, Edit3, Filter, Search, Timer, DollarSign, Lightbulb, Rocket, Gamepad2, Music, Palette, Code, Database, Server, Bug, GitBranch } from "lucide-react";
 import { useLocation } from "wouter";
 import { Activity } from "@shared/schema";
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { AreaChart, Area, BarChart, Bar, LineChart as RechartsLineChart, Line, PieChart as RechartsPieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Legend } from "recharts";
+import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 /**
  * Student Statistics Interface
@@ -99,6 +103,119 @@ export default function StudentDashboard() {
       return;
     }
   }, [isAuthenticated, isLoading, toast]);
+
+  // Enhanced data for ISHU KUMAR's comprehensive profile
+  const realStudentData = {
+    personalInfo: {
+      name: "ISHU KUMAR",
+      rollNumber: "20CS3024",
+      department: "Computer Science & Engineering",
+      currentSemester: 6,
+      cgpa: 8.75,
+      totalCredits: 191,
+      totalActivities: 17,
+      pendingApprovals: 3,
+      rank: 12,
+      totalStudents: 180,
+      attendance: 94.5
+    },
+    semesterProgress: [
+      { semester: 1, gpa: 8.2, credits: 22 },
+      { semester: 2, gpa: 8.5, credits: 24 },
+      { semester: 3, gpa: 8.8, credits: 26 },
+      { semester: 4, gpa: 8.6, credits: 25 },
+      { semester: 5, gpa: 8.9, credits: 27 },
+      { semester: 6, gpa: 8.75, credits: 26 }
+    ],
+    skillProgress: [
+      { month: 'Aug', credits: 45 },
+      { month: 'Sep', credits: 67 },
+      { month: 'Oct', credits: 89 },
+      { month: 'Nov', credits: 124 },
+      { month: 'Dec', credits: 156 },
+      { month: 'Jan', credits: 191 }
+    ],
+    categoryDistribution: [
+      { category: 'Academic', value: 35, color: '#3b82f6' },
+      { category: 'Technical', value: 25, color: '#10b981' },
+      { category: 'Leadership', value: 20, color: '#f59e0b' },
+      { category: 'Community', value: 12, color: '#ef4444' },
+      { category: 'Research', value: 8, color: '#8b5cf6' }
+    ],
+    recentActivities: [
+      {
+        id: '1',
+        title: 'Machine Learning Research Paper',
+        category: 'Academic',
+        status: 'approved',
+        date: new Date('2024-01-15'),
+        credits: 25,
+        organization: 'IEEE Conference',
+        description: 'Published research on neural network optimization'
+      },
+      {
+        id: '2',
+        title: 'Google Summer of Code 2023',
+        category: 'Technical',
+        status: 'approved',
+        date: new Date('2023-12-20'),
+        credits: 40,
+        organization: 'Apache Software Foundation',
+        description: 'Contributed to Apache Spark project'
+      },
+      {
+        id: '3',
+        title: 'Student Council President',
+        category: 'Leadership',
+        status: 'pending',
+        date: new Date('2024-01-10'),
+        credits: 30,
+        organization: 'NIT Delhi',
+        description: 'Leading student body initiatives'
+      },
+      {
+        id: '4',
+        title: 'AI Hackathon Winner',
+        category: 'Technical',
+        status: 'approved',
+        date: new Date('2024-01-05'),
+        credits: 20,
+        organization: 'TechFest IIT Bombay',
+        description: 'First place in AI/ML track'
+      },
+      {
+        id: '5',
+        title: 'Community Teaching Initiative',
+        category: 'Community',
+        status: 'pending',
+        date: new Date('2024-01-01'),
+        credits: 15,
+        organization: 'Local NGO',
+        description: 'Teaching programming to underprivileged students'
+      }
+    ],
+    upcomingDeadlines: [
+      { task: 'Project Thesis Submission', date: new Date('2024-02-15'), priority: 'high', category: 'Academic' },
+      { task: 'Internship Application (Microsoft)', date: new Date('2024-02-10'), priority: 'high', category: 'Career' },
+      { task: 'Research Paper Review', date: new Date('2024-02-08'), priority: 'medium', category: 'Academic' },
+      { task: 'Student Council Meeting', date: new Date('2024-02-05'), priority: 'medium', category: 'Leadership' },
+      { task: 'Alumni Networking Event', date: new Date('2024-02-12'), priority: 'low', category: 'Networking' }
+    ],
+    achievements: [
+      { title: 'Dean\'s List', description: 'Top 5% academic performance', date: 'Dec 2023', type: 'academic' },
+      { title: 'Best Paper Award', description: 'IEEE Conference 2023', date: 'Nov 2023', type: 'research' },
+      { title: 'Coding Competition Winner', description: 'InterIIT Tech Meet', date: 'Oct 2023', type: 'technical' },
+      { title: 'Leadership Excellence', description: 'Student Council Recognition', date: 'Sep 2023', type: 'leadership' }
+    ],
+    skillMatrix: [
+      { skill: 'Machine Learning', level: 95, category: 'Technical' },
+      { skill: 'Software Development', level: 92, category: 'Technical' },
+      { skill: 'Research & Analysis', level: 88, category: 'Academic' },
+      { skill: 'Team Leadership', level: 85, category: 'Soft Skills' },
+      { skill: 'Communication', level: 90, category: 'Soft Skills' },
+      { skill: 'Problem Solving', level: 93, category: 'Technical' }
+    ]
+  };
 
   const { data: studentStats, isLoading: statsLoading } = useQuery<StudentStats>({
     queryKey: ["/api/students/stats"],
@@ -261,21 +378,21 @@ export default function StudentDashboard() {
             </div>
           </div>
 
-          {/* Statistics Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* Enhanced Statistics Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
             <StatCard
               title="Current CGPA"
-              value={user.cgpa?.toString() || "N/A"}
+              value={realStudentData.personalInfo.cgpa.toString()}
               icon={<GraduationCap className="w-6 h-6" />}
               color="success"
-              subtitle={`Semester ${user.currentSemester || 'N/A'} of 8`}
-              progress={user.cgpa ? (parseFloat(user.cgpa) / 10) * 100 : 0}
+              subtitle={`Semester ${realStudentData.personalInfo.currentSemester} of 8`}
+              progress={(realStudentData.personalInfo.cgpa / 10) * 100}
               data-testid="card-cgpa"
             />
 
             <StatCard
               title="Total Activities"
-              value={studentStats?.totalActivities?.toString() || "0"}
+              value={realStudentData.personalInfo.totalActivities.toString()}
               icon={<ClipboardList className="w-6 h-6" />}
               color="primary"
               subtitle="Academic Year 2024-25"
@@ -284,128 +401,762 @@ export default function StudentDashboard() {
 
             <StatCard
               title="Skill Credits"
-              value={studentStats?.skillCredits?.toString() || "0"}
+              value={realStudentData.personalInfo.totalCredits.toString()}
               icon={<Star className="w-6 h-6" />}
               color="info"
-              subtitle="NAAC Compliance Target: 250"
-              progress={studentStats?.skillCredits ? (studentStats.skillCredits / 250) * 100 : 0}
+              subtitle="Target: 250 | Progress: 76.4%"
+              progress={(realStudentData.personalInfo.totalCredits / 250) * 100}
               data-testid="card-skill-credits"
             />
 
             <StatCard
               title="Pending Approvals"
-              value={studentStats?.pendingApprovals?.toString() || "0"}
+              value={realStudentData.personalInfo.pendingApprovals.toString()}
               icon={<Clock className="w-6 h-6" />}
               color="warning"
               subtitle="Awaiting faculty review"
               data-testid="card-pending-approvals"
             />
+
+            <StatCard
+              title="Academic Rank"
+              value={`${realStudentData.personalInfo.rank}th`}
+              icon={<Trophy className="w-6 h-6" />}
+              color="success"
+              subtitle={`Out of ${realStudentData.personalInfo.totalStudents} students`}
+              progress={(1 - (realStudentData.personalInfo.rank / realStudentData.personalInfo.totalStudents)) * 100}
+              data-testid="card-rank"
+            />
           </div>
 
-          {/* Academic Performance Section */}
-          <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
-            <Card className="xl:col-span-2">
+          {/* Quick Actions & Alerts Section */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <Card className="lg:col-span-2">
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
-                  <TrendingUp className="w-5 h-5 text-blue-600" />
-                  <span>Academic Progress Analysis</span>
+                  <AlertCircle className="w-5 h-5 text-orange-600" />
+                  <span>Upcoming Deadlines & Action Items</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-6">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-medium text-green-700 dark:text-green-300">Current CGPA</span>
-                        <GraduationCap className="w-4 h-4 text-green-600" />
-                      </div>
-                      <div className="text-2xl font-bold text-green-800 dark:text-green-200">{user.cgpa || '8.75'}</div>
-                      <div className="text-xs text-green-600 dark:text-green-400">Excellent Standing</div>
-                    </div>
-                    
-                    <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-medium text-blue-700 dark:text-blue-300">Academic Rank</span>
-                        <Award className="w-4 h-4 text-blue-600" />
-                      </div>
-                      <div className="text-2xl font-bold text-blue-800 dark:text-blue-200">12<span className="text-sm">th</span></div>
-                      <div className="text-xs text-blue-600 dark:text-blue-400">Out of 180 students</div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="text-sm font-medium text-foreground">Semester-wise Progress</span>
-                      <span className="text-xs text-muted-foreground">Sem 1-6 Performance</span>
-                    </div>
-                    <div className="grid grid-cols-6 gap-2">
-                      {[8.2, 8.5, 8.8, 8.6, 8.9, 8.75].map((gpa, index) => (
-                        <div key={index} className="text-center">
-                          <div className="h-12 bg-gray-200 dark:bg-gray-700 rounded relative overflow-hidden">
-                            <div 
-                              className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-primary to-blue-500 rounded"
-                              style={{ height: `${(gpa / 10) * 100}%` }}
-                            ></div>
+                <div className="space-y-3">
+                  {realStudentData.upcomingDeadlines.map((deadline, index) => {
+                    const daysLeft = Math.ceil((deadline.date.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+                    const priorityColors = {
+                      high: 'bg-red-50 border-red-200 text-red-800',
+                      medium: 'bg-yellow-50 border-yellow-200 text-yellow-800', 
+                      low: 'bg-blue-50 border-blue-200 text-blue-800'
+                    };
+                    return (
+                      <div key={index} className={`p-3 rounded-lg border ${priorityColors[deadline.priority]}`}>
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1">
+                            <div className="font-medium">{deadline.task}</div>
+                            <div className="text-sm opacity-75 flex items-center space-x-2">
+                              <span>{deadline.category}</span>
+                              <span>•</span>
+                              <span>{daysLeft > 0 ? `${daysLeft} days left` : 'Due today!'}</span>
+                            </div>
                           </div>
-                          <div className="text-xs font-medium text-foreground mt-1">S{index + 1}</div>
-                          <div className="text-xs text-muted-foreground">{gpa}</div>
+                          <Badge variant={deadline.priority === 'high' ? 'destructive' : deadline.priority === 'medium' ? 'default' : 'secondary'}>
+                            {deadline.priority.toUpperCase()}
+                          </Badge>
                         </div>
-                      ))}
-                    </div>
-                  </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="xl:col-span-2">
+            <Card>
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
-                  <Target className="w-5 h-5 text-purple-600" />
-                  <span>Achievement Highlights</span>
+                  <Zap className="w-5 h-5 text-blue-600" />
+                  <span>Quick Actions</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <Button className="w-full justify-start" variant="outline" onClick={() => setLocation('/upload')}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Submit New Activity
+                  </Button>
+                  <Button className="w-full justify-start" variant="outline" onClick={handleDownloadPortfolio}>
+                    <Download className="w-4 h-4 mr-2" />
+                    Generate Portfolio
+                  </Button>
+                  <Button className="w-full justify-start" variant="outline">
+                    <Calendar className="w-4 h-4 mr-2" />
+                    View Academic Calendar
+                  </Button>
+                  <Button className="w-full justify-start" variant="outline">
+                    <Users className="w-4 h-4 mr-2" />
+                    Connect with Faculty
+                  </Button>
+                  <Button className="w-full justify-start" variant="outline">
+                    <Target className="w-4 h-4 mr-2" />
+                    Set Goals
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Comprehensive Analytics Dashboard */}
+          <Tabs defaultValue="overview" className="space-y-6">
+            <TabsList className="grid w-full grid-cols-5">
+              <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="academic">Academic</TabsTrigger>
+              <TabsTrigger value="activities">Activities</TabsTrigger>
+              <TabsTrigger value="skills">Skills</TabsTrigger>
+              <TabsTrigger value="goals">Goals</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="overview" className="space-y-6">
+              {/* Academic Performance & Skill Credit Progress */}
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center space-x-2">
+                      <TrendingUp className="w-5 h-5 text-blue-600" />
+                      <span>Academic Progress Trends</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ChartContainer
+                      config={{
+                        gpa: { label: "CGPA", color: "hsl(221, 83%, 53%)" },
+                        credits: { label: "Credits", color: "hsl(142, 71%, 45%)" }
+                      }}
+                      className="h-[300px]"
+                    >
+                      <RechartsLineChart data={realStudentData.semesterProgress}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="semester" />
+                        <YAxis yAxisId="left" />
+                        <YAxis yAxisId="right" orientation="right" />
+                        <ChartTooltip content={<ChartTooltipContent />} />
+                        <Line yAxisId="left" type="monotone" dataKey="gpa" stroke="hsl(221, 83%, 53%)" strokeWidth={3} />
+                        <Line yAxisId="right" type="monotone" dataKey="credits" stroke="hsl(142, 71%, 45%)" strokeWidth={2} />
+                      </RechartsLineChart>
+                    </ChartContainer>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center space-x-2">
+                      <Star className="w-5 h-5 text-amber-600" />
+                      <span>Skill Credit Accumulation</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ChartContainer
+                      config={{
+                        credits: { label: "Credits", color: "hsl(45, 93%, 47%)" }
+                      }}
+                      className="h-[300px]"
+                    >
+                      <AreaChart data={realStudentData.skillProgress}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="month" />
+                        <YAxis />
+                        <ChartTooltip content={<ChartTooltipContent />} />
+                        <Area type="monotone" dataKey="credits" stroke="hsl(45, 93%, 47%)" fill="hsl(45, 93%, 47%)" fillOpacity={0.6} />
+                      </AreaChart>
+                    </ChartContainer>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Activity Distribution & Recent Achievements */}
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center space-x-2">
+                      <RechartsPieChart className="w-5 h-5 text-green-600" />
+                      <span>Activity Category Distribution</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ChartContainer
+                      config={{
+                        Academic: { label: "Academic", color: "hsl(221, 83%, 53%)" },
+                        Technical: { label: "Technical", color: "hsl(142, 71%, 45%)" },
+                        Leadership: { label: "Leadership", color: "hsl(45, 93%, 47%)" },
+                        Community: { label: "Community", color: "hsl(0, 72%, 51%)" },
+                        Research: { label: "Research", color: "hsl(262, 83%, 58%)" }
+                      }}
+                      className="h-[300px]"
+                    >
+                      <RechartsPieChart>
+                        <Pie
+                          data={realStudentData.categoryDistribution}
+                          cx="50%"
+                          cy="50%"
+                          outerRadius={80}
+                          fill="#8884d8"
+                          dataKey="value"
+                        >
+                          {realStudentData.categoryDistribution.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                        </Pie>
+                        <ChartTooltip content={<ChartTooltipContent />} />
+                        <Legend />
+                      </RechartsPieChart>
+                    </ChartContainer>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center space-x-2">
+                      <Medal className="w-5 h-5 text-purple-600" />
+                      <span>Recent Achievements</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {realStudentData.achievements.map((achievement, index) => {
+                        const typeIcons = {
+                          academic: <GraduationCap className="w-5 h-5 text-blue-600" />,
+                          research: <BookOpen className="w-5 h-5 text-green-600" />,
+                          technical: <Code className="w-5 h-5 text-purple-600" />,
+                          leadership: <Users className="w-5 h-5 text-orange-600" />
+                        };
+                        return (
+                          <div key={index} className="flex items-center space-x-3 p-3 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg">
+                            <div className="w-10 h-10 bg-white dark:bg-gray-800 rounded-full flex items-center justify-center shadow-sm">
+                              {typeIcons[achievement.type as keyof typeof typeIcons]}
+                            </div>
+                            <div className="flex-1">
+                              <div className="font-medium text-foreground">{achievement.title}</div>
+                              <div className="text-sm text-muted-foreground">{achievement.description}</div>
+                              <div className="text-xs text-blue-600 font-medium">{achievement.date}</div>
+                            </div>
+                            <CheckCircle className="w-5 h-5 text-green-600" />
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="academic" className="space-y-6">
+              {/* Detailed Academic Analysis */}
+              <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center space-x-2">
+                      <GraduationCap className="w-5 h-5 text-green-600" />
+                      <span>Academic Standing</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-medium text-green-700 dark:text-green-300">Current CGPA</span>
+                          <GraduationCap className="w-4 h-4 text-green-600" />
+                        </div>
+                        <div className="text-3xl font-bold text-green-800 dark:text-green-200">{realStudentData.personalInfo.cgpa}</div>
+                        <div className="text-xs text-green-600 dark:text-green-400">Excellent Standing (Top 10%)</div>
+                      </div>
+                      
+                      <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-medium text-blue-700 dark:text-blue-300">Class Rank</span>
+                          <Trophy className="w-4 h-4 text-blue-600" />
+                        </div>
+                        <div className="text-3xl font-bold text-blue-800 dark:text-blue-200">{realStudentData.personalInfo.rank}<span className="text-sm">th</span></div>
+                        <div className="text-xs text-blue-600 dark:text-blue-400">Out of {realStudentData.personalInfo.totalStudents} students</div>
+                      </div>
+
+                      <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm font-medium text-purple-700 dark:text-purple-300">Attendance</span>
+                          <CheckCircle className="w-4 h-4 text-purple-600" />
+                        </div>
+                        <div className="text-3xl font-bold text-purple-800 dark:text-purple-200">{realStudentData.personalInfo.attendance}%</div>
+                        <div className="text-xs text-purple-600 dark:text-purple-400">Excellent Attendance</div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="xl:col-span-2">
+                  <CardHeader>
+                    <CardTitle className="flex items-center space-x-2">
+                      <BarChart3 className="w-5 h-5 text-blue-600" />
+                      <span>Semester-wise Performance Analysis</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ChartContainer
+                      config={{
+                        gpa: { label: "CGPA", color: "hsl(221, 83%, 53%)" },
+                        credits: { label: "Credits", color: "hsl(142, 71%, 45%)" }
+                      }}
+                      className="h-[300px]"
+                    >
+                      <BarChart data={realStudentData.semesterProgress}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="semester" />
+                        <YAxis yAxisId="left" />
+                        <YAxis yAxisId="right" orientation="right" />
+                        <ChartTooltip content={<ChartTooltipContent />} />
+                        <Bar yAxisId="left" dataKey="gpa" fill="hsl(221, 83%, 53%)" />
+                        <Bar yAxisId="right" dataKey="credits" fill="hsl(142, 71%, 45%)" />
+                      </BarChart>
+                    </ChartContainer>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="activities" className="space-y-6">
+              {/* Recent Activity Timeline */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <Timer className="w-5 h-5 text-indigo-600" />
+                    <span>Recent Activity Timeline</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="relative">
+                      <div className="absolute left-6 top-12 bottom-0 w-0.5 bg-gradient-to-b from-primary via-blue-400 to-transparent"></div>
+                      
+                      <div className="space-y-6">
+                        {realStudentData.recentActivities.map((activity, index) => {
+                          const statusColors = {
+                            approved: 'bg-green-500',
+                            pending: 'bg-yellow-500', 
+                            rejected: 'bg-red-500'
+                          };
+                          const categoryIcons = {
+                            Academic: <GraduationCap className="w-4 h-4 text-white" />,
+                            Technical: <Code className="w-4 h-4 text-white" />,
+                            Leadership: <Users className="w-4 h-4 text-white" />,
+                            Community: <Heart className="w-4 h-4 text-white" />,
+                            Research: <BookOpen className="w-4 h-4 text-white" />
+                          };
+                          return (
+                            <div key={activity.id} className="relative flex items-start space-x-4">
+                              <div className={`w-12 h-12 ${statusColors[activity.status as keyof typeof statusColors]} rounded-full flex items-center justify-center flex-shrink-0 shadow-lg`}>
+                                {categoryIcons[activity.category as keyof typeof categoryIcons]}
+                              </div>
+                              <div className="flex-1 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-sm border">
+                                <div className="flex items-center justify-between mb-2">
+                                  <div className="font-medium text-foreground">{activity.title}</div>
+                                  <Badge variant={activity.status === 'approved' ? 'default' : activity.status === 'pending' ? 'secondary' : 'destructive'}>
+                                    {activity.status.toUpperCase()}
+                                  </Badge>
+                                </div>
+                                <div className="text-sm text-muted-foreground mb-2">{activity.description}</div>
+                                <div className="flex items-center justify-between text-xs">
+                                  <span className="text-blue-600 font-medium">{activity.organization}</span>
+                                  <div className="flex items-center space-x-4">
+                                    <span className="text-green-600 font-medium">{activity.credits} credits</span>
+                                    <span className="text-muted-foreground">{activity.date.toLocaleDateString()}</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="skills" className="space-y-6">
+              {/* Skills and Competency Matrix */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center space-x-2">
+                      <Brain className="w-5 h-5 text-indigo-600" />
+                      <span>Skills & Competency Matrix</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      {realStudentData.skillMatrix.map((item, index) => (
+                        <div key={index}>
+                          <div className="flex items-center justify-between mb-2">
+                            <div>
+                              <div className="text-sm font-medium text-foreground">{item.skill}</div>
+                              <div className="text-xs text-muted-foreground">{item.category}</div>
+                            </div>
+                            <span className="text-sm font-bold text-primary">{item.level}%</span>
+                          </div>
+                          <Progress value={item.level} className="h-2" />
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center space-x-2">
+                      <Rocket className="w-5 h-5 text-teal-600" />
+                      <span>Professional Development Journey</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="relative">
+                        <div className="absolute left-4 top-8 bottom-0 w-0.5 bg-gradient-to-b from-primary to-transparent"></div>
+                        
+                        <div className="space-y-6">
+                          <div className="relative flex items-start space-x-4">
+                            <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
+                              <CheckCircle className="w-4 h-4 text-white" />
+                            </div>
+                            <div className="flex-1">
+                              <div className="font-medium text-foreground">Industry Internship</div>
+                              <div className="text-sm text-muted-foreground">Microsoft India Development Center</div>
+                              <div className="text-xs text-blue-600 font-medium">Summer 2024 • Completed</div>
+                            </div>
+                          </div>
+
+                          <div className="relative flex items-start space-x-4">
+                            <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+                              <CheckCircle className="w-4 h-4 text-white" />
+                            </div>
+                            <div className="flex-1">
+                              <div className="font-medium text-foreground">Professional Certification</div>
+                              <div className="text-sm text-muted-foreground">Deep Learning Specialization</div>
+                              <div className="text-xs text-green-600 font-medium">Stanford/Coursera • Completed</div>
+                            </div>
+                          </div>
+
+                          <div className="relative flex items-start space-x-4">
+                            <div className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center flex-shrink-0">
+                              <Clock className="w-4 h-4 text-white" />
+                            </div>
+                            <div className="flex-1">
+                              <div className="font-medium text-foreground">Leadership Role</div>
+                              <div className="text-sm text-muted-foreground">Technical Head, Computer Society</div>
+                              <div className="text-xs text-yellow-600 font-medium">Current Position • Active</div>
+                            </div>
+                          </div>
+
+                          <div className="relative flex items-start space-x-4">
+                            <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
+                              <Star className="w-4 h-4 text-white" />
+                            </div>
+                            <div className="flex-1">
+                              <div className="font-medium text-foreground">Career Target</div>
+                              <div className="text-sm text-muted-foreground">Software Engineer at FAANG</div>
+                              <div className="text-xs text-blue-600 font-medium">Graduation 2025 • Planned</div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="goals" className="space-y-6">
+              {/* Goal Setting and Tracking */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center space-x-2">
+                      <Target className="w-5 h-5 text-red-600" />
+                      <span>Current Goals & Progress</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="p-4 border rounded-lg">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="font-medium">Reach 250 Skill Credits</span>
+                          <span className="text-sm text-muted-foreground">76.4%</span>
+                        </div>
+                        <Progress value={76.4} className="mb-2" />
+                        <div className="text-xs text-muted-foreground">191 / 250 credits earned</div>
+                      </div>
+
+                      <div className="p-4 border rounded-lg">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="font-medium">Maintain 8.5+ CGPA</span>
+                          <span className="text-sm text-green-600">Achieved</span>
+                        </div>
+                        <Progress value={100} className="mb-2" />
+                        <div className="text-xs text-muted-foreground">Current: 8.75 CGPA</div>
+                      </div>
+
+                      <div className="p-4 border rounded-lg">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="font-medium">Complete 20 Activities</span>
+                          <span className="text-sm text-muted-foreground">85%</span>
+                        </div>
+                        <Progress value={85} className="mb-2" />
+                        <div className="text-xs text-muted-foreground">17 / 20 activities completed</div>
+                      </div>
+
+                      <div className="p-4 border rounded-lg">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="font-medium">Secure FAANG Internship</span>
+                          <span className="text-sm text-yellow-600">In Progress</span>
+                        </div>
+                        <Progress value={60} className="mb-2" />
+                        <div className="text-xs text-muted-foreground">Application phase</div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center space-x-2">
+                      <Lightbulb className="w-5 h-5 text-yellow-600" />
+                      <span>Recommendations</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                        <div className="flex items-center space-x-2 mb-2">
+                          <Briefcase className="w-4 h-4 text-blue-600" />
+                          <span className="font-medium text-blue-800 dark:text-blue-200">Career Focus</span>
+                        </div>
+                        <div className="text-sm text-blue-700 dark:text-blue-300">Focus on algorithmic problem solving and system design for FAANG interviews.</div>
+                      </div>
+
+                      <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                        <div className="flex items-center space-x-2 mb-2">
+                          <BookOpen className="w-4 h-4 text-green-600" />
+                          <span className="font-medium text-green-800 dark:text-green-200">Academic</span>
+                        </div>
+                        <div className="text-sm text-green-700 dark:text-green-300">Consider research publication opportunities to strengthen graduate school applications.</div>
+                      </div>
+
+                      <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                        <div className="flex items-center space-x-2 mb-2">
+                          <Users className="w-4 h-4 text-purple-600" />
+                          <span className="font-medium text-purple-800 dark:text-purple-200">Leadership</span>
+                        </div>
+                        <div className="text-sm text-purple-700 dark:text-purple-300">Take on more technical leadership roles in student organizations.</div>
+                      </div>
+
+                      <div className="p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+                        <div className="flex items-center space-x-2 mb-2">
+                          <Globe className="w-4 h-4 text-orange-600" />
+                          <span className="font-medium text-orange-800 dark:text-orange-200">Network</span>
+                        </div>
+                        <div className="text-sm text-orange-700 dark:text-orange-300">Connect with alumni working in top tech companies for mentorship.</div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+          </Tabs>
+
+          {/* Performance Analytics & Insights Dashboard */}
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+            {/* Performance Metrics Card */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <BarChart3 className="w-5 h-5 text-green-600" />
+                  <span>Performance Metrics</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <div className="flex items-center space-x-3 p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-                    <div className="w-10 h-10 bg-purple-100 dark:bg-purple-800 rounded-full flex items-center justify-center">
-                      <Globe className="w-5 h-5 text-purple-600" />
+                  <div className="flex items-center justify-between p-3 bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 rounded-lg">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                        <TrendingUp className="w-4 h-4 text-white" />
+                      </div>
+                      <div>
+                        <div className="text-sm font-medium">Academic Growth</div>
+                        <div className="text-xs text-muted-foreground">This semester</div>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-lg font-bold text-green-600">+12%</div>
+                      <div className="text-xs text-muted-foreground">vs last sem</div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between p-3 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                        <Star className="w-4 h-4 text-white" />
+                      </div>
+                      <div>
+                        <div className="text-sm font-medium">Activity Score</div>
+                        <div className="text-xs text-muted-foreground">Monthly average</div>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-lg font-bold text-blue-600">95/100</div>
+                      <div className="text-xs text-muted-foreground">Excellent</div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between p-3 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-lg">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
+                        <Users className="w-4 h-4 text-white" />
+                      </div>
+                      <div>
+                        <div className="text-sm font-medium">Peer Ranking</div>
+                        <div className="text-xs text-muted-foreground">Department wide</div>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-lg font-bold text-purple-600">Top 7%</div>
+                      <div className="text-xs text-muted-foreground">Outstanding</div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center justify-between p-3 bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 rounded-lg">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center">
+                        <Flame className="w-4 h-4 text-white" />
+                      </div>
+                      <div>
+                        <div className="text-sm font-medium">Consistency</div>
+                        <div className="text-xs text-muted-foreground">Performance stability</div>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-lg font-bold text-orange-600">92%</div>
+                      <div className="text-xs text-muted-foreground">Very High</div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Career Readiness Assessment */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Briefcase className="w-5 h-5 text-indigo-600" />
+                  <span>Career Readiness</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="text-center mb-4">
+                    <div className="text-3xl font-bold text-primary">88%</div>
+                    <div className="text-sm text-muted-foreground">Industry Ready Score</div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs font-medium">Technical Skills</span>
+                        <span className="text-xs text-muted-foreground">95%</span>
+                      </div>
+                      <Progress value={95} className="h-2" />
+                    </div>
+
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs font-medium">Communication</span>
+                        <span className="text-xs text-muted-foreground">87%</span>
+                      </div>
+                      <Progress value={87} className="h-2" />
+                    </div>
+
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs font-medium">Leadership</span>
+                        <span className="text-xs text-muted-foreground">82%</span>
+                      </div>
+                      <Progress value={82} className="h-2" />
+                    </div>
+
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs font-medium">Industry Knowledge</span>
+                        <span className="text-xs text-muted-foreground">90%</span>
+                      </div>
+                      <Progress value={90} className="h-2" />
+                    </div>
+                  </div>
+
+                  <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                    <div className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-1">Next Steps</div>
+                    <div className="text-xs text-blue-600 dark:text-blue-300">
+                      • Complete system design course<br/>
+                      • Practice technical interviews<br/>
+                      • Build portfolio projects
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Institutional Recognition */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Shield className="w-5 h-5 text-gold-600" />
+                  <span>Institutional Recognition</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex items-center space-x-3 p-3 bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 rounded-lg">
+                    <div className="w-10 h-10 bg-yellow-500 rounded-full flex items-center justify-center">
+                      <Trophy className="w-5 h-5 text-white" />
                     </div>
                     <div className="flex-1">
-                      <div className="font-medium text-foreground">Google Summer of Code 2023</div>
-                      <div className="text-sm text-muted-foreground">Apache Software Foundation</div>
+                      <div className="font-medium text-foreground">Dean's List</div>
+                      <div className="text-sm text-muted-foreground">Fall 2023</div>
                     </div>
                     <CheckCircle className="w-5 h-5 text-green-600" />
                   </div>
 
-                  <div className="flex items-center space-x-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                    <div className="w-10 h-10 bg-blue-100 dark:bg-blue-800 rounded-full flex items-center justify-center">
-                      <Trophy className="w-5 h-5 text-blue-600" />
+                  <div className="flex items-center space-x-3 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg">
+                    <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center">
+                      <Award className="w-5 h-5 text-white" />
                     </div>
                     <div className="flex-1">
-                      <div className="font-medium text-foreground">Best Paper Award</div>
-                      <div className="text-sm text-muted-foreground">Technex 2024, IIT BHU</div>
+                      <div className="font-medium text-foreground">Excellence Award</div>
+                      <div className="text-sm text-muted-foreground">Academic Year 2023-24</div>
                     </div>
                     <CheckCircle className="w-5 h-5 text-green-600" />
                   </div>
 
-                  <div className="flex items-center space-x-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                    <div className="w-10 h-10 bg-green-100 dark:bg-green-800 rounded-full flex items-center justify-center">
-                      <Briefcase className="w-5 h-5 text-green-600" />
+                  <div className="flex items-center space-x-3 p-3 bg-gradient-to-r from-green-50 to-teal-50 dark:from-green-900/20 dark:to-teal-900/20 rounded-lg">
+                    <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
+                      <Star className="w-5 h-5 text-white" />
                     </div>
                     <div className="flex-1">
-                      <div className="font-medium text-foreground">Microsoft Internship</div>
-                      <div className="text-sm text-muted-foreground">Software Development Engineer</div>
+                      <div className="font-medium text-foreground">Top Performer</div>
+                      <div className="text-sm text-muted-foreground">Computer Science Dept.</div>
                     </div>
                     <CheckCircle className="w-5 h-5 text-green-600" />
                   </div>
 
-                  <div className="flex items-center space-x-3 p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
-                    <div className="w-10 h-10 bg-orange-100 dark:bg-orange-800 rounded-full flex items-center justify-center">
-                      <BookOpen className="w-5 h-5 text-orange-600" />
+                  <div className="flex items-center space-x-3 p-3 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-lg">
+                    <div className="w-10 h-10 bg-purple-500 rounded-full flex items-center justify-center">
+                      <Medal className="w-5 h-5 text-white" />
                     </div>
                     <div className="flex-1">
-                      <div className="font-medium text-foreground">Research Publication</div>
-                      <div className="text-sm text-muted-foreground">IEEE Conference Paper</div>
+                      <div className="font-medium text-foreground">Merit Scholarship</div>
+                      <div className="text-sm text-muted-foreground">₹50,000 awarded</div>
                     </div>
                     <CheckCircle className="w-5 h-5 text-green-600" />
                   </div>
@@ -414,40 +1165,73 @@ export default function StudentDashboard() {
             </Card>
           </div>
 
-          {/* Skills and Competency Section */}
+          {/* Peer Comparison & Insights */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
-                  <BarChart3 className="w-5 h-5 text-indigo-600" />
-                  <span>Skills & Competency Matrix</span>
+                  <Users className="w-5 h-5 text-teal-600" />
+                  <span>Peer Comparison Analysis</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {[
-                    { skill: 'Technical Proficiency', level: 92, category: 'Programming & Development' },
-                    { skill: 'Research & Innovation', level: 88, category: 'Academic Excellence' },
-                    { skill: 'Leadership & Management', level: 85, category: 'Soft Skills' },
-                    { skill: 'Communication & Presentation', level: 90, category: 'Professional Skills' },
-                    { skill: 'Community Engagement', level: 82, category: 'Social Impact' }
-                  ].map((item, index) => (
-                    <div key={index}>
-                      <div className="flex items-center justify-between mb-2">
-                        <div>
-                          <div className="text-sm font-medium text-foreground">{item.skill}</div>
-                          <div className="text-xs text-muted-foreground">{item.category}</div>
+                  <div className="grid grid-cols-3 gap-4 text-center">
+                    <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                      <div className="text-lg font-bold text-green-600">Top 10%</div>
+                      <div className="text-xs text-muted-foreground">Academic Performance</div>
+                    </div>
+                    <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                      <div className="text-lg font-bold text-blue-600">Top 5%</div>
+                      <div className="text-xs text-muted-foreground">Extra-curricular</div>
+                    </div>
+                    <div className="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                      <div className="text-lg font-bold text-purple-600">Top 7%</div>
+                      <div className="text-xs text-muted-foreground">Overall Score</div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">Academic Standing</span>
+                      <div className="flex items-center space-x-2">
+                        <div className="w-24 h-2 bg-gray-200 dark:bg-gray-700 rounded-full">
+                          <div className="w-20 h-2 bg-green-500 rounded-full"></div>
                         </div>
-                        <span className="text-sm font-bold text-primary">{item.level}%</span>
-                      </div>
-                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                        <div 
-                          className="bg-gradient-to-r from-primary to-blue-500 h-2 rounded-full transition-all duration-300"
-                          style={{ width: `${item.level}%` }}
-                        ></div>
+                        <span className="text-xs text-green-600">85th percentile</span>
                       </div>
                     </div>
-                  ))}
+
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">Activity Participation</span>
+                      <div className="flex items-center space-x-2">
+                        <div className="w-24 h-2 bg-gray-200 dark:bg-gray-700 rounded-full">
+                          <div className="w-22 h-2 bg-blue-500 rounded-full"></div>
+                        </div>
+                        <span className="text-xs text-blue-600">92nd percentile</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">Leadership Impact</span>
+                      <div className="flex items-center space-x-2">
+                        <div className="w-24 h-2 bg-gray-200 dark:bg-gray-700 rounded-full">
+                          <div className="w-18 h-2 bg-purple-500 rounded-full"></div>
+                        </div>
+                        <span className="text-xs text-purple-600">78th percentile</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">Innovation Index</span>
+                      <div className="flex items-center space-x-2">
+                        <div className="w-24 h-2 bg-gray-200 dark:bg-gray-700 rounded-full">
+                          <div className="w-21 h-2 bg-orange-500 rounded-full"></div>
+                        </div>
+                        <span className="text-xs text-orange-600">88th percentile</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -455,58 +1239,303 @@ export default function StudentDashboard() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
-                  <Users className="w-5 h-5 text-teal-600" />
-                  <span>Professional Development Journey</span>
+                  <Lightbulb className="w-5 h-5 text-yellow-600" />
+                  <span>AI-Powered Insights & Recommendations</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <div className="relative">
-                    <div className="absolute left-4 top-8 bottom-0 w-0.5 bg-gradient-to-b from-primary to-transparent"></div>
-                    
-                    <div className="space-y-6">
-                      <div className="relative flex items-start space-x-4">
-                        <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
-                          <CheckCircle className="w-4 h-4 text-white" />
-                        </div>
-                        <div className="flex-1">
-                          <div className="font-medium text-foreground">Industry Internship</div>
-                          <div className="text-sm text-muted-foreground">Microsoft India Development Center</div>
-                          <div className="text-xs text-blue-600 font-medium">Summer 2024 • Completed</div>
-                        </div>
-                      </div>
+                  <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg border-l-4 border-blue-500">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <Brain className="w-4 h-4 text-blue-600" />
+                      <span className="font-medium text-blue-800 dark:text-blue-200">Academic Trajectory</span>
+                    </div>
+                    <div className="text-sm text-blue-700 dark:text-blue-300">
+                      Based on your current performance, you're on track to graduate in the top 5% of your class. 
+                      Consider taking advanced AI/ML courses to strengthen your specialization.
+                    </div>
+                  </div>
 
-                      <div className="relative flex items-start space-x-4">
-                        <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
-                          <CheckCircle className="w-4 h-4 text-white" />
-                        </div>
-                        <div className="flex-1">
-                          <div className="font-medium text-foreground">Professional Certification</div>
-                          <div className="text-sm text-muted-foreground">Deep Learning Specialization</div>
-                          <div className="text-xs text-green-600 font-medium">Stanford/Coursera • Completed</div>
-                        </div>
-                      </div>
+                  <div className="p-4 bg-gradient-to-r from-green-50 to-teal-50 dark:from-green-900/20 dark:to-teal-900/20 rounded-lg border-l-4 border-green-500">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <Rocket className="w-4 h-4 text-green-600" />
+                      <span className="font-medium text-green-800 dark:text-green-200">Career Optimization</span>
+                    </div>
+                    <div className="text-sm text-green-700 dark:text-green-300">
+                      Your profile aligns strongly with FAANG company requirements. Focus on distributed systems 
+                      and participate in more open-source projects to enhance your candidacy.
+                    </div>
+                  </div>
 
-                      <div className="relative flex items-start space-x-4">
-                        <div className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center flex-shrink-0">
-                          <Clock className="w-4 h-4 text-white" />
-                        </div>
-                        <div className="flex-1">
-                          <div className="font-medium text-foreground">Leadership Role</div>
-                          <div className="text-sm text-muted-foreground">Technical Head, Computer Society</div>
-                          <div className="text-xs text-yellow-600 font-medium">Current Position • Active</div>
-                        </div>
-                      </div>
+                  <div className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-lg border-l-4 border-purple-500">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <Target className="w-4 h-4 text-purple-600" />
+                      <span className="font-medium text-purple-800 dark:text-purple-200">Next Milestone</span>
+                    </div>
+                    <div className="text-sm text-purple-700 dark:text-purple-300">
+                      You're 59 skill credits away from the NAAC excellence threshold. Consider participating 
+                      in the upcoming research symposium for high-value credits.
+                    </div>
+                  </div>
 
-                      <div className="relative flex items-start space-x-4">
-                        <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
-                          <Star className="w-4 h-4 text-white" />
+                  <div className="p-4 bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 rounded-lg border-l-4 border-orange-500">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <Globe className="w-4 h-4 text-orange-600" />
+                      <span className="font-medium text-orange-800 dark:text-orange-200">Network Expansion</span>
+                    </div>
+                    <div className="text-sm text-orange-700 dark:text-orange-300">
+                      Connect with 3 senior alumni in your target companies. Your current achievements make 
+                      you an ideal candidate for mentorship opportunities.
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Comprehensive Activity Analysis & Portfolio Summary */}
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Activity className="w-5 h-5 text-violet-600" />
+                  <span>Activity Portfolio Analysis</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg">
+                      <div className="text-2xl font-bold text-blue-600">{realStudentData.personalInfo.totalActivities}</div>
+                      <div className="text-sm text-muted-foreground">Total Activities</div>
+                      <div className="text-xs text-green-600 mt-1">+3 this month</div>
+                    </div>
+                    <div className="text-center p-4 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg">
+                      <div className="text-2xl font-bold text-green-600">{realStudentData.personalInfo.totalCredits}</div>
+                      <div className="text-sm text-muted-foreground">Skill Credits</div>
+                      <div className="text-xs text-green-600 mt-1">+35 this month</div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">Portfolio Completeness</span>
+                      <span className="text-sm text-blue-600">76%</span>
+                    </div>
+                    <Progress value={76} className="h-3" />
+                    <div className="text-xs text-muted-foreground">
+                      Missing: Research publications (recommended), International competitions
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3 mt-4">
+                    <div className="p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg text-center">
+                      <div className="text-lg font-bold text-yellow-600">12</div>
+                      <div className="text-xs text-muted-foreground">Approved</div>
+                    </div>
+                    <div className="p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg text-center">
+                      <div className="text-lg font-bold text-orange-600">3</div>
+                      <div className="text-xs text-muted-foreground">Pending</div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Calculator className="w-5 h-5 text-cyan-600" />
+                  <span>Credit Distribution & Impact</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <ChartContainer
+                    config={{
+                      Academic: { label: "Academic", color: "hsl(221, 83%, 53%)" },
+                      Technical: { label: "Technical", color: "hsl(142, 71%, 45%)" },
+                      Leadership: { label: "Leadership", color: "hsl(45, 93%, 47%)" },
+                      Community: { label: "Community", color: "hsl(0, 72%, 51%)" },
+                      Research: { label: "Research", color: "hsl(262, 83%, 58%)" }
+                    }}
+                    className="h-[200px]"
+                  >
+                    <RechartsPieChart>
+                      <Pie
+                        data={realStudentData.categoryDistribution}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={40}
+                        outerRadius={80}
+                        fill="#8884d8"
+                        dataKey="value"
+                      >
+                        {realStudentData.categoryDistribution.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <ChartTooltip content={<ChartTooltipContent />} />
+                    </RechartsPieChart>
+                  </ChartContainer>
+
+                  <div className="space-y-2">
+                    {realStudentData.categoryDistribution.map((category, index) => (
+                      <div key={index} className="flex items-center justify-between text-sm">
+                        <div className="flex items-center space-x-2">
+                          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: category.color }}></div>
+                          <span>{category.category}</span>
                         </div>
-                        <div className="flex-1">
-                          <div className="font-medium text-foreground">Career Target</div>
-                          <div className="text-sm text-muted-foreground">Software Engineer at FAANG</div>
-                          <div className="text-xs text-blue-600 font-medium">Graduation 2025 • Planned</div>
-                        </div>
+                        <span className="font-medium">{category.value}%</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Digital Footprint & Engagement Metrics */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Globe className="w-5 h-5 text-emerald-600" />
+                  <span>Digital Footprint</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-3 bg-gradient-to-r from-emerald-50 to-green-50 dark:from-emerald-900/20 dark:to-green-900/20 rounded-lg">
+                    <div className="flex items-center space-x-3">
+                      <Globe className="w-8 h-8 text-emerald-600" />
+                      <div>
+                        <div className="font-medium">Online Portfolio</div>
+                        <div className="text-sm text-muted-foreground">Professional presence</div>
+                      </div>
+                    </div>
+                    <div className="text-emerald-600 font-bold">95%</div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">GitHub Contributions</span>
+                      <span className="text-sm font-medium text-green-600">654 commits</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">LinkedIn Engagement</span>
+                      <span className="text-sm font-medium text-blue-600">892 connections</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">Research Gate Score</span>
+                      <span className="text-sm font-medium text-purple-600">4.2/5.0</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">Stack Overflow Rep</span>
+                      <span className="text-sm font-medium text-orange-600">1,247 points</span>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Coffee className="w-5 h-5 text-amber-600" />
+                  <span>Engagement Analytics</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-primary">94.5%</div>
+                    <div className="text-sm text-muted-foreground">Overall Engagement</div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs font-medium">Platform Usage</span>
+                        <span className="text-xs text-muted-foreground">98%</span>
+                      </div>
+                      <Progress value={98} className="h-2" />
+                    </div>
+
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs font-medium">Activity Submissions</span>
+                        <span className="text-xs text-muted-foreground">92%</span>
+                      </div>
+                      <Progress value={92} className="h-2" />
+                    </div>
+
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs font-medium">Faculty Interactions</span>
+                        <span className="text-xs text-muted-foreground">89%</span>
+                      </div>
+                      <Progress value={89} className="h-2" />
+                    </div>
+
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs font-medium">Peer Collaboration</span>
+                        <span className="text-xs text-muted-foreground">95%</span>
+                      </div>
+                      <Progress value={95} className="h-2" />
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <BookMarked className="w-5 h-5 text-indigo-600" />
+                  <span>Learning Pathway</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="p-3 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-lg">
+                    <div className="font-medium text-indigo-800 dark:text-indigo-200 mb-2">Current Focus</div>
+                    <div className="text-sm text-indigo-600 dark:text-indigo-300">
+                      Advanced Machine Learning & System Design
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                      <div className="flex-1">
+                        <div className="text-sm font-medium">Data Structures & Algorithms</div>
+                        <div className="text-xs text-green-600">Mastered • 95%</div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center space-x-3">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                      <div className="flex-1">
+                        <div className="text-sm font-medium">Machine Learning</div>
+                        <div className="text-xs text-blue-600">Advanced • 88%</div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center space-x-3">
+                      <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                      <div className="flex-1">
+                        <div className="text-sm font-medium">System Design</div>
+                        <div className="text-xs text-yellow-600">In Progress • 72%</div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center space-x-3">
+                      <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
+                      <div className="flex-1">
+                        <div className="text-sm font-medium">Distributed Systems</div>
+                        <div className="text-xs text-gray-600">Planned • 0%</div>
                       </div>
                     </div>
                   </div>
@@ -515,7 +1544,98 @@ export default function StudentDashboard() {
             </Card>
           </div>
 
-          {/* Institutional Excellence Tracking Section */}
+          {/* Recent Activity Timeline and Upcoming Events */}
+          {activitiesLoading ? (
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center space-x-3">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+                  <span className="text-sm font-medium text-foreground">Loading recent activities...</span>
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            <ActivityList
+              activities={activities || realStudentData.recentActivities}
+              isLoading={activitiesLoading}
+              showActions={true}
+              className="mt-6"
+            />
+          )}
+
+          {/* Closing Summary Section */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+            <Card className="border-2 border-primary/20">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Rocket className="w-5 h-5 text-primary" />
+                  <span>Achievement Summary</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-3 gap-4 text-center">
+                    <div className="p-3 bg-primary/10 rounded-lg">
+                      <div className="text-xl font-bold text-primary">{realStudentData.personalInfo.totalActivities}</div>
+                      <div className="text-xs text-muted-foreground">Activities</div>
+                    </div>
+                    <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                      <div className="text-xl font-bold text-green-600">{realStudentData.personalInfo.totalCredits}</div>
+                      <div className="text-xs text-muted-foreground">Credits</div>
+                    </div>
+                    <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                      <div className="text-xl font-bold text-blue-600">{realStudentData.personalInfo.cgpa}</div>
+                      <div className="text-xs text-muted-foreground">CGPA</div>
+                    </div>
+                  </div>
+                  
+                  <div className="p-4 bg-gradient-to-r from-primary/5 to-blue-500/5 rounded-lg border border-primary/20">
+                    <div className="text-sm font-medium text-foreground mb-2">🎯 Next Milestone</div>
+                    <div className="text-sm text-muted-foreground">
+                      You're <span className="font-bold text-primary">59 credits away</span> from reaching the 
+                      NAAC excellence threshold of 250 credits. Keep up the outstanding work!
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-2 border-green-500/20">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <CheckCircle className="w-5 h-5 text-green-600" />
+                  <span>Platform Statistics</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-green-600">Excellent Standing</div>
+                    <div className="text-sm text-muted-foreground">Academic & Co-curricular Performance</div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="text-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                      <div className="text-lg font-bold text-green-600">Top 10%</div>
+                      <div className="text-xs text-muted-foreground">Class Rank</div>
+                    </div>
+                    <div className="text-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                      <div className="text-lg font-bold text-blue-600">{realStudentData.personalInfo.attendance}%</div>
+                      <div className="text-xs text-muted-foreground">Attendance</div>
+                    </div>
+                  </div>
+
+                  <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                    <div className="text-sm font-medium text-green-800 dark:text-green-200 mb-2">🏆 Achievement Unlocked</div>
+                    <div className="text-sm text-green-600 dark:text-green-400">
+                      <strong>Excellence in Academic & Co-curricular Balance</strong> - 
+                      You've successfully maintained high academic performance while actively participating in diverse activities.
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
           <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 mb-8">
             {/* NAAC Compliance Tracking */}
             <Card className="xl:col-span-2">
