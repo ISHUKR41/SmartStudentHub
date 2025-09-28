@@ -41,7 +41,7 @@
  * - Optimized typography for readability across devices
  */
 
-import { GraduationCap, Shield, Users, BarChart3, FileCheck, Award, TrendingUp, Database, CheckCircle, Building, AlertTriangle, Clock, XCircle, Search, BookOpen, Briefcase, Trophy, Globe, Star, Zap } from "lucide-react";
+import { GraduationCap, Shield, Users, BarChart3, FileCheck, Award, TrendingUp, Database, CheckCircle, Building, AlertTriangle, Clock, XCircle, Search, BookOpen, Briefcase, Trophy, Globe, Star, Zap, Settings, Lock, Cloud, Cpu, MonitorSpeaker, UserCheck, Workflow, Target, DollarSign, Gauge, CheckSquare, HeadphonesIcon, Calendar, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -458,6 +458,492 @@ export default function Landing() {
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials and Case Studies Section */}
+      <section className="py-16 px-6 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-foreground mb-4">Institutional Success Stories</h2>
+            <p className="text-lg text-muted-foreground max-w-4xl mx-auto">
+              Leading Higher Education Institutions across India have transformed their student achievement documentation and compliance processes with our comprehensive platform.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+            <Card className="p-6 text-center hover:shadow-lg transition-shadow">
+              <CardContent className="pt-0">
+                <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Building className="w-8 h-8 text-blue-600" />
+                </div>
+                <h3 className="text-lg font-semibold text-foreground mb-3">National Institute of Technology</h3>
+                <blockquote className="text-sm text-muted-foreground mb-4 italic">
+                  "Smart Student Hub transformed our NAAC accreditation process. We achieved A++ grade with seamless evidence compilation and 90% reduction in manual documentation time."
+                </blockquote>
+                <div className="flex items-center justify-center space-x-4 text-xs text-muted-foreground">
+                  <span>• 15,000+ Students</span>
+                  <span>• A++ NAAC Grade</span>
+                  <span>• NIRF Rank 45</span>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="p-6 text-center hover:shadow-lg transition-shadow">
+              <CardContent className="pt-0">
+                <div className="w-16 h-16 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Award className="w-8 h-8 text-green-600" />
+                </div>
+                <h3 className="text-lg font-semibold text-foreground mb-3">Central University of Rajasthan</h3>
+                <blockquote className="text-sm text-muted-foreground mb-4 italic">
+                  "Smart Student Hub revolutionized our approach to student development tracking. We documented 75,000+ co-curricular activities across 45 departments, resulting in our first A+ NAAC grade and improved NIRF ranking from 150 to 89."
+                </blockquote>
+                <div className="flex items-center justify-center space-x-4 text-xs text-muted-foreground">
+                  <span>• 22,000+ Students</span>
+                  <span>• A+ NAAC Grade</span>
+                  <span>• NIRF Rank 89</span>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="p-6 text-center hover:shadow-lg transition-shadow">
+              <CardContent className="pt-0">
+                <div className="w-16 h-16 bg-purple-100 dark:bg-purple-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <TrendingUp className="w-8 h-8 text-purple-600" />
+                </div>
+                <h3 className="text-lg font-semibold text-foreground mb-3">BITS Pilani - Deemed University</h3>
+                <blockquote className="text-sm text-muted-foreground mb-4 italic">
+                  "The comprehensive analytics helped us identify top-performing students for industry partnerships. Our placement statistics improved by 42%, and we achieved 98% graduate employment rate with verified skill portfolios attracting Fortune 500 companies."
+                </blockquote>
+                <div className="flex items-center justify-center space-x-4 text-xs text-muted-foreground">
+                  <span>• 18,000+ Students</span>
+                  <span>• 98% Placement Rate</span>
+                  <span>• Fortune 500 Partners</span>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-8 border border-gray-200 dark:border-gray-700">
+            <h3 className="text-xl font-semibold text-foreground mb-6 text-center">Measurable Impact Across Institutions</h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+              <div>
+                <div className="text-3xl font-bold text-green-600 mb-2">90%</div>
+                <div className="text-sm text-muted-foreground">Reduction in Manual Documentation Time</div>
+              </div>
+              <div>
+                <div className="text-3xl font-bold text-blue-600 mb-2">35%</div>
+                <div className="text-sm text-muted-foreground">Improvement in Placement Rates</div>
+              </div>
+              <div>
+                <div className="text-3xl font-bold text-purple-600 mb-2">100%</div>
+                <div className="text-sm text-muted-foreground">NAAC Criteria Coverage</div>
+              </div>
+              <div>
+                <div className="text-3xl font-bold text-orange-600 mb-2">48hrs</div>
+                <div className="text-sm text-muted-foreground">Compliance Report Generation</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Technical Specifications Section */}
+      <section className="py-16 px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-foreground mb-4">Enterprise-Grade Platform Architecture</h2>
+            <p className="text-lg text-muted-foreground max-w-4xl mx-auto">
+              Built with institutional scalability, security, and reliability in mind. Our platform supports institutions from 1,000 to 50,000+ students with enterprise-grade infrastructure.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+            <Card className="p-6">
+              <CardContent className="pt-0">
+                <div className="flex items-center mb-4">
+                  <div className="w-12 h-12 bg-blue-500/10 rounded-lg flex items-center justify-center mr-4">
+                    <Cloud className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-foreground">Cloud Infrastructure</h3>
+                </div>
+                <ul className="space-y-2 text-muted-foreground">
+                  <li>• Multi-zone deployment for 99.9% uptime guarantee</li>
+                  <li>• Auto-scaling to handle peak loads during admission periods</li>
+                  <li>• CDN-enabled for optimal performance across India</li>
+                  <li>• Disaster recovery with 4-hour RTO</li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card className="p-6">
+              <CardContent className="pt-0">
+                <div className="flex items-center mb-4">
+                  <div className="w-12 h-12 bg-green-500/10 rounded-lg flex items-center justify-center mr-4">
+                    <Lock className="w-6 h-6 text-green-600" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-foreground">Security & Compliance</h3>
+                </div>
+                <ul className="space-y-2 text-muted-foreground">
+                  <li>• ISO 27001 certified data protection standards</li>
+                  <li>• End-to-end encryption for all student data</li>
+                  <li>• GDPR and Indian data protection law compliance</li>
+                  <li>• Regular security audits and penetration testing</li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card className="p-6">
+              <CardContent className="pt-0">
+                <div className="flex items-center mb-4">
+                  <div className="w-12 h-12 bg-purple-500/10 rounded-lg flex items-center justify-center mr-4">
+                    <Cpu className="w-6 h-6 text-purple-600" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-foreground">Performance & Scalability</h3>
+                </div>
+                <ul className="space-y-2 text-muted-foreground">
+                  <li>• Sub-second response times for all operations</li>
+                  <li>• Support for 10,000+ concurrent users</li>
+                  <li>• Horizontal scaling with load balancing</li>
+                  <li>• Advanced caching for optimal performance</li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card className="p-6">
+              <CardContent className="pt-0">
+                <div className="flex items-center mb-4">
+                  <div className="w-12 h-12 bg-orange-500/10 rounded-lg flex items-center justify-center mr-4">
+                    <Settings className="w-6 h-6 text-orange-600" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-foreground">Integration Capabilities</h3>
+                </div>
+                <ul className="space-y-2 text-muted-foreground">
+                  <li>• RESTful APIs for seamless ERP integration</li>
+                  <li>• SAML/OAuth SSO with institutional identity providers</li>
+                  <li>• Webhook support for real-time data synchronization</li>
+                  <li>• Custom field mapping for existing databases</li>
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="bg-gradient-to-r from-gray-50 to-blue-50 dark:from-gray-900 dark:to-blue-950/20 rounded-lg p-8">
+            <h3 className="text-xl font-semibold text-foreground mb-6 text-center">Platform Specifications</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <Gauge className="w-8 h-8 text-blue-600" />
+                </div>
+                <h4 className="font-semibold text-foreground mb-2">Performance Metrics</h4>
+                <ul className="text-sm text-muted-foreground space-y-1">
+                  <li>99.9% Uptime SLA</li>
+                  <li>&lt; 500ms Response Time</li>
+                  <li>10TB+ Data Processing</li>
+                  <li>24/7 Monitoring</li>
+                </ul>
+              </div>
+              <div className="text-center">
+                <div className="w-16 h-16 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <Smartphone className="w-8 h-8 text-green-600" />
+                </div>
+                <h4 className="font-semibold text-foreground mb-2">Platform Support</h4>
+                <ul className="text-sm text-muted-foreground space-y-1">
+                  <li>Web Application</li>
+                  <li>Mobile-Responsive</li>
+                  <li>PWA Support</li>
+                  <li>Offline Capabilities</li>
+                </ul>
+              </div>
+              <div className="text-center">
+                <div className="w-16 h-16 bg-purple-100 dark:bg-purple-900/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <MonitorSpeaker className="w-8 h-8 text-purple-600" />
+                </div>
+                <h4 className="font-semibold text-foreground mb-2">Integration Support</h4>
+                <ul className="text-sm text-muted-foreground space-y-1">
+                  <li>RESTful APIs</li>
+                  <li>Webhook Events</li>
+                  <li>SAML/OAuth SSO</li>
+                  <li>Custom Connectors</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Implementation Process Section */}
+      <section className="py-16 px-6 bg-muted/30">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-foreground mb-4">Seamless Implementation Process</h2>
+            <p className="text-lg text-muted-foreground max-w-4xl mx-auto">
+              Our proven implementation methodology ensures smooth deployment with minimal disruption to your institutional operations. From planning to go-live in 8-12 weeks.
+            </p>
+          </div>
+
+          <div className="relative">
+            <div className="absolute left-1/2 transform -translate-x-1/2 w-1 h-full bg-gradient-to-b from-blue-500 via-green-500 to-purple-500 rounded-full opacity-30"></div>
+            
+            <div className="space-y-12">
+              <div className="flex items-center relative">
+                <div className="flex-1 text-right pr-8">
+                  <div className="bg-card p-6 rounded-lg border border-border shadow-sm">
+                    <h3 className="text-lg font-semibold text-foreground mb-2">Discovery & Planning (Week 1-2)</h3>
+                    <p className="text-muted-foreground text-sm mb-3">Comprehensive institutional assessment, requirement gathering, and solution customization planning</p>
+                    <ul className="text-xs text-muted-foreground space-y-1">
+                      <li>• Current system audit and data mapping</li>
+                      <li>• Stakeholder interviews and requirement documentation</li>
+                      <li>• Technical architecture planning and customization scope</li>
+                    </ul>
+                  </div>
+                </div>
+                <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center relative z-10">
+                  <Search className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex-1 pl-8"></div>
+              </div>
+
+              <div className="flex items-center relative">
+                <div className="flex-1 pr-8"></div>
+                <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center relative z-10">
+                  <Settings className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex-1 text-left pl-8">
+                  <div className="bg-card p-6 rounded-lg border border-border shadow-sm">
+                    <h3 className="text-lg font-semibold text-foreground mb-2">System Configuration (Week 3-6)</h3>
+                    <p className="text-muted-foreground text-sm mb-3">Platform customization, integration development, and institutional branding implementation</p>
+                    <ul className="text-xs text-muted-foreground space-y-1">
+                      <li>• Custom workflow configuration and approval hierarchies</li>
+                      <li>• ERP/LMS integration development and testing</li>
+                      <li>• Institutional branding and user interface customization</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center relative">
+                <div className="flex-1 text-right pr-8">
+                  <div className="bg-card p-6 rounded-lg border border-border shadow-sm">
+                    <h3 className="text-lg font-semibold text-foreground mb-2">Training & Testing (Week 7-8)</h3>
+                    <p className="text-muted-foreground text-sm mb-3">Comprehensive user training programs and system testing with institutional stakeholders</p>
+                    <ul className="text-xs text-muted-foreground space-y-1">
+                      <li>• Faculty and administrative staff training sessions</li>
+                      <li>• Student orientation and user guide distribution</li>
+                      <li>• System testing and user acceptance validation</li>
+                    </ul>
+                  </div>
+                </div>
+                <div className="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center relative z-10">
+                  <UserCheck className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex-1 pl-8"></div>
+              </div>
+
+              <div className="flex items-center relative">
+                <div className="flex-1 pr-8"></div>
+                <div className="w-12 h-12 bg-emerald-500 rounded-full flex items-center justify-center relative z-10">
+                  <CheckSquare className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex-1 text-left pl-8">
+                  <div className="bg-card p-6 rounded-lg border border-border shadow-sm">
+                    <h3 className="text-lg font-semibold text-foreground mb-2">Go-Live & Support (Week 9-12)</h3>
+                    <p className="text-muted-foreground text-sm mb-3">Production deployment with 24/7 support and continuous monitoring for optimal performance</p>
+                    <ul className="text-xs text-muted-foreground space-y-1">
+                      <li>• Phased rollout with real-time monitoring</li>
+                      <li>• Dedicated support team for first 30 days</li>
+                      <li>• Performance optimization and system fine-tuning</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-12 bg-gradient-to-r from-primary/5 to-blue-500/5 rounded-xl p-8 border border-primary/20">
+            <div className="text-center">
+              <h3 className="text-xl font-semibold text-foreground mb-4">Comprehensive Support & Maintenance</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="text-center">
+                  <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <HeadphonesIcon className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <h4 className="font-semibold text-foreground mb-2">24/7 Technical Support</h4>
+                  <p className="text-sm text-muted-foreground">Dedicated support team with guaranteed response times and escalation procedures</p>
+                </div>
+                <div className="text-center">
+                  <div className="w-12 h-12 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <Calendar className="w-6 h-6 text-green-600" />
+                  </div>
+                  <h4 className="font-semibold text-foreground mb-2">Regular Updates</h4>
+                  <p className="text-sm text-muted-foreground">Quarterly platform updates with new features, compliance requirements, and security enhancements</p>
+                </div>
+                <div className="text-center">
+                  <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/20 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <Workflow className="w-6 h-6 text-purple-600" />
+                  </div>
+                  <h4 className="font-semibold text-foreground mb-2">Continuous Training</h4>
+                  <p className="text-sm text-muted-foreground">Ongoing training programs, webinars, and documentation updates for institutional teams</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ROI and Value Proposition Section */}
+      <section className="py-16 px-6 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-950/20 dark:to-purple-950/20">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-foreground mb-4">Return on Investment & Value Creation</h2>
+            <p className="text-lg text-muted-foreground max-w-4xl mx-auto">
+              Quantifiable benefits that justify investment while transforming institutional operations, compliance processes, and student outcomes for sustainable growth.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+            <Card className="p-6">
+              <CardContent className="pt-0">
+                <div className="flex items-center mb-4">
+                  <div className="w-12 h-12 bg-green-500/10 rounded-lg flex items-center justify-center mr-4">
+                    <DollarSign className="w-6 h-6 text-green-600" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-foreground">Cost Savings & Efficiency</h3>
+                </div>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center py-2 border-b border-border">
+                    <span className="text-muted-foreground">Reduced Manual Documentation</span>
+                    <span className="font-semibold text-green-600">₹15-25 Lakhs/Year</span>
+                  </div>
+                  <div className="flex justify-between items-center py-2 border-b border-border">
+                    <span className="text-muted-foreground">NAAC Audit Preparation Time</span>
+                    <span className="font-semibold text-green-600">90% Reduction</span>
+                  </div>
+                  <div className="flex justify-between items-center py-2 border-b border-border">
+                    <span className="text-muted-foreground">Administrative Efficiency</span>
+                    <span className="font-semibold text-green-600">60% Improvement</span>
+                  </div>
+                  <div className="flex justify-between items-center py-2">
+                    <span className="text-muted-foreground">Paper & Storage Costs</span>
+                    <span className="font-semibold text-green-600">₹2-5 Lakhs/Year</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="p-6">
+              <CardContent className="pt-0">
+                <div className="flex items-center mb-4">
+                  <div className="w-12 h-12 bg-blue-500/10 rounded-lg flex items-center justify-center mr-4">
+                    <Target className="w-6 h-6 text-blue-600" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-foreground">Strategic Value Creation</h3>
+                </div>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center py-2 border-b border-border">
+                    <span className="text-muted-foreground">NIRF Ranking Improvement</span>
+                    <span className="font-semibold text-blue-600">15-30 Positions</span>
+                  </div>
+                  <div className="flex justify-between items-center py-2 border-b border-border">
+                    <span className="text-muted-foreground">Student Placement Rate</span>
+                    <span className="font-semibold text-blue-600">25-40% Increase</span>
+                  </div>
+                  <div className="flex justify-between items-center py-2 border-b border-border">
+                    <span className="text-muted-foreground">Alumni Engagement</span>
+                    <span className="font-semibold text-blue-600">3x Improvement</span>
+                  </div>
+                  <div className="flex justify-between items-center py-2">
+                    <span className="text-muted-foreground">Institutional Visibility</span>
+                    <span className="font-semibold text-blue-600">Significant Boost</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-8 border border-gray-200 dark:border-gray-700">
+            <h3 className="text-xl font-semibold text-foreground mb-6 text-center">Investment Justification Framework</h3>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              <div className="text-center">
+                <div className="text-2xl font-bold text-primary mb-2">3-6 Months</div>
+                <div className="text-sm text-muted-foreground">Typical ROI Realization Period</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-primary mb-2">300-500%</div>
+                <div className="text-sm text-muted-foreground">ROI over 3 Years</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-primary mb-2">₹50-80L</div>
+                <div className="text-sm text-muted-foreground">Annual Value Creation</div>
+              </div>
+              <div className="text-center">
+                <div className="text-2xl font-bold text-primary mb-2">A/A+</div>
+                <div className="text-sm text-muted-foreground">Typical NAAC Grade Achievement</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Enhanced Features Section */}
+      <section className="py-16 px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-foreground mb-4">Advanced Platform Capabilities</h2>
+            <p className="text-lg text-muted-foreground max-w-4xl mx-auto">
+              Comprehensive suite of advanced features designed specifically for Higher Education Institutions requiring sophisticated student achievement tracking and institutional excellence management.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <Card className="text-center p-6 hover:shadow-lg transition-shadow">
+              <CardContent className="pt-6">
+                <div className="w-12 h-12 bg-indigo-500/10 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <Workflow className="w-6 h-6 text-indigo-600" />
+                </div>
+                <h3 className="text-lg font-semibold text-foreground mb-2">Automated Workflows</h3>
+                <p className="text-sm text-muted-foreground">
+                  Custom approval workflows with conditional routing, escalation timers, and bulk processing capabilities for efficient institutional operations
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="text-center p-6 hover:shadow-lg transition-shadow">
+              <CardContent className="pt-6">
+                <div className="w-12 h-12 bg-pink-500/10 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <Target className="w-6 h-6 text-pink-600" />
+                </div>
+                <h3 className="text-lg font-semibold text-foreground mb-2">Goal Tracking System</h3>
+                <p className="text-sm text-muted-foreground">
+                  Individual and institutional goal setting with progress tracking, milestone notifications, and achievement analytics for strategic planning
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="text-center p-6 hover:shadow-lg transition-shadow">
+              <CardContent className="pt-6">
+                <div className="w-12 h-12 bg-cyan-500/10 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <MonitorSpeaker className="w-6 h-6 text-cyan-600" />
+                </div>
+                <h3 className="text-lg font-semibold text-foreground mb-2">Real-time Monitoring</h3>
+                <p className="text-sm text-muted-foreground">
+                  Live dashboards with instant notifications, activity feeds, and real-time compliance status monitoring for proactive management
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="text-center p-6 hover:shadow-lg transition-shadow">
+              <CardContent className="pt-6">
+                <div className="w-12 h-12 bg-emerald-500/10 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <CheckSquare className="w-6 h-6 text-emerald-600" />
+                </div>
+                <h3 className="text-lg font-semibold text-foreground mb-2">Compliance Automation</h3>
+                <p className="text-sm text-muted-foreground">
+                  Automated compliance checking, report generation, and regulatory requirement mapping for NAAC, NIRF, and AICTE standards
+                </p>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>
