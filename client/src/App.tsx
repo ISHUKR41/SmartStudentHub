@@ -27,6 +27,7 @@ import NotFound from "@/pages/not-found";
 import Landing from "@/pages/landing";
 import Login from "@/pages/login";
 import Signup from "@/pages/signup";
+import Help from "@/pages/help";
 import StudentDashboard from "@/pages/student-dashboard";
 import Activities from "@/pages/activities";
 import ActivityUpload from "@/pages/activity-upload";
@@ -71,6 +72,7 @@ function Router() {
           <Route path="/" component={Landing} />
           <Route path="/login" component={Login} />
           <Route path="/signup" component={Signup} />
+          <Route path="/help" component={Help} />
         </>
       ) : (
         <>

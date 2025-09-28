@@ -40,6 +40,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocation } from "wouter";
+import { useMutation } from "@tanstack/react-query";
 import { 
   GraduationCap, 
   Mail, 
@@ -50,6 +51,7 @@ import {
   AlertCircle, 
   UserPlus
 } from "lucide-react";
+import { apiRequest } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from "@/components/ui/form";
@@ -96,36 +98,55 @@ export default function Signup() {
   const progressPercentage = Math.round((filledFields / totalFields) * 100);
 
 
+  // Signup mutation for backend integration
+  const signupMutation = useMutation({
+    mutationFn: async (signupData: SignupFormData) => {
+      const response = await apiRequest('POST', '/api/auth/signup', signupData);
+      return response.json();
+    },
+    onSuccess: (response) => {
+      toast({
+        title: "Registration Successful",
+        description: "Account created successfully! Redirecting to login...",
+        variant: "default",
+      });
+      // Redirect to login page after successful registration
+      setTimeout(() => {
+        setLocation('/login');
+      }, 1500);
+    },
+    onError: (error: any) => {
+      const errorMessage = error?.message || "Registration failed. Please try again.";
+      toast({
+        title: "Registration Failed",
+        description: errorMessage,
+        variant: "destructive",
+      });
+      form.setError("root", {
+        type: "manual",
+        message: errorMessage,
+      });
+    },
+  });
+
   /**
    * Form Submission Handler
    * 
-   * Validates academic information and redirects to Replit Auth for secure registration.
-   * No credentials are processed locally for maximum security.
+   * Validates academic information and creates user account via backend API.
+   * Provides meaningful feedback and handles errors properly.
    * 
    * @param data - Validated academic data from the registration form
    */
   const onSubmit = async (data: SignupFormData) => {
-    setIsSubmitting(true);
     form.clearErrors("root");
     
     try {
       // Validate the form first
       signupSchema.parse(data);
       
-      // Store registration data temporarily (could be improved with session storage)
-      sessionStorage.setItem('signupData', JSON.stringify(data));
-      
-      // Show success message
-      toast({
-        title: "Redirecting to Authentication",
-        description: "Taking you to complete registration with institutional login...",
-        variant: "default",
-      });
-      
-      // Redirect to Replit Auth for registration
-      window.location.href = '/api/login';
+      // Submit to backend API
+      await signupMutation.mutateAsync(data);
     } catch (error) {
-      setIsSubmitting(false);
       const errorMessage = error instanceof Error ? error.message : "Please check your information.";
       toast({
         title: "Validation Failed",
@@ -208,7 +229,7 @@ export default function Signup() {
                               {...field}
                               placeholder="Enter first name"
                               className="h-11"
-                              disabled={isSubmitting}
+                              disabled={signupMutation.isPending}
                               data-testid="input-first-name"
                             />
                           </FormControl>
@@ -229,7 +250,7 @@ export default function Signup() {
                               {...field}
                               placeholder="Enter last name"
                               className="h-11"
-                              disabled={isSubmitting}
+                              disabled={signupMutation.isPending}
                               data-testid="input-last-name"
                             />
                           </FormControl>
@@ -254,7 +275,7 @@ export default function Signup() {
                               type="email"
                               placeholder="Enter your institutional email"
                               className="pl-10 h-11"
-                              disabled={isSubmitting}
+                              disabled={signupMutation.isPending}
                               data-testid="input-email"
                             />
                           </div>
@@ -290,7 +311,7 @@ export default function Signup() {
                               {...field}
                               placeholder="Enter your roll number"
                               className="pl-10 h-11 uppercase"
-                              disabled={isSubmitting}
+                              disabled={signupMutation.isPending}
                               data-testid="input-roll-number"
                               onChange={(e) => field.onChange(e.target.value.toUpperCase())}
                             />
@@ -342,7 +363,7 @@ export default function Signup() {
                           <Select 
                             onValueChange={(value) => field.onChange(parseInt(value))} 
                             defaultValue={field.value?.toString()} 
-                            disabled={isSubmitting}
+                            disabled={signupMutation.isPending}
                           >
                             <FormControl>
                               <SelectTrigger className="h-11" data-testid="select-semester">
@@ -372,7 +393,7 @@ export default function Signup() {
                   disabled={isSubmitting || !form.formState.isValid}
                   data-testid="button-signup"
                 >
-                  {isSubmitting ? (
+                  {signupMutation.isPending ? (
                     <div className="flex items-center space-x-2">
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-foreground"></div>
                       <span>Redirecting...</span>
@@ -403,9 +424,30 @@ export default function Signup() {
             </Button>
           </p>
           <div className="flex justify-center space-x-4 text-xs text-muted-foreground">
-            <Button variant="link" className="p-0 h-auto text-xs">Privacy Policy</Button>
-            <Button variant="link" className="p-0 h-auto text-xs">Terms of Service</Button>
-            <Button variant="link" className="p-0 h-auto text-xs">Help & Support</Button>
+            <Button 
+              variant="link" 
+              className="p-0 h-auto text-xs hover:underline" 
+              onClick={() => window.open('https://www.example.com/privacy', '_blank')}
+              data-testid="button-privacy-policy"
+            >
+              Privacy Policy
+            </Button>
+            <Button 
+              variant="link" 
+              className="p-0 h-auto text-xs hover:underline" 
+              onClick={() => window.open('https://www.example.com/terms', '_blank')}
+              data-testid="button-terms-of-service"
+            >
+              Terms of Service
+            </Button>
+            <Button 
+              variant="link" 
+              className="p-0 h-auto text-xs hover:underline" 
+              onClick={() => setLocation('/help')}
+              data-testid="button-help-support"
+            >
+              Help & Support
+            </Button>
           </div>
         </div>
       </div>

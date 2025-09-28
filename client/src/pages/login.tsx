@@ -36,7 +36,9 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocation } from "wouter";
+import { useMutation } from "@tanstack/react-query";
 import { GraduationCap, Mail, AlertCircle } from "lucide-react";
+import { apiRequest } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -67,33 +69,57 @@ export default function Login() {
   });
 
 
+  // Login mutation for backend integration
+  const loginMutation = useMutation({
+    mutationFn: async (loginData: LoginFormData) => {
+      const response = await apiRequest('POST', '/api/auth/login', loginData);
+      return response.json();
+    },
+    onSuccess: (response) => {
+      toast({
+        title: "Email Validated",
+        description: "Redirecting to institutional authentication system...",
+        variant: "default",
+      });
+      // Store email for potential use after authentication
+      sessionStorage.setItem('loginEmail', JSON.stringify(form.getValues('email')));
+      // Redirect to Replit Auth after successful email validation
+      setTimeout(() => {
+        window.location.href = '/api/login';
+      }, 1000);
+    },
+    onError: (error: any) => {
+      const errorMessage = error?.message || "Login failed. Please check your email address.";
+      toast({
+        title: "Authentication Error",
+        description: errorMessage,
+        variant: "destructive",
+      });
+      form.setError("root", {
+        type: "manual",
+        message: errorMessage,
+      });
+    },
+  });
+
   /**
    * Form Submission Handler
    * 
-   * Validates email and redirects to Replit Auth for secure authentication.
-   * No credentials are processed locally for maximum security.
+   * Validates email via backend API and then redirects to Replit Auth for secure authentication.
+   * Provides meaningful feedback and proper error handling.
    * 
    * @param data - Validated form data containing email for user identification
    */
   const onSubmit = async (data: LoginFormData) => {
-    setIsSubmitting(true);
     form.clearErrors("root");
     
     try {
       // Validate the form first
       loginSchema.parse(data);
       
-      // Show success message
-      toast({
-        title: "Redirecting to Authentication",
-        description: "Taking you to the institutional login system...",
-        variant: "default",
-      });
-      
-      // Redirect directly to Replit Auth
-      window.location.href = '/api/login';
+      // Submit to backend API for email validation
+      await loginMutation.mutateAsync(data);
     } catch (error) {
-      setIsSubmitting(false);
       const errorMessage = error instanceof Error ? error.message : "Please check your email address.";
       toast({
         title: "Validation Failed",
@@ -170,7 +196,7 @@ export default function Login() {
                             type="email"
                             placeholder="Enter your institutional email"
                             className="pl-10 h-11"
-                            disabled={isSubmitting}
+                            disabled={loginMutation.isPending}
                             data-testid="input-email"
                           />
                         </div>
@@ -185,10 +211,10 @@ export default function Login() {
                 <Button
                   type="submit"
                   className="w-full h-11 text-sm font-medium"
-                  disabled={isSubmitting}
+                  disabled={loginMutation.isPending}
                   data-testid="button-login"
                 >
-                  {isSubmitting ? (
+                  {loginMutation.isPending ? (
                     <div className="flex items-center space-x-2">
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-foreground"></div>
                       <span>Redirecting...</span>
@@ -217,7 +243,7 @@ export default function Login() {
               variant="outline"
               className="w-full h-11"
               onClick={handleReplitAuth}
-              disabled={isSubmitting}
+              disabled={loginMutation.isPending}
               data-testid="button-replit-auth"
             >
               <GraduationCap className="w-4 h-4 mr-2" />
@@ -240,9 +266,30 @@ export default function Login() {
             </Button>
           </p>
           <div className="flex justify-center space-x-4 text-xs text-muted-foreground">
-            <Button variant="link" className="p-0 h-auto text-xs">Privacy Policy</Button>
-            <Button variant="link" className="p-0 h-auto text-xs">Terms of Service</Button>
-            <Button variant="link" className="p-0 h-auto text-xs">Help & Support</Button>
+            <Button 
+              variant="link" 
+              className="p-0 h-auto text-xs hover:underline" 
+              onClick={() => window.open('https://www.example.com/privacy', '_blank')}
+              data-testid="button-privacy-policy"
+            >
+              Privacy Policy
+            </Button>
+            <Button 
+              variant="link" 
+              className="p-0 h-auto text-xs hover:underline" 
+              onClick={() => window.open('https://www.example.com/terms', '_blank')}
+              data-testid="button-terms-of-service"
+            >
+              Terms of Service
+            </Button>
+            <Button 
+              variant="link" 
+              className="p-0 h-auto text-xs hover:underline" 
+              onClick={() => setLocation('/help')}
+              data-testid="button-help-support"
+            >
+              Help & Support
+            </Button>
           </div>
         </div>
       </div>
