@@ -145,55 +145,85 @@ export default function StudentDashboard() {
     recentActivities: [
       {
         id: '1',
+        studentId: 'student-ishu-kumar',
         title: 'Machine Learning Research Paper',
-        category: 'Academic',
-        status: 'approved',
-        date: new Date('2024-01-15'),
-        credits: 25,
+        category: 'academic' as const,
+        status: 'approved' as const,
+        activityDate: new Date('2024-01-15'),
+        skillCredits: 25,
         organization: 'IEEE Conference',
-        description: 'Published research on neural network optimization'
+        description: 'Published research on neural network optimization',
+        verifiedBy: 'faculty-cs-hod',
+        verificationDate: new Date('2024-01-16'),
+        feedback: 'Excellent research contribution',
+        createdAt: new Date('2024-01-15'),
+        updatedAt: new Date('2024-01-16')
       },
       {
         id: '2',
+        studentId: 'student-ishu-kumar',
         title: 'Google Summer of Code 2023',
-        category: 'Technical',
-        status: 'approved',
-        date: new Date('2023-12-20'),
-        credits: 40,
+        category: 'internship' as const,
+        status: 'approved' as const,
+        activityDate: new Date('2023-12-20'),
+        skillCredits: 40,
         organization: 'Apache Software Foundation',
-        description: 'Contributed to Apache Spark project'
+        description: 'Contributed to Apache Spark project',
+        verifiedBy: 'faculty-cs-hod',
+        verificationDate: new Date('2023-12-21'),
+        feedback: 'Outstanding internship completion',
+        createdAt: new Date('2023-12-20'),
+        updatedAt: new Date('2023-12-21')
       },
       {
         id: '3',
+        studentId: 'student-ishu-kumar',
         title: 'Student Council President',
-        category: 'Leadership',
-        status: 'pending',
-        date: new Date('2024-01-10'),
-        credits: 30,
+        category: 'leadership' as const,
+        status: 'pending' as const,
+        activityDate: new Date('2024-01-10'),
+        skillCredits: 30,
         organization: 'NIT Delhi',
-        description: 'Leading student body initiatives'
+        description: 'Leading student body initiatives',
+        verifiedBy: null,
+        verificationDate: null,
+        feedback: null,
+        createdAt: new Date('2024-01-10'),
+        updatedAt: new Date('2024-01-10')
       },
       {
         id: '4',
+        studentId: 'student-ishu-kumar',
         title: 'AI Hackathon Winner',
-        category: 'Technical',
-        status: 'approved',
-        date: new Date('2024-01-05'),
-        credits: 20,
+        category: 'co-curricular' as const,
+        status: 'approved' as const,
+        activityDate: new Date('2024-01-05'),
+        skillCredits: 20,
         organization: 'TechFest IIT Bombay',
-        description: 'First place in AI/ML track'
+        description: 'First place in AI/ML track',
+        verifiedBy: 'faculty-cs-hod',
+        verificationDate: new Date('2024-01-06'),
+        feedback: 'Impressive technical achievement',
+        createdAt: new Date('2024-01-05'),
+        updatedAt: new Date('2024-01-06')
       },
       {
         id: '5',
+        studentId: 'student-ishu-kumar',
         title: 'Community Teaching Initiative',
-        category: 'Community',
-        status: 'pending',
-        date: new Date('2024-01-01'),
-        credits: 15,
+        category: 'volunteering' as const,
+        status: 'pending' as const,
+        activityDate: new Date('2024-01-01'),
+        skillCredits: 15,
         organization: 'Local NGO',
-        description: 'Teaching programming to underprivileged students'
+        description: 'Teaching programming to underprivileged students',
+        verifiedBy: null,
+        verificationDate: null,
+        feedback: null,
+        createdAt: new Date('2024-01-01'),
+        updatedAt: new Date('2024-01-01')
       }
-    ],
+    ] as Activity[],
     upcomingDeadlines: [
       { task: 'Project Thesis Submission', date: new Date('2024-02-15'), priority: 'high', category: 'Academic' },
       { task: 'Internship Application (Microsoft)', date: new Date('2024-02-10'), priority: 'high', category: 'Career' },
@@ -442,13 +472,14 @@ export default function StudentDashboard() {
                 <div className="space-y-3">
                   {realStudentData.upcomingDeadlines.map((deadline, index) => {
                     const daysLeft = Math.ceil((deadline.date.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
-                    const priorityColors = {
+                    const priorityColors: Record<'high' | 'medium' | 'low', string> = {
                       high: 'bg-red-50 border-red-200 text-red-800',
                       medium: 'bg-yellow-50 border-yellow-200 text-yellow-800', 
                       low: 'bg-blue-50 border-blue-200 text-blue-800'
                     };
+                    const priorityKey = deadline.priority as 'high' | 'medium' | 'low';
                     return (
-                      <div key={index} className={`p-3 rounded-lg border ${priorityColors[deadline.priority]}`}>
+                      <div key={index} className={`p-3 rounded-lg border ${priorityColors[priorityKey]}`}>
                         <div className="flex items-center justify-between">
                           <div className="flex-1">
                             <div className="font-medium">{deadline.task}</div>
@@ -762,8 +793,8 @@ export default function StudentDashboard() {
                                 <div className="flex items-center justify-between text-xs">
                                   <span className="text-blue-600 font-medium">{activity.organization}</span>
                                   <div className="flex items-center space-x-4">
-                                    <span className="text-green-600 font-medium">{activity.credits} credits</span>
-                                    <span className="text-muted-foreground">{activity.date.toLocaleDateString()}</span>
+                                    <span className="text-green-600 font-medium">{activity.skillCredits} credits</span>
+                                    <span className="text-muted-foreground">{activity.activityDate.toLocaleDateString()}</span>
                                   </div>
                                 </div>
                               </div>
@@ -1298,7 +1329,7 @@ export default function StudentDashboard() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
-                  <Activity className="w-5 h-5 text-violet-600" />
+                  <BarChart3 className="w-5 h-5 text-violet-600" />
                   <span>Activity Portfolio Analysis</span>
                 </CardTitle>
               </CardHeader>

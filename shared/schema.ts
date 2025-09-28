@@ -404,7 +404,9 @@ export const semesterOptions = [
 export type UpsertUser = z.infer<typeof upsertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type InsertActivity = z.infer<typeof insertActivitySchema>;
-export type Activity = typeof activities.$inferSelect;
+
+// Activity type is defined at the end of the file
+
 export type UpdateActivityStatus = z.infer<typeof updateActivityStatusSchema>;
 export type ActivityFile = typeof activityFiles.$inferSelect;
 export type Department = typeof departments.$inferSelect;
@@ -441,4 +443,28 @@ export interface PortfolioSection {
   activities: Activity[];
   totalCredits: number;
   count: number;
+}
+
+// Test exports to verify module resolution
+export const TEST_CONSTANT = 'test';
+export interface TestInterface {
+  test: string;
+}
+
+// Activity type moved to end of file for better visibility
+export interface Activity {
+  id: string;
+  studentId: string;
+  title: string;
+  description: string | null;
+  category: 'academic' | 'co-curricular' | 'extra-curricular' | 'volunteering' | 'internship' | 'leadership' | 'mooc';
+  organization: string;
+  activityDate: Date;
+  status: 'pending' | 'approved' | 'rejected';
+  verifiedBy: string | null;
+  verificationDate: Date | null;
+  feedback: string | null;
+  skillCredits: number | null;
+  createdAt: Date | null;
+  updatedAt: Date | null;
 }
