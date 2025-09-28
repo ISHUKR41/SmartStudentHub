@@ -562,4 +562,99 @@
       hsl(var(--primary)), 
       hsl(var(--primary-500))) 1;
   }
+
+  /* Touch-Friendly Interactive Elements */
+  .touch-target {
+    @apply min-w-[44px] min-h-[44px] touch-manipulation;
+  }
+
+  /* Enhanced Mobile Navigation */
+  .mobile-nav-item {
+    @apply flex items-center w-full min-h-[52px] px-4 py-3 text-base font-medium touch-manipulation transition-all duration-200;
+    @apply hover:bg-accent active:bg-accent/80 focus:bg-accent focus:outline-none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .mobile-nav-item:active {
+    transform: scale(0.98);
+  }
+
+  /* Mobile Menu Animations */
+  .mobile-menu-enter {
+    animation: mobileMenuSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .mobile-menu-exit {
+    animation: mobileMenuSlideOut 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  @keyframes mobileMenuSlideIn {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes mobileMenuSlideOut {
+    from {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    to {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+  }
+
+  /* Touch-Optimized Button States */
+  .touch-button {
+    @apply touch-manipulation transition-all duration-200;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .touch-button:active {
+    transform: scale(0.96);
+  }
+
+  /* Responsive Mobile Search */
+  .mobile-search {
+    @apply touch-manipulation transition-all duration-200;
+  }
+
+  .mobile-search:focus {
+    @apply ring-2 ring-primary ring-offset-2;
+  }
+
+  /* Enhanced Dropdown for Touch */
+  .touch-dropdown-item {
+    @apply min-h-[44px] touch-manipulation transition-all duration-200;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .touch-dropdown-item:active {
+    transform: scale(0.98);
+  }
+
+  /* Mobile-Specific Utilities */
+  @media (max-width: 768px) {
+    .mobile-optimized {
+      font-size: 16px; /* Prevents zoom on iOS */
+    }
+  }
+
+  /* Improved Focus Visibility for Accessibility */
+  .enhanced-focus {
+    @apply focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2;
+    @apply dark:focus:ring-offset-background;
+  }
+
+  /* Better Active States for Touch */
+  .active-touch {
+    -webkit-tap-highlight-color: hsl(var(--primary) / 0.1);
+    tap-highlight-color: hsl(var(--primary) / 0.1);
+  }
 }

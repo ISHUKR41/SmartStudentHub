@@ -14,6 +14,14 @@ export default {
   content: ["./client/index.html", "./client/src/**/*.{js,jsx,ts,tsx}"],
   
   theme: {
+    screens: {
+      'xs': '480px',  // Large phones
+      'sm': '640px',  // Small tablets
+      'md': '768px',  // Tablets
+      'lg': '1024px', // Desktop
+      'xl': '1280px', // Large desktop
+      '2xl': '1536px' // TV screens
+    },
     extend: {
       borderRadius: {
         lg: "var(--radius)",
