@@ -32,31 +32,42 @@ import { Card, CardContent } from "@/components/ui/card";
 export default function Landing() {
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="bg-card border-b border-border sticky top-0 z-50 backdrop-blur-sm bg-opacity-95">
-        <div className="max-w-7xl mx-auto px-6 py-4">
+      {/* Header - Enhanced Mobile Responsive */}
+      <header className="bg-card/95 border-b border-border sticky top-0 z-50 backdrop-blur-md bg-opacity-95 supports-[backdrop-filter]:bg-opacity-60">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-                <GraduationCap className="w-6 h-6 text-primary-foreground" />
+            <div className="flex items-center space-x-3 sm:space-x-4">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-primary rounded-lg flex items-center justify-center">
+                <GraduationCap className="w-5 h-5 sm:w-6 sm:h-6 text-primary-foreground" />
               </div>
-              <div>
-                <h1 className="text-lg font-semibold text-foreground">Smart Student Hub</h1>
-                <p className="text-xs text-muted-foreground">Institutional Excellence Management System</p>
+              <div className="min-w-0">
+                <h1 className="text-base sm:text-lg font-semibold text-foreground truncate">Smart Student Hub</h1>
+                <p className="text-xs text-muted-foreground hidden sm:block">Institutional Excellence Management System</p>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 sm:space-x-4">
               <Button 
                 variant="outline"
                 size="sm"
                 onClick={() => window.location.href = 'mailto:contact@smartstudenthub.com?subject=Schedule Institution Demo Request&body=Hello,%0A%0AI am interested in scheduling a demo of the Smart Student Hub platform for my institution.%0A%0APlease contact me to arrange a suitable time.%0A%0AThank you!'}
+                className="hidden sm:inline-flex focus-ring"
                 data-testid="button-schedule-demo-header"
               >
                 Schedule Demo
               </Button>
               <Button 
+                variant="outline"
+                size="sm"
+                onClick={() => window.location.href = 'mailto:contact@smartstudenthub.com?subject=Schedule Institution Demo Request&body=Hello,%0A%0AI am interested in scheduling a demo of the Smart Student Hub platform for my institution.%0A%0APlease contact me to arrange a suitable time.%0A%0AThank you!'}
+                className="sm:hidden focus-ring"
+                data-testid="button-schedule-demo-header-mobile"
+              >
+                Demo
+              </Button>
+              <Button 
                 onClick={() => window.location.href = '/api/login'}
-                className="bg-primary hover:bg-primary/90"
+                size="sm"
+                className="bg-primary hover:bg-primary/90 focus-ring shadow-sm"
                 data-testid="button-login"
               >
                 Sign In
@@ -66,91 +77,100 @@ export default function Landing() {
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="py-20 px-6 bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-8 leading-tight">
-              Centralized Digital Platform for Comprehensive Student Activity Records
-            </h1>
-            <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-4xl mx-auto leading-relaxed">
-              Transform your Higher Education Institution with a comprehensive digital framework that records, verifies, and showcases every student's academic and co-curricular achievements from admission to graduation. Streamline NAAC, AICTE, and NIRF compliance while empowering students with verified digital portfolios.
-            </p>
-            <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6">
-              <Button 
-                onClick={() => window.location.href = '/api/login'}
-                size="lg"
-                className="bg-primary hover:bg-primary/90 text-primary-foreground px-12 py-4 text-lg font-semibold rounded-full shadow-lg transform hover:scale-105 transition-all duration-200"
-                data-testid="button-access-portal"
-              >
-                Launch Platform Now
-              </Button>
-              <Button 
-                size="lg"
-                variant="outline"
-                onClick={() => window.location.href = 'mailto:contact@smartstudenthub.com?subject=Schedule Institution Demo Request&body=Hello,%0A%0AI am interested in scheduling a demo of the Smart Student Hub platform for my institution.%0A%0APlease contact me to arrange a suitable time.%0A%0AThank you!'}
-                className="border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground px-12 py-4 text-lg font-semibold rounded-full shadow-lg transform hover:scale-105 transition-all duration-200"
-                data-testid="button-schedule-demo-hero"
-              >
-                Schedule Institution Demo
-              </Button>
+      {/* Hero Section - Enhanced Mobile Responsive */}
+      <section className="py-12 sm:py-16 md:py-20 lg:py-24 px-4 sm:px-6 bg-gradient-to-br from-blue-50 via-white to-indigo-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-12 sm:mb-16 lg:mb-20">
+            <div className="animate-in fade-in slide-up duration-700">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-foreground mb-6 sm:mb-8 leading-tight tracking-tight">
+                Centralized Digital Platform for Comprehensive Student Activity Records
+              </h1>
+            </div>
+            <div className="animate-in fade-in slide-up duration-700 delay-200">
+              <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground mb-8 sm:mb-12 max-w-5xl mx-auto leading-relaxed px-4">
+                Transform your Higher Education Institution with a comprehensive digital framework that records, verifies, and showcases every student's academic and co-curricular achievements from admission to graduation. Streamline NAAC, AICTE, and NIRF compliance while empowering students with verified digital portfolios.
+              </p>
+            </div>
+            <div className="animate-in fade-in slide-up duration-700 delay-400">
+              <div className="flex flex-col sm:flex-row justify-center gap-4 sm:gap-6 max-w-2xl mx-auto">
+                <Button 
+                  onClick={() => window.location.href = '/api/login'}
+                  size="lg"
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground px-8 sm:px-12 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 focus-ring"
+                  data-testid="button-access-portal"
+                >
+                  Launch Platform Now
+                </Button>
+                <Button 
+                  size="lg"
+                  variant="outline"
+                  onClick={() => window.location.href = 'mailto:contact@smartstudenthub.com?subject=Schedule Institution Demo Request&body=Hello,%0A%0AI am interested in scheduling a demo of the Smart Student Hub platform for my institution.%0A%0APlease contact me to arrange a suitable time.%0A%0AThank you!'}
+                  className="border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground px-8 sm:px-12 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 focus-ring"
+                  data-testid="button-schedule-demo-hero"
+                >
+                  <span className="hidden sm:inline">Schedule Institution Demo</span>
+                  <span className="sm:hidden">Schedule Demo</span>
+                </Button>
+              </div>
             </div>
           </div>
           
-          {/* Key Metrics */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
-              <div className="text-3xl md:text-4xl font-bold text-primary mb-2">50,000+</div>
-              <div className="text-sm text-muted-foreground">Student Activities Tracked</div>
-            </div>
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
-              <div className="text-3xl md:text-4xl font-bold text-green-600 mb-2">1,200+</div>
-              <div className="text-sm text-muted-foreground">Faculty Verifications Daily</div>
-            </div>
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
-              <div className="text-3xl md:text-4xl font-bold text-blue-600 mb-2">100%</div>
-              <div className="text-sm text-muted-foreground">NAAC Compliance Coverage</div>
-            </div>
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700">
-              <div className="text-3xl md:text-4xl font-bold text-purple-600 mb-2">24/7</div>
-              <div className="text-sm text-muted-foreground">System Availability</div>
+          {/* Key Metrics - Enhanced Mobile Layout */}
+          <div className="animate-in fade-in slide-up duration-700 delay-600">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 max-w-6xl mx-auto">
+              <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl shadow-lg hover:shadow-xl border border-gray-200 dark:border-gray-700 transition-all duration-300">
+                <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-primary mb-2" data-testid="metric-activities">50,000+</div>
+                <div className="text-xs sm:text-sm text-muted-foreground font-medium">Student Activities Tracked</div>
+              </div>
+              <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl shadow-lg hover:shadow-xl border border-gray-200 dark:border-gray-700 transition-all duration-300">
+                <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-green-600 mb-2" data-testid="metric-verifications">1,200+</div>
+                <div className="text-xs sm:text-sm text-muted-foreground font-medium">Faculty Verifications Daily</div>
+              </div>
+              <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl shadow-lg hover:shadow-xl border border-gray-200 dark:border-gray-700 transition-all duration-300">
+                <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-blue-600 mb-2" data-testid="metric-compliance">100%</div>
+                <div className="text-xs sm:text-sm text-muted-foreground font-medium">NAAC Compliance Coverage</div>
+              </div>
+              <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-xl shadow-lg hover:shadow-xl border border-gray-200 dark:border-gray-700 transition-all duration-300">
+                <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-purple-600 mb-2" data-testid="metric-availability">24/7</div>
+                <div className="text-xs sm:text-sm text-muted-foreground font-medium">System Availability</div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Student Profile Showcase - ISHU KUMAR */}
-      <section className="py-16 px-6 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-foreground mb-4">Student Success Story: ISHU KUMAR</h2>
-            <p className="text-lg text-muted-foreground max-w-4xl mx-auto">
+      {/* Student Profile Showcase - ISHU KUMAR - Enhanced Mobile */}
+      <section className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-8 sm:mb-12 lg:mb-16">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-4 sm:mb-6">Student Success Story: ISHU KUMAR</h2>
+            <p className="text-base sm:text-lg lg:text-xl text-muted-foreground max-w-4xl mx-auto leading-relaxed px-4">
               See how students like ISHU KUMAR use our platform to systematically document their academic journey and build comprehensive portfolios that showcase their institutional achievements.
             </p>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-8 border border-gray-200 dark:border-gray-700">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-4 sm:p-6 lg:p-8 border border-gray-200 dark:border-gray-700">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
               <div className="lg:col-span-1">
-                <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg p-8 text-white text-center">
-                  <div className="w-24 h-24 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Users className="w-12 h-12 text-white" />
+                <div className="bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg p-6 sm:p-8 text-white text-center">
+                  <div className="w-20 h-20 sm:w-24 sm:h-24 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Users className="w-10 h-10 sm:w-12 sm:h-12 text-white" />
                   </div>
-                  <h3 className="text-2xl font-bold mb-2">ISHU KUMAR</h3>
-                  <p className="text-blue-100 mb-4">B.Tech Computer Science Engineering</p>
-                  <p className="text-sm text-blue-100">NIT Delhi</p>
-                  <p className="text-sm text-blue-100">Roll No: 20CS3024</p>
+                  <h3 className="text-xl sm:text-2xl font-bold mb-2" data-testid="student-name">ISHU KUMAR</h3>
+                  <p className="text-blue-100 mb-3 sm:mb-4 text-sm sm:text-base">B.Tech Computer Science Engineering</p>
+                  <p className="text-xs sm:text-sm text-blue-100">NIT Delhi</p>
+                  <p className="text-xs sm:text-sm text-blue-100">Roll No: 20CS3024</p>
                 </div>
               </div>
               
               <div className="lg:col-span-2">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                  <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 sm:p-6 hover:shadow-lg transition-all duration-300">
                     <div className="flex items-center mb-3">
-                      <Award className="w-6 h-6 text-primary mr-2" />
-                      <h4 className="font-semibold text-foreground">Academic Excellence</h4>
+                      <Award className="w-5 h-5 sm:w-6 sm:h-6 text-primary mr-2" />
+                      <h4 className="font-semibold text-foreground text-sm sm:text-base">Academic Excellence</h4>
                     </div>
-                    <ul className="text-sm text-muted-foreground space-y-2">
+                    <ul className="text-xs sm:text-sm text-muted-foreground space-y-1 sm:space-y-2">
                       <li>• Research contributions in Machine Learning</li>
                       <li>• Consistent academic performance</li>
                       <li>• Technical competition participation</li>
@@ -198,11 +218,11 @@ export default function Landing() {
                   </div>
                 </div>
                 
-                <div className="mt-6 bg-primary/5 border border-primary/20 rounded-lg p-4">
-                  <p className="text-sm text-muted-foreground italic">
+                <div className="mt-4 sm:mt-6 bg-primary/5 border border-primary/20 rounded-lg p-3 sm:p-4">
+                  <p className="text-xs sm:text-sm text-muted-foreground italic leading-relaxed">
                     "The platform helps me maintain a complete record of all my academic and co-curricular activities. Having faculty verification for each achievement adds credibility, and the portfolio generation feature saves significant time during placement applications."
                   </p>
-                  <p className="text-sm font-medium text-primary mt-2">- ISHU KUMAR, Computer Science Engineering Student</p>
+                  <p className="text-xs sm:text-sm font-medium text-primary mt-2" data-testid="student-testimonial">- ISHU KUMAR, Computer Science Engineering Student</p>
                 </div>
               </div>
             </div>
@@ -210,24 +230,24 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-16 px-6 bg-muted/30">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-foreground mb-4">Complete Student Achievement Ecosystem</h2>
-            <p className="text-lg text-muted-foreground max-w-4xl mx-auto">
+      {/* Features Section - Enhanced Mobile */}
+      <section className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 bg-muted/30">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-10 sm:mb-12 lg:mb-16">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-4 sm:mb-6">Complete Student Achievement Ecosystem</h2>
+            <p className="text-base sm:text-lg lg:text-xl text-muted-foreground max-w-4xl mx-auto leading-relaxed px-4">
               Centralize documentation and streamline data collection. Our platform provides a unified repository for all student activities - from academic achievements to co-curricular participation, internships, and leadership roles.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <Card className="text-center p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
-              <CardContent className="pt-6">
-                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-4">
-                  <Database className="w-6 h-6 text-primary" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+            <Card className="text-center p-4 sm:p-6 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group" data-testid="feature-tracking">
+              <CardContent className="pt-4 sm:pt-6">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-3 sm:mb-4 group-hover:bg-primary/20 transition-colors duration-300">
+                  <Database className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
                 </div>
-                <h3 className="text-lg font-semibold text-foreground mb-2">Comprehensive Activity Tracking</h3>
-                <p className="text-sm text-muted-foreground">
+                <h3 className="text-base sm:text-lg font-semibold text-foreground mb-2 sm:mb-3">Comprehensive Activity Tracking</h3>
+                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
                   Record and categorize all student activities including seminars, hackathons, MOOCs, internships, leadership roles, and volunteering efforts with automated documentation
                 </p>
               </CardContent>
@@ -296,25 +316,25 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Detailed Workflow Section */}
-      <section className="py-16 px-6 bg-white dark:bg-gray-900">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-foreground mb-4">Complete Workflow: From Upload to Portfolio</h2>
-            <p className="text-lg text-muted-foreground max-w-4xl mx-auto">
+      {/* Detailed Workflow Section - Enhanced Mobile */}
+      <section className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 bg-white dark:bg-gray-900">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-10 sm:mb-12 lg:mb-16">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-4 sm:mb-6">Complete Workflow: From Upload to Portfolio</h2>
+            <p className="text-base sm:text-lg lg:text-xl text-muted-foreground max-w-5xl mx-auto leading-relaxed px-4">
               Our streamlined three-stage process ensures every student achievement is properly documented, verified, and integrated into professional portfolios for career advancement.
             </p>
           </div>
           
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-10">
             {/* Stage 1 */}
-            <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950/20 dark:to-blue-900/20 rounded-xl p-8 border border-blue-200 dark:border-blue-800">
-              <div className="text-center mb-6">
-                <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-2xl font-bold text-white">1</span>
+            <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950/20 dark:to-blue-900/20 rounded-xl p-6 sm:p-8 border border-blue-200 dark:border-blue-800 md:col-span-2 lg:col-span-1" data-testid="workflow-stage-1">
+              <div className="text-center mb-4 sm:mb-6">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                  <span className="text-lg sm:text-2xl font-bold text-white">1</span>
                 </div>
-                <h3 className="text-2xl font-bold text-foreground mb-2">Student Documentation</h3>
-                <p className="text-muted-foreground">Comprehensive Activity Recording</p>
+                <h3 className="text-xl sm:text-2xl font-bold text-foreground mb-2">Student Documentation</h3>
+                <p className="text-sm sm:text-base text-muted-foreground">Comprehensive Activity Recording</p>
               </div>
               
               <div className="space-y-4">
@@ -469,26 +489,26 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Enhanced Technical Excellence Section */}
-      <section className="py-20 px-6 bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-blue-950/20">
+      {/* Enhanced Technical Excellence Section - Professional Mobile */}
+      <section className="py-12 sm:py-16 lg:py-20 xl:py-24 px-4 sm:px-6 bg-gradient-to-br from-gray-50 to-blue-50 dark:from-gray-900 dark:to-blue-950/20">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-foreground mb-6">Enterprise-Grade Technical Infrastructure</h2>
-            <p className="text-xl text-muted-foreground max-w-5xl mx-auto leading-relaxed">
+          <div className="text-center mb-12 sm:mb-16 lg:mb-20">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-foreground mb-4 sm:mb-6 lg:mb-8 tracking-tight">Enterprise-Grade Technical Infrastructure</h2>
+            <p className="text-base sm:text-lg lg:text-xl xl:text-2xl text-muted-foreground max-w-6xl mx-auto leading-relaxed px-4">
               Built on cutting-edge technology stack with enterprise-grade infrastructure, ensuring scalability, security, and seamless integration with existing institutional systems. Our platform handles millions of transactions while maintaining sub-second response times.
             </p>
           </div>
 
           {/* Security & Compliance */}
-          <div className="mb-16">
-            <h3 className="text-2xl font-bold text-foreground mb-8 text-center">Security & Compliance Framework</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="bg-red-50 dark:bg-red-950/20 rounded-xl p-8 border border-red-200 dark:border-red-800">
-                <div className="flex items-center mb-4">
-                  <Shield className="w-8 h-8 text-red-600 mr-3" />
-                  <h4 className="text-xl font-bold text-foreground">Enterprise Security</h4>
+          <div className="mb-12 sm:mb-16 lg:mb-20">
+            <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground mb-6 sm:mb-8 lg:mb-12 text-center">Security & Compliance Framework</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 lg:gap-10">
+              <div className="bg-red-50 dark:bg-red-950/20 rounded-xl p-6 sm:p-8 border border-red-200 dark:border-red-800 hover:shadow-lg transition-all duration-300 group" data-testid="security-framework">
+                <div className="flex items-center mb-4 sm:mb-6">
+                  <Shield className="w-6 h-6 sm:w-8 sm:h-8 text-red-600 mr-3 group-hover:scale-110 transition-transform duration-300" />
+                  <h4 className="text-lg sm:text-xl font-bold text-foreground">Enterprise Security</h4>
                 </div>
-                <ul className="space-y-3 text-sm text-muted-foreground">
+                <ul className="space-y-2 sm:space-y-3 text-xs sm:text-sm text-muted-foreground">
                   <li>• AES-256 encryption for data at rest and in transit</li>
                   <li>• Multi-factor authentication (MFA) support</li>
                   <li>• Role-based access control (RBAC) with granular permissions</li>
@@ -530,58 +550,58 @@ export default function Landing() {
             </div>
           </div>
 
-          {/* Performance Metrics */}
-          <div className="bg-gradient-to-r from-primary/5 to-blue-500/5 rounded-xl p-8 border border-primary/20">
-            <div className="text-center mb-8">
-              <h3 className="text-2xl font-bold text-foreground mb-4">Proven Performance & Reliability</h3>
-              <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+          {/* Performance Metrics - Enhanced Mobile */}
+          <div className="bg-gradient-to-r from-primary/5 to-blue-500/5 rounded-xl p-6 sm:p-8 lg:p-10 border border-primary/20 hover:border-primary/30 transition-all duration-300">
+            <div className="text-center mb-6 sm:mb-8 lg:mb-10">
+              <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground mb-3 sm:mb-4">Proven Performance & Reliability</h3>
+              <p className="text-sm sm:text-base lg:text-lg text-muted-foreground max-w-4xl mx-auto leading-relaxed px-2">
                 Our platform delivers exceptional performance with industry-leading uptime and response times, trusted by leading institutions across India.
               </p>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-              <div>
-                <div className="text-4xl font-bold text-primary mb-2">99.9%</div>
-                <div className="text-sm text-muted-foreground">System Uptime</div>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 text-center">
+              <div className="hover:scale-105 transition-transform duration-300">
+                <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-primary mb-1 sm:mb-2" data-testid="metric-uptime">99.9%</div>
+                <div className="text-xs sm:text-sm text-muted-foreground font-medium">System Uptime</div>
               </div>
-              <div>
-                <div className="text-4xl font-bold text-green-600 mb-2">&lt;200ms</div>
-                <div className="text-sm text-muted-foreground">Average Response Time</div>
+              <div className="hover:scale-105 transition-transform duration-300">
+                <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-green-600 mb-1 sm:mb-2" data-testid="metric-response">&lt;200ms</div>
+                <div className="text-xs sm:text-sm text-muted-foreground font-medium">Average Response Time</div>
               </div>
-              <div>
-                <div className="text-4xl font-bold text-blue-600 mb-2">100K+</div>
-                <div className="text-sm text-muted-foreground">Concurrent Users Supported</div>
+              <div className="hover:scale-105 transition-transform duration-300">
+                <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-blue-600 mb-1 sm:mb-2" data-testid="metric-users">100K+</div>
+                <div className="text-xs sm:text-sm text-muted-foreground font-medium">Concurrent Users Supported</div>
               </div>
-              <div>
-                <div className="text-4xl font-bold text-purple-600 mb-2">10PB+</div>
-                <div className="text-sm text-muted-foreground">Secure Data Storage</div>
+              <div className="hover:scale-105 transition-transform duration-300">
+                <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-purple-600 mb-1 sm:mb-2" data-testid="metric-storage">10PB+</div>
+                <div className="text-xs sm:text-sm text-muted-foreground font-medium">Secure Data Storage</div>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Institutional Case Studies & Testimonials */}
-      <section className="py-20 px-6 bg-white dark:bg-gray-900">
+      {/* Institutional Case Studies & Testimonials - Enhanced Professional */}
+      <section className="py-12 sm:py-16 lg:py-20 xl:py-24 px-4 sm:px-6 bg-white dark:bg-gray-900">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-foreground mb-6">Institutional Success Stories</h2>
-            <p className="text-xl text-muted-foreground max-w-4xl mx-auto">
+          <div className="text-center mb-12 sm:mb-16 lg:mb-20">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-bold text-foreground mb-4 sm:mb-6 lg:mb-8 tracking-tight">Institutional Success Stories</h2>
+            <p className="text-base sm:text-lg lg:text-xl xl:text-2xl text-muted-foreground max-w-5xl mx-auto leading-relaxed px-4">
               Leading Higher Education Institutions across India have transformed their student achievement tracking and compliance reporting through our comprehensive platform.
             </p>
           </div>
           
-          {/* Case Study 1 */}
-          <div className="mb-16">
-            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-900/20 rounded-xl shadow-xl p-8 border border-blue-200 dark:border-blue-700">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+          {/* Case Study 1 - Enhanced Mobile */}
+          <div className="mb-12 sm:mb-16 lg:mb-20">
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-900/20 rounded-xl shadow-xl hover:shadow-2xl p-6 sm:p-8 lg:p-10 border border-blue-200 dark:border-blue-700 transition-all duration-300" data-testid="case-study-abc-institute">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 items-center">
                 <div>
-                  <div className="flex items-center mb-6">
-                    <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900/20 rounded-full flex items-center justify-center mr-4">
-                      <Building className="w-8 h-8 text-blue-600" />
+                  <div className="flex items-center mb-4 sm:mb-6">
+                    <div className="w-12 h-12 sm:w-16 sm:h-16 bg-blue-100 dark:bg-blue-900/20 rounded-full flex items-center justify-center mr-3 sm:mr-4">
+                      <Building className="w-6 h-6 sm:w-8 sm:h-8 text-blue-600" />
                     </div>
-                    <div>
-                      <h3 className="text-2xl font-bold text-foreground">ABC Institute of Technology</h3>
-                      <p className="text-muted-foreground">Autonomous Engineering College, Mumbai</p>
+                    <div className="min-w-0">
+                      <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-foreground leading-tight">ABC Institute of Technology</h3>
+                      <p className="text-sm sm:text-base text-muted-foreground">Autonomous Engineering College, Mumbai</p>
                     </div>
                   </div>
                   
@@ -605,45 +625,45 @@ export default function Landing() {
                   </div>
                 </div>
                 
-                <div className="grid grid-cols-2 gap-6">
-                  <div className="bg-white dark:bg-gray-800 p-6 rounded-lg text-center shadow-lg">
-                    <div className="text-3xl font-bold text-blue-600 mb-2">85%</div>
-                    <div className="text-sm text-muted-foreground">Reduction in Manual Work</div>
+                <div className="grid grid-cols-2 gap-4 sm:gap-6">
+                  <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg text-center shadow-lg hover:shadow-xl transition-all duration-300" data-testid="metric-manual-work">
+                    <div className="text-2xl sm:text-3xl font-bold text-blue-600 mb-1 sm:mb-2">85%</div>
+                    <div className="text-xs sm:text-sm text-muted-foreground font-medium">Reduction in Manual Work</div>
                   </div>
-                  <div className="bg-white dark:bg-gray-800 p-6 rounded-lg text-center shadow-lg">
-                    <div className="text-3xl font-bold text-green-600 mb-2">A+</div>
-                    <div className="text-sm text-muted-foreground">NAAC Accreditation Grade</div>
+                  <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg text-center shadow-lg hover:shadow-xl transition-all duration-300" data-testid="metric-naac-grade">
+                    <div className="text-2xl sm:text-3xl font-bold text-green-600 mb-1 sm:mb-2">A+</div>
+                    <div className="text-xs sm:text-sm text-muted-foreground font-medium">NAAC Accreditation Grade</div>
                   </div>
-                  <div className="bg-white dark:bg-gray-800 p-6 rounded-lg text-center shadow-lg">
-                    <div className="text-3xl font-bold text-purple-600 mb-2">5,200</div>
-                    <div className="text-sm text-muted-foreground">Active Student Portfolios</div>
+                  <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg text-center shadow-lg hover:shadow-xl transition-all duration-300" data-testid="metric-portfolios">
+                    <div className="text-2xl sm:text-3xl font-bold text-purple-600 mb-1 sm:mb-2">5,200</div>
+                    <div className="text-xs sm:text-sm text-muted-foreground font-medium">Active Student Portfolios</div>
                   </div>
-                  <div className="bg-white dark:bg-gray-800 p-6 rounded-lg text-center shadow-lg">
-                    <div className="text-3xl font-bold text-orange-600 mb-2">92%</div>
-                    <div className="text-sm text-muted-foreground">Student Placement Rate</div>
+                  <div className="bg-white dark:bg-gray-800 p-4 sm:p-6 rounded-lg text-center shadow-lg hover:shadow-xl transition-all duration-300" data-testid="metric-placement">
+                    <div className="text-2xl sm:text-3xl font-bold text-orange-600 mb-1 sm:mb-2">92%</div>
+                    <div className="text-xs sm:text-sm text-muted-foreground font-medium">Student Placement Rate</div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
           
-          {/* Testimonials Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-200 dark:border-gray-700">
-              <div className="flex items-center mb-4">
+          {/* Testimonials Grid - Enhanced Mobile */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-6 shadow-lg hover:shadow-xl border border-gray-200 dark:border-gray-700 transition-all duration-300 group" data-testid="testimonial-1">
+              <div className="flex items-center mb-3 sm:mb-4">
                 {[1, 2, 3, 4, 5].map((star) => (
-                  <Star key={star} className="w-5 h-5 text-yellow-400 fill-current" />
+                  <Star key={star} className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400 fill-current" />
                 ))}
               </div>
-              <p className="text-muted-foreground mb-4 italic">
+              <p className="text-xs sm:text-sm text-muted-foreground mb-3 sm:mb-4 italic leading-relaxed">
                 "Implementation was seamless with excellent technical support. Our data migration was completed without any issues, and faculty training took just one day."
               </p>
               <div className="flex items-center">
-                <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/20 rounded-full flex items-center justify-center mr-3">
-                  <Users className="w-5 h-5 text-blue-600" />
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-blue-100 dark:bg-blue-900/20 rounded-full flex items-center justify-center mr-2 sm:mr-3 group-hover:bg-blue-200 dark:group-hover:bg-blue-800/40 transition-colors duration-300">
+                  <Users className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
                 </div>
-                <div>
-                  <p className="font-semibold text-foreground text-sm">Dr. Meera Patel</p>
+                <div className="min-w-0">
+                  <p className="font-semibold text-foreground text-xs sm:text-sm">Dr. Meera Patel</p>
                   <p className="text-xs text-muted-foreground">IT Director, DEF College</p>
                 </div>
               </div>
@@ -692,19 +712,20 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Final Call to Action Section */}
-      <section className="py-20 px-6 bg-gradient-to-r from-primary via-blue-600 to-purple-600 text-white">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl md:text-5xl font-bold mb-6">Ready to Transform Your Institution?</h2>
-          <p className="text-xl md:text-2xl mb-12 opacity-90 leading-relaxed">
+      {/* Final Call to Action Section - Enhanced Professional */}
+      <section className="py-16 sm:py-20 lg:py-24 px-4 sm:px-6 bg-gradient-to-r from-primary via-blue-600 to-purple-600 text-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-black/10"></div>
+        <div className="relative max-w-5xl mx-auto text-center">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 sm:mb-6 lg:mb-8 leading-tight tracking-tight">Ready to Transform Your Institution?</h2>
+          <p className="text-lg sm:text-xl lg:text-2xl mb-8 sm:mb-12 lg:mb-16 opacity-90 leading-relaxed max-w-4xl mx-auto px-4">
             Join leading Higher Education Institutions in implementing comprehensive student achievement tracking and NAAC compliance automation. Start your digital transformation journey today.
           </p>
-          <div className="flex flex-col sm:flex-row gap-6 justify-center mb-12">
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center mb-8 sm:mb-12 lg:mb-16 max-w-3xl mx-auto">
             <Button 
               onClick={() => window.location.href = '/api/login'}
               size="lg"
               variant="secondary"
-              className="text-primary bg-white hover:bg-gray-100 px-12 py-4 text-lg font-semibold rounded-full shadow-lg transform hover:scale-105 transition-all duration-200"
+              className="text-primary bg-white hover:bg-gray-100 px-8 sm:px-12 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 focus-ring"
               data-testid="button-access-platform"
             >
               Launch Platform Now
@@ -713,10 +734,11 @@ export default function Landing() {
               size="lg"
               variant="outline"
               onClick={() => window.location.href = 'mailto:contact@smartstudenthub.com?subject=Schedule Institution Demo Request&body=Hello,%0A%0AI am interested in scheduling a demo of the Smart Student Hub platform for my institution.%0A%0APlease contact me to arrange a suitable time.%0A%0AThank you!'}
-              className="border-2 border-white text-white hover:bg-white hover:text-primary px-12 py-4 text-lg font-semibold rounded-full shadow-lg transform hover:scale-105 transition-all duration-200"
+              className="border-2 border-white text-white hover:bg-white hover:text-primary px-8 sm:px-12 py-3 sm:py-4 text-base sm:text-lg font-semibold rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 focus-ring"
               data-testid="button-schedule-demo-footer"
             >
-              Schedule Institution Demo
+              <span className="hidden sm:inline">Schedule Institution Demo</span>
+              <span className="sm:hidden">Schedule Demo</span>
             </Button>
           </div>
           
@@ -738,54 +760,54 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-gray-900 text-white py-16 px-6">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
-            <div>
-              <div className="flex items-center space-x-2 mb-6">
-                <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                  <GraduationCap className="w-5 h-5 text-primary-foreground" />
+      {/* Footer - Enhanced Professional Mobile */}
+      <footer className="bg-gray-900 text-white py-12 sm:py-16 lg:py-20 px-4 sm:px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 lg:gap-10 mb-8 sm:mb-12">
+            <div className="sm:col-span-2 lg:col-span-1">
+              <div className="flex items-center space-x-2 sm:space-x-3 mb-4 sm:mb-6">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-primary rounded-lg flex items-center justify-center">
+                  <GraduationCap className="w-5 h-5 sm:w-6 sm:h-6 text-primary-foreground" />
                 </div>
-                <span className="font-semibold text-white">Smart Student Hub</span>
+                <span className="font-semibold text-white text-lg sm:text-xl">Smart Student Hub</span>
               </div>
-              <p className="text-sm text-gray-300 leading-relaxed">
+              <p className="text-xs sm:text-sm text-gray-300 leading-relaxed max-w-md">
                 Empowering Higher Education Institutions with comprehensive student achievement tracking and compliance automation. Built for the future of institutional excellence.
               </p>
             </div>
             <div>
-              <h4 className="font-semibold text-white mb-4">Platform Features</h4>
-              <ul className="space-y-2 text-sm text-gray-300">
-                <li>Activity Tracking & Verification</li>
-                <li>Digital Portfolio Generation</li>
-                <li>NAAC/NIRF Compliance</li>
-                <li>Advanced Analytics</li>
-                <li>Faculty Workflow Management</li>
+              <h4 className="font-semibold text-white mb-3 sm:mb-4 text-sm sm:text-base">Platform Features</h4>
+              <ul className="space-y-1 sm:space-y-2 text-xs sm:text-sm text-gray-300">
+                <li className="hover:text-gray-200 transition-colors duration-200">Activity Tracking & Verification</li>
+                <li className="hover:text-gray-200 transition-colors duration-200">Digital Portfolio Generation</li>
+                <li className="hover:text-gray-200 transition-colors duration-200">NAAC/NIRF Compliance</li>
+                <li className="hover:text-gray-200 transition-colors duration-200">Advanced Analytics</li>
+                <li className="hover:text-gray-200 transition-colors duration-200">Faculty Workflow Management</li>
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold text-white mb-4">For Institutions</h4>
-              <ul className="space-y-2 text-sm text-gray-300">
-                <li>Accreditation Support</li>
-                <li>Data-Driven Insights</li>
-                <li>Process Automation</li>
-                <li>System Integration</li>
-                <li>Compliance Reporting</li>
+              <h4 className="font-semibold text-white mb-3 sm:mb-4 text-sm sm:text-base">For Institutions</h4>
+              <ul className="space-y-1 sm:space-y-2 text-xs sm:text-sm text-gray-300">
+                <li className="hover:text-gray-200 transition-colors duration-200">Accreditation Support</li>
+                <li className="hover:text-gray-200 transition-colors duration-200">Data-Driven Insights</li>
+                <li className="hover:text-gray-200 transition-colors duration-200">Process Automation</li>
+                <li className="hover:text-gray-200 transition-colors duration-200">System Integration</li>
+                <li className="hover:text-gray-200 transition-colors duration-200">Compliance Reporting</li>
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold text-white mb-4">Support & Resources</h4>
-              <ul className="space-y-2 text-sm text-gray-300">
-                <li>Implementation Guide</li>
-                <li>Training Materials</li>
-                <li>Technical Documentation</li>
-                <li>Best Practices</li>
-                <li>Community Forum</li>
+              <h4 className="font-semibold text-white mb-3 sm:mb-4 text-sm sm:text-base">Support & Resources</h4>
+              <ul className="space-y-1 sm:space-y-2 text-xs sm:text-sm text-gray-300">
+                <li className="hover:text-gray-200 transition-colors duration-200">Implementation Guide</li>
+                <li className="hover:text-gray-200 transition-colors duration-200">Training Materials</li>
+                <li className="hover:text-gray-200 transition-colors duration-200">Technical Documentation</li>
+                <li className="hover:text-gray-200 transition-colors duration-200">Best Practices</li>
+                <li className="hover:text-gray-200 transition-colors duration-200">Community Forum</li>
               </ul>
             </div>
           </div>
-          <div className="border-t border-gray-700 pt-8 text-center">
-            <p className="text-gray-400 text-sm leading-relaxed">
+          <div className="border-t border-gray-700 pt-6 sm:pt-8 text-center">
+            <p className="text-gray-400 text-xs sm:text-sm leading-relaxed max-w-4xl mx-auto px-4">
               © 2024 Smart Student Hub. Advancing academic excellence through institutional digital transformation. Designed for Higher Education Institutions pursuing NAAC accreditation and NIRF ranking improvements.
             </p>
           </div>
