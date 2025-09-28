@@ -78,6 +78,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { Skeleton } from "@/components/ui/skeleton";
 import Navigation from "@/components/layout/navigation";
 import Sidebar from "@/components/layout/sidebar";
 import { Button } from "@/components/ui/button";
@@ -180,17 +181,19 @@ interface TimelineEntry {
 export default function DigitalPortfolio() {
   // UI hooks for notifications and user authentication
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
 
-  // Data fetching hooks for student activities and statistics
-  const { data: activities, isLoading: activitiesLoading } = useQuery<Activity[]>({
+  // Data fetching hooks for student activities and statistics - gated on authentication
+  const { data: activities, isLoading: activitiesLoading, error: activitiesError } = useQuery<Activity[]>({
     queryKey: ["/api/students/activities"],
     retry: false,
+    enabled: isAuthenticated && !!user, // Gate query on authentication
   });
 
-  const { data: studentStats, isLoading: statsLoading } = useQuery<StudentStats>({
-    queryKey: ["/api/students/stats"],
+  const { data: studentStats, isLoading: statsLoading, error: statsError } = useQuery<StudentStats>({
+    queryKey: ["/api/students/stats"], 
     retry: false,
+    enabled: isAuthenticated && !!user, // Gate query on authentication
   });
 
   /**
@@ -282,126 +285,49 @@ export default function DigitalPortfolio() {
     });
   };
 
-  // Authentication check for secure portfolio access
-  if (!user) {
-    return null;
+  // Show loading state while authenticating or if user data is not available
+  if (authLoading || !isAuthenticated || !user) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navigation />
+        
+        <div className="flex">
+          <Sidebar />
+          
+          <main className="flex-1 p-6" data-testid="main-portfolio">
+            <div className="max-w-6xl mx-auto space-y-8">
+              {/* Loading skeleton for header */}
+              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
+                <div className="space-y-2">
+                  <Skeleton className="h-8 w-96" />
+                  <Skeleton className="h-6 w-72" />
+                  <div className="flex items-center space-x-4 mt-2">
+                    <Skeleton className="h-6 w-24" />
+                    <Skeleton className="h-6 w-28" />
+                    <Skeleton className="h-6 w-24" />
+                  </div>
+                </div>
+                <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
+                  <Skeleton className="h-10 w-32" />
+                  <Skeleton className="h-10 w-32" />
+                  <Skeleton className="h-10 w-40" />
+                </div>
+              </div>
+              
+              {/* Loading skeleton for content */}
+              <div className="space-y-6">
+                <Skeleton className="h-12 w-full" />
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <Skeleton className="h-96 w-full" />
+                  <Skeleton className="h-96 w-full" />
+                </div>
+              </div>
+            </div>
+          </main>
+        </div>
+      </div>
+    );
   }
-
-  // Example data for ISHU KUMAR - comprehensive achievement portfolio
-  const ishuKumarData = {
-    personalInfo: {
-      name: "ISHU KUMAR",
-      rollNumber: "20CS3024",
-      department: "Computer Science",
-      currentSemester: 8,
-      cgpa: 9.2,
-      academicYear: "2020-2024",
-      specialization: "Artificial Intelligence & Machine Learning",
-      email: "ishu.kumar@institution.edu.in",
-      phone: "+91-9876543210",
-      location: "Delhi, India",
-      attendance: 96
-    },
-    
-    professionalSummary: `Distinguished Computer Science Engineering student with exceptional academic performance and comprehensive industry experience. 
-    Demonstrated excellence in artificial intelligence, machine learning, and software development through multiple internships at leading technology companies. 
-    Published researcher with contributions to international conferences and journals. Active leader in institutional activities with significant community impact. 
-    Recipient of multiple academic awards and recognitions for outstanding performance and innovation.`,
-    
-    // Comprehensive skills matrix with verified proficiency levels
-    skillsMatrix: [
-      { name: "Programming Languages", level: 95, verifiedProjects: 12, certifications: 3 },
-      { name: "Machine Learning & AI", level: 90, verifiedProjects: 8, certifications: 4 },
-      { name: "Web Development", level: 88, verifiedProjects: 10, certifications: 2 },
-      { name: "Database Management", level: 85, verifiedProjects: 6, certifications: 2 },
-      { name: "Cloud Computing", level: 82, verifiedProjects: 5, certifications: 3 },
-      { name: "DevOps & CI/CD", level: 80, verifiedProjects: 4, certifications: 2 },
-      { name: "Mobile Development", level: 78, verifiedProjects: 3, certifications: 1 },
-      { name: "Data Science", level: 85, verifiedProjects: 7, certifications: 3 },
-      { name: "Cybersecurity", level: 75, verifiedProjects: 3, certifications: 2 },
-      { name: "Project Management", level: 88, verifiedProjects: 8, certifications: 1 }
-    ],
-    
-    // Achievement timeline demonstrating consistent growth and excellence
-    achievementTimeline: [
-      {
-        date: "2024-01",
-        title: "Best Paper Award - IEEE International Conference on AI",
-        category: "academic",
-        organization: "IEEE Computer Society",
-        impact: "International Recognition",
-        description: "Received Best Paper Award for research on 'Federated Learning for Healthcare Applications' at IEEE International Conference on Artificial Intelligence, demonstrating significant contribution to the field."
-      },
-      {
-        date: "2023-12",
-        title: "Senior Software Engineering Intern - Google",
-        category: "internship",
-        organization: "Google Inc.",
-        impact: "Industry Excellence",
-        description: "Led development of machine learning pipeline optimization tools, resulting in 25% performance improvement. Mentored junior interns and contributed to open-source projects."
-      },
-      {
-        date: "2023-10",
-        title: "President - Computer Science Students Association",
-        category: "leadership",
-        organization: "Institution Student Council",
-        impact: "Institutional Leadership",
-        description: "Elected as President of CS Students Association, organizing technical events for 500+ students, managing budget of ₹2 lakhs, and implementing innovative mentorship programs."
-      },
-      {
-        date: "2023-08",
-        title: "Winner - National Coding Championship",
-        category: "academic",
-        organization: "CodeChef & HackerRank",
-        impact: "National Recognition",
-        description: "Secured first position in National Coding Championship among 10,000+ participants, demonstrating exceptional problem-solving and algorithmic thinking capabilities."
-      },
-      {
-        date: "2023-06",
-        title: "Research Publication - ACM Computing Surveys",
-        category: "academic",
-        organization: "Association for Computing Machinery",
-        impact: "Research Excellence",
-        description: "Published comprehensive survey on 'Emerging Trends in Federated Learning' in ACM Computing Surveys (Impact Factor: 14.3), contributing to academic knowledge base."
-      },
-      {
-        date: "2023-05",
-        title: "Teaching Assistant - Machine Learning Course",
-        category: "academic",
-        organization: "Institution Department",
-        impact: "Academic Contribution",
-        description: "Served as Teaching Assistant for Machine Learning course, helping 200+ students understand complex concepts and achieving 95% satisfaction rating from student feedback."
-      },
-      {
-        date: "2023-03",
-        title: "Community Outreach Coordinator - Digital Literacy",
-        category: "volunteering",
-        organization: "National Service Scheme",
-        impact: "Social Impact",
-        description: "Coordinated digital literacy program reaching 500+ underprivileged students, teaching basic computer skills and programming fundamentals to bridge the digital divide."
-      },
-      {
-        date: "2023-01",
-        title: "Software Development Intern - Microsoft",
-        category: "internship",
-        organization: "Microsoft Corporation",
-        impact: "Industry Experience",
-        description: "Developed Azure cloud-based solutions for enterprise clients, working with cross-functional teams and contributing to products used by millions of users worldwide."
-      }
-    ],
-    
-    // Comprehensive statistics demonstrating excellence across all domains
-    portfolioStats: {
-      totalActivities: 24,
-      skillCredits: 340,
-      pendingApprovals: 2,
-      academicExcellence: 8,
-      industryEngagement: 6,
-      leadershipRoles: 4,
-      communityService: 3,
-      researchPublications: 3
-    }
-  };
 
   // Group actual activities by category with proper null checks and error handling
   const academicActivities = activities?.filter((a) => a.category === 'academic' && a.status === 'approved') || [];
@@ -410,6 +336,117 @@ export default function DigitalPortfolio() {
   const leadershipActivities = activities?.filter((a) => a.category === 'leadership' && a.status === 'approved') || [];
   const volunteeringActivities = activities?.filter((a) => ['volunteering', 'extra-curricular'].includes(a.category) && a.status === 'approved') || [];
   const moocActivities = activities?.filter((a) => a.category === 'mooc' && a.status === 'approved') || [];
+
+  // Portfolio display data - combines real API data with professional defaults
+  const portfolioDisplayData = {
+    personalInfo: {
+      name: user ? `${user.firstName} ${user.lastName}` : "Student Name",
+      rollNumber: user?.rollNumber || "Roll Number",
+      department: user?.department || "Department",
+      currentSemester: user?.currentSemester || 8,
+      cgpa: user?.cgpa ? (typeof user.cgpa === 'string' ? parseFloat(user.cgpa) : user.cgpa) : 8.5,
+      academicYear: "2020-2024",
+      specialization: "Computer Science & Engineering",
+      email: user?.email || "student@institution.edu.in",
+      phone: "+91-XXXXXXXXXX",
+      location: "New Delhi, India",
+      attendance: 94
+    },
+    
+    professionalSummary: `Dedicated Computer Science Engineering student with strong academic performance and active participation in institutional activities. 
+    Demonstrated commitment to learning through various technical projects, internships, and leadership roles. 
+    Engaged in research activities and community service, contributing to both academic and social development. 
+    Focused on continuous learning and professional growth in technology and innovation.`,
+    
+    // Professional skills matrix
+    skillsMatrix: [
+      { name: "Programming Languages", level: 85, verifiedProjects: 8, certifications: 2 },
+      { name: "Web Development", level: 80, verifiedProjects: 6, certifications: 1 },
+      { name: "Database Management", level: 75, verifiedProjects: 4, certifications: 1 },
+      { name: "Software Engineering", level: 82, verifiedProjects: 5, certifications: 1 },
+      { name: "Problem Solving", level: 88, verifiedProjects: 10, certifications: 0 },
+      { name: "Team Leadership", level: 78, verifiedProjects: 3, certifications: 0 },
+      { name: "Project Management", level: 75, verifiedProjects: 4, certifications: 0 },
+      { name: "Communication", level: 85, verifiedProjects: 6, certifications: 0 }
+    ],
+    
+    // Professional statistics
+    portfolioStats: {
+      totalActivities: studentStats?.totalActivities || activities?.length || 15,
+      skillCredits: studentStats?.skillCredits || 180,
+      pendingApprovals: studentStats?.pendingApprovals || 2,
+      academicExcellence: academicActivities.length || 5,
+      industryEngagement: internshipActivities.length || 3,
+      leadershipRoles: leadershipActivities.length || 2,
+      communityService: volunteeringActivities.length || 2,
+      researchPublications: 1
+    },
+
+    // Achievement Timeline - Safe default with sample data for demonstration
+    achievementTimeline: activities && activities.length > 0 
+      ? activities
+          .filter(activity => activity.status === 'approved')
+          .sort((a, b) => new Date(b.dateAchieved || '').getTime() - new Date(a.dateAchieved || '').getTime())
+          .slice(0, 8) // Show latest 8 achievements
+          .map(activity => ({
+            date: activity.dateAchieved || new Date().toISOString(),
+            title: activity.title || 'Achievement',
+            category: activity.category || 'academic',
+            organization: activity.organizationName || 'Institution',
+            impact: activity.impactLevel || 'Medium',
+            description: activity.description || 'Professional achievement and milestone'
+          }))
+      : [
+          {
+            date: '2024-03-15',
+            title: 'Research Paper Publication',
+            category: 'academic',
+            organization: 'IEEE Conference on Machine Learning',
+            impact: 'High',
+            description: 'Published research paper on advanced machine learning algorithms with practical applications in healthcare data analysis'
+          },
+          {
+            date: '2024-02-20',
+            title: 'Software Engineering Internship',
+            category: 'internship',
+            organization: 'Tech Solutions Inc.',
+            impact: 'High',
+            description: 'Completed 6-month internship developing enterprise software solutions and contributing to production systems'
+          },
+          {
+            date: '2024-01-10',
+            title: 'Student Council President',
+            category: 'leadership',
+            organization: 'Computer Science Department',
+            impact: 'Medium',
+            description: 'Led department student council, organized technical events, and represented 500+ students in academic committees'
+          },
+          {
+            date: '2023-12-05',
+            title: 'Hackathon Winner',
+            category: 'academic',
+            organization: 'National Coding Championship',
+            impact: 'High',
+            description: 'First place in national level hackathon for developing innovative web application solving real-world problems'
+          },
+          {
+            date: '2023-11-18',
+            title: 'Community Service Leadership',
+            category: 'volunteering',
+            organization: 'Local Community Center',
+            impact: 'Medium',
+            description: 'Organized and led community service initiatives reaching 200+ families in underserved communities'
+          },
+          {
+            date: '2023-10-12',
+            title: 'Technical Workshop Certification',
+            category: 'academic',
+            organization: 'Professional Development Institute',
+            impact: 'Medium',
+            description: 'Completed advanced certification in cloud computing and distributed systems architecture'
+          }
+        ]
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -494,27 +531,27 @@ export default function DigitalPortfolio() {
                     <div className="text-center mb-8 pb-8 border-b border-border">
                       <div className="w-32 h-32 bg-gradient-to-br from-primary to-blue-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
                         <span className="text-3xl font-bold text-white">
-                          {ishuKumarData.personalInfo.name.split(' ').map(n => n[0]).join('')}
+                          {(portfolioDisplayData.personalInfo?.name || 'Student Name').split(' ').map(n => n[0]).join('')}
                         </span>
                       </div>
                       <h1 className="text-3xl font-bold text-foreground mb-2" data-testid="text-student-name">
-                        {ishuKumarData.personalInfo.name}
+                        {portfolioDisplayData.personalInfo.name}
                       </h1>
                       <p className="text-xl text-muted-foreground mb-4" data-testid="text-student-details">
-                        Department of {ishuKumarData.personalInfo.department} Engineering • Roll Number: {ishuKumarData.personalInfo.rollNumber}
+                        Department of {portfolioDisplayData.personalInfo.department} • Roll Number: {portfolioDisplayData.personalInfo.rollNumber}
                       </p>
                       <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground">
                         <div className="flex items-center space-x-2">
                           <GraduationCap className="w-4 h-4" />
-                          <span>Specialization: {ishuKumarData.personalInfo.specialization}</span>
+                          <span>Specialization: {portfolioDisplayData.personalInfo.specialization}</span>
                         </div>
                         <div className="flex items-center space-x-2">
                           <Calendar className="w-4 h-4" />
-                          <span>Academic Year: {ishuKumarData.personalInfo.academicYear}</span>
+                          <span>Academic Year: {portfolioDisplayData.personalInfo.academicYear}</span>
                         </div>
                         <div className="flex items-center space-x-2">
                           <MapPin className="w-4 h-4" />
-                          <span>{ishuKumarData.personalInfo.location}</span>
+                          <span>{portfolioDisplayData.personalInfo.location}</span>
                         </div>
                       </div>
                       
@@ -522,7 +559,7 @@ export default function DigitalPortfolio() {
                       <div className="mt-6 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 rounded-lg">
                         <h3 className="text-lg font-semibold text-foreground mb-3">Professional Summary</h3>
                         <p className="text-sm text-muted-foreground leading-relaxed">
-                          {ishuKumarData.professionalSummary}
+                          {portfolioDisplayData.professionalSummary}
                         </p>
                       </div>
                       
@@ -530,25 +567,25 @@ export default function DigitalPortfolio() {
                       <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-6">
                         <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
                           <div className="text-2xl font-bold text-green-600" data-testid="text-cgpa">
-                            {ishuKumarData.personalInfo.cgpa}
+                            {portfolioDisplayData.personalInfo.cgpa}
                           </div>
                           <div className="text-sm text-green-700 dark:text-green-300">Current CGPA</div>
                         </div>
                         <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                           <div className="text-2xl font-bold text-blue-600" data-testid="text-total-activities">
-                            {ishuKumarData.portfolioStats.totalActivities}
+                            {portfolioDisplayData.portfolioStats.totalActivities}
                           </div>
                           <div className="text-sm text-blue-700 dark:text-blue-300">Verified Achievements</div>
                         </div>
                         <div className="text-center p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
                           <div className="text-2xl font-bold text-purple-600" data-testid="text-skill-credits">
-                            {ishuKumarData.portfolioStats.skillCredits}
+                            {portfolioDisplayData.portfolioStats.skillCredits}
                           </div>
                           <div className="text-sm text-purple-700 dark:text-purple-300">Skill Credits</div>
                         </div>
                         <div className="text-center p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
                           <div className="text-2xl font-bold text-orange-600" data-testid="text-attendance">
-                            {ishuKumarData.personalInfo.attendance}%
+                            {portfolioDisplayData.personalInfo.attendance}%
                           </div>
                           <div className="text-sm text-orange-700 dark:text-orange-300">Attendance Rate</div>
                         </div>
@@ -567,8 +604,8 @@ export default function DigitalPortfolio() {
                             <div className="text-sm font-medium text-blue-900 dark:text-blue-200">Academic Performance</div>
                             <Trophy className="w-5 h-5 text-blue-600" />
                           </div>
-                          <div className="text-2xl font-bold text-blue-800 dark:text-blue-200 mb-1">{ishuKumarData.personalInfo.cgpa}</div>
-                          <div className="text-sm text-blue-700 dark:text-blue-300">CGPA • Semester {ishuKumarData.personalInfo.currentSemester}/8</div>
+                          <div className="text-2xl font-bold text-blue-800 dark:text-blue-200 mb-1">{portfolioDisplayData.personalInfo.cgpa}</div>
+                          <div className="text-sm text-blue-700 dark:text-blue-300">CGPA • Semester {portfolioDisplayData.personalInfo.currentSemester}/8</div>
                           <div className="mt-3 text-xs text-blue-600 dark:text-blue-400">First Class with Distinction</div>
                         </div>
                         
@@ -577,7 +614,7 @@ export default function DigitalPortfolio() {
                             <div className="text-sm font-medium text-green-900 dark:text-green-200">Research Impact</div>
                             <Lightbulb className="w-5 h-5 text-green-600" />
                           </div>
-                          <div className="text-2xl font-bold text-green-800 dark:text-green-200 mb-1">{ishuKumarData.portfolioStats.researchPublications}</div>
+                          <div className="text-2xl font-bold text-green-800 dark:text-green-200 mb-1">{portfolioDisplayData.portfolioStats.researchPublications}</div>
                           <div className="text-sm text-green-700 dark:text-green-300">Publications • 2 Conferences</div>
                           <div className="mt-3 text-xs text-green-600 dark:text-green-400">H-Index: 3 • Citations: 24</div>
                         </div>
@@ -587,7 +624,7 @@ export default function DigitalPortfolio() {
                             <div className="text-sm font-medium text-purple-900 dark:text-purple-200">Industry Engagement</div>
                             <Briefcase className="w-5 h-5 text-purple-600" />
                           </div>
-                          <div className="text-2xl font-bold text-purple-800 dark:text-purple-200 mb-1">{ishuKumarData.portfolioStats.industryEngagement}</div>
+                          <div className="text-2xl font-bold text-purple-800 dark:text-purple-200 mb-1">{portfolioDisplayData.portfolioStats.industryEngagement}</div>
                           <div className="text-sm text-purple-700 dark:text-purple-300">Internships • 4 Companies</div>
                           <div className="mt-3 text-xs text-purple-600 dark:text-purple-400">Microsoft, Google, Adobe, Samsung</div>
                         </div>
@@ -606,14 +643,14 @@ export default function DigitalPortfolio() {
                             <Mail className="w-5 h-5 text-blue-600" />
                             <div>
                               <div className="font-medium text-foreground">Email</div>
-                              <div className="text-sm text-muted-foreground">{ishuKumarData.personalInfo.email}</div>
+                              <div className="text-sm text-muted-foreground">{portfolioDisplayData.personalInfo.email}</div>
                             </div>
                           </div>
                           <div className="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                             <Phone className="w-5 h-5 text-green-600" />
                             <div>
                               <div className="font-medium text-foreground">Phone</div>
-                              <div className="text-sm text-muted-foreground">{ishuKumarData.personalInfo.phone}</div>
+                              <div className="text-sm text-muted-foreground">{portfolioDisplayData.personalInfo.phone}</div>
                             </div>
                           </div>
                         </div>
@@ -651,7 +688,7 @@ export default function DigitalPortfolio() {
                         <BookOpen className="w-5 h-5 text-blue-600" />
                       </div>
                       <div>
-                        <div className="text-xl font-bold text-foreground">{ishuKumarData.portfolioStats.academicExcellence}</div>
+                        <div className="text-xl font-bold text-foreground">{portfolioDisplayData.portfolioStats.academicExcellence}</div>
                         <div className="text-sm text-muted-foreground">Academic Excellence</div>
                       </div>
                     </div>
@@ -663,7 +700,7 @@ export default function DigitalPortfolio() {
                         <Briefcase className="w-5 h-5 text-green-600" />
                       </div>
                       <div>
-                        <div className="text-xl font-bold text-foreground">{ishuKumarData.portfolioStats.industryEngagement}</div>
+                        <div className="text-xl font-bold text-foreground">{portfolioDisplayData.portfolioStats.industryEngagement}</div>
                         <div className="text-sm text-muted-foreground">Industry Engagement</div>
                       </div>
                     </div>
@@ -675,7 +712,7 @@ export default function DigitalPortfolio() {
                         <Crown className="w-5 h-5 text-orange-600" />
                       </div>
                       <div>
-                        <div className="text-xl font-bold text-foreground">{ishuKumarData.portfolioStats.leadershipRoles}</div>
+                        <div className="text-xl font-bold text-foreground">{portfolioDisplayData.portfolioStats.leadershipRoles}</div>
                         <div className="text-sm text-muted-foreground">Leadership Roles</div>
                       </div>
                     </div>
@@ -687,7 +724,7 @@ export default function DigitalPortfolio() {
                         <Heart className="w-5 h-5 text-red-600" />
                       </div>
                       <div>
-                        <div className="text-xl font-bold text-foreground">{ishuKumarData.portfolioStats.communityService}</div>
+                        <div className="text-xl font-bold text-foreground">{portfolioDisplayData.portfolioStats.communityService}</div>
                         <div className="text-sm text-muted-foreground">Community Service</div>
                       </div>
                     </div>
@@ -704,95 +741,47 @@ export default function DigitalPortfolio() {
                         <BookOpen className="w-5 h-5 text-blue-600" />
                         <span>Academic Excellence & Research</span>
                         <Badge variant="secondary" className="bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-200">
-                          {ishuKumarData.portfolioStats.academicExcellence} Achievements
+                          {portfolioDisplayData.portfolioStats.academicExcellence} Achievements
                         </Badge>
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-4">
-                        <div className="flex items-start justify-between p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                          <div className="flex items-start space-x-3">
-                            <div className="w-12 h-12 bg-blue-100 dark:bg-blue-800 rounded-lg flex items-center justify-center">
-                              <Award className="w-6 h-6 text-blue-600" />
-                            </div>
-                            <div>
-                              <h4 className="font-semibold text-foreground">Best Paper Award - IEEE International Conference on AI</h4>
-                              <p className="text-sm text-muted-foreground">IEEE Computer Society • January 2024</p>
-                              <p className="text-sm text-blue-700 dark:text-blue-300 mt-2">
-                                Received Best Paper Award for research on "Federated Learning for Healthcare Applications" among 300+ submissions. 
-                                Paper demonstrates novel approach to privacy-preserving machine learning with 23% improvement in model accuracy.
-                              </p>
-                              <div className="flex items-center space-x-4 mt-3">
-                                <Badge variant="outline" className="text-xs">International Recognition</Badge>
-                                <Badge variant="outline" className="text-xs">Peer Reviewed</Badge>
-                                <Badge variant="outline" className="text-xs">Impact Factor: 4.2</Badge>
+                        {academicActivities.length > 0 ? (
+                          academicActivities.map((activity) => (
+                            <div key={activity.id} className="flex items-start justify-between p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                              <div className="flex items-start space-x-3">
+                                <div className="w-12 h-12 bg-blue-100 dark:bg-blue-800 rounded-lg flex items-center justify-center">
+                                  <Award className="w-6 h-6 text-blue-600" />
+                                </div>
+                                <div>
+                                  <h4 className="font-semibold text-foreground">{activity.title}</h4>
+                                  <p className="text-sm text-muted-foreground">{activity.organization} • {activity.activityDate.toLocaleDateString()}</p>
+                                  <p className="text-sm text-blue-700 dark:text-blue-300 mt-2">
+                                    {activity.description || 'Academic achievement verified by faculty'}
+                                  </p>
+                                  <div className="flex items-center space-x-4 mt-3">
+                                    <Badge variant="outline" className="text-xs">Academic Excellence</Badge>
+                                    <Badge variant="outline" className="text-xs">{activity.skillCredits} Credits</Badge>
+                                    <Badge variant="outline" className="text-xs">Verified</Badge>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <Badge className="status-approved">Verified</Badge>
+                                <Button variant="ghost" size="sm" onClick={() => handleViewCertificate(activity.id)}>
+                                  <Eye className="w-4 h-4 mr-1" />
+                                  View Certificate
+                                </Button>
                               </div>
                             </div>
+                          ))
+                        ) : (
+                          <div className="text-center py-8 text-muted-foreground">
+                            <BookOpen className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                            <p>No academic activities found. Start adding your achievements!</p>
                           </div>
-                          <div className="flex items-center space-x-2">
-                            <Badge className="status-approved">Verified</Badge>
-                            <Button variant="ghost" size="sm">
-                              <Eye className="w-4 h-4 mr-1" />
-                              View Certificate
-                            </Button>
-                          </div>
-                        </div>
-                        
-                        <div className="flex items-start justify-between p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                          <div className="flex items-start space-x-3">
-                            <div className="w-12 h-12 bg-green-100 dark:bg-green-800 rounded-lg flex items-center justify-center">
-                              <Trophy className="w-6 h-6 text-green-600" />
-                            </div>
-                            <div>
-                              <h4 className="font-semibold text-foreground">Winner - National Coding Championship</h4>
-                              <p className="text-sm text-muted-foreground">CodeChef & HackerRank • August 2023</p>
-                              <p className="text-sm text-green-700 dark:text-green-300 mt-2">
-                                Secured first position in National Coding Championship among 10,000+ participants across India. 
-                                Demonstrated exceptional algorithmic thinking and problem-solving skills in competitive programming.
-                              </p>
-                              <div className="flex items-center space-x-4 mt-3">
-                                <Badge variant="outline" className="text-xs">National Level</Badge>
-                                <Badge variant="outline" className="text-xs">10,000+ Participants</Badge>
-                                <Badge variant="outline" className="text-xs">Winner</Badge>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <Badge className="status-approved">Verified</Badge>
-                            <Button variant="ghost" size="sm">
-                              <Eye className="w-4 h-4 mr-1" />
-                              View Certificate
-                            </Button>
-                          </div>
-                        </div>
-                        
-                        <div className="flex items-start justify-between p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-                          <div className="flex items-start space-x-3">
-                            <div className="w-12 h-12 bg-purple-100 dark:bg-purple-800 rounded-lg flex items-center justify-center">
-                              <FileText className="w-6 h-6 text-purple-600" />
-                            </div>
-                            <div>
-                              <h4 className="font-semibold text-foreground">Research Publication - ACM Computing Surveys</h4>
-                              <p className="text-sm text-muted-foreground">Association for Computing Machinery • June 2023</p>
-                              <p className="text-sm text-purple-700 dark:text-purple-300 mt-2">
-                                Published comprehensive survey on "Emerging Trends in Federated Learning" in ACM Computing Surveys 
-                                (Impact Factor: 14.3). Paper has received 15+ citations and contributed to academic knowledge base.
-                              </p>
-                              <div className="flex items-center space-x-4 mt-3">
-                                <Badge variant="outline" className="text-xs">Q1 Journal</Badge>
-                                <Badge variant="outline" className="text-xs">15+ Citations</Badge>
-                                <Badge variant="outline" className="text-xs">IF: 14.3</Badge>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <Badge className="status-approved">Verified</Badge>
-                            <Button variant="ghost" size="sm">
-                              <Eye className="w-4 h-4 mr-1" />
-                              View Publication
-                            </Button>
-                          </div>
-                        </div>
+                        )}
                       </div>
                     </CardContent>
                   </Card>
@@ -804,67 +793,47 @@ export default function DigitalPortfolio() {
                         <Briefcase className="w-5 h-5 text-green-600" />
                         <span>Professional Development & Internships</span>
                         <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-200">
-                          {ishuKumarData.portfolioStats.industryEngagement} Experiences
+                          {portfolioDisplayData.portfolioStats.industryEngagement} Experiences
                         </Badge>
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-4">
-                        <div className="flex items-start justify-between p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                          <div className="flex items-start space-x-3">
-                            <div className="w-12 h-12 bg-blue-100 dark:bg-blue-800 rounded-lg flex items-center justify-center">
-                              <Building className="w-6 h-6 text-blue-600" />
-                            </div>
-                            <div>
-                              <h4 className="font-semibold text-foreground">Senior Software Engineering Intern - Google</h4>
-                              <p className="text-sm text-muted-foreground">Google Inc. • Summer 2023 (3 months)</p>
-                              <p className="text-sm text-blue-700 dark:text-blue-300 mt-2">
-                                Led development of machine learning pipeline optimization tools resulting in 25% performance improvement. 
-                                Mentored 2 junior interns and contributed to open-source TensorFlow Extended (TFX) project.
-                              </p>
-                              <div className="flex items-center space-x-4 mt-3">
-                                <Badge variant="outline" className="text-xs">Fortune 500</Badge>
-                                <Badge variant="outline" className="text-xs">ML/AI Team</Badge>
-                                <Badge variant="outline" className="text-xs">Leadership Role</Badge>
+                        {internshipActivities.length > 0 ? (
+                          internshipActivities.map((activity) => (
+                            <div key={activity.id} className="flex items-start justify-between p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                              <div className="flex items-start space-x-3">
+                                <div className="w-12 h-12 bg-green-100 dark:bg-green-800 rounded-lg flex items-center justify-center">
+                                  <Briefcase className="w-6 h-6 text-green-600" />
+                                </div>
+                                <div>
+                                  <h4 className="font-semibold text-foreground">{activity.title}</h4>
+                                  <p className="text-sm text-muted-foreground">{activity.organization} • {activity.activityDate.toLocaleDateString()}</p>
+                                  <p className="text-sm text-green-700 dark:text-green-300 mt-2">
+                                    {activity.description || 'Professional internship experience verified by faculty'}
+                                  </p>
+                                  <div className="flex items-center space-x-4 mt-3">
+                                    <Badge variant="outline" className="text-xs">Industry Experience</Badge>
+                                    <Badge variant="outline" className="text-xs">{activity.skillCredits} Credits</Badge>
+                                    <Badge variant="outline" className="text-xs">Professional</Badge>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <Badge className="status-approved">Verified</Badge>
+                                <Button variant="ghost" size="sm" onClick={() => handleViewCertificate(activity.id)}>
+                                  <ExternalLink className="w-4 h-4 mr-1" />
+                                  View Details
+                                </Button>
                               </div>
                             </div>
+                          ))
+                        ) : (
+                          <div className="text-center py-8 text-muted-foreground">
+                            <Briefcase className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                            <p>No internship experiences found. Add your professional experiences!</p>
                           </div>
-                          <div className="flex items-center space-x-2">
-                            <Badge className="status-approved">Verified</Badge>
-                            <Button variant="ghost" size="sm">
-                              <ExternalLink className="w-4 h-4 mr-1" />
-                              View Details
-                            </Button>
-                          </div>
-                        </div>
-                        
-                        <div className="flex items-start justify-between p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                          <div className="flex items-start space-x-3">
-                            <div className="w-12 h-12 bg-green-100 dark:bg-green-800 rounded-lg flex items-center justify-center">
-                              <Code className="w-6 h-6 text-green-600" />
-                            </div>
-                            <div>
-                              <h4 className="font-semibold text-foreground">Software Development Intern - Microsoft</h4>
-                              <p className="text-sm text-muted-foreground">Microsoft Corporation • Winter 2023 (3 months)</p>
-                              <p className="text-sm text-green-700 dark:text-green-300 mt-2">
-                                Developed Azure cloud-based solutions for enterprise clients working with cross-functional teams. 
-                                Contributed to products used by millions of users worldwide with focus on scalability and performance.
-                              </p>
-                              <div className="flex items-center space-x-4 mt-3">
-                                <Badge variant="outline" className="text-xs">Cloud Computing</Badge>
-                                <Badge variant="outline" className="text-xs">Enterprise Solutions</Badge>
-                                <Badge variant="outline" className="text-xs">Global Impact</Badge>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <Badge className="status-approved">Verified</Badge>
-                            <Button variant="ghost" size="sm">
-                              <ExternalLink className="w-4 h-4 mr-1" />
-                              View Details
-                            </Button>
-                          </div>
-                        </div>
+                        )}
                       </div>
                     </CardContent>
                   </Card>
@@ -876,39 +845,47 @@ export default function DigitalPortfolio() {
                         <Crown className="w-5 h-5 text-orange-600" />
                         <span>Leadership Experience & Institutional Roles</span>
                         <Badge variant="secondary" className="bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-200">
-                          {ishuKumarData.portfolioStats.leadershipRoles} Positions
+                          {portfolioDisplayData.portfolioStats.leadershipRoles} Positions
                         </Badge>
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-4">
-                        <div className="flex items-start justify-between p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
-                          <div className="flex items-start space-x-3">
-                            <div className="w-12 h-12 bg-orange-100 dark:bg-orange-800 rounded-lg flex items-center justify-center">
-                              <Users className="w-6 h-6 text-orange-600" />
-                            </div>
-                            <div>
-                              <h4 className="font-semibold text-foreground">President - Computer Science Students Association</h4>
-                              <p className="text-sm text-muted-foreground">Institution Student Council • 2023-2024</p>
-                              <p className="text-sm text-orange-700 dark:text-orange-300 mt-2">
-                                Elected as President managing 500+ CS students, organizing technical events with ₹2 lakhs budget. 
-                                Implemented innovative mentorship programs connecting seniors with juniors for academic and career guidance.
-                              </p>
-                              <div className="flex items-center space-x-4 mt-3">
-                                <Badge variant="outline" className="text-xs">500+ Students</Badge>
-                                <Badge variant="outline" className="text-xs">₹2L Budget</Badge>
-                                <Badge variant="outline" className="text-xs">Elected Position</Badge>
+                        {leadershipActivities.length > 0 ? (
+                          leadershipActivities.map((activity) => (
+                            <div key={activity.id} className="flex items-start justify-between p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+                              <div className="flex items-start space-x-3">
+                                <div className="w-12 h-12 bg-orange-100 dark:bg-orange-800 rounded-lg flex items-center justify-center">
+                                  <Crown className="w-6 h-6 text-orange-600" />
+                                </div>
+                                <div>
+                                  <h4 className="font-semibold text-foreground">{activity.title}</h4>
+                                  <p className="text-sm text-muted-foreground">{activity.organization} • {activity.activityDate.toLocaleDateString()}</p>
+                                  <p className="text-sm text-orange-700 dark:text-orange-300 mt-2">
+                                    {activity.description || 'Leadership role with institutional responsibilities'}
+                                  </p>
+                                  <div className="flex items-center space-x-4 mt-3">
+                                    <Badge variant="outline" className="text-xs">Leadership</Badge>
+                                    <Badge variant="outline" className="text-xs">{activity.skillCredits} Credits</Badge>
+                                    <Badge variant="outline" className="text-xs">Institutional Role</Badge>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <Badge className="status-approved">Verified</Badge>
+                                <Button variant="ghost" size="sm" onClick={() => handleViewCertificate(activity.id)}>
+                                  <Eye className="w-4 h-4 mr-1" />
+                                  View Certificate
+                                </Button>
                               </div>
                             </div>
+                          ))
+                        ) : (
+                          <div className="text-center py-8 text-muted-foreground">
+                            <Crown className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                            <p>No leadership activities found. Take on leadership roles!</p>
                           </div>
-                          <div className="flex items-center space-x-2">
-                            <Badge className="status-approved">Verified</Badge>
-                            <Button variant="ghost" size="sm">
-                              <Eye className="w-4 h-4 mr-1" />
-                              View Certificate
-                            </Button>
-                          </div>
-                        </div>
+                        )}
                       </div>
                     </CardContent>
                   </Card>
@@ -928,7 +905,7 @@ export default function DigitalPortfolio() {
                   <CardContent>
                     <div className="space-y-6">
                       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                        {ishuKumarData.skillsMatrix.map((skill, index) => (
+                        {portfolioDisplayData.skillsMatrix.map((skill, index) => (
                           <div key={index} className="space-y-3">
                             <div className="flex items-center justify-between">
                               <span className="font-medium text-foreground">{skill.name}</span>
@@ -984,7 +961,7 @@ export default function DigitalPortfolio() {
                         <div className="absolute left-6 top-8 bottom-0 w-0.5 bg-gradient-to-b from-primary via-blue-500 to-transparent"></div>
                         
                         <div className="space-y-8">
-                          {ishuKumarData.achievementTimeline.map((entry, index) => (
+                          {portfolioDisplayData.achievementTimeline.map((entry, index) => (
                             <div key={index} className="relative flex items-start space-x-6">
                               <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center flex-shrink-0 relative z-10">
                                 {entry.category === 'academic' && <BookOpen className="w-5 h-5 text-white" />}
@@ -1161,7 +1138,7 @@ export default function DigitalPortfolio() {
                           <h4 className="text-lg font-semibold text-foreground">Digitally Signed & Authenticated</h4>
                           <p className="text-sm text-muted-foreground mt-2">
                             This portfolio contains institutionally verified and authenticated student achievements.<br />
-                            Generated on {new Date().toLocaleDateString()} • Official Document ID: SSH-PORTFOLIO-2024-{ishuKumarData.personalInfo.rollNumber}
+                            Generated on {new Date().toLocaleDateString()} • Official Document ID: SSH-PORTFOLIO-2024-{portfolioDisplayData.personalInfo.rollNumber}
                           </p>
                         </div>
                         <div className="flex items-center justify-center space-x-6 text-sm text-muted-foreground">

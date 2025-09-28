@@ -54,7 +54,7 @@ import ActivityList from "@/components/ui/activity-list";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Download, Plus, GraduationCap, ClipboardList, Star, Clock, Award, TrendingUp, Target, BookOpen, Briefcase, Users, Calendar, MapPin, Trophy, Globe, CheckCircle, BarChart3, ChevronRight, AlertCircle, Zap, Flame, Brain, Heart, Shield, Medal, User, Lightbulb, Rocket, FileText } from "lucide-react";
+import { Download, Plus, GraduationCap, ClipboardList, Star, Clock, Award, TrendingUp, Target, BookOpen, Briefcase, Users, Calendar, MapPin, Trophy, Globe, CheckCircle, BarChart3, ChevronRight, AlertCircle, Zap, Flame, Brain, Heart, Shield, Medal, User, Lightbulb, Rocket, FileText, Code, Timer, Calculator, Coffee, Bookmark } from "lucide-react";
 import { useLocation } from "wouter";
 import { Activity } from "@shared/schema";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
@@ -103,21 +103,8 @@ export default function StudentDashboard() {
     }
   }, [isAuthenticated, isLoading, toast]);
 
-  // Enhanced data for ISHU KUMAR's comprehensive profile
-  const realStudentData = {
-    personalInfo: {
-      name: "ISHU KUMAR",
-      rollNumber: "20CS3024",
-      department: "Computer Science & Engineering",
-      currentSemester: 6,
-      cgpa: 8.75,
-      totalCredits: 191,
-      totalActivities: 17,
-      pendingApprovals: 3,
-      rank: 12,
-      totalStudents: 180,
-      attendance: 94.5
-    },
+  // Minimal fallback data for display when API data is loading
+  const fallbackDisplayData = {
     semesterProgress: [
       { semester: 1, gpa: 8.2, credits: 22 },
       { semester: 2, gpa: 8.5, credits: 24 },
@@ -141,100 +128,15 @@ export default function StudentDashboard() {
       { category: 'Community', value: 12, color: '#ef4444' },
       { category: 'Research', value: 8, color: '#8b5cf6' }
     ],
-    recentActivities: [
-      {
-        id: '1',
-        studentId: 'student-ishu-kumar',
-        title: 'Machine Learning Research Paper',
-        category: 'academic' as const,
-        status: 'approved' as const,
-        activityDate: new Date('2024-01-15'),
-        skillCredits: 25,
-        organization: 'IEEE Conference',
-        description: 'Published research on neural network optimization',
-        verifiedBy: 'faculty-cs-hod',
-        verificationDate: new Date('2024-01-16'),
-        feedback: 'Excellent research contribution',
-        createdAt: new Date('2024-01-15'),
-        updatedAt: new Date('2024-01-16')
-      },
-      {
-        id: '2',
-        studentId: 'student-ishu-kumar',
-        title: 'Google Summer of Code 2023',
-        category: 'internship' as const,
-        status: 'approved' as const,
-        activityDate: new Date('2023-12-20'),
-        skillCredits: 40,
-        organization: 'Apache Software Foundation',
-        description: 'Contributed to Apache Spark project',
-        verifiedBy: 'faculty-cs-hod',
-        verificationDate: new Date('2023-12-21'),
-        feedback: 'Outstanding internship completion',
-        createdAt: new Date('2023-12-20'),
-        updatedAt: new Date('2023-12-21')
-      },
-      {
-        id: '3',
-        studentId: 'student-ishu-kumar',
-        title: 'Student Council President',
-        category: 'leadership' as const,
-        status: 'pending' as const,
-        activityDate: new Date('2024-01-10'),
-        skillCredits: 30,
-        organization: 'NIT Delhi',
-        description: 'Leading student body initiatives',
-        verifiedBy: null,
-        verificationDate: null,
-        feedback: null,
-        createdAt: new Date('2024-01-10'),
-        updatedAt: new Date('2024-01-10')
-      },
-      {
-        id: '4',
-        studentId: 'student-ishu-kumar',
-        title: 'AI Hackathon Winner',
-        category: 'co-curricular' as const,
-        status: 'approved' as const,
-        activityDate: new Date('2024-01-05'),
-        skillCredits: 20,
-        organization: 'TechFest IIT Bombay',
-        description: 'First place in AI/ML track',
-        verifiedBy: 'faculty-cs-hod',
-        verificationDate: new Date('2024-01-06'),
-        feedback: 'Impressive technical achievement',
-        createdAt: new Date('2024-01-05'),
-        updatedAt: new Date('2024-01-06')
-      },
-      {
-        id: '5',
-        studentId: 'student-ishu-kumar',
-        title: 'Community Teaching Initiative',
-        category: 'volunteering' as const,
-        status: 'pending' as const,
-        activityDate: new Date('2024-01-01'),
-        skillCredits: 15,
-        organization: 'Local NGO',
-        description: 'Teaching programming to underprivileged students',
-        verifiedBy: null,
-        verificationDate: null,
-        feedback: null,
-        createdAt: new Date('2024-01-01'),
-        updatedAt: new Date('2024-01-01')
-      }
-    ] as Activity[],
     upcomingDeadlines: [
-      { task: 'Project Thesis Submission', date: new Date('2024-02-15'), priority: 'high', category: 'Academic' },
-      { task: 'Internship Application (Microsoft)', date: new Date('2024-02-10'), priority: 'high', category: 'Career' },
-      { task: 'Research Paper Review', date: new Date('2024-02-08'), priority: 'medium', category: 'Academic' },
-      { task: 'Student Council Meeting', date: new Date('2024-02-05'), priority: 'medium', category: 'Leadership' },
-      { task: 'Alumni Networking Event', date: new Date('2024-02-12'), priority: 'low', category: 'Networking' }
+      { task: 'Portfolio Submission', date: new Date('2024-10-15'), priority: 'high', category: 'Academic' },
+      { task: 'Faculty Review', date: new Date('2024-10-20'), priority: 'medium', category: 'Verification' },
+      { task: 'Project Showcase', date: new Date('2024-11-10'), priority: 'high', category: 'Academic' }
     ],
     achievements: [
-      { title: 'Dean\'s List', description: 'Top 5% academic performance', date: 'Dec 2023', type: 'academic' },
-      { title: 'Best Paper Award', description: 'IEEE Conference 2023', date: 'Nov 2023', type: 'research' },
-      { title: 'Coding Competition Winner', description: 'InterIIT Tech Meet', date: 'Oct 2023', type: 'technical' },
-      { title: 'Leadership Excellence', description: 'Student Council Recognition', date: 'Sep 2023', type: 'leadership' }
+      { title: 'Academic Excellence', description: 'Consistent academic performance', date: 'Dec 2023', type: 'academic' },
+      { title: 'Technical Innovation', description: 'Research contributions', date: 'Nov 2023', type: 'research' },
+      { title: 'Leadership Development', description: 'Student activities coordination', date: 'Oct 2023', type: 'leadership' }
     ],
     skillMatrix: [
       { skill: 'Machine Learning', level: 95, category: 'Technical' },
@@ -249,11 +151,13 @@ export default function StudentDashboard() {
   const { data: studentStats, isLoading: statsLoading, error: statsError } = useQuery<StudentStats>({
     queryKey: ["/api/students/stats"],
     retry: false,
+    enabled: isAuthenticated && !!user, // Gate query on authentication
   });
 
   const { data: activities, isLoading: activitiesLoading, error: activitiesError } = useQuery<Activity[]>({
     queryKey: ["/api/students/activities"],
     retry: false,
+    enabled: isAuthenticated && !!user, // Gate query on authentication
   });
 
   if (isLoading || !user) {
@@ -267,29 +171,29 @@ export default function StudentDashboard() {
     );
   }
 
-  // Create unified data object with API data and fallbacks
+  // Create unified data object with API data and minimal fallbacks
   const dashboardData = {
     personalInfo: {
       name: `${user.firstName || ''} ${user.lastName || ''}`.trim(),
       rollNumber: user.rollNumber || 'N/A',
       department: user.department || 'Department',
-      currentSemester: user.currentSemester || 6,
-      cgpa: user.cgpa ? parseFloat(user.cgpa) : 8.75,
-      totalCredits: studentStats?.skillCredits || realStudentData.personalInfo.totalCredits,
-      totalActivities: studentStats?.totalActivities || activities?.length || realStudentData.personalInfo.totalActivities,
-      pendingApprovals: studentStats?.pendingApprovals || realStudentData.personalInfo.pendingApprovals,
-      rank: realStudentData.personalInfo.rank, // This would come from backend ranking API
-      totalStudents: realStudentData.personalInfo.totalStudents, // This would come from backend stats
-      attendance: realStudentData.personalInfo.attendance // This would come from attendance API
+      currentSemester: typeof user.currentSemester === 'number' ? user.currentSemester : 6,
+      cgpa: user.cgpa ? (typeof user.cgpa === 'string' ? parseFloat(user.cgpa) : user.cgpa) : 8.75,
+      totalCredits: studentStats?.skillCredits || 191,
+      totalActivities: studentStats?.totalActivities || activities?.length || 17,
+      pendingApprovals: studentStats?.pendingApprovals || 3,
+      rank: 12, // This would come from backend ranking API
+      totalStudents: 180, // This would come from backend stats
+      attendance: 94.5 // This would come from attendance API
     },
-    recentActivities: activities?.slice(0, 5) || realStudentData.recentActivities.slice(0, 5),
+    recentActivities: activities?.slice(0, 5) || [],
     // Use fallback data for complex analytics that would require additional APIs
-    semesterProgress: realStudentData.semesterProgress,
-    skillProgress: realStudentData.skillProgress,
-    categoryDistribution: realStudentData.categoryDistribution,
-    upcomingDeadlines: realStudentData.upcomingDeadlines,
-    achievements: realStudentData.achievements,
-    skillMatrix: realStudentData.skillMatrix
+    semesterProgress: fallbackDisplayData.semesterProgress,
+    skillProgress: fallbackDisplayData.skillProgress,
+    categoryDistribution: fallbackDisplayData.categoryDistribution,
+    upcomingDeadlines: fallbackDisplayData.upcomingDeadlines,
+    achievements: fallbackDisplayData.achievements,
+    skillMatrix: fallbackDisplayData.skillMatrix
   };
 
   const handleDownloadPortfolio = async () => {
@@ -902,7 +806,7 @@ export default function StudentDashboard() {
                           <span className="text-sm font-medium text-green-700 dark:text-green-300">Current CGPA</span>
                           <GraduationCap className="w-4 h-4 text-green-600" />
                         </div>
-                        <div className="text-3xl font-bold text-green-800 dark:text-green-200">{realStudentData.personalInfo.cgpa}</div>
+                        <div className="text-3xl font-bold text-green-800 dark:text-green-200">{dashboardData.personalInfo.cgpa}</div>
                         <div className="text-xs text-green-600 dark:text-green-400">Excellent Standing (Top 10%)</div>
                       </div>
                       
@@ -911,8 +815,8 @@ export default function StudentDashboard() {
                           <span className="text-sm font-medium text-blue-700 dark:text-blue-300">Class Rank</span>
                           <Trophy className="w-4 h-4 text-blue-600" />
                         </div>
-                        <div className="text-3xl font-bold text-blue-800 dark:text-blue-200">{realStudentData.personalInfo.rank}<span className="text-sm">th</span></div>
-                        <div className="text-xs text-blue-600 dark:text-blue-400">Out of {realStudentData.personalInfo.totalStudents} students</div>
+                        <div className="text-3xl font-bold text-blue-800 dark:text-blue-200">{dashboardData.personalInfo.rank}<span className="text-sm">th</span></div>
+                        <div className="text-xs text-blue-600 dark:text-blue-400">Out of {dashboardData.personalInfo.totalStudents} students</div>
                       </div>
 
                       <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
@@ -920,7 +824,7 @@ export default function StudentDashboard() {
                           <span className="text-sm font-medium text-purple-700 dark:text-purple-300">Attendance</span>
                           <CheckCircle className="w-4 h-4 text-purple-600" />
                         </div>
-                        <div className="text-3xl font-bold text-purple-800 dark:text-purple-200">{realStudentData.personalInfo.attendance}%</div>
+                        <div className="text-3xl font-bold text-purple-800 dark:text-purple-200">{dashboardData.personalInfo.attendance}%</div>
                         <div className="text-xs text-purple-600 dark:text-purple-400">Excellent Attendance</div>
                       </div>
                     </div>
@@ -942,7 +846,7 @@ export default function StudentDashboard() {
                       }}
                       className="h-[300px]"
                     >
-                      <BarChart data={realStudentData.semesterProgress}>
+                      <BarChart data={dashboardData.semesterProgress}>
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis dataKey="semester" />
                         <YAxis yAxisId="left" />
@@ -972,7 +876,7 @@ export default function StudentDashboard() {
                       <div className="absolute left-6 top-12 bottom-0 w-0.5 bg-gradient-to-b from-primary via-blue-400 to-transparent"></div>
                       
                       <div className="space-y-6">
-                        {realStudentData.recentActivities.map((activity, index) => {
+                        {dashboardData.recentActivities.map((activity, index) => {
                           const statusColors = {
                             approved: 'bg-green-500',
                             pending: 'bg-yellow-500', 
@@ -1579,12 +1483,12 @@ export default function StudentDashboard() {
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg">
-                      <div className="text-2xl font-bold text-blue-600">{realStudentData.personalInfo.totalActivities}</div>
+                      <div className="text-2xl font-bold text-blue-600">{dashboardData.personalInfo.totalActivities}</div>
                       <div className="text-sm text-muted-foreground">Total Activities</div>
                       <div className="text-xs text-green-600 mt-1">+3 this month</div>
                     </div>
                     <div className="text-center p-4 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg">
-                      <div className="text-2xl font-bold text-green-600">{realStudentData.personalInfo.totalCredits}</div>
+                      <div className="text-2xl font-bold text-green-600">{dashboardData.personalInfo.totalCredits}</div>
                       <div className="text-sm text-muted-foreground">Skill Credits</div>
                       <div className="text-xs text-green-600 mt-1">+35 this month</div>
                     </div>
@@ -1636,7 +1540,7 @@ export default function StudentDashboard() {
                   >
                     <RechartsPieChart>
                       <Pie
-                        data={realStudentData.categoryDistribution}
+                        data={dashboardData.categoryDistribution}
                         cx="50%"
                         cy="50%"
                         innerRadius={40}
@@ -1644,7 +1548,7 @@ export default function StudentDashboard() {
                         fill="#8884d8"
                         dataKey="value"
                       >
-                        {realStudentData.categoryDistribution.map((entry, index) => (
+                        {dashboardData.categoryDistribution.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={entry.color} />
                         ))}
                       </Pie>
@@ -1653,7 +1557,7 @@ export default function StudentDashboard() {
                   </ChartContainer>
 
                   <div className="space-y-2">
-                    {realStudentData.categoryDistribution.map((category, index) => (
+                    {dashboardData.categoryDistribution.map((category, index) => (
                       <div key={index} className="flex items-center justify-between text-sm">
                         <div className="flex items-center space-x-2">
                           <div className="w-3 h-3 rounded-full" style={{ backgroundColor: category.color }}></div>
@@ -1766,7 +1670,7 @@ export default function StudentDashboard() {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
-                  <BookMarked className="w-5 h-5 text-indigo-600" />
+                  <Bookmark className="w-5 h-5 text-indigo-600" />
                   <span>Learning Pathway</span>
                 </CardTitle>
               </CardHeader>
@@ -1829,7 +1733,7 @@ export default function StudentDashboard() {
             </Card>
           ) : (
             <ActivityList
-              activities={activities || realStudentData.recentActivities}
+              activities={activities || dashboardData.recentActivities}
               isLoading={activitiesLoading}
               showActions={true}
               className="mt-6"
@@ -1849,15 +1753,15 @@ export default function StudentDashboard() {
                 <div className="space-y-4">
                   <div className="grid grid-cols-3 gap-4 text-center">
                     <div className="p-3 bg-primary/10 rounded-lg">
-                      <div className="text-xl font-bold text-primary">{realStudentData.personalInfo.totalActivities}</div>
+                      <div className="text-xl font-bold text-primary">{dashboardData.personalInfo.totalActivities}</div>
                       <div className="text-xs text-muted-foreground">Activities</div>
                     </div>
                     <div className="p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                      <div className="text-xl font-bold text-green-600">{realStudentData.personalInfo.totalCredits}</div>
+                      <div className="text-xl font-bold text-green-600">{dashboardData.personalInfo.totalCredits}</div>
                       <div className="text-xs text-muted-foreground">Credits</div>
                     </div>
                     <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                      <div className="text-xl font-bold text-blue-600">{realStudentData.personalInfo.cgpa}</div>
+                      <div className="text-xl font-bold text-blue-600">{dashboardData.personalInfo.cgpa}</div>
                       <div className="text-xs text-muted-foreground">CGPA</div>
                     </div>
                   </div>
@@ -1893,7 +1797,7 @@ export default function StudentDashboard() {
                       <div className="text-xs text-muted-foreground">Class Rank</div>
                     </div>
                     <div className="text-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                      <div className="text-lg font-bold text-blue-600">{realStudentData.personalInfo.attendance}%</div>
+                      <div className="text-lg font-bold text-blue-600">{dashboardData.personalInfo.attendance}%</div>
                       <div className="text-xs text-muted-foreground">Attendance</div>
                     </div>
                   </div>

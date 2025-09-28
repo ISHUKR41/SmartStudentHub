@@ -125,7 +125,7 @@ export default function Landing() {
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-foreground mb-4">Student Success Story: ISHU KUMAR</h2>
             <p className="text-lg text-muted-foreground max-w-4xl mx-auto">
-              Discover how ISHU KUMAR, Computer Science Engineering student at ABC Institute of Technology, leveraged our platform to build a comprehensive verified portfolio that secured multiple placement offers.
+              See how students like ISHU KUMAR use our platform to systematically document their academic journey and build comprehensive portfolios that showcase their institutional achievements.
             </p>
           </div>
 
@@ -138,8 +138,8 @@ export default function Landing() {
                   </div>
                   <h3 className="text-2xl font-bold mb-2">ISHU KUMAR</h3>
                   <p className="text-blue-100 mb-4">B.Tech Computer Science Engineering</p>
-                  <p className="text-sm text-blue-100">ABC Institute of Technology</p>
-                  <p className="text-sm text-blue-100">Roll No: CSE/2021/042</p>
+                  <p className="text-sm text-blue-100">NIT Delhi</p>
+                  <p className="text-sm text-blue-100">Roll No: 20CS3024</p>
                 </div>
               </div>
               
@@ -151,10 +151,10 @@ export default function Landing() {
                       <h4 className="font-semibold text-foreground">Academic Excellence</h4>
                     </div>
                     <ul className="text-sm text-muted-foreground space-y-2">
-                      <li>• 3 Research Papers Published</li>
-                      <li>• Winner - National Coding Championship</li>
-                      <li>• Dean's List for 4 consecutive semesters</li>
-                      <li>• Best Project Award - AI/ML Domain</li>
+                      <li>• Research contributions in Machine Learning</li>
+                      <li>• Consistent academic performance</li>
+                      <li>• Technical competition participation</li>
+                      <li>• Project work in AI/ML domain</li>
                     </ul>
                   </div>
                   
@@ -164,10 +164,10 @@ export default function Landing() {
                       <h4 className="font-semibold text-foreground">Professional Development</h4>
                     </div>
                     <ul className="text-sm text-muted-foreground space-y-2">
-                      <li>• Software Engineering Intern - TechCorp</li>
-                      <li>• Machine Learning Certification - Coursera</li>
-                      <li>• Full Stack Development Bootcamp</li>
-                      <li>• Open Source Contributor - GitHub</li>
+                      <li>• Industry internship experiences</li>
+                      <li>• Professional certification courses</li>
+                      <li>• Technical skill development</li>
+                      <li>• Open source contributions</li>
                     </ul>
                   </div>
                   
@@ -177,10 +177,10 @@ export default function Landing() {
                       <h4 className="font-semibold text-foreground">Leadership & Co-curricular</h4>
                     </div>
                     <ul className="text-sm text-muted-foreground space-y-2">
-                      <li>• President - Technical Society</li>
-                      <li>• Organizer - National Tech Fest</li>
-                      <li>• Volunteer - Community Coding Classes</li>
-                      <li>• Mentor - Junior Students Program</li>
+                      <li>• Student body leadership roles</li>
+                      <li>• Event organization and coordination</li>
+                      <li>• Community service activities</li>
+                      <li>• Peer mentoring and guidance</li>
                     </ul>
                   </div>
                   
@@ -190,19 +190,19 @@ export default function Landing() {
                       <h4 className="font-semibold text-foreground">Platform Outcomes</h4>
                     </div>
                     <ul className="text-sm text-muted-foreground space-y-2">
-                      <li>• 5 Job Offers from Top Companies</li>
-                      <li>• 45% Salary Increase Due to Verified Skills</li>
-                      <li>• Graduate Program Acceptance - IIT Delhi</li>
-                      <li>• Complete Digital Portfolio in 24 Hours</li>
+                      <li>• Comprehensive verified portfolio</li>
+                      <li>• Enhanced placement readiness</li>
+                      <li>• Institutional verification benefits</li>
+                      <li>• Streamlined documentation process</li>
                     </ul>
                   </div>
                 </div>
                 
                 <div className="mt-6 bg-primary/5 border border-primary/20 rounded-lg p-4">
                   <p className="text-sm text-muted-foreground italic">
-                    "The Smart Student Hub platform transformed how I documented and presented my achievements. Having all my certifications, projects, and accomplishments verified by faculty and stored in one place made the placement process incredibly smooth. The automatically generated portfolio helped me stand out to recruiters and secure offers from multiple top-tier companies."
+                    "The platform helps me maintain a complete record of all my academic and co-curricular activities. Having faculty verification for each achievement adds credibility, and the portfolio generation feature saves significant time during placement applications."
                   </p>
-                  <p className="text-sm font-medium text-primary mt-2">- ISHU KUMAR, Placed at Microsoft India</p>
+                  <p className="text-sm font-medium text-primary mt-2">- ISHU KUMAR, Computer Science Engineering Student</p>
                 </div>
               </div>
             </div>
