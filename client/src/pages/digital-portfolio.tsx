@@ -214,12 +214,45 @@ export default function DigitalPortfolio() {
    * Initiates professional PDF generation with institutional branding
    * and official verification for external documentation and applications.
    */
-  const handleDownloadPDF = () => {
-    toast({
-      title: "Generating Professional Portfolio PDF",
-      description: "Creating institutional-grade portfolio document with verification. Download will start shortly.",
-    });
-    // TODO: Implement comprehensive PDF generation with institutional branding
+  const handleDownloadPDF = async () => {
+    try {
+      toast({
+        title: "Generating Professional Portfolio PDF",
+        description: "Creating institutional-grade portfolio document with verification. Download will start shortly.",
+      });
+      
+      // Make API call to generate and download PDF
+      const response = await fetch('/api/students/portfolio.pdf', {
+        method: 'GET',
+        credentials: 'include',
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to generate portfolio PDF');
+      }
+      
+      // Create blob and download file
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${user?.firstName}_${user?.lastName}_Portfolio.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      
+      toast({
+        title: "Portfolio Downloaded Successfully",
+        description: "Professional portfolio PDF with institutional verification has been downloaded.",
+      });
+    } catch (error) {
+      toast({
+        title: "PDF Generation Failed",
+        description: "Unable to generate portfolio PDF. Please try again later.",
+        variant: "destructive",
+      });
+    }
   };
 
   /**

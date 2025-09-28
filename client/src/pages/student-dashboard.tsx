@@ -1621,7 +1621,7 @@ export default function StudentDashboard() {
                   </div>
                   
                   <div className="p-4 bg-gradient-to-r from-primary/5 to-blue-500/5 rounded-lg border border-primary/20">
-                    <div className="text-sm font-medium text-foreground mb-2">🎯 Next Milestone</div>
+                    <div className="text-sm font-medium text-foreground mb-2">Next Milestone</div>
                     <div className="text-sm text-muted-foreground">
                       You're <span className="font-bold text-primary">59 credits away</span> from reaching the 
                       NAAC excellence threshold of 250 credits. Keep up the outstanding work!
@@ -1657,7 +1657,7 @@ export default function StudentDashboard() {
                   </div>
 
                   <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg border border-green-200 dark:border-green-800">
-                    <div className="text-sm font-medium text-green-800 dark:text-green-200 mb-2">🏆 Achievement Unlocked</div>
+                    <div className="text-sm font-medium text-green-800 dark:text-green-200 mb-2">Achievement Unlocked</div>
                     <div className="text-sm text-green-600 dark:text-green-400">
                       <strong>Excellence in Academic & Co-curricular Balance</strong> - 
                       You've successfully maintained high academic performance while actively participating in diverse activities.

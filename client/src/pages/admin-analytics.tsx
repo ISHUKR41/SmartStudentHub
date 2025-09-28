@@ -167,18 +167,86 @@ export default function AdminAnalytics() {
     return null;
   }
 
-  const handleExportNAAC = () => {
-    toast({
-      title: "NAAC Report",
-      description: "NAAC compliance report is being generated...",
-    });
+  const handleExportNAAC = async () => {
+    try {
+      toast({
+        title: "NAAC Report",
+        description: "NAAC compliance report is being generated...",
+      });
+      
+      // Make API call to generate and download NAAC report
+      const response = await fetch('/api/admin/reports/naac', {
+        method: 'GET',
+        credentials: 'include',
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to generate NAAC report');
+      }
+      
+      // Create blob and download file
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `NAAC_Compliance_Report_${new Date().getFullYear()}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      
+      toast({
+        title: "NAAC Report Generated Successfully",
+        description: "NAAC compliance report has been downloaded successfully.",
+      });
+    } catch (error) {
+      toast({
+        title: "Report Generation Failed", 
+        description: "Unable to generate NAAC report. Please try again later.",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleGenerateReport = () => {
-    toast({
-      title: "Analytics Report",
-      description: "Custom analytics report is being generated...",
-    });
+  const handleGenerateNIRF = async () => {
+    try {
+      toast({
+        title: "NIRF Report",
+        description: "NIRF analytics report is being generated...",
+      });
+      
+      // Make API call to generate and download NIRF report
+      const response = await fetch('/api/admin/reports/nirf', {
+        method: 'GET',
+        credentials: 'include',
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to generate NIRF report');
+      }
+      
+      // Create blob and download file
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `NIRF_Analytics_Report_${new Date().getFullYear()}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      
+      toast({
+        title: "NIRF Report Generated Successfully",
+        description: "NIRF analytics report has been downloaded successfully.",
+      });
+    } catch (error) {
+      toast({
+        title: "Report Generation Failed",
+        description: "Unable to generate NIRF report. Please try again later.",
+        variant: "destructive",
+      });
+    }
   };
 
   const totalStudents = studentSummary?.length || 0;
@@ -240,8 +308,8 @@ export default function AdminAnalytics() {
                 <Button 
                   variant="outline"
                   size="lg"
-                  onClick={handleGenerateReport}
-                  data-testid="button-generate-report"
+                  onClick={handleGenerateNIRF}
+                  data-testid="button-generate-nirf"
                 >
                   <TrendingUp className="w-4 h-4 mr-2" />
                   NIRF Analytics Export
