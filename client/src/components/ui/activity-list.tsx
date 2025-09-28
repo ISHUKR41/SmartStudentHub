@@ -16,19 +16,7 @@ import {
   FileText 
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-interface Activity {
-  id: string;
-  title: string;
-  description?: string;
-  category: string;
-  organization: string;
-  activityDate: string;
-  status: 'pending' | 'approved' | 'rejected';
-  skillCredits?: number;
-  createdAt: string;
-  feedback?: string;
-}
+import { Activity } from "@shared/schema";
 
 interface ActivityListProps {
   activities: Activity[];
@@ -78,8 +66,9 @@ export default function ActivityList({
     return categoryIcons[category as keyof typeof categoryIcons] || <FileText className="w-5 h-5 text-gray-600" />;
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
+  const formatDate = (dateValue: string | Date) => {
+    const date = typeof dateValue === 'string' ? new Date(dateValue) : dateValue;
+    return date.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'short',
       day: 'numeric'

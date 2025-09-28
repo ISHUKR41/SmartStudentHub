@@ -26,6 +26,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 import Landing from "@/pages/landing";
 import StudentDashboard from "@/pages/student-dashboard";
+import Activities from "@/pages/activities";
 import ActivityUpload from "@/pages/activity-upload";
 import FacultyApprovals from "@/pages/faculty-approvals";
 import AdminAnalytics from "@/pages/admin-analytics";
@@ -67,6 +68,7 @@ function Router() {
       ) : (
         <>
           <Route path="/" component={StudentDashboard} />
+          <Route path="/activities" component={Activities} />
           <Route path="/upload" component={ActivityUpload} />
           <Route path="/portfolio" component={DigitalPortfolio} />
           {(user?.role === 'faculty' || user?.role === 'admin') && (
