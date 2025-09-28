@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -11,11 +11,20 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Download, Plus, GraduationCap, ClipboardList, Star, Clock } from "lucide-react";
 import { useLocation } from "wouter";
+import { Activity } from "@shared/schema";
+
+// Define API response types for type safety
+interface StudentStats {
+  totalActivities: number;
+  skillCredits: number;
+  pendingApprovals: number;
+}
 
 export default function StudentDashboard() {
   const { toast } = useToast();
   const { isAuthenticated, isLoading, user } = useAuth();
   const [, setLocation] = useLocation();
+  const [isDownloadingPortfolio, setIsDownloadingPortfolio] = useState(false);
 
   // Redirect to home if not authenticated
   useEffect(() => {
@@ -32,12 +41,12 @@ export default function StudentDashboard() {
     }
   }, [isAuthenticated, isLoading, toast]);
 
-  const { data: studentStats, isLoading: statsLoading } = useQuery({
+  const { data: studentStats, isLoading: statsLoading } = useQuery<StudentStats>({
     queryKey: ["/api/students/stats"],
     retry: false,
   });
 
-  const { data: activities, isLoading: activitiesLoading } = useQuery({
+  const { data: activities, isLoading: activitiesLoading } = useQuery<Activity[]>({
     queryKey: ["/api/students/activities"],
     retry: false,
   });
@@ -53,12 +62,81 @@ export default function StudentDashboard() {
     );
   }
 
-  const handleDownloadPortfolio = () => {
+  const handleDownloadPortfolio = async () => {
+    if (isDownloadingPortfolio) return; // Prevent multiple simultaneous downloads
+    
+    setIsDownloadingPortfolio(true);
+    
     toast({
       title: "Portfolio Generation",
       description: "Your digital portfolio is being generated...",
     });
-    // TODO: Implement PDF generation
+
+    try {
+      const response = await fetch('/api/students/portfolio.pdf', {
+        method: 'GET',
+        credentials: 'include', // Include authentication cookies
+        headers: {
+          'Accept': 'application/pdf',
+        },
+      });
+
+      if (!response.ok) {
+        let errorMessage = 'Failed to generate portfolio';
+        
+        // Try to get error message from response
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorMessage;
+        } catch {
+          // If response is not JSON, use status text
+          errorMessage = response.statusText || errorMessage;
+        }
+
+        throw new Error(errorMessage);
+      }
+
+      // Get the PDF blob
+      const pdfBlob = await response.blob();
+      
+      // Get filename from Content-Disposition header or create default
+      const contentDisposition = response.headers.get('Content-Disposition');
+      let filename = `${user?.firstName || 'Student'}_Portfolio_${new Date().toISOString().split('T')[0]}.pdf`;
+      
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename="(.+)"/);
+        if (filenameMatch) {
+          filename = filenameMatch[1];
+        }
+      }
+
+      // Create download link and trigger download
+      const url = window.URL.createObjectURL(pdfBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      link.click();
+      
+      // Clean up the object URL
+      window.URL.revokeObjectURL(url);
+
+      toast({
+        title: "Portfolio Downloaded",
+        description: "Your digital portfolio has been successfully generated and downloaded.",
+        variant: "default",
+      });
+
+    } catch (error) {
+      console.error('Portfolio download error:', error);
+      
+      toast({
+        title: "Download Failed",
+        description: error instanceof Error ? error.message : "Failed to generate portfolio. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDownloadingPortfolio(false);
+    }
   };
 
   return (
@@ -83,10 +161,20 @@ export default function StudentDashboard() {
               <Button 
                 variant="outline" 
                 onClick={handleDownloadPortfolio}
+                disabled={isDownloadingPortfolio}
                 data-testid="button-download-portfolio"
               >
-                <Download className="w-4 h-4 mr-2" />
-                Download Portfolio
+                {isDownloadingPortfolio ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2"></div>
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    <Download className="w-4 h-4 mr-2" />
+                    Download Portfolio
+                  </>
+                )}
               </Button>
               <Button 
                 onClick={() => setLocation('/upload')}
@@ -159,7 +247,14 @@ export default function StudentDashboard() {
                 </CardHeader>
                 <CardContent>
                   <ActivityList 
-                    activities={activities?.slice(0, 5) || []} 
+                    activities={activities?.slice(0, 5).map(activity => ({
+                      ...activity,
+                      description: activity.description || undefined,
+                      activityDate: activity.activityDate ? activity.activityDate.toISOString() : '',
+                      createdAt: activity.createdAt ? activity.createdAt.toISOString() : '',
+                      skillCredits: activity.skillCredits || undefined,
+                      feedback: activity.feedback || undefined
+                    })) || []} 
                     isLoading={activitiesLoading}
                     showActions={false}
                     data-testid="list-recent-activities"
@@ -184,7 +279,7 @@ export default function StudentDashboard() {
                         <span className="text-sm text-foreground">Academic</span>
                       </div>
                       <span className="text-sm font-medium text-muted-foreground">
-                        {activities?.filter(a => a.category === 'academic').length || 0}
+                        {activities?.filter((activity: Activity) => activity.category === 'academic').length || 0}
                       </span>
                     </div>
 
@@ -194,7 +289,7 @@ export default function StudentDashboard() {
                         <span className="text-sm text-foreground">Co-Curricular</span>
                       </div>
                       <span className="text-sm font-medium text-muted-foreground">
-                        {activities?.filter(a => a.category === 'co-curricular').length || 0}
+                        {activities?.filter((activity: Activity) => activity.category === 'co-curricular').length || 0}
                       </span>
                     </div>
 
@@ -204,7 +299,7 @@ export default function StudentDashboard() {
                         <span className="text-sm text-foreground">Extra-Curricular</span>
                       </div>
                       <span className="text-sm font-medium text-muted-foreground">
-                        {activities?.filter(a => a.category === 'extra-curricular').length || 0}
+                        {activities?.filter((activity: Activity) => activity.category === 'extra-curricular').length || 0}
                       </span>
                     </div>
                   </div>

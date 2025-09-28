@@ -291,3 +291,28 @@ export type UpdateActivityStatus = z.infer<typeof updateActivityStatusSchema>;
 export type ActivityFile = typeof activityFiles.$inferSelect;
 export type Department = typeof departments.$inferSelect;
 export type InsertDepartment = z.infer<typeof insertDepartmentSchema>;
+
+/**
+ * PDF Portfolio Generation Types
+ * 
+ * Types specifically for generating student portfolio PDFs.
+ * These types ensure type safety when generating professional portfolios.
+ */
+export interface PortfolioData {
+  student: User;
+  activities: Activity[];
+  stats: {
+    totalActivities: number;
+    skillCredits: number;
+    categoryCounts: Record<string, number>;
+    activitiesPerSemester: Record<number, number>;
+  };
+  generatedAt: Date;
+}
+
+export interface PortfolioSection {
+  title: string;
+  activities: Activity[];
+  totalCredits: number;
+  count: number;
+}

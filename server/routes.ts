@@ -26,6 +26,8 @@ import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { insertActivitySchema, updateActivityStatusSchema } from "@shared/schema";
 import { AuthenticatedUser } from "../types/express";
+import { PDFPortfolioService } from "./pdfService";
+import { InstitutionalReportPDFService, NAACReportData, NIRFReportData } from "./reportPdfService";
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
@@ -38,6 +40,36 @@ import fs from 'fs';
  */
 interface AuthenticatedRequest extends Request {
   user: AuthenticatedUser;
+}
+
+/**
+ * CSV Conversion Utility
+ * 
+ * Converts an array of objects to CSV format for data export.
+ * Handles nested objects by flattening them and escapes special characters.
+ */
+function convertToCSV(data: any[]): string {
+  if (!data || data.length === 0) return '';
+
+  // Get headers from first object
+  const headers = Object.keys(data[0]);
+  
+  // Create CSV content
+  const csvContent = [
+    // Header row
+    headers.map(header => `"${header}"`).join(','),
+    // Data rows
+    ...data.map(row =>
+      headers.map(header => {
+        const value = row[header];
+        if (value === null || value === undefined) return '""';
+        if (typeof value === 'object') return `"${JSON.stringify(value)}"`;
+        return `"${String(value).replace(/"/g, '""')}"`;
+      }).join(',')
+    )
+  ].join('\n');
+
+  return csvContent;
 }
 
 /**
@@ -140,6 +172,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching student stats:", error);
       res.status(500).json({ message: "Failed to fetch stats" });
+    }
+  });
+
+  app.get('/api/students/portfolio.pdf', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const userId = (req.user as AuthenticatedUser).claims.sub;
+      
+      // Get comprehensive portfolio data
+      const portfolioData = await storage.getPortfolioData(userId);
+      
+      // Initialize PDF service and generate portfolio
+      const pdfService = new PDFPortfolioService();
+      const pdfBuffer = await pdfService.generatePortfolio({
+        ...portfolioData,
+        generatedAt: new Date()
+      });
+
+      // Set appropriate headers for PDF download
+      const fileName = `${portfolioData.student.firstName}_${portfolioData.student.lastName}_Portfolio_${new Date().toISOString().split('T')[0]}.pdf`;
+      
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+      res.setHeader('Content-Length', pdfBuffer.length);
+
+      // Send the PDF buffer
+      res.send(pdfBuffer);
+    } catch (error) {
+      console.error("Error generating portfolio PDF:", error);
+      res.status(500).json({ 
+        message: "Failed to generate portfolio PDF",
+        error: process.env.NODE_ENV === 'development' ? (error instanceof Error ? error.message : String(error)) : undefined
+      });
     }
   });
 
@@ -268,6 +332,232 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching student summary:", error);
       res.status(500).json({ message: "Failed to fetch student summary" });
+    }
+  });
+
+  // Enhanced Analytics Endpoints
+  app.get('/api/admin/analytics/trends', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const user = await storage.getUser((req.user as AuthenticatedUser).claims.sub);
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const { startDate, endDate } = req.query;
+      const start = startDate ? new Date(startDate as string) : undefined;
+      const end = endDate ? new Date(endDate as string) : undefined;
+
+      const trends = await storage.getTrendsData(start, end);
+      res.json(trends);
+    } catch (error) {
+      console.error("Error fetching trends data:", error);
+      res.status(500).json({ message: "Failed to fetch trends data" });
+    }
+  });
+
+  app.get('/api/admin/analytics/faculty-performance', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const user = await storage.getUser((req.user as AuthenticatedUser).claims.sub);
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const performance = await storage.getFacultyPerformanceStats();
+      res.json(performance);
+    } catch (error) {
+      console.error("Error fetching faculty performance:", error);
+      res.status(500).json({ message: "Failed to fetch faculty performance" });
+    }
+  });
+
+  app.get('/api/admin/analytics/naac-metrics', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const user = await storage.getUser((req.user as AuthenticatedUser).claims.sub);
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const metrics = await storage.getNAACMetrics();
+      res.json(metrics);
+    } catch (error) {
+      console.error("Error fetching NAAC metrics:", error);
+      res.status(500).json({ message: "Failed to fetch NAAC metrics" });
+    }
+  });
+
+  app.get('/api/admin/analytics/nirf-metrics', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const user = await storage.getUser((req.user as AuthenticatedUser).claims.sub);
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const metrics = await storage.getNIRFMetrics();
+      res.json(metrics);
+    } catch (error) {
+      console.error("Error fetching NIRF metrics:", error);
+      res.status(500).json({ message: "Failed to fetch NIRF metrics" });
+    }
+  });
+
+  app.get('/api/admin/analytics/date-range', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const user = await storage.getUser((req.user as AuthenticatedUser).claims.sub);
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const { startDate, endDate, department } = req.query;
+      
+      if (!startDate || !endDate) {
+        return res.status(400).json({ message: "Start date and end date are required" });
+      }
+
+      const start = new Date(startDate as string);
+      const end = new Date(endDate as string);
+      const dept = department as string | undefined;
+
+      const analytics = await storage.getAnalyticsByDateRange(start, end, dept);
+      res.json(analytics);
+    } catch (error) {
+      console.error("Error fetching date range analytics:", error);
+      res.status(500).json({ message: "Failed to fetch date range analytics" });
+    }
+  });
+
+  // CSV Export Endpoints
+  app.get('/api/admin/export/csv/:type', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const user = await storage.getUser((req.user as AuthenticatedUser).claims.sub);
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const { type } = req.params;
+      const { department, startDate, endDate } = req.query;
+      
+      const validTypes = ['activities', 'students', 'departments'];
+      if (!validTypes.includes(type)) {
+        return res.status(400).json({ message: "Invalid export type" });
+      }
+
+      const start = startDate ? new Date(startDate as string) : undefined;
+      const end = endDate ? new Date(endDate as string) : undefined;
+      const dept = department as string | undefined;
+
+      const data = await storage.getCSVExportData(type, dept, start, end);
+      
+      // Convert to CSV format
+      const csv = convertToCSV(data);
+      const filename = `${type}_export_${new Date().toISOString().split('T')[0]}.csv`;
+
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      res.send(csv);
+    } catch (error) {
+      console.error("Error exporting CSV:", error);
+      res.status(500).json({ message: "Failed to export CSV" });
+    }
+  });
+
+  // NAAC Report PDF Generation
+  app.get('/api/admin/reports/naac', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const user = await storage.getUser((req.user as AuthenticatedUser).claims.sub);
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const { startDate, endDate, institutionName = 'Higher Education Institution' } = req.query;
+      
+      // Default to last academic year if no dates provided
+      const end = endDate ? new Date(endDate as string) : new Date();
+      const start = startDate ? new Date(startDate as string) : 
+        new Date(end.getFullYear() - 1, end.getMonth(), end.getDate());
+
+      // Gather all NAAC data
+      const [naacMetrics, categoryStats] = await Promise.all([
+        storage.getNAACMetrics(),
+        storage.getCategoryStats()
+      ]);
+
+      const reportData: NAACReportData = {
+        institutionName: institutionName as string,
+        generatedAt: new Date(),
+        reportPeriod: { startDate: start, endDate: end },
+        studentEngagement: naacMetrics.studentEngagement,
+        departmentParticipation: naacMetrics.departmentParticipation,
+        facultyInvolvement: naacMetrics.facultyInvolvement,
+        qualityMetrics: naacMetrics.qualityMetrics,
+        categoryStats
+      };
+
+      const pdfService = new InstitutionalReportPDFService();
+      const pdfBuffer = await pdfService.generateNAACReport(reportData);
+
+      const fileName = `NAAC_Compliance_Report_${new Date().toISOString().split('T')[0]}.pdf`;
+      
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+      res.setHeader('Content-Length', pdfBuffer.length);
+      res.send(pdfBuffer);
+    } catch (error) {
+      console.error("Error generating NAAC report:", error);
+      res.status(500).json({ 
+        message: "Failed to generate NAAC report",
+        error: process.env.NODE_ENV === 'development' ? (error instanceof Error ? error.message : String(error)) : undefined
+      });
+    }
+  });
+
+  // NIRF Report PDF Generation
+  app.get('/api/admin/reports/nirf', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const user = await storage.getUser((req.user as AuthenticatedUser).claims.sub);
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const { startDate, endDate, institutionName = 'Higher Education Institution' } = req.query;
+      
+      // Default to last academic year if no dates provided
+      const end = endDate ? new Date(endDate as string) : new Date();
+      const start = startDate ? new Date(startDate as string) : 
+        new Date(end.getFullYear() - 1, end.getMonth(), end.getDate());
+
+      // Gather all NIRF data
+      const [nirfMetrics, trendsData] = await Promise.all([
+        storage.getNIRFMetrics(),
+        storage.getTrendsData(start, end)
+      ]);
+
+      const reportData: NIRFReportData = {
+        institutionName: institutionName as string,
+        generatedAt: new Date(),
+        reportPeriod: { startDate: start, endDate: end },
+        studentDiversity: nirfMetrics.studentDiversity,
+        academicExcellence: nirfMetrics.academicExcellence,
+        researchInnovation: nirfMetrics.researchInnovation,
+        outreachInclusion: nirfMetrics.outreachInclusion,
+        graduationOutcomes: nirfMetrics.graduationOutcomes,
+        trendsData
+      };
+
+      const pdfService = new InstitutionalReportPDFService();
+      const pdfBuffer = await pdfService.generateNIRFReport(reportData);
+
+      const fileName = `NIRF_Performance_Report_${new Date().toISOString().split('T')[0]}.pdf`;
+      
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+      res.setHeader('Content-Length', pdfBuffer.length);
+      res.send(pdfBuffer);
+    } catch (error) {
+      console.error("Error generating NIRF report:", error);
+      res.status(500).json({ 
+        message: "Failed to generate NIRF report",
+        error: process.env.NODE_ENV === 'development' ? (error instanceof Error ? error.message : String(error)) : undefined
+      });
     }
   });
 

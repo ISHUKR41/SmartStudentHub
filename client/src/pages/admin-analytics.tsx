@@ -9,6 +9,28 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Users, ClipboardList, Building, Clock, FileText, TrendingUp, Download } from "lucide-react";
+import { User } from "@shared/schema";
+
+// Define API response types for type safety
+interface DepartmentStat {
+  department: string;
+  studentCount: number;
+  activityCount: number;
+  avgActivitiesPerStudent: number;
+}
+
+interface CategoryStat {
+  category: string;
+  count: number;
+  percentage: number;
+}
+
+interface StudentSummary {
+  student: User;
+  totalActivities: number;
+  skillCredits: number;
+  lastActivity?: string;
+}
 
 export default function AdminAnalytics() {
   const { toast } = useToast();
@@ -29,19 +51,19 @@ export default function AdminAnalytics() {
     }
   }, [isAuthenticated, isLoading, user, toast]);
 
-  const { data: departmentStats, isLoading: deptStatsLoading } = useQuery({
+  const { data: departmentStats, isLoading: deptStatsLoading } = useQuery<DepartmentStat[]>({
     queryKey: ["/api/admin/department-stats"],
     retry: false,
     enabled: user?.role === 'admin',
   });
 
-  const { data: categoryStats, isLoading: categoryStatsLoading } = useQuery({
+  const { data: categoryStats, isLoading: categoryStatsLoading } = useQuery<CategoryStat[]>({
     queryKey: ["/api/admin/category-stats"],
     retry: false,
     enabled: user?.role === 'admin',
   });
 
-  const { data: studentSummary, isLoading: summaryLoading } = useQuery({
+  const { data: studentSummary, isLoading: summaryLoading } = useQuery<StudentSummary[]>({
     queryKey: ["/api/admin/student-summary"],
     retry: false,
     enabled: user?.role === 'admin',
@@ -77,7 +99,7 @@ export default function AdminAnalytics() {
   };
 
   const totalStudents = studentSummary?.length || 0;
-  const totalActivities = studentSummary?.reduce((sum: number, item: any) => sum + item.totalActivities, 0) || 0;
+  const totalActivities = studentSummary?.reduce((sum: number, item: StudentSummary) => sum + item.totalActivities, 0) || 0;
   const activeDepartments = departmentStats?.length || 0;
   const pendingReviews = 0; // Would need separate API endpoint
 
@@ -171,7 +193,7 @@ export default function AdminAnalytics() {
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {departmentStats?.map((dept: any, index: number) => (
+                    {departmentStats?.map((dept: DepartmentStat, index: number) => (
                       <div 
                         key={dept.department} 
                         className="flex items-center justify-between p-3 bg-muted/20 rounded-lg"
@@ -208,7 +230,7 @@ export default function AdminAnalytics() {
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {categoryStats?.map((category: any, index: number) => (
+                    {categoryStats?.map((category: CategoryStat, index: number) => (
                       <div key={category.category} className="space-y-2" data-testid={`category-stat-${index}`}>
                         <div className="flex items-center justify-between">
                           <span className="text-sm font-medium text-foreground capitalize">
@@ -273,7 +295,7 @@ export default function AdminAnalytics() {
                       </tr>
                     </thead>
                     <tbody>
-                      {studentSummary?.map((item: any, index: number) => (
+                      {studentSummary?.map((item: StudentSummary, index: number) => (
                         <tr key={item.student.id} data-testid={`student-row-${index}`}>
                           <td>
                             <div className="flex items-center space-x-3">

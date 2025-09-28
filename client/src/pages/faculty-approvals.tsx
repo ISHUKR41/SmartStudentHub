@@ -12,6 +12,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Eye, Check, X } from "lucide-react";
+import { Activity, User } from "@shared/schema";
+
+// Define API response types for type safety
+interface ActivityWithStudent extends Activity {
+  student?: User;
+}
 
 export default function FacultyApprovals() {
   const [filterCategory, setFilterCategory] = useState<string>("");
@@ -35,7 +41,7 @@ export default function FacultyApprovals() {
     }
   }, [isAuthenticated, isLoading, user, toast]);
 
-  const { data: pendingActivities, isLoading: activitiesLoading, error } = useQuery({
+  const { data: pendingActivities, isLoading: activitiesLoading, error } = useQuery<ActivityWithStudent[]>({
     queryKey: ["/api/faculty/pending-activities"],
     retry: false,
     enabled: user?.role === 'faculty' || user?.role === 'admin',
@@ -113,7 +119,7 @@ export default function FacultyApprovals() {
     });
   };
 
-  const filteredActivities = pendingActivities?.filter((activity: any) => {
+  const filteredActivities = pendingActivities?.filter((activity: ActivityWithStudent) => {
     if (filterCategory && activity.category !== filterCategory) return false;
     return true;
   }) || [];
@@ -177,7 +183,7 @@ export default function FacultyApprovals() {
                 </div>
               ) : (
                 <div className="divide-y divide-border">
-                  {filteredActivities.map((activity: any) => (
+                  {filteredActivities.map((activity: ActivityWithStudent) => (
                     <div key={activity.id} className="py-6" data-testid={`submission-${activity.id}`}>
                       <div className="flex items-start space-x-4">
                         {/* Student Avatar */}
@@ -197,7 +203,7 @@ export default function FacultyApprovals() {
                               <p className="text-sm text-muted-foreground" data-testid={`text-student-info-${activity.id}`}>
                                 Submitted by <span className="font-medium">
                                   {activity.student?.firstName} {activity.student?.lastName}
-                                </span> ({activity.student?.rollNumber}) • {new Date(activity.createdAt).toLocaleDateString()}
+                                </span> ({activity.student?.rollNumber}) • {activity.createdAt ? new Date(activity.createdAt).toLocaleDateString() : 'Unknown date'}
                               </p>
                               <div className="flex items-center space-x-4 mt-2">
                                 <Badge className="status-pending" data-testid={`badge-category-${activity.id}`}>
@@ -207,7 +213,7 @@ export default function FacultyApprovals() {
                                   {activity.organization}
                                 </span>
                                 <span className="text-xs text-muted-foreground" data-testid={`text-date-${activity.id}`}>
-                                  {new Date(activity.activityDate).toLocaleDateString()}
+                                  {activity.activityDate ? new Date(activity.activityDate).toLocaleDateString() : 'Unknown date'}
                                 </span>
                               </div>
                             </div>
