@@ -39,54 +39,55 @@ app.use((req, res, next) => {
 (async () => {
   // Database startup logging and verification
   try {
-    console.log('🚀 Starting database configuration verification...');
+    console.log('🚀 Starting database connection verification...');
     
-    // Check DATABASE_URL existence and format
-    const dbUrl = process.env.DATABASE_URL;
-    if (dbUrl) {
-      // Mask credentials for security
-      const maskedUrl = dbUrl.replace(/(:\/\/[^:]+:)[^@]+(@)/, '$1***$2');
-      console.log(`✅ DATABASE_URL configured: ${maskedUrl}`);
-      console.log(`📊 URL length: ${dbUrl.length} characters`);
-      console.log(`🔐 SSL mode: ${dbUrl.includes('sslmode=') ? 'Configured' : 'Adding SSL automatically'}`);
-    } else {
-      console.error('❌ DATABASE_URL not found in environment variables');
-    }
-    
-    // Test database connection early
+    // Import database with new Neon serverless configuration
     const { db } = await import('./db');
-    console.log('🔌 Testing database connection...');
+    console.log('🔌 Testing database connection with simple query...');
     
-    // This will trigger the connection initialization with SSL config
-    await db().execute('SELECT 1 as connection_test');
-    console.log('✅ Database connection successful');
+    // Test database connection with timeout handling
+    const connectionTest = await Promise.race([
+      db.execute('SELECT 1 as connection_test, NOW() as server_time'),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Connection test timeout after 10 seconds')), 10000)
+      )
+    ]);
+    
+    console.log('✅ Database connection successful!');
+    console.log('📡 Neon serverless connection established');
     
   } catch (error) {
-    console.error('❌ Database configuration failed:', error instanceof Error ? error.message : String(error));
+    console.error('❌ Database connection failed:', error instanceof Error ? error.message : String(error));
     console.log('⚠️ Continuing startup despite database issues...');
   }
 
   // Auto-seed database in development if empty
   if (process.env.NODE_ENV === 'development') {
     try {
+      console.log('🌱 Checking if database needs seeding...');
       const { db } = await import('./db');
       const { users } = await import('@shared/schema');
       
-      // Check if database has any users
-      const existingUsers = await db().select().from(users).limit(1);
+      // Check if database has any users with timeout protection
+      const userCheck = await Promise.race([
+        db.select().from(users).limit(1),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('User check timeout after 8 seconds')), 8000)
+        )
+      ]);
       
-      if (existingUsers.length === 0) {
-        console.log('No users found in database. Auto-seeding with sample data...');
+      if (Array.isArray(userCheck) && userCheck.length === 0) {
+        console.log('🌱 No users found in database. Starting auto-seeding...');
         
         const { seedDatabase } = await import('./seed');
         await seedDatabase();
         
-        console.log('Database auto-seeding completed successfully!');
+        console.log('✅ Database auto-seeding completed successfully!');
       } else {
-        console.log('INFO: Database already contains data. Skipping auto-seeding.');
+        console.log('📊 Database already contains data. Skipping auto-seeding.');
       }
     } catch (error) {
-      console.error('WARNING: Auto-seeding failed, but continuing server startup:', error);
+      console.error('⚠️ Auto-seeding failed, but continuing server startup:', error instanceof Error ? error.message : String(error));
     }
   }
 

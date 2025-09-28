@@ -477,7 +477,7 @@ async function seedDatabase() {
         console.log(`Created department: ${created.name} (${created.code})`);
       } catch (error) {
         // Department might already exist, try to get it
-        const existing = await db().select().from(departments).where(eq(departments.code, dept.code));
+        const existing = await db.select().from(departments).where(eq(departments.code, dept.code));
         if (existing.length > 0) {
           createdDepartments.push(existing[0]);
           console.log(`ℹ️ Department already exists: ${dept.name} (${dept.code})`);
@@ -514,7 +514,7 @@ async function seedDatabase() {
       const deptFaculty = facultyByDept[dept.code];
       if (deptFaculty && deptFaculty.length > 0) {
         try {
-          await db().update(departments)
+          await db.update(departments)
             .set({ headOfDepartment: deptFaculty[0].id })
             .where(eq(departments.id, dept.id));
           console.log(`Assigned ${deptFaculty[0].firstName} ${deptFaculty[0].lastName} as head of ${dept.name}`);
