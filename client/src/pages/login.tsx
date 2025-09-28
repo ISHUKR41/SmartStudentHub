@@ -153,9 +153,9 @@ export default function Login() {
             </div>
           </div>
           <div className="space-y-2">
-            <h1 className="text-2xl font-bold text-foreground">Welcome Back</h1>
+            <h1 className="text-2xl font-bold text-foreground">Institutional Access Portal</h1>
             <p className="text-muted-foreground text-sm">
-              Sign in to your Smart Student Hub account using your institutional credentials.
+              Access your academic records and student achievement portfolio through secure institutional authentication.
             </p>
           </div>
         </div>
@@ -163,9 +163,9 @@ export default function Login() {
         {/* Login Form Card */}
         <Card className="shadow-lg border-0 bg-card/95 backdrop-blur-sm">
           <CardHeader className="space-y-2 pb-6">
-            <CardTitle className="text-xl font-semibold text-center">Sign In</CardTitle>
+            <CardTitle className="text-xl font-semibold text-center">Faculty & Student Login</CardTitle>
             <CardDescription className="text-center text-sm">
-              Enter your email to continue with institutional authentication
+              Authenticate using your institutional email address to access the Student Achievement Management System
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -187,17 +187,21 @@ export default function Login() {
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-sm font-medium">Email Address</FormLabel>
+                      <FormLabel className="text-sm font-medium">Institutional Email Address</FormLabel>
                       <FormControl>
                         <div className="relative">
                           <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                           <Input
                             {...field}
                             type="email"
-                            placeholder="Enter your institutional email"
+                            placeholder="Enter your official academic email address"
                             className="pl-10 h-11"
                             disabled={loginMutation.isPending}
                             data-testid="input-email"
+                            aria-describedby="email-description"
+                            aria-label="Institutional email address for authentication"
+                            autoComplete="email"
+                            required
                           />
                         </div>
                       </FormControl>
@@ -213,6 +217,7 @@ export default function Login() {
                   className="w-full h-11 text-sm font-medium"
                   disabled={loginMutation.isPending}
                   data-testid="button-login"
+                  aria-label="Submit login form and authenticate via institutional portal"
                 >
                   {loginMutation.isPending ? (
                     <div className="flex items-center space-x-2">
@@ -222,7 +227,7 @@ export default function Login() {
                   ) : (
                     <div className="flex items-center space-x-2">
                       <GraduationCap className="h-4 w-4" />
-                      <span>Continue with Institutional Login</span>
+                      <span>Authenticate via Institutional Portal</span>
                     </div>
                   )}
                 </Button>
@@ -245,9 +250,10 @@ export default function Login() {
               onClick={handleReplitAuth}
               disabled={loginMutation.isPending}
               data-testid="button-replit-auth"
+              aria-label="Login using direct institutional authentication"
             >
               <GraduationCap className="w-4 h-4 mr-2" />
-              Institutional Login
+              Direct Institutional Authentication
             </Button>
           </CardContent>
         </Card>
@@ -255,14 +261,14 @@ export default function Login() {
         {/* Footer Links */}
         <div className="text-center space-y-4">
           <p className="text-sm text-muted-foreground">
-            Don't have an account?{" "}
+            New to the Smart Student Hub?{" "}
             <Button
               variant="link"
               className="p-0 h-auto text-primary font-medium"
               onClick={() => setLocation("/signup")}
               data-testid="link-signup"
             >
-              Create Account
+              Register for Academic Access
             </Button>
           </p>
           <div className="flex justify-center space-x-4 text-xs text-muted-foreground">

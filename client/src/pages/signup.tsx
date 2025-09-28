@@ -172,9 +172,9 @@ export default function Signup() {
             </div>
           </div>
           <div className="space-y-2">
-            <h1 className="text-2xl font-bold text-foreground">Join Smart Student Hub</h1>
+            <h1 className="text-2xl font-bold text-foreground">Academic Registration Portal</h1>
             <p className="text-muted-foreground text-sm">
-              Enter your academic details to register using institutional authentication.
+              Register your academic credentials to access the Student Achievement Management System with institutional verification.
             </p>
           </div>
         </div>
@@ -191,9 +191,9 @@ export default function Signup() {
         {/* Signup Form Card */}
         <Card className="shadow-lg border-0 bg-card/95 backdrop-blur-sm">
           <CardHeader className="space-y-2 pb-6">
-            <CardTitle className="text-xl font-semibold text-center">Create Account</CardTitle>
+            <CardTitle className="text-xl font-semibold text-center">Student Registration</CardTitle>
             <CardDescription className="text-center text-sm">
-              Enter your academic information to continue with institutional registration
+              Complete your academic profile to access institutional achievement tracking and portfolio generation services
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -213,7 +213,7 @@ export default function Signup() {
                 <div className="space-y-4">
                   <div className="flex items-center space-x-2 text-sm font-medium text-foreground">
                     <User className="h-4 w-4" />
-                    <span>Personal Information</span>
+                    <span>Personal & Contact Information</span>
                   </div>
                   
                   <div className="grid grid-cols-2 gap-4">
@@ -231,6 +231,9 @@ export default function Signup() {
                               className="h-11"
                               disabled={signupMutation.isPending}
                               data-testid="input-first-name"
+                              aria-label="First name as per institutional records"
+                              autoComplete="given-name"
+                              required
                             />
                           </FormControl>
                           <FormMessage />
@@ -252,6 +255,9 @@ export default function Signup() {
                               className="h-11"
                               disabled={signupMutation.isPending}
                               data-testid="input-last-name"
+                              aria-label="Last name as per institutional records"
+                              autoComplete="family-name"
+                              required
                             />
                           </FormControl>
                           <FormMessage />
@@ -266,22 +272,26 @@ export default function Signup() {
                     name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-sm font-medium">Email Address</FormLabel>
+                        <FormLabel className="text-sm font-medium">Institutional Email Address</FormLabel>
                         <FormControl>
                           <div className="relative">
                             <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                             <Input
                               {...field}
                               type="email"
-                              placeholder="Enter your institutional email"
+                              placeholder="Enter your official academic email address"
                               className="pl-10 h-11"
                               disabled={signupMutation.isPending}
                               data-testid="input-email"
+                              aria-describedby="email-description"
+                              aria-label="Official institutional email address"
+                              autoComplete="email"
+                              required
                             />
                           </div>
                         </FormControl>
                         <FormDescription className="text-xs">
-                          Use your official institutional email address
+                          Please provide your official Higher Education Institution email address for verification
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -294,7 +304,7 @@ export default function Signup() {
                 <div className="space-y-4">
                   <div className="flex items-center space-x-2 text-sm font-medium text-foreground">
                     <BookOpen className="h-4 w-4" />
-                    <span>Academic Information</span>
+                    <span>Academic Credentials & Enrollment Details</span>
                   </div>
 
                   {/* Roll Number */}
@@ -314,11 +324,15 @@ export default function Signup() {
                               disabled={signupMutation.isPending}
                               data-testid="input-roll-number"
                               onChange={(e) => field.onChange(e.target.value.toUpperCase())}
+                              aria-describedby="roll-number-description"
+                              aria-label="Student roll number as per institutional records"
+                              autoComplete="off"
+                              required
                             />
                           </div>
                         </FormControl>
                         <FormDescription className="text-xs">
-                          Your official student roll number as per institutional records
+                          Enter your official student enrollment number as recorded in institutional academic records
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -392,6 +406,7 @@ export default function Signup() {
                   className="w-full h-11 text-sm font-medium"
                   disabled={isSubmitting || !form.formState.isValid}
                   data-testid="button-signup"
+                  aria-label="Submit academic registration form for institutional verification"
                 >
                   {signupMutation.isPending ? (
                     <div className="flex items-center space-x-2">
@@ -401,7 +416,7 @@ export default function Signup() {
                   ) : (
                     <div className="flex items-center space-x-2">
                       <GraduationCap className="h-4 w-4" />
-                      <span>Continue with Institutional Registration</span>
+                      <span>Complete Academic Registration</span>
                     </div>
                   )}
                 </Button>
@@ -413,14 +428,14 @@ export default function Signup() {
         {/* Footer Links */}
         <div className="text-center space-y-4">
           <p className="text-sm text-muted-foreground">
-            Already have an account?{" "}
+            Already registered with the institution?{" "}
             <Button
               variant="link"
               className="p-0 h-auto text-primary font-medium"
               onClick={() => setLocation("/login")}
               data-testid="link-login"
             >
-              Sign In
+              Access Your Account
             </Button>
           </p>
           <div className="flex justify-center space-x-4 text-xs text-muted-foreground">
