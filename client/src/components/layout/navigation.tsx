@@ -28,7 +28,7 @@ export default function Navigation() {
               Smart Student Hub
             </h1>
             <p className="text-xs text-muted-foreground" data-testid="text-app-subtitle">
-              Student Activity Management Platform
+              Institutional Excellence Management System
             </p>
           </div>
         </div>
@@ -39,7 +39,7 @@ export default function Navigation() {
           <div className="relative hidden md:block">
             <Input
               type="text"
-              placeholder="Search activities, students..."
+              placeholder="Search institutional records..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-64 pl-10"
@@ -92,15 +92,15 @@ export default function Navigation() {
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuItem data-testid="menu-item-profile">
                   <User className="mr-2 h-4 w-4" />
-                  <span>Profile</span>
+                  <span>Account Profile</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem data-testid="menu-item-settings">
                   <Settings className="mr-2 h-4 w-4" />
-                  <span>Settings</span>
+                  <span>System Preferences</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleLogout} data-testid="menu-item-logout">
                   <LogOut className="mr-2 h-4 w-4" />
-                  <span>Log out</span>
+                  <span>Sign Out</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

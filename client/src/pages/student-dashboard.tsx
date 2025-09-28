@@ -20,33 +20,6 @@ interface StudentStats {
   pendingApprovals: number;
 }
 
-// Helper function to safely convert date strings to ISO strings
-const safeToISOString = (dateValue: string | Date | null | undefined): string => {
-  if (!dateValue) return '';
-  
-  try {
-    // If it's already a Date object, use it directly
-    if (dateValue instanceof Date) {
-      return dateValue.toISOString();
-    }
-    
-    // If it's a string, convert to Date first
-    if (typeof dateValue === 'string') {
-      const date = new Date(dateValue);
-      // Check if the date is valid
-      if (isNaN(date.getTime())) {
-        console.warn('Invalid date string:', dateValue);
-        return '';
-      }
-      return date.toISOString();
-    }
-    
-    return '';
-  } catch (error) {
-    console.error('Error converting date to ISO string:', error, 'Date value:', dateValue);
-    return '';
-  }
-};
 
 export default function StudentDashboard() {
   const { toast } = useToast();
@@ -179,10 +152,10 @@ export default function StudentDashboard() {
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-2xl font-bold text-foreground" data-testid="text-dashboard-title">
-                Dashboard
+                Academic Achievement Dashboard
               </h2>
               <p className="text-muted-foreground" data-testid="text-welcome-message">
-                Welcome back, {user.firstName} {user.lastName}
+                Welcome back, {user.firstName} {user.lastName} | Comprehensive academic progress overview
               </p>
             </div>
             <div className="flex items-center space-x-3">
@@ -200,7 +173,7 @@ export default function StudentDashboard() {
                 ) : (
                   <>
                     <Download className="w-4 h-4 mr-2" />
-                    Download Portfolio
+                    Generate Portfolio
                   </>
                 )}
               </Button>
@@ -209,7 +182,7 @@ export default function StudentDashboard() {
                 data-testid="button-add-activity"
               >
                 <Plus className="w-4 h-4 mr-2" />
-                Add Activity
+                Submit Achievement
               </Button>
             </div>
           </div>
@@ -231,7 +204,7 @@ export default function StudentDashboard() {
               value={studentStats?.totalActivities?.toString() || "0"}
               icon={<ClipboardList className="w-6 h-6" />}
               color="primary"
-              subtitle="+3 this month"
+              subtitle="+3 this academic period"
               data-testid="card-total-activities"
             />
 
@@ -240,7 +213,7 @@ export default function StudentDashboard() {
               value={studentStats?.skillCredits?.toString() || "0"}
               icon={<Star className="w-6 h-6" />}
               color="info"
-              subtitle="Goal: 250 credits"
+              subtitle="Target: 250 credits"
               progress={studentStats?.skillCredits ? (studentStats.skillCredits / 250) * 100 : 0}
               data-testid="card-skill-credits"
             />
@@ -250,7 +223,7 @@ export default function StudentDashboard() {
               value={studentStats?.pendingApprovals?.toString() || "0"}
               icon={<Clock className="w-6 h-6" />}
               color="warning"
-              subtitle="Awaiting review"
+              subtitle="Awaiting faculty review"
               data-testid="card-pending-approvals"
             />
           </div>
@@ -275,14 +248,7 @@ export default function StudentDashboard() {
                 </CardHeader>
                 <CardContent>
                   <ActivityList 
-                    activities={activities?.slice(0, 5).map(activity => ({
-                      ...activity,
-                      description: activity.description || undefined,
-                      activityDate: safeToISOString(activity.activityDate),
-                      createdAt: safeToISOString(activity.createdAt),
-                      skillCredits: activity.skillCredits || undefined,
-                      feedback: activity.feedback || undefined
-                    })) || []} 
+                    activities={activities?.slice(0, 5) || []} 
                     isLoading={activitiesLoading}
                     showActions={false}
                     data-testid="list-recent-activities"

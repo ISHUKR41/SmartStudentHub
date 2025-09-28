@@ -68,22 +68,22 @@ export default function Sidebar() {
     {
       href: "/",
       icon: <LayoutDashboard className="w-5 h-5" />,
-      label: "Dashboard",
+      label: "Academic Dashboard",
     },
     {
       href: "/activities",
       icon: <ClipboardList className="w-5 h-5" />,
-      label: "My Activities",
+      label: "Academic Activities",
     },
     {
       href: "/upload",
       icon: <Upload className="w-5 h-5" />,
-      label: "Upload Achievement",
+      label: "Submit Achievement",
     },
     {
       href: "/portfolio",
       icon: <FolderOpen className="w-5 h-5" />,
-      label: "Digital Portfolio",
+      label: "Academic Portfolio",
     },
   ];
 
@@ -91,7 +91,7 @@ export default function Sidebar() {
     {
       href: "/approvals",
       icon: <CheckCircle className="w-5 h-5" />,
-      label: "Pending Approvals",
+      label: "Faculty Approvals",
       badge: "12", // This would come from an API
     },
   ];
@@ -100,12 +100,12 @@ export default function Sidebar() {
     {
       href: "/analytics",
       icon: <BarChart3 className="w-5 h-5" />,
-      label: "Analytics & Reports",
+      label: "Institutional Analytics",
     },
     {
       href: "/students",
       icon: <Users className="w-5 h-5" />,
-      label: "Student Management",
+      label: "Student Records",
     },
   ];
 
@@ -128,7 +128,7 @@ export default function Sidebar() {
           <>
             <div className="pt-4 border-t border-border">
               <p className="px-4 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Administration
+                Faculty Portal
               </p>
               
               <div className="space-y-1">

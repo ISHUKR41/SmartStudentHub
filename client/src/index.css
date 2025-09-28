@@ -5,71 +5,71 @@
 @tailwind utilities;
 
 :root {
-  /* Enhanced Background Colors - Academic Institution Grade */
-  --background: hsl(215, 18%, 98%);
-  --foreground: hsl(215, 30%, 8%);
+  /* Enhanced Background Colors - Prestigious Academic Institution Grade */
+  --background: hsl(220, 15%, 97%);
+  --foreground: hsl(220, 40%, 6%);
   --card: hsl(0, 0%, 100%);
-  --card-foreground: hsl(215, 30%, 8%);
+  --card-foreground: hsl(220, 35%, 8%);
   --popover: hsl(0, 0%, 100%);
-  --popover-foreground: hsl(215, 30%, 8%);
+  --popover-foreground: hsl(220, 35%, 8%);
   
-  /* Primary Brand Colors - Deep Academic Blue */
-  --primary: hsl(215, 88%, 27%);
+  /* Primary Brand Colors - Prestigious Academic Navy */
+  --primary: hsl(222, 84%, 24%);
   --primary-foreground: hsl(0, 0%, 100%);
-  --primary-50: hsl(215, 88%, 97%);
-  --primary-100: hsl(215, 88%, 94%);
-  --primary-200: hsl(215, 88%, 87%);
-  --primary-300: hsl(215, 88%, 77%);
-  --primary-400: hsl(215, 88%, 62%);
-  --primary-500: hsl(215, 88%, 47%);
-  --primary-600: hsl(215, 88%, 37%);
-  --primary-700: hsl(215, 88%, 27%);
-  --primary-800: hsl(215, 88%, 22%);
-  --primary-900: hsl(215, 88%, 17%);
+  --primary-50: hsl(222, 84%, 98%);
+  --primary-100: hsl(222, 84%, 95%);
+  --primary-200: hsl(222, 84%, 89%);
+  --primary-300: hsl(222, 84%, 78%);
+  --primary-400: hsl(222, 84%, 63%);
+  --primary-500: hsl(222, 84%, 48%);
+  --primary-600: hsl(222, 84%, 38%);
+  --primary-700: hsl(222, 84%, 24%);
+  --primary-800: hsl(222, 84%, 19%);
+  --primary-900: hsl(222, 84%, 14%);
   
   /* Secondary Colors - Professional Academic Gray Scale */
-  --secondary: hsl(215, 20%, 96%);
-  --secondary-foreground: hsl(215, 30%, 8%);
-  --secondary-50: hsl(215, 20%, 98%);
-  --secondary-100: hsl(215, 20%, 96%);
-  --secondary-200: hsl(215, 20%, 92%);
-  --secondary-300: hsl(215, 20%, 85%);
-  --secondary-400: hsl(215, 20%, 70%);
-  --secondary-500: hsl(215, 20%, 55%);
-  --secondary-600: hsl(215, 20%, 40%);
-  --secondary-700: hsl(215, 20%, 28%);
-  --secondary-800: hsl(215, 20%, 18%);
-  --secondary-900: hsl(215, 20%, 10%);
+  --secondary: hsl(220, 18%, 96%);
+  --secondary-foreground: hsl(220, 30%, 8%);
+  --secondary-50: hsl(220, 18%, 98%);
+  --secondary-100: hsl(220, 18%, 96%);
+  --secondary-200: hsl(220, 18%, 92%);
+  --secondary-300: hsl(220, 18%, 85%);
+  --secondary-400: hsl(220, 18%, 70%);
+  --secondary-500: hsl(220, 18%, 55%);
+  --secondary-600: hsl(220, 18%, 40%);
+  --secondary-700: hsl(220, 18%, 28%);
+  --secondary-800: hsl(220, 18%, 18%);
+  --secondary-900: hsl(220, 18%, 10%);
   
   /* Neutral Colors - Enhanced for Academic Professional Use */
-  --muted: hsl(215, 20%, 97%);
-  --muted-foreground: hsl(215, 25%, 45%);
-  --accent: hsl(215, 20%, 95%);
-  --accent-foreground: hsl(215, 30%, 12%);
+  --muted: hsl(220, 16%, 97%);
+  --muted-foreground: hsl(220, 25%, 42%);
+  --accent: hsl(220, 16%, 95%);
+  --accent-foreground: hsl(220, 30%, 12%);
   
   /* Status Colors - Academic Professional and Accessible */
-  --destructive: hsl(0, 84%, 60%);
+  --destructive: hsl(0, 76%, 54%);
   --destructive-foreground: hsl(0, 0%, 100%);
-  --success: hsl(142, 76%, 36%);
+  --success: hsl(139, 69%, 32%);
   --success-foreground: hsl(0, 0%, 100%);
-  --success-50: hsl(142, 76%, 96%);
-  --success-100: hsl(142, 76%, 91%);
-  --success-200: hsl(142, 76%, 81%);
-  --warning: hsl(32, 95%, 44%);
+  --success-50: hsl(139, 69%, 96%);
+  --success-100: hsl(139, 69%, 91%);
+  --success-200: hsl(139, 69%, 81%);
+  --warning: hsl(30, 88%, 42%);
   --warning-foreground: hsl(0, 0%, 100%);
-  --warning-50: hsl(32, 95%, 95%);
-  --warning-100: hsl(32, 95%, 90%);
-  --warning-200: hsl(32, 95%, 80%);
-  --info: hsl(215, 88%, 52%);
+  --warning-50: hsl(30, 88%, 95%);
+  --warning-100: hsl(30, 88%, 90%);
+  --warning-200: hsl(30, 88%, 80%);
+  --info: hsl(222, 84%, 50%);
   --info-foreground: hsl(0, 0%, 100%);
-  --info-50: hsl(215, 88%, 96%);
-  --info-100: hsl(215, 88%, 91%);
-  --info-200: hsl(215, 88%, 81%);
+  --info-50: hsl(222, 84%, 96%);
+  --info-100: hsl(222, 84%, 91%);
+  --info-200: hsl(222, 84%, 81%);
   
   /* Border and Input Colors - Enhanced Contrast for Accessibility */
-  --border: hsl(215, 22%, 86%);
-  --input: hsl(215, 20%, 96%);
-  --ring: hsl(215, 88%, 27%);
+  --border: hsl(220, 20%, 84%);
+  --input: hsl(220, 16%, 96%);
+  --ring: hsl(222, 84%, 24%);
   
   /* Design System Variables */
   --radius: 0.5rem;
@@ -296,68 +296,120 @@
   .dashboard-card {
     @apply bg-card border border-border rounded-lg shadow-sm hover:shadow-md transition-all duration-300;
     backdrop-filter: blur(8px);
+    border: 1px solid hsl(var(--border));
   }
   
   .stat-card {
     @apply bg-card border border-border rounded-lg p-6 shadow-sm hover:shadow-lg transition-all duration-300 relative overflow-hidden;
+    border: 1px solid hsl(var(--border));
+    background: linear-gradient(135deg, hsl(var(--card)), hsl(var(--card) / 0.98));
   }
   
   .stat-card::before {
     content: '';
     @apply absolute inset-0 opacity-0 transition-opacity duration-300;
-    background: linear-gradient(135deg, hsl(var(--primary) / 0.05), transparent);
+    background: linear-gradient(135deg, hsl(var(--primary) / 0.03), transparent);
   }
   
   .stat-card:hover::before {
     opacity: 1;
   }
+
+  .stat-card:hover {
+    border-color: hsl(var(--primary) / 0.2);
+    box-shadow: 0 8px 25px -5px hsl(var(--primary) / 0.1), 0 10px 10px -5px hsl(var(--primary) / 0.04);
+  }
   
   /* Navigation components */
   .nav-item {
-    @apply flex items-center px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent rounded-md transition-colors;
+    @apply flex items-center px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent rounded-md transition-all duration-200;
+    border-left: 3px solid transparent;
+  }
+  
+  .nav-item:hover {
+    border-left-color: hsl(var(--primary) / 0.3);
+    background: linear-gradient(90deg, hsl(var(--accent)), hsl(var(--card)));
   }
   
   .nav-item.active {
-    @apply text-primary bg-accent border-r-2 border-primary;
+    @apply text-primary bg-accent;
+    border-left-color: hsl(var(--primary));
+    background: linear-gradient(90deg, hsl(var(--primary) / 0.08), hsl(var(--card)));
+    font-weight: 600;
   }
   
   /* Button components */
   .btn-primary {
-    @apply bg-primary text-primary-foreground hover:bg-primary px-4 py-2 rounded-md text-sm font-medium transition-colors inline-flex items-center justify-center;
+    @apply bg-primary text-primary-foreground hover:bg-primary px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 inline-flex items-center justify-center;
+    box-shadow: 0 2px 4px hsl(var(--primary) / 0.2);
+    border: 1px solid hsl(var(--primary));
+  }
+  
+  .btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px hsl(var(--primary) / 0.25);
   }
   
   .btn-secondary {
-    @apply bg-secondary text-secondary-foreground hover:bg-secondary px-4 py-2 rounded-md text-sm font-medium transition-colors inline-flex items-center justify-center;
+    @apply bg-secondary text-secondary-foreground hover:bg-secondary px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 inline-flex items-center justify-center;
+    border: 1px solid hsl(var(--border));
+    box-shadow: 0 1px 3px hsl(var(--border) / 0.3);
+  }
+  
+  .btn-secondary:hover {
+    border-color: hsl(var(--primary) / 0.3);
+    box-shadow: 0 2px 6px hsl(var(--primary) / 0.15);
   }
   
   /* Professional Status Badges */
   .status-badge {
-    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border transition-all duration-200;
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border transition-all duration-200;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
   }
   
   .status-pending {
-    @apply bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-800;
+    background: linear-gradient(135deg, hsl(var(--warning-50)), hsl(var(--warning-100)));
+    color: hsl(var(--warning-foreground));
+    border: 1px solid hsl(var(--warning-200));
+    box-shadow: 0 1px 3px hsl(var(--warning) / 0.2);
   }
   
   .status-approved {
-    @apply bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800;
+    background: linear-gradient(135deg, hsl(var(--success-50)), hsl(var(--success-100)));
+    color: hsl(var(--success-foreground));
+    border: 1px solid hsl(var(--success-200));
+    box-shadow: 0 1px 3px hsl(var(--success) / 0.2);
   }
   
   .status-rejected {
     @apply bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800;
+    background: linear-gradient(135deg, hsl(0, 75%, 96%), hsl(0, 75%, 92%));
+    box-shadow: 0 1px 3px hsl(0, 75%, 54%, 0.2);
   }
 
   /* Form components */
   .form-input {
-    @apply w-full px-3 py-2 border border-border rounded-md bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent;
+    @apply w-full px-3 py-2 border border-border rounded-md bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200;
+    box-shadow: 0 1px 3px hsl(var(--border) / 0.2);
+  }
+  
+  .form-input:focus {
+    box-shadow: 0 2px 6px hsl(var(--primary) / 0.15), 0 0 0 2px hsl(var(--primary) / 0.2);
   }
   
   .form-select {
-    @apply w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent;
+    @apply w-full px-3 py-2 border border-border rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200;
+    box-shadow: 0 1px 3px hsl(var(--border) / 0.2);
+  }
+  
+  .form-select:focus {
+    box-shadow: 0 2px 6px hsl(var(--primary) / 0.15), 0 0 0 2px hsl(var(--primary) / 0.2);
   }
   
   .form-label {
-    @apply block text-sm font-medium text-foreground mb-2;
+    @apply block text-sm font-semibold text-foreground mb-2;
+    letter-spacing: 0.025em;
   }
 
   /* Upload area */

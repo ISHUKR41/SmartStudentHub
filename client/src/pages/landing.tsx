@@ -15,7 +15,7 @@ export default function Landing() {
               </div>
               <div>
                 <h1 className="text-lg font-semibold text-foreground">Smart Student Hub</h1>
-                <p className="text-xs text-muted-foreground">Student Activity Management Platform</p>
+                <p className="text-xs text-muted-foreground">Institutional Excellence Management System</p>
               </div>
             </div>
             <Button 
@@ -33,11 +33,11 @@ export default function Landing() {
       <section className="py-20 px-6">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-4xl font-bold text-foreground mb-6">
-            Centralized Digital Platform for Student Activity Records
+            Comprehensive Academic Excellence Management System
           </h1>
           <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            A comprehensive solution for recording, verifying, and tracking student achievements 
-            from Day 1 of admission to graduation.
+            An institutional-grade platform for comprehensive documentation, verification, and analysis 
+            of student achievements throughout their academic journey.
           </p>
           <div className="flex justify-center space-x-4">
             <Button 
@@ -46,7 +46,7 @@ export default function Landing() {
               className="btn-primary"
               data-testid="button-get-started"
             >
-              Get Started
+              Access Portal
             </Button>
           </div>
         </div>
@@ -56,9 +56,9 @@ export default function Landing() {
       <section className="py-16 px-6 bg-muted/30">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-foreground mb-4">Why Smart Student Hub?</h2>
+            <h2 className="text-3xl font-bold text-foreground mb-4">Institutional Benefits</h2>
             <p className="text-lg text-muted-foreground">
-              Transform your institution's student activity management with our comprehensive platform
+              Enhance institutional excellence through comprehensive student achievement tracking and analytics
             </p>
           </div>
 
@@ -68,9 +68,9 @@ export default function Landing() {
                 <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-4">
                   <Shield className="w-6 h-6 text-primary" />
                 </div>
-                <h3 className="text-lg font-semibold text-foreground mb-2">Verified Records</h3>
+                <h3 className="text-lg font-semibold text-foreground mb-2">Verified Academic Records</h3>
                 <p className="text-sm text-muted-foreground">
-                  Faculty-verified achievements ensure credibility and authenticity of student records
+                  Faculty-authenticated documentation ensures institutional compliance and academic integrity standards
                 </p>
               </CardContent>
             </Card>
@@ -80,9 +80,9 @@ export default function Landing() {
                 <div className="w-12 h-12 bg-success/10 rounded-lg flex items-center justify-center mx-auto mb-4">
                   <Users className="w-6 h-6 text-success" />
                 </div>
-                <h3 className="text-lg font-semibold text-foreground mb-2">Role-Based Access</h3>
+                <h3 className="text-lg font-semibold text-foreground mb-2">Institutional Access Control</h3>
                 <p className="text-sm text-muted-foreground">
-                  Different interfaces for students, faculty, and administrators with appropriate permissions
+                  Hierarchical access management designed for academic institutional governance and security protocols
                 </p>
               </CardContent>
             </Card>
@@ -92,9 +92,9 @@ export default function Landing() {
                 <div className="w-12 h-12 bg-info/10 rounded-lg flex items-center justify-center mx-auto mb-4">
                   <BarChart3 className="w-6 h-6 text-info" />
                 </div>
-                <h3 className="text-lg font-semibold text-foreground mb-2">Analytics & Reports</h3>
+                <h3 className="text-lg font-semibold text-foreground mb-2">Institutional Analytics</h3>
                 <p className="text-sm text-muted-foreground">
-                  Comprehensive analytics for NAAC, AICTE, and NIRF compliance reporting
+                  Advanced reporting and analytics for accreditation, assessment, and institutional excellence initiatives
                 </p>
               </CardContent>
             </Card>
@@ -104,9 +104,9 @@ export default function Landing() {
                 <div className="w-12 h-12 bg-warning/10 rounded-lg flex items-center justify-center mx-auto mb-4">
                   <GraduationCap className="w-6 h-6 text-warning" />
                 </div>
-                <h3 className="text-lg font-semibold text-foreground mb-2">Digital Portfolio</h3>
+                <h3 className="text-lg font-semibold text-foreground mb-2">Professional Portfolios</h3>
                 <p className="text-sm text-muted-foreground">
-                  Auto-generated portfolios for placements, internships, and scholarship applications
+                  Institutional-grade digital portfolios for career services and external stakeholder engagement
                 </p>
               </CardContent>
             </Card>
@@ -121,30 +121,30 @@ export default function Landing() {
             <div>
               <h3 className="text-xl font-semibold text-foreground mb-4">For Students</h3>
               <ul className="space-y-3 text-muted-foreground">
-                <li>• Centralized activity tracking</li>
-                <li>• Verified digital portfolio</li>
-                <li>• Real-time progress monitoring</li>
-                <li>• Easy certificate management</li>
+                <li>• Comprehensive activity documentation</li>
+                <li>• Institution-verified digital portfolios</li>
+                <li>• Real-time academic progress tracking</li>
+                <li>• Professional certificate management</li>
               </ul>
             </div>
             
             <div>
               <h3 className="text-xl font-semibold text-foreground mb-4">For Faculty</h3>
               <ul className="space-y-3 text-muted-foreground">
-                <li>• Streamlined approval process</li>
-                <li>• Reduced paperwork</li>
-                <li>• Student progress insights</li>
-                <li>• Efficient verification workflow</li>
+                <li>• Streamlined academic approval processes</li>
+                <li>• Digital workflow management</li>
+                <li>• Comprehensive student analytics</li>
+                <li>• Efficient verification protocols</li>
               </ul>
             </div>
             
             <div>
               <h3 className="text-xl font-semibold text-foreground mb-4">For Institutions</h3>
               <ul className="space-y-3 text-muted-foreground">
-                <li>• NAAC/NIRF compliance</li>
-                <li>• Data-driven decision making</li>
-                <li>• Improved transparency</li>
-                <li>• Better institutional rankings</li>
+                <li>• Comprehensive accreditation compliance</li>
+                <li>• Evidence-based institutional planning</li>
+                <li>• Enhanced academic transparency</li>
+                <li>• Strategic excellence optimization</li>
               </ul>
             </div>
           </div>
@@ -155,7 +155,7 @@ export default function Landing() {
       <footer className="bg-card border-t border-border py-8 px-6">
         <div className="max-w-6xl mx-auto text-center">
           <p className="text-muted-foreground">
-            © 2024 Smart Student Hub. Empowering educational institutions with digital transformation.
+            © 2024 Smart Student Hub. Advancing academic excellence through institutional digital transformation.
           </p>
         </div>
       </footer>
