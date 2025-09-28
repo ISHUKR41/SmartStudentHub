@@ -57,6 +57,13 @@ function getDatabaseUrl(): string {
       "DATABASE_URL must be set. Did you forget to provision a database?",
     );
   }
+
+  // Add SSL mode for hosted providers if not already present
+  if (!dbUrl.includes('sslmode=') && !dbUrl.includes('ssl=')) {
+    const separator = dbUrl.includes('?') ? '&' : '?';
+    dbUrl += `${separator}sslmode=require`;
+  }
+  
   return dbUrl;
 }
 
@@ -68,8 +75,26 @@ let db: ReturnType<typeof drizzle> | null = null;
 function getDb() {
   if (!db) {
     const connectionString = getDatabaseUrl();
-    pool = new Pool({ connectionString });
+    
+    // Configure SSL for hosted PostgreSQL providers (like Neon via Cloudflare)
+    const poolConfig = {
+      connectionString,
+      ssl: {
+        rejectUnauthorized: false // Required for hosted providers using SSL
+      },
+      // Connection pool settings for better reliability
+      max: 20,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 2000,
+    };
+    
+    pool = new Pool(poolConfig);
     db = drizzle(pool, { schema });
+    
+    // Log successful database configuration (masking sensitive info)
+    const maskedUrl = connectionString.replace(/:\/\/[^:]+:[^@]+@/, '://***:***@');
+    console.log(`✅ Database configured successfully: ${maskedUrl}`);
+    console.log(`🔒 SSL enabled: ${poolConfig.ssl ? 'YES' : 'NO'}`);
   }
   return db;
 }

@@ -161,6 +161,53 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Database health check endpoint
+  app.get('/api/health/db', async (req, res) => {
+    try {
+      const { db } = await import('./db');
+      const { users, activities } = await import('@shared/schema');
+      
+      // Test basic connectivity
+      const result = await db().execute('SELECT 1 as test');
+      
+      // Get user count to verify data
+      const userCountResult = await db().select().from(users);
+      const userCount = userCountResult.length;
+      
+      // Get activities count
+      const activitiesResult = await db().select().from(activities);
+      const activitiesCount = activitiesResult.length;
+      
+      // Get ISHU KUMAR specifically to verify seeding
+      const ishuUser = userCountResult.find(u => u.firstName === 'ISHU' && u.lastName === 'KUMAR');
+      
+      const healthData = {
+        status: 'healthy',
+        connectivity: 'ok',
+        userCount,
+        activitiesCount,
+        ishuKumarExists: !!ishuUser,
+        timestamp: new Date().toISOString(),
+        testQuery: result[0]
+      };
+      
+      console.log(`🔍 Database Health Check:`);
+      console.log(`   Users in database: ${userCount}`);
+      console.log(`   Activities in database: ${activitiesCount}`);
+      console.log(`   ISHU KUMAR exists: ${!!ishuUser}`);
+      console.log(`   Connection test: PASSED`);
+      
+      res.json(healthData);
+    } catch (error) {
+      console.error('❌ Database health check failed:', error);
+      res.status(500).json({ 
+        status: 'unhealthy',
+        error: error instanceof Error ? error.message : String(error),
+        timestamp: new Date().toISOString()
+      });
+    }
+  });
+
   // Initialize Replit Authentication middleware
   await setupAuth(app);
 

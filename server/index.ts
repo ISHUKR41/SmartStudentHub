@@ -37,6 +37,35 @@ app.use((req, res, next) => {
 });
 
 (async () => {
+  // Database startup logging and verification
+  try {
+    console.log('🚀 Starting database configuration verification...');
+    
+    // Check DATABASE_URL existence and format
+    const dbUrl = process.env.DATABASE_URL;
+    if (dbUrl) {
+      // Mask credentials for security
+      const maskedUrl = dbUrl.replace(/(:\/\/[^:]+:)[^@]+(@)/, '$1***$2');
+      console.log(`✅ DATABASE_URL configured: ${maskedUrl}`);
+      console.log(`📊 URL length: ${dbUrl.length} characters`);
+      console.log(`🔐 SSL mode: ${dbUrl.includes('sslmode=') ? 'Configured' : 'Adding SSL automatically'}`);
+    } else {
+      console.error('❌ DATABASE_URL not found in environment variables');
+    }
+    
+    // Test database connection early
+    const { db } = await import('./db');
+    console.log('🔌 Testing database connection...');
+    
+    // This will trigger the connection initialization with SSL config
+    await db().execute('SELECT 1 as connection_test');
+    console.log('✅ Database connection successful');
+    
+  } catch (error) {
+    console.error('❌ Database configuration failed:', error instanceof Error ? error.message : String(error));
+    console.log('⚠️ Continuing startup despite database issues...');
+  }
+
   // Auto-seed database in development if empty
   if (process.env.NODE_ENV === 'development') {
     try {
