@@ -275,6 +275,122 @@ export const insertDepartmentSchema = createInsertSchema(departments).omit({
 });
 
 /**
+ * Authentication Form Validation Schemas
+ * 
+ * Professional validation schemas for login and signup forms in the Smart Student Hub.
+ * These schemas ensure data integrity and provide user-friendly validation messages
+ * suitable for a Higher Education Institution environment.
+ */
+
+/**
+ * Login Form Validation Schema
+ * 
+ * Validates user credentials for Replit Auth integration.
+ * Since authentication is handled by Replit Auth, only email is collected for user identification.
+ */
+export const loginSchema = z.object({
+  email: z
+    .string()
+    .min(1, "Email address is required")
+    .email("Please enter a valid email address")
+    .toLowerCase(),
+});
+
+/**
+ * Signup Form Validation Schema
+ * 
+ * Validation for new user registration in academic institutions.
+ * Collects academic information only - authentication is handled by Replit Auth.
+ * Includes academic-specific fields like roll number and department.
+ */
+export const signupSchema = z.object({
+  firstName: z
+    .string()
+    .min(1, "First name is required")
+    .min(2, "First name must be at least 2 characters")
+    .max(50, "First name must be less than 50 characters")
+    .regex(/^[a-zA-Z\s]+$/, "First name can only contain letters and spaces"),
+  lastName: z
+    .string()
+    .min(1, "Last name is required")
+    .min(2, "Last name must be at least 2 characters")
+    .max(50, "Last name must be less than 50 characters")
+    .regex(/^[a-zA-Z\s]+$/, "Last name can only contain letters and spaces"),
+  email: z
+    .string()
+    .min(1, "Email address is required")
+    .email("Please enter a valid email address")
+    .toLowerCase(),
+  rollNumber: z
+    .string()
+    .min(1, "Roll number is required")
+    .min(4, "Roll number must be at least 4 characters")
+    .max(20, "Roll number must be less than 20 characters")
+    .regex(/^[A-Za-z0-9]+$/, "Roll number can only contain letters and numbers"),
+  department: z
+    .string()
+    .min(1, "Please select your department"),
+  currentSemester: z
+    .number()
+    .min(1, "Semester must be at least 1")
+    .max(10, "Semester must be at most 10")
+    .int("Semester must be a whole number"),
+});
+
+/**
+ * Department Options for Academic Institutions
+ * 
+ * Comprehensive list of common departments in Higher Education Institutions.
+ * Used for dropdown selection in signup forms.
+ */
+export const departmentOptions = [
+  { value: "CSE", label: "Computer Science & Engineering" },
+  { value: "ECE", label: "Electronics & Communication Engineering" },
+  { value: "EEE", label: "Electrical & Electronics Engineering" },
+  { value: "MECH", label: "Mechanical Engineering" },
+  { value: "CIVIL", label: "Civil Engineering" },
+  { value: "CHEM", label: "Chemical Engineering" },
+  { value: "AERO", label: "Aeronautical Engineering" },
+  { value: "AUTO", label: "Automobile Engineering" },
+  { value: "BIOMED", label: "Biomedical Engineering" },
+  { value: "BIOTECH", label: "Biotechnology" },
+  { value: "IT", label: "Information Technology" },
+  { value: "ISE", label: "Information Science & Engineering" },
+  { value: "AI", label: "Artificial Intelligence & Machine Learning" },
+  { value: "DS", label: "Data Science" },
+  { value: "CYBER", label: "Cyber Security" },
+  { value: "MATH", label: "Mathematics" },
+  { value: "PHYSICS", label: "Physics" },
+  { value: "CHEMISTRY", label: "Chemistry" },
+  { value: "BBA", label: "Bachelor of Business Administration" },
+  { value: "MBA", label: "Master of Business Administration" },
+  { value: "MCA", label: "Master of Computer Applications" },
+  { value: "BCA", label: "Bachelor of Computer Applications" },
+  { value: "COMMERCE", label: "Commerce" },
+  { value: "ECONOMICS", label: "Economics" },
+  { value: "ENGLISH", label: "English Literature" },
+  { value: "OTHER", label: "Other" },
+];
+
+/**
+ * Semester Options for Academic Progression
+ * 
+ * Standard semester options for Higher Education tracking.
+ */
+export const semesterOptions = [
+  { value: 1, label: "1st Semester" },
+  { value: 2, label: "2nd Semester" },
+  { value: 3, label: "3rd Semester" },
+  { value: 4, label: "4th Semester" },
+  { value: 5, label: "5th Semester" },
+  { value: 6, label: "6th Semester" },
+  { value: 7, label: "7th Semester" },
+  { value: 8, label: "8th Semester" },
+  { value: 9, label: "9th Semester" },
+  { value: 10, label: "10th Semester" },
+];
+
+/**
  * TypeScript Type Definitions
  * 
  * Exported types for use throughout the application.
@@ -291,6 +407,14 @@ export type UpdateActivityStatus = z.infer<typeof updateActivityStatusSchema>;
 export type ActivityFile = typeof activityFiles.$inferSelect;
 export type Department = typeof departments.$inferSelect;
 export type InsertDepartment = z.infer<typeof insertDepartmentSchema>;
+
+/**
+ * Authentication Form Type Definitions
+ * 
+ * Inferred types from validation schemas for type safety throughout the application.
+ */
+export type LoginFormData = z.infer<typeof loginSchema>;
+export type SignupFormData = z.infer<typeof signupSchema>;
 
 /**
  * PDF Portfolio Generation Types

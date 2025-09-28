@@ -24,7 +24,7 @@ import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
-import { insertActivitySchema, updateActivityStatusSchema } from "@shared/schema";
+import { insertActivitySchema, updateActivityStatusSchema, loginSchema, signupSchema } from "@shared/schema";
 import { AuthenticatedUser } from "../types/express";
 import { PDFPortfolioService } from "./pdfService";
 import { InstitutionalReportPDFService, NAACReportData, NIRFReportData } from "./reportPdfService";
@@ -188,7 +188,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         activitiesCount,
         ishuKumarExists: !!ishuUser,
         timestamp: new Date().toISOString(),
-        testQuery: result[0]
+        testQuery: result.rows?.[0] || result
       };
       
       console.log(`🔍 Database Health Check:`);
@@ -225,6 +225,107 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching user:", error);
       res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
+
+  /**
+   * Simplified Login Endpoint
+   * 
+   * Validates email and redirects to Replit Auth for secure authentication.
+   * No password processing for maximum security.
+   */
+  app.post('/api/auth/login', async (req: Request, res: Response) => {
+    try {
+      const validatedData = loginSchema.parse(req.body);
+      
+      // Optional: Check if user exists in our system for better UX
+      // This is optional since Replit Auth will handle authentication
+      
+      // Redirect to Replit Auth for actual authentication
+      res.status(200).json({ 
+        success: true, 
+        message: "Redirecting to institutional authentication system...",
+        redirectUrl: "/api/login" // Replit Auth login endpoint
+      });
+    } catch (error) {
+      console.error("Login validation error:", error);
+      res.status(400).json({ 
+        message: "Invalid email format. Please check your email address.",
+        success: false
+      });
+    }
+  });
+
+  /**
+   * Traditional Signup Endpoint
+   * 
+   * Handles form-based registration requests and integrates with the user system.
+   * This endpoint validates registration data and creates user profiles.
+   */
+  app.post('/api/auth/signup', async (req: Request, res: Response) => {
+    try {
+      // Parse and validate the form data
+      const validatedData = signupSchema.parse({
+        ...req.body,
+        currentSemester: parseInt(req.body.currentSemester) // Convert string to number
+      });
+      
+      // Check if user already exists
+      const existingUser = await storage.getUserByEmail(validatedData.email);
+      if (existingUser) {
+        return res.status(409).json({
+          message: "An account with this email address already exists. Please sign in instead.",
+          success: false
+        });
+      }
+
+      // Check if roll number is already taken
+      const existingRollNumber = await storage.getUserByRollNumber(validatedData.rollNumber);
+      if (existingRollNumber) {
+        return res.status(409).json({
+          message: "This roll number is already registered. Please contact your institution if this is incorrect.",
+          success: false
+        });
+      }
+
+      // Create user account using storage abstraction
+      const newUserData = {
+        email: validatedData.email,
+        firstName: validatedData.firstName,
+        lastName: validatedData.lastName,
+        rollNumber: validatedData.rollNumber,
+        department: validatedData.department,
+        currentSemester: validatedData.currentSemester,
+        role: 'student' as const,
+        // Authentication is handled by Replit Auth - we only store academic data
+      };
+
+      const createdUser = await storage.upsertUser(newUserData);
+
+      res.status(201).json({
+        success: true,
+        message: "Account created successfully! Please sign in to continue.",
+        user: {
+          id: createdUser.id,
+          email: createdUser.email,
+          firstName: createdUser.firstName,
+          lastName: createdUser.lastName,
+          role: createdUser.role
+        }
+      });
+    } catch (error) {
+      console.error("Signup error:", error);
+      if (error instanceof Error) {
+        res.status(400).json({ 
+          message: error.message || "Invalid registration data. Please check your academic information.",
+          success: false
+        });
+      } else {
+        res.status(500).json({ 
+          message: "An unexpected error occurred during registration. Please try again.",
+          success: false
+        });
+      }
     }
   });
 
