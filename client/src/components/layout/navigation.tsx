@@ -232,7 +232,7 @@ export default function Navigation() {
         </div>
 
         {/* Desktop Navigation Menu */}
-        <nav className="hidden lg:flex items-center space-x-1" data-testid="nav-desktop-menu">
+        <nav className="hidden md:flex items-center space-x-1" data-testid="nav-desktop-menu">
           {navigationItems.map((item) => (
             <NavLink
               key={item.href}
@@ -240,7 +240,7 @@ export default function Navigation() {
               label={item.label}
               icon={item.icon}
               testId={item.testId}
-              className="w-auto"
+              className="w-auto text-sm lg:text-base px-2 lg:px-4"
             />
           ))}
         </nav>
@@ -250,13 +250,13 @@ export default function Navigation() {
           
           {/* Advanced Search Bar for Institutional Records (Authenticated Users Only) */}
           {user && (
-            <div className="relative hidden md:block">
+            <div className="relative hidden sm:block">
               <Input
                 type="text"
                 placeholder="Search institutional records..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-48 lg:w-64 pl-10"
+                className="w-32 sm:w-40 md:w-48 lg:w-64 pl-10 h-9 sm:h-10"
                 data-testid="input-search"
               />
               {/* Search Icon with Professional Styling */}
@@ -316,7 +316,7 @@ export default function Navigation() {
                   </Avatar>
                   
                   {/* User Information Display */}
-                  <div className="hidden xl:block text-left">
+                  <div className="hidden lg:block text-left">
                     <div className="text-sm font-medium text-foreground" data-testid="text-user-name">
                       {user.firstName} {user.lastName}
                     </div>
@@ -359,7 +359,7 @@ export default function Navigation() {
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="lg:hidden"
+                className="md:hidden"
                 data-testid="button-mobile-menu"
                 aria-label="Open mobile navigation menu"
               >
