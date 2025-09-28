@@ -1,3 +1,46 @@
+/**
+ * Activity List Component for Smart Student Hub
+ * 
+ * A comprehensive activity display component designed for showcasing student
+ * achievements, faculty verification queues, and administrative analytics.
+ * Provides professional formatting suitable for institutional environments.
+ * 
+ * Key Features:
+ * - NAAC-compliant activity categorization with visual indicators
+ * - Professional status badges for verification workflow
+ * - Category-specific icons for immediate visual identification
+ * - Interactive actions for viewing details and downloading certificates
+ * - Loading states for enhanced user experience
+ * - Responsive design optimized for various screen sizes
+ * 
+ * Activity Categories (NAAC Compliant):
+ * - Academic: Research, publications, academic competitions
+ * - Co-curricular: Technical events, skill development programs
+ * - Extra-curricular: Cultural activities, social engagement
+ * - Volunteering: Community service, social responsibility
+ * - Internship: Industry experience, professional development
+ * - Leadership: Student government, organizational roles
+ * - MOOC: Online courses, professional certifications
+ * 
+ * Status Management:
+ * - Pending: Awaiting faculty verification
+ * - Approved: Faculty-verified and portfolio-ready
+ * - Rejected: Requires revision or additional documentation
+ * 
+ * Professional Features:
+ * - Institutional verification badges
+ * - Date formatting with consistent standards
+ * - Professional color coding for status and categories
+ * - Certificate download capabilities for verified activities
+ * - Detailed activity metadata display
+ * 
+ * Integration Points:
+ * - Student dashboard activity feeds
+ * - Faculty approval and verification interfaces
+ * - Digital portfolio generation systems
+ * - Administrative analytics and reporting tools
+ */
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -18,14 +61,27 @@ import {
 import { cn } from "@/lib/utils";
 import { Activity } from "@shared/schema";
 
+/**
+ * Activity List Component Props
+ * 
+ * Configuration interface for the activity list component,
+ * enabling flexible display across different institutional contexts.
+ */
 interface ActivityListProps {
-  activities: Activity[];
-  isLoading?: boolean;
-  showActions?: boolean;
-  onViewActivity?: (activity: Activity) => void;
-  onDownloadCertificate?: (activity: Activity) => void;
-  className?: string;
+  activities: Activity[];                                    // Array of activities to display
+  isLoading?: boolean;                                       // Loading state indicator
+  showActions?: boolean;                                     // Whether to show action buttons
+  onViewActivity?: (activity: Activity) => void;            // Callback for viewing activity details
+  onDownloadCertificate?: (activity: Activity) => void;     // Callback for certificate download
+  className?: string;                                        // Additional CSS classes
 }
+
+/**
+ * Activity List Component
+ * 
+ * Professional activity display component for institutional activity
+ * management and student achievement showcase interfaces.
+ */
 
 export default function ActivityList({
   activities,

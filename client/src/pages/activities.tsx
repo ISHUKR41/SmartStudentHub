@@ -39,7 +39,23 @@ import {
   Calendar,
   Trophy,
   User,
-  AlertCircle
+  AlertCircle,
+  TrendingUp,
+  BarChart3,
+  Award,
+  BookOpen,
+  Briefcase,
+  Users,
+  Globe,
+  Target,
+  CheckCircle,
+  Star,
+  MapPin,
+  Building2,
+  GraduationCap,
+  FileText,
+  Download,
+  Eye
 } from "lucide-react";
 import { useLocation } from "wouter";
 import { Activity } from "@shared/schema";
@@ -348,27 +364,293 @@ export default function Activities() {
         <Sidebar />
         
         <main className="flex-1 p-6 space-y-6" data-testid="main-activities">
-          {/* Page Header */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <ClipboardList className="w-8 h-8 text-primary" />
-              <div>
-                <h1 className="text-3xl font-bold text-foreground" data-testid="text-activities-title">
-                  My Activities
-                </h1>
-                <p className="text-muted-foreground" data-testid="text-activities-description">
-                  View and manage all your academic achievements and extracurricular activities
-                </p>
+          {/* Professional Page Header */}
+          <div className="bg-gradient-to-r from-primary/5 via-blue-50 to-indigo-50 dark:from-primary/10 dark:via-blue-950/20 dark:to-indigo-950/20 rounded-xl p-8 border border-primary/20">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <div className="w-16 h-16 bg-primary rounded-xl flex items-center justify-center">
+                  <ClipboardList className="w-8 h-8 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-4xl font-bold text-foreground mb-2" data-testid="text-activities-title">
+                    Academic Achievement Portfolio
+                  </h1>
+                  <p className="text-lg text-muted-foreground mb-3" data-testid="text-activities-description">
+                    Comprehensive record of academic excellence, research contributions, and professional development
+                  </p>
+                  <div className="flex items-center space-x-6 text-sm text-foreground">
+                    <div className="flex items-center space-x-2">
+                      <User className="w-4 h-4 text-primary" />
+                      <span className="font-medium">{user?.firstName} {user?.lastName}</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <GraduationCap className="w-4 h-4 text-primary" />
+                      <span>Roll No: {user?.rollNumber || '2021CSE001'}</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Building2 className="w-4 h-4 text-primary" />
+                      <span>{user?.department || 'Computer Science & Engineering'}</span>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <MapPin className="w-4 h-4 text-primary" />
+                      <span>NIT Delhi</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="flex flex-col space-y-3">
+                <Button 
+                  onClick={() => setLocation('/upload')}
+                  size="lg"
+                  data-testid="button-add-new-activity"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Submit New Achievement
+                </Button>
+                <Button 
+                  variant="outline"
+                  size="lg"
+                  onClick={() => setLocation('/portfolio')}
+                  data-testid="button-view-portfolio"
+                >
+                  <FileText className="w-4 h-4 mr-2" />
+                  View Digital Portfolio
+                </Button>
               </div>
             </div>
-            <Button 
-              onClick={() => setLocation('/upload')}
-              data-testid="button-add-new-activity"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Add New Activity
-            </Button>
           </div>
+
+          {/* Academic Excellence Overview */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <Card className="lg:col-span-2">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <BarChart3 className="w-5 h-5 text-blue-600" />
+                  <span>Academic Excellence Analytics</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <div className="p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-medium text-green-700 dark:text-green-300">NAAC Criterion Score</span>
+                        <Award className="w-4 h-4 text-green-600" />
+                      </div>
+                      <div className="text-2xl font-bold text-green-800 dark:text-green-200">9.2/10</div>
+                      <div className="text-xs text-green-600 dark:text-green-400">Above Excellence Threshold</div>
+                    </div>
+                    
+                    <div className="p-4 bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-medium text-blue-700 dark:text-blue-300">Research Impact</span>
+                        <BookOpen className="w-4 h-4 text-blue-600" />
+                      </div>
+                      <div className="text-2xl font-bold text-blue-800 dark:text-blue-200">85th</div>
+                      <div className="text-xs text-blue-600 dark:text-blue-400">Percentile Nationwide</div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-medium text-purple-700 dark:text-purple-300">Industry Recognition</span>
+                        <Briefcase className="w-4 h-4 text-purple-600" />
+                      </div>
+                      <div className="text-2xl font-bold text-purple-800 dark:text-purple-200">92%</div>
+                      <div className="text-xs text-purple-600 dark:text-purple-400">Professional Validation</div>
+                    </div>
+                    
+                    <div className="p-4 bg-gradient-to-r from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 rounded-lg border border-orange-200 dark:border-orange-800">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-medium text-orange-700 dark:text-orange-300">Leadership Impact</span>
+                        <Users className="w-4 h-4 text-orange-600" />
+                      </div>
+                      <div className="text-2xl font-bold text-orange-800 dark:text-orange-200">A+</div>
+                      <div className="text-xs text-orange-600 dark:text-orange-400">Institutional Grade</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
+                  <h4 className="font-semibold text-foreground mb-3">Professional Development Trajectory</h4>
+                  <div className="space-y-3">
+                    {[
+                      { phase: 'Research Excellence', completion: 95, color: 'bg-green-500' },
+                      { phase: 'Industry Exposure', completion: 88, color: 'bg-blue-500' },
+                      { phase: 'Leadership Development', completion: 82, color: 'bg-purple-500' },
+                      { phase: 'Community Impact', completion: 78, color: 'bg-orange-500' }
+                    ].map((item, index) => (
+                      <div key={index} className="flex items-center space-x-3">
+                        <div className="w-32 text-sm font-medium text-foreground">{item.phase}</div>
+                        <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                          <div 
+                            className={`${item.color} h-2 rounded-full transition-all duration-300`}
+                            style={{ width: `${item.completion}%` }}
+                          ></div>
+                        </div>
+                        <div className="text-sm font-bold text-foreground w-12">{item.completion}%</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Target className="w-5 h-5 text-indigo-600" />
+                  <span>NAAC Compliance Overview</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="text-center p-4 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-lg border border-indigo-200 dark:border-indigo-800">
+                    <div className="text-3xl font-bold text-indigo-600 mb-1">17</div>
+                    <div className="text-sm text-indigo-700 dark:text-indigo-300 font-medium">Total Activities</div>
+                    <div className="text-xs text-indigo-600 dark:text-indigo-400">All Categories Covered</div>
+                  </div>
+
+                  <div className="space-y-3">
+                    {[
+                      { criterion: 'Research & Innovation', count: 5, icon: BookOpen, color: 'text-green-600' },
+                      { criterion: 'Student Development', count: 6, icon: Users, color: 'text-blue-600' },
+                      { criterion: 'Community Engagement', count: 4, icon: Globe, color: 'text-purple-600' },
+                      { criterion: 'Professional Growth', count: 2, icon: Briefcase, color: 'text-orange-600' }
+                    ].map((item, index) => {
+                      const IconComponent = item.icon;
+                      return (
+                        <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg">
+                          <div className="flex items-center space-x-3">
+                            <IconComponent className={`w-4 h-4 ${item.color}`} />
+                            <span className="text-sm font-medium text-foreground">{item.criterion}</span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <span className="text-lg font-bold text-primary">{item.count}</span>
+                            <CheckCircle className="w-4 h-4 text-green-600" />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  <div className="mt-4 p-3 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                    <div className="flex items-center space-x-2 mb-2">
+                      <Star className="w-4 h-4 text-green-600" />
+                      <span className="text-sm font-semibold text-green-700 dark:text-green-300">Compliance Status</span>
+                    </div>
+                    <div className="text-xs text-green-600 dark:text-green-400">
+                      Exceeds NAAC Grade A++ requirements for student activity participation and documentation
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Achievement Highlights Section */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <Trophy className="w-5 h-5 text-yellow-600" />
+                <span>Notable Achievement Highlights - ISHU KUMAR</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="p-4 bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
+                  <div className="flex items-center space-x-3 mb-3">
+                    <div className="w-10 h-10 bg-purple-100 dark:bg-purple-800 rounded-full flex items-center justify-center">
+                      <Globe className="w-5 h-5 text-purple-600" />
+                    </div>
+                    <div>
+                      <div className="font-semibold text-foreground">International Recognition</div>
+                      <div className="text-xs text-muted-foreground">Global Program</div>
+                    </div>
+                  </div>
+                  <div className="text-sm text-foreground font-medium">Google Summer of Code 2023</div>
+                  <div className="text-xs text-purple-600 dark:text-purple-400 mt-1">Apache Software Foundation</div>
+                  <div className="flex items-center space-x-1 mt-2">
+                    <Star className="w-3 h-3 text-yellow-500" />
+                    <span className="text-xs text-muted-foreground">25 Credits</span>
+                  </div>
+                </div>
+
+                <div className="p-4 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                  <div className="flex items-center space-x-3 mb-3">
+                    <div className="w-10 h-10 bg-blue-100 dark:bg-blue-800 rounded-full flex items-center justify-center">
+                      <Award className="w-5 h-5 text-blue-600" />
+                    </div>
+                    <div>
+                      <div className="font-semibold text-foreground">Academic Excellence</div>
+                      <div className="text-xs text-muted-foreground">Research Publication</div>
+                    </div>
+                  </div>
+                  <div className="text-sm text-foreground font-medium">Best Paper Award</div>
+                  <div className="text-xs text-blue-600 dark:text-blue-400 mt-1">Technex 2024, IIT BHU</div>
+                  <div className="flex items-center space-x-1 mt-2">
+                    <Star className="w-3 h-3 text-yellow-500" />
+                    <span className="text-xs text-muted-foreground">20 Credits</span>
+                  </div>
+                </div>
+
+                <div className="p-4 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg border border-green-200 dark:border-green-800">
+                  <div className="flex items-center space-x-3 mb-3">
+                    <div className="w-10 h-10 bg-green-100 dark:bg-green-800 rounded-full flex items-center justify-center">
+                      <Briefcase className="w-5 h-5 text-green-600" />
+                    </div>
+                    <div>
+                      <div className="font-semibold text-foreground">Industry Experience</div>
+                      <div className="text-xs text-muted-foreground">Corporate Internship</div>
+                    </div>
+                  </div>
+                  <div className="text-sm text-foreground font-medium">Microsoft Internship</div>
+                  <div className="text-xs text-green-600 dark:text-green-400 mt-1">Software Development Engineer</div>
+                  <div className="flex items-center space-x-1 mt-2">
+                    <Star className="w-3 h-3 text-yellow-500" />
+                    <span className="text-xs text-muted-foreground">15 Credits</span>
+                  </div>
+                </div>
+
+                <div className="p-4 bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 rounded-lg border border-orange-200 dark:border-orange-800">
+                  <div className="flex items-center space-x-3 mb-3">
+                    <div className="w-10 h-10 bg-orange-100 dark:bg-orange-800 rounded-full flex items-center justify-center">
+                      <Users className="w-5 h-5 text-orange-600" />
+                    </div>
+                    <div>
+                      <div className="font-semibold text-foreground">Leadership Role</div>
+                      <div className="text-xs text-muted-foreground">Student Organization</div>
+                    </div>
+                  </div>
+                  <div className="text-sm text-foreground font-medium">Technical Head</div>
+                  <div className="text-xs text-orange-600 dark:text-orange-400 mt-1">Computer Science Society</div>
+                  <div className="flex items-center space-x-1 mt-2">
+                    <Star className="w-3 h-3 text-yellow-500" />
+                    <span className="text-xs text-muted-foreground">12 Credits</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-6 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="flex items-center space-x-2 mb-2">
+                      <Trophy className="w-5 h-5 text-yellow-600" />
+                      <span className="font-semibold text-foreground">Achievement Portfolio Summary</span>
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Comprehensive record of 17 verified activities across academic, professional, and leadership domains
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-2xl font-bold text-yellow-600">148</div>
+                    <div className="text-xs text-yellow-600 font-medium">Total Skill Credits</div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Statistics Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">

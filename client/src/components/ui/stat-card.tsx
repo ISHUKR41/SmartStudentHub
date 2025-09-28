@@ -1,15 +1,63 @@
+/**
+ * Stat Card Component for Smart Student Hub
+ * 
+ * A professional statistical display component designed for institutional dashboards
+ * and analytics interfaces. Provides visual representation of key metrics with
+ * professional styling suitable for academic environments.
+ * 
+ * Key Features:
+ * - Professional card-based design with hover effects
+ * - Color-coded theming for different metric types
+ * - Icon integration for visual context
+ * - Optional progress indicators for goal tracking
+ * - Responsive design optimized for various screen sizes
+ * - Subtitle support for additional context or trends
+ * 
+ * Design System Integration:
+ * - Consistent with Smart Student Hub design language
+ * - Uses institutional color palette and typography
+ * - Professional shadows and spacing for depth
+ * - Accessible contrast ratios for institutional compliance
+ * 
+ * Usage Context:
+ * - Student dashboard metrics (activities, credits, achievements)
+ * - Faculty analytics (approval counts, department statistics)
+ * - Administrative dashboards (institutional performance indicators)
+ * - Compliance reporting interfaces (NAAC/NIRF metrics)
+ * 
+ * Visual Features:
+ * - Gradient hover effects for interactive feedback
+ * - Color-coded icons for immediate visual identification
+ * - Progress bars for percentage-based metrics
+ * - Professional typography hierarchy
+ * - Consistent spacing and alignment
+ */
+
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
+/**
+ * Stat Card Component Props
+ * 
+ * Configuration interface for the statistical card component,
+ * enabling flexible display of institutional metrics and indicators.
+ */
 interface StatCardProps {
-  title: string;
-  value: string;
-  icon: React.ReactNode;
-  color: 'primary' | 'success' | 'warning' | 'info';
-  subtitle?: string;
-  progress?: number;
-  className?: string;
+  title: string;                // Metric title/label (e.g., "Total Students")
+  value: string;                // Primary metric value (e.g., "1,247")
+  icon: React.ReactNode;        // Icon component for visual context
+  color: 'primary' | 'success' | 'warning' | 'info'; // Theme color variant
+  subtitle?: string;            // Optional subtitle for trends or context
+  progress?: number;            // Optional progress percentage (0-100)
+  className?: string;           // Additional CSS classes for customization
 }
+
+/**
+ * Stat Card Component
+ * 
+ * Professional statistical display component for institutional metrics
+ * and key performance indicators in academic dashboard interfaces.
+ */
 
 export default function StatCard({ 
   title, 

@@ -1,0 +1,478 @@
+Centralised Student Activity Platform — Full Deep Dive
+1) Problem (very detailed) — what exactly breaks and why
+
+Data fragmentation: Different departments keep different records (exam section → marks, attendance; clubs → sign-in sheets; placement cell → internships; students → personal files). No single authoritative source.
+
+Verification gap: Many activities are self-reported by students with no proof or verification (e.g., “I attended a webinar” — no validated proof in college system).
+
+Manual processes: For NAAC/NIRF, admins request PDFs and Excel sheets from departments, then consolidate manually (human errors: duplicates, missing dates, wrong roll numbers).
+
+No timeline view: A student’s journey (courses → internships → competitions → leadership roles) is not chronologically visible.
+
+Access & portability: Students can’t easily share a verified portfolio for jobs or higher studies; recruiters can’t quickly verify certificates.
+
+Low participation incentive: If participation doesn’t count or is not visible, students join fewer events.
+
+Mentor blindspots: Faculty mentors don’t see what mentees are doing (e.g., online courses), so mentoring is weak.
+
+Impact: wasted administrative time, lower student opportunities, poor accreditation readiness, poor institutional analytics.
+
+2) High-level solution summary (one-liner)
+
+A web + mobile application that collects, verifies, stores, analyzes, and shares a student’s entire academic & co-curricular record from Day-1 to graduation — with faculty/admin approval and integration to existing college systems.
+
+3) Users & user stories (functional needs)
+Users (roles)
+
+Student
+
+Faculty mentor / Approver
+
+Department admin
+
+Placement cell / Career cell
+
+College admin / Accreditation officer
+
+System admin / DevOps
+
+Important user stories (examples)
+
+As a student, I want to upload a certificate (PDF) and meta (event name, date), get it approved, and then include it in my downloadable portfolio.
+
+As faculty, I want to see pending approvals for my mentees, approve/reject with comments, and request more evidence.
+
+As placement officer, I want filters (skills, certifications, internships) to find students for job drives.
+
+As NAAC officer, I want to export verified activity lists, department-wise, for a given academic year in CSV/PDF with proofs attached.
+
+As admin, I want analytics showing participation %, top events, and data export.
+
+4) Functional features (detailed)
+A. Student module
+
+Profile (photo, contact, roll no, program, year, skills tags)
+
+Upload activity: form fields
+
+Title, Type (Conference/Internship/Volunteer), Description, Start Date, End Date, Organiser, Evidence files (pdf/png), External link (if any), Tags, Hours/credits
+
+Activity status: Draft → Submitted → Pending Approval → Approved → Published → Rejected (with reason)
+
+Portfolio builder: choose sections to include; preview and download PDF or share public verified link (short tokenized URL)
+
+Activity timeline (chronological)
+
+Notifications (upload approved, rejected, request more evidence)
+
+B. Faculty / Approver module
+
+Queue: list of pending approvals filtered by mentee or department
+
+Quick-approve UI (one click), with ability to view uploaded files inline (zoom)
+
+Reject flow: select reason from dropdown + optional message
+
+Bulk approve (for fairs where many proofs are ok)
+
+Audit trail: who approved, when, comments
+
+C. Admin / Analytics
+
+Department dashboards: counts by category, active students, awards
+
+Export builder for NAAC/NIRF: year range, filters
+
+Role management (assign approvers per department)
+
+Integrations manager (connect/disconnect LMS, ERP)
+
+System logs & audit
+
+D. Integrations
+
+Single Sign-On (SSO) with college portal (Google Workspace / Microsoft 365 / LDAP)
+
+ERP (marks, attendance) via secure API / scheduled ETL
+
+LMS (course completion badges)
+
+Placement cell (internship records)
+
+Email/SMS gateway for notifications
+
+5) Data Model (schema overview) — key tables/entities
+
+(Use relational DB: PostgreSQL recommended)
+
+Main tables (simplified)
+
+users: id, roll_no, name, email, phone, role, department_id, created_at, updated_at
+
+profiles: user_id (FK), dob, photo_url, address, skills (JSON array), bio
+
+activities: id, user_id, title, type (enum), category, description, start_date, end_date, organiser, hours, credits, status (enum), created_at, updated_at
+
+evidences: id, activity_id (FK), file_url, file_type, uploaded_by, checksum, uploaded_at
+
+approvals: id, activity_id, approver_id, action (approve/reject), comment, action_date
+
+departments: id, name, hod_id
+
+audit_logs: id, event_type, user_id, details (JSON), timestamp
+
+integrations: id, name, credentials(encrypted), status
+
+portfolios: id, user_id, title, sections (JSON), public_url, generated_at
+
+Sample activity JSON (for flexible fields)
+{
+  "title":"AI Workshop",
+  "type":"workshop",
+  "organiser":"IIT Patna",
+  "start_date":"2025-03-10",
+  "end_date":"2025-03-12",
+  "hours":12,
+  "tags":["AI","ML"],
+  "evidences":[{"url":"s3://.../cert1.pdf","hash":"..."}]
+}
+
+6) API Design (REST endpoints examples)
+
+Authentication: JWT with refresh tokens + SSO support.
+
+Auth
+
+POST /api/auth/login — email/password (only for admin/dev)
+
+POST /api/auth/sso — SSO callback
+
+POST /api/auth/refresh — refresh token
+
+Students
+
+GET /api/students/me — profile
+
+PUT /api/students/me — update profile
+
+POST /api/activities — create activity (multipart for files)
+
+GET /api/activities?status=approved — list activities
+
+GET /api/activities/{id} — view activity & evidences
+
+POST /api/activities/{id}/submit — submit for approval
+
+Approvals
+
+GET /api/approvals/pending — list pending for approver
+
+POST /api/approvals/{activityId} — approve/reject (payload: action, comment)
+
+POST /api/approvals/bulk — bulk approve/reject
+
+Portfolios
+
+POST /api/portfolios/generate — build portfolio PDF (options: include sections)
+
+GET /api/portfolios/{id}/download
+
+GET /shared/{public_token} — public read-only portfolio page
+
+Reports/Exports
+
+GET /api/reports/naac?dept=CS&year=2024 — returns CSV/ZIP with evidences
+
+GET /api/analytics/participation?from=2024-01-01&to=2024-12-31
+
+7) UI / UX — screen-by-screen detailed
+Student screens
+
+Login / SSO
+
+Onboarding — fill basic profile, choose department, add mentors
+
+Dashboard — KPIs: Total approved activities, upcoming deadlines, recent approvals, skill badges
+
+Add Activity form:
+
+Fields: title, type (select), organiser, dates, hours, description, evidence upload (drag & drop), tags, credits checkbox
+
+Progress bar for upload
+
+Save as Draft or Submit
+
+My Activities — filter by status, search, timeline view
+
+Portfolio Builder — checkboxes for sections, preview, generate PDF, share link
+
+Notifications / Inbox — approvals, requests for more info
+
+Approver screens
+
+Pending approvals list — quick filter (by student, type)
+
+Review modal — preview file, metadata, calendar view of event
+
+Approve/Reject buttons + comments
+
+History — previously approved/rejected items and comments
+
+Admin screens
+
+Department dashboard — participation heatmap
+
+Export builder — pick academic year & download all proofs zipped
+
+Integrations — configure ERP/LMS, test connection
+
+Role management — add approvers, set permissions
+
+8) Approval workflow rules & validations (detailed)
+Rules
+
+Evidence mandatory for categories flagged (internship, conference). For some informal certificates (club attendance), evidence optional but flagged for quick review.
+
+Timestamp validation: start_date <= end_date. Future dated events allowed (for registrations) but auto-approve only after end_date.
+
+Duplicate detection: if an evidence file hash matches an existing file for same student & same title → warn duplicate.
+
+Maximum file size: 15 MB per file; allowed types: PDF, PNG, JPG.
+
+Credits mapping: if an activity claims credits, it must be approved by HOD or Course Coordinator (higher authority).
+
+Bulk approvals: allowed for department admins for events (e.g., department-organised webinar where all participants auto-approve).
+
+Expiry/retention: evidences retained per institution policy (e.g., 7 years), with legal requirement options.
+
+Validations (on server-side)
+
+File type & mime-check
+
+Metadata completeness (title, dates)
+
+Check user belongs to department/roll number matches
+
+Approval role-check (approver has permission)
+
+9) Security, privacy & compliance (very important)
+Authentication & Authorization
+
+SSO: use institution’s Google Workspace / Microsoft Azure AD for student login.
+
+Role-Based Access Control (RBAC): student, mentor, approver, admin.
+
+Principle of least privilege: approvers see only what they need.
+
+Data protection
+
+Transport: HTTPS everywhere (TLS 1.2+)
+
+At rest: Encrypt sensitive fields in DB (AES-256).
+
+File storage: Use cloud buckets with restricted access; serve files through signed temporary URLs.
+
+Backups: encrypted daily backups, retention policy.
+
+Audit & traceability
+
+Record every approval, edit, download in audit_logs (user, timestamp, IP).
+
+Tamper evidence: store file checksums and store approvals with signature.
+
+Privacy & Compliance
+
+Consent: ask students to consent to storing and sharing their portfolio (checkbox during onboarding).
+
+Right to delete / export: provide data export (GDPR-like) and account deletion flow (respect archival rules for transcripts).
+
+Access logs available to admins; sensitive operations require 2FA (e.g., bulk export of evidences).
+
+10) Deployment & architecture (production-grade)
+Recommended architecture (cloud)
+
+Frontend: React app hosted on CDN (CloudFront) + mobile apps (React Native / Flutter).
+
+Backend: Node.js / Express microservices or a monolith broken into services:
+
+Auth service
+
+Activities service
+
+Approvals service
+
+Reporting service
+
+Database: Managed PostgreSQL (RDS / Cloud SQL)
+
+Object storage: AWS S3 / GCS for evidence files
+
+Cache: Redis for session, rate-limiting, and temporary data
+
+Message queue: RabbitMQ / AWS SQS for async tasks (PDF generation, sending emails)
+
+CI/CD: GitHub Actions / GitLab CI for tests, builds, deployments
+
+Monitoring: Prometheus + Grafana, plus Sentry for error tracking
+
+Secrets: Use AWS Secrets Manager / Vault for credentials
+
+Scalability
+
+Start small: t2-medium app server, managed DB.
+
+Scale horizontally: add more app instances behind a load balancer when usage grows (peak: placement season).
+
+Use CDN for static assets & file downloads.
+
+11) PDF Portfolio generation – exact structure (what will the PDF contain)
+
+Cover page: Name, photo, program, roll no, contact, short bio
+
+Table of contents
+
+Academic summary: semesters, CGPA (pulled from ERP)
+
+Key achievements: top 5 badges/awards (with dates + organiser)
+
+Full activity list (chronological):
+
+Each entry: Title, Type, Dates, Hours/Credits, Short description, Link to evidence (or embedded thumbnail)
+
+Certifications: list + evidence thumbnails (clickable if PDF)
+
+Internships & projects: company, role, duration, certificate
+
+Signature & verification stamp: digital signature of approver + verification token URL
+
+Footer: generated date + verification token (URL / QR code)
+
+12) Non-functional requirements & SLAs
+
+Availability: Target 99.9% uptime (primary academic use)
+
+Response time: API average < 200ms, portfolio generation async with status update
+
+Data durability: Backups retained for 7+ years
+
+Throughput: Support concurrent uploads during peak (e.g., 1000 students uploading during event day) — queueing & chunked uploads
+
+13) Testing plan (detailed)
+
+Unit tests for backend logic (approval rules, duplicate detection)
+
+Integration tests for APIs (auth, uploads, approvals)
+
+End-to-end tests for UI flows (student upload → faculty approval → portfolio generation)
+
+Load testing: simulate 1000 concurrent users uploading files (use Locust or JMeter)
+
+Security tests: vulnerability scans, SAST, and penetration testing
+
+Accessibility tests: WCAG 2.1 compliance (for students with disabilities)
+
+Acceptance testing with pilot dept (manual test checklist)
+
+14) Rollout / Pilot plan (practical steps)
+
+Prototype: Basic UI + upload + approval + portfolio generation (MVP).
+
+Pilot: Launch in one department (e.g., Computer Science) for 6–8 weeks.
+
+Collect feedback: usability issues, missing fields, approval bottlenecks.
+
+Iterate: implement improvements from pilot.
+
+Scale: Onboard other departments in waves (dept-by-dept).
+
+Train: Online video tutorials + in-person workshops for faculty & students.
+
+Support: 1st-line help desk for month 1 post-launch.
+
+15) Training & documentation (what to prepare)
+
+Student quick-start guide (screenshots + short video)
+
+Faculty approver manual (how to approve, reject, request more info)
+
+Admin operations guide (integrations, exports)
+
+Troubleshooting guide and FAQs
+
+Short classroom slides for orientation (10–15 min)
+
+16) KPIs & success metrics (monitor these)
+
+% of students with completed profile within first semester
+
+Number of approved activities per student (avg)
+
+Time taken for approval (median)
+
+Reduction in time spent on NAAC report generation (hours)
+
+Increase in placement matches attributed to platform (qualitative)
+
+17) Edge cases & how to handle them
+
+Fake certificates: Approver checks, but also provide optional digital verification (link to issuer or micro-certification API).
+
+Multiple approvers: For high-credit activities, require multi-level approval (Faculty → HOD).
+
+Students graduating & leaving email: Keep account active, allow alumni email re-mapping for sharing.
+
+Disputed approvals: Appeal flow: student can request re-review; admin can open dispute case.
+
+18) Cost considerations (high-level)
+
+Development: depends on team (in-house vs vendor). A conservative MVP by small team (2 devs + 1 UI + 1 backend + 1 QA) over few months — I’m not giving a fixed quote but can estimate if you want a budget bracket.
+
+Hosting: modest (cloud managed DB + S3 + one app server) — very affordable for a single college; scaled enterprise costs increase with storage and concurrency.
+
+Maintenance: monthly for backups, security patches, small enhancements.
+
+19) Example user flow (concrete step-by-step)
+
+Student wants internship added:
+
+Student logs in via SSO → goes to “Add Activity”.
+
+Fills form: Internship at XYZ Corp, dates, upload offer letter PDF.
+
+Clicks Submit. Status = Pending.
+
+System notifies assigned approver (mentor/HOD).
+
+Approver opens pending queue → views uploaded PDF inline → clicks Approve (or Reject with message).
+
+On Approve: activity status → Approved. Evidence stored in S3; audit log saved.
+
+Student gets notification; activity appears in timeline & portfolio automatically.
+
+Student generates PDF portfolio; it contains internship entry with digital verification (approver name + token).
+
+20) Mapping to NAAC/NIRF requirements (how platform helps)
+
+NAAC often asks for:
+
+List of student achievements (department-wise)
+
+Number of students involved in extension activities
+
+Evidence documents (certificates, letters)
+
+Our system: export per department/year with attached evidence in ZIP + CSV index → reduces manual compilation time drastically.
+
+21) Next steps I can do for you right now (pick any — I’ll produce it instantly)
+
+Create a detailed ER diagram (text/ASCII or diagram description).
+
+Write SQL DDL (CREATE TABLE statements) for the core schema.
+
+Create sample UI mockups (wireframe descriptions or HTML/CSS skeleton).
+
+Produce sample API spec in OpenAPI (Swagger) format.
+
+Draft a pilot run checklist and a 1-page training slide deck content.
+
+Prepare downloadable sample portfolio PDF content (sample JSON → PDF layout).
