@@ -1,292 +1,403 @@
 /**
- * Sidebar Navigation Component for Smart Student Hub
+ * Sidebar Information Panel for Smart Student Hub
  * 
- * This comprehensive sidebar component provides role-based navigation for the Smart Student Hub
- * institutional platform, offering organized access to different functional areas based on user
- * roles and institutional hierarchy. Designed specifically for Higher Education Institution
- * environments with professional navigation patterns and institutional compliance standards.
+ * This comprehensive sidebar component provides contextual information and quick access
+ * to essential academic data for the Smart Student Hub institutional platform. Rather than
+ * duplicating main navigation, it focuses on user context, statistics, and notifications
+ * to enhance the overall user experience.
  * 
- * Core Institutional Features:
- * - Role-based navigation system reflecting institutional hierarchy (Student, Faculty, Admin)
- * - Professional navigation grouping for different functional areas and responsibilities
- * - Real-time badge notifications for pending approvals and important updates
- * - Responsive design with mobile-friendly collapsible navigation
- * - Institutional-grade styling aligned with Higher Education standards
- * - Accessibility-compliant navigation patterns for inclusive educational environments
+ * Core Features:
+ * - User profile information with academic details and current status
+ * - Real-time academic statistics including activities, credits, and approvals
+ * - Recent activity feed for quick access to latest submissions and updates
+ * - Progress indicators for academic goals and portfolio completion
+ * - Important notifications and deadline alerts
+ * - Quick action buttons for common tasks and workflows
  * 
- * Navigation Structure:
- * - Student Portal: Academic dashboard, activities, achievement uploads, and portfolio management
- * - Faculty Portal: Approval workflows, student verification, and academic assessment tools
- * - Admin Portal: Institutional analytics, student records, and system administration
- * - Cross-role Features: Common functionality accessible across different user types
+ * Information Sections:
+ * - User Profile: Name, role, academic year, department, and profile picture
+ * - Academic Stats: Total activities, skill credits, pending approvals, completion rates
+ * - Recent Activities: Latest submissions with verification status and timestamps
+ * - Progress Tracking: Portfolio completion, semester progress, achievement goals
+ * - Notifications: Deadline reminders, faculty feedback, system announcements
+ * - Quick Actions: Common shortcuts for frequent tasks
  * 
- * Role-based Access Control:
- * - Students: Access to personal academic dashboard, activity management, and portfolio tools
- * - Faculty: Access to student approvals, verification workflows, and academic assessment
- * - Administrators: Access to institutional analytics, system management, and comprehensive records
- * - Dynamic Navigation: Menu items adjust based on authenticated user role and permissions
+ * Professional Design:
+ * - Clean, institutional interface complementing the main navigation
+ * - Consistent styling with Higher Education Institution standards
+ * - Responsive design ensuring optimal display across all device types
+ * - Professional color scheme and typography suitable for academic environments
+ * - Accessibility-compliant design patterns for inclusive educational use
  * 
- * Professional Design Standards:
- * - Clean, institutional interface suitable for academic environments
- * - Professional iconography aligned with Higher Education Institution standards
- * - Consistent styling and branding throughout navigation elements
- * - Responsive design ensuring optimal functionality across desktop, tablet, and mobile devices
- * - Professional color scheme and typography suitable for institutional use
- * 
- * User Experience Features:
- * - Active page highlighting for clear navigation context and user orientation
- * - Smooth transitions and hover effects for professional interaction patterns
- * - Badge notifications for important alerts and pending actions requiring attention
- * - Logical grouping of related functionality for efficient workflow management
- * - Intuitive navigation patterns familiar to Higher Education users
+ * User Experience:
+ * - Contextual information relevant to current user session and activities
+ * - Real-time updates for statistics and notifications
+ * - Intuitive organization of information for quick scanning and access
+ * - Professional presentation suitable for academic institutional environments
  * 
  * Technical Implementation:
- * - Built with modern React functional components and TypeScript for type safety
- * - Integration with authentication system for role-based rendering and access control
- * - Responsive CSS using Tailwind CSS framework for consistent institutional styling
- * - Semantic HTML structure with proper ARIA labels for accessibility compliance
- * - Efficient state management for active navigation tracking and user context
- * 
- * Integration Points:
- * - Authentication system integration for user role verification and session management
- * - Navigation routing system with proper URL management and history tracking
- * - Real-time notification system for badge updates and alert management
- * - Responsive layout system ensuring optimal display across all device types
- * - Institutional branding system for consistent visual identity throughout navigation
+ * - React functional components with TypeScript for type safety
+ * - Integration with authentication system for personalized content
+ * - Real-time data fetching for statistics and activity updates
+ * - Responsive CSS using Tailwind CSS framework
+ * - Optimized performance for smooth user experience
  */
 
 import { useAuth } from "@/hooks/useAuth";
+import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import { 
-  LayoutDashboard, 
-  ClipboardList, 
-  Upload, 
-  FolderOpen, 
-  CheckCircle, 
-  BarChart3, 
-  Users 
+  User,
+  BookOpen,
+  Award,
+  Clock,
+  TrendingUp,
+  Bell,
+  CheckCircle2,
+  Calendar,
+  Target,
+  Zap,
+  AlertTriangle,
+  Plus,
+  FileText
 } from "lucide-react";
+import { Activity } from "@shared/schema";
 
 /**
- * Navigation Item Props Interface
+ * Student Statistics Interface
  * 
- * Defines the structure and properties for individual navigation items
- * in the sidebar, including routing, styling, and notification features.
+ * Defines the structure for student performance metrics and activity data
+ * used throughout the sidebar for displaying real-time academic information.
  */
-interface NavItemProps {
-  href: string;                    // Route path for navigation destination
-  icon: React.ReactNode;           // Icon component for visual identification
-  label: string;                   // Display text for the navigation item
-  badge?: string;                  // Optional notification badge text
-  isActive?: boolean;              // Active state for current page highlighting
-  onClick?: () => void;            // Optional custom click handler for special actions
+interface StudentStats {
+  totalActivities: number;
+  skillCredits: number;
+  pendingApprovals: number;
+  portfolioCompletion: number;
+  currentGPA: number;
+  semesterCredits: number;
 }
 
 /**
- * Navigation Item Component
+ * Recent Activity Interface
  * 
- * Individual navigation item component with professional styling, active state management,
- * and optional notification badges. Handles both standard navigation and custom actions
- * while maintaining consistent institutional design patterns.
- * 
- * @param props - Navigation item configuration and styling options
- * @returns {JSX.Element} Styled navigation item with click handling and visual indicators
+ * Defines the structure for recent activity items displayed in the sidebar
  */
-function NavItem({ href, icon, label, badge, isActive, onClick }: NavItemProps) {
-  // Navigation hook for programmatic routing and URL management
-  const [, setLocation] = useLocation();
+interface RecentActivity {
+  id: string;
+  title: string;
+  status: 'pending' | 'approved' | 'rejected';
+  submittedAt: string;
+  type: string;
+}
 
-  /**
-   * Click Handler for Navigation Items
-   * 
-   * Handles navigation item clicks with support for both standard routing
-   * and custom action functions. Provides flexible navigation patterns
-   * for different types of user interactions and workflow requirements.
-   */
-  const handleClick = () => {
-    if (onClick) {
-      // Execute custom action if provided (e.g., special functionality)
-      onClick();
-    } else {
-      // Standard navigation to the specified route
-      setLocation(href);
-    }
-  };
+/**
+ * Quick Action Button Component
+ * 
+ * Renders individual quick action buttons for common tasks
+ */
+interface QuickActionProps {
+  icon: React.ReactNode;
+  label: string;
+  onClick: () => void;
+  variant?: 'default' | 'outline';
+}
 
+function QuickAction({ icon, label, onClick, variant = 'outline' }: QuickActionProps) {
   return (
     <Button
-      variant="ghost"
-      className={cn(
-        "nav-item w-full justify-start",
-        isActive && "active"
-      )}
-      onClick={handleClick}
-      data-testid={`nav-item-${href.replace('/', '') || 'dashboard'}`}
+      variant={variant}
+      size="sm"
+      className="w-full justify-start"
+      onClick={onClick}
+      data-testid={`button-${label.toLowerCase().replace(/\s+/g, '-')}`}
     >
-      {/* Navigation Icon for Visual Identification */}
       {icon}
-      
-      {/* Navigation Label Text */}
-      <span className="ml-3">{label}</span>
-      
-      {/* Optional Notification Badge for Alerts and Updates */}
-      {badge && (
-        <Badge 
-          variant="secondary" 
-          className="ml-auto bg-warning text-warning-foreground text-xs"
-          data-testid={`badge-${href.replace('/', '') || 'dashboard'}`}
-        >
-          {badge}
-        </Badge>
-      )}
+      <span className="ml-2">{label}</span>
     </Button>
   );
 }
 
 /**
- * Sidebar Navigation Component
+ * Sidebar Information Panel
  * 
- * Main sidebar navigation component providing comprehensive role-based navigation
- * for the Smart Student Hub institutional platform. Dynamically renders navigation
- * items based on user authentication status and role permissions.
+ * Main sidebar component providing contextual information, statistics, and quick access
+ * to essential academic data. Complements the main navigation by focusing on user context
+ * and real-time information rather than duplicating navigation functionality.
  * 
- * Features:
- * - Role-based navigation rendering for Student, Faculty, and Admin users
- * - Professional grouping of related functionality for efficient workflow
- * - Real-time badge notifications for pending actions and important alerts
- * - Responsive design with mobile-friendly navigation patterns
- * - Active page highlighting for clear navigation context
- * - Institutional-grade styling aligned with Higher Education standards
- * 
- * @returns {JSX.Element | null} Complete sidebar navigation or null if user not authenticated
+ * @returns {JSX.Element | null} Complete sidebar information panel or null if user not authenticated
  */
 export default function Sidebar() {
   // Authentication hook for user state and role verification
   const { user } = useAuth();
-  
-  // Location hook for active page detection and navigation state management
-  const [location] = useLocation();
+  const [, setLocation] = useLocation();
 
-  // Return null if user is not authenticated (security and UX consideration)
+  // Return null if user is not authenticated
   if (!user) return null;
 
-  /**
-   * Student Navigation Items Configuration
-   * 
-   * Defines the primary navigation structure for student users, including
-   * academic dashboard, activity management, achievement uploads, and portfolio access.
-   * Organized to support the complete student academic journey and achievement tracking.
-   */
-  const studentNavItems = [
-    {
-      href: "/",
-      icon: <LayoutDashboard className="w-5 h-5" />,
-      label: "Academic Dashboard",
-    },
-    {
-      href: "/activities",
-      icon: <ClipboardList className="w-5 h-5" />,
-      label: "Academic Activities",
-    },
-    {
-      href: "/upload",
-      icon: <Upload className="w-5 h-5" />,
-      label: "Submit Achievement",
-    },
-    {
-      href: "/portfolio",
-      icon: <FolderOpen className="w-5 h-5" />,
-      label: "Academic Portfolio",
-    },
-  ];
+  // Fetch student statistics with loading state
+  const { data: stats, isLoading: isLoadingStats } = useQuery<StudentStats>({
+    queryKey: ["/api/students/stats"],
+    retry: false,
+  });
 
-  /**
-   * Faculty Navigation Items Configuration
-   * 
-   * Defines navigation structure for faculty users, focusing on approval workflows,
-   * student verification processes, and academic assessment responsibilities.
-   * Includes real-time badge notifications for pending approval actions.
-   */
-  const facultyNavItems = [
-    {
-      href: "/approvals",
-      icon: <CheckCircle className="w-5 h-5" />,
-      label: "Faculty Approvals",
-      badge: "12", // Real-time count of pending approvals (would come from API)
-    },
-  ];
+  // Fetch recent activities with loading state
+  const { data: recentActivities, isLoading: isLoadingActivities } = useQuery<Activity[]>({
+    queryKey: ["/api/students/activities"],
+    retry: false,
+  });
 
-  /**
-   * Administrative Navigation Items Configuration
-   * 
-   * Defines navigation structure for administrative users, providing access to
-   * institutional analytics, comprehensive student records, and system management tools.
-   * Supports institutional oversight and compliance reporting requirements.
-   */
-  const adminNavItems = [
-    {
-      href: "/analytics",
-      icon: <BarChart3 className="w-5 h-5" />,
-      label: "Institutional Analytics",
-    },
-    {
-      href: "/students",
-      icon: <Users className="w-5 h-5" />,
-      label: "Student Records",
-    },
-  ];
+  // Helper function for safe date formatting
+  const formatActivityDate = (dateValue: Date | string | null): string => {
+    if (!dateValue) return 'Unknown';
+    try {
+      const date = typeof dateValue === 'string' ? new Date(dateValue) : dateValue;
+      return date instanceof Date && !isNaN(date.getTime()) 
+        ? date.toLocaleDateString()
+        : 'Unknown';
+    } catch {
+      return 'Unknown';
+    }
+  };
+
+  // Default values for display when data is loading
+  const defaultStats = {
+    totalActivities: stats?.totalActivities || 0,
+    skillCredits: stats?.skillCredits || 0,
+    pendingApprovals: stats?.pendingApprovals || 0,
+    portfolioCompletion: stats?.portfolioCompletion || 0,
+    currentGPA: stats?.currentGPA || 0,
+    semesterCredits: stats?.semesterCredits || 0
+  };
+
+  // Format recent activities for display with safe date parsing
+  const displayActivities = recentActivities?.slice(0, 3).map(activity => ({
+    id: activity.id,
+    title: activity.title,
+    status: activity.status,
+    submittedAt: formatActivityDate(activity.createdAt),
+    type: activity.category === 'academic' ? 'Academic' : 
+          activity.category === 'co-curricular' ? 'Co-curricular' :
+          activity.category === 'extra-curricular' ? 'Extra-curricular' :
+          activity.category === 'leadership' ? 'Leadership' :
+          activity.category === 'mooc' ? 'Technical' : 
+          activity.category.charAt(0).toUpperCase() + activity.category.slice(1)
+  })) || [];
 
   return (
-    <aside className="hidden lg:block w-64 bg-card border-r border-border" data-testid="sidebar">
-      <nav className="p-4 space-y-2">
+    <aside className="hidden lg:block w-80 bg-background border-r border-border" data-testid="sidebar">
+      <div className="p-4 space-y-6">
         
-        {/* Primary Student Navigation Section */}
-        <div className="space-y-1">
-          {studentNavItems.map((item) => (
-            <NavItem
-              key={item.href}
-              {...item}
-              isActive={location === item.href}
-            />
-          ))}
-        </div>
-
-        {/* Faculty and Administrative Navigation Sections */}
-        {/* Conditional rendering based on user role for appropriate access control */}
-        {(user.role === 'faculty' || user.role === 'admin') && (
-          <>
-            {/* Faculty Portal Section */}
-            <div className="pt-4 border-t border-border">
-              <p className="px-4 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                Faculty Portal
-              </p>
-              
-              {/* Faculty-specific Navigation Items */}
-              <div className="space-y-1">
-                {facultyNavItems.map((item) => (
-                  <NavItem
-                    key={item.href}
-                    {...item}
-                    isActive={location === item.href}
-                  />
-                ))}
-                
-                {/* Administrative Navigation Items (Admin-only Access) */}
-                {user.role === 'admin' && adminNavItems.map((item) => (
-                  <NavItem
-                    key={item.href}
-                    {...item}
-                    isActive={location === item.href}
-                  />
-                ))}
+        {/* User Profile Section */}
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center space-x-3">
+              <Avatar className="w-12 h-12" data-testid="avatar-profile">
+                <AvatarImage src={user.profileImageUrl || ""} />
+                <AvatarFallback className="bg-primary text-primary-foreground">
+                  {user.firstName?.[0]}{user.lastName?.[0]}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1">
+                <h3 className="font-semibold text-sm" data-testid="text-username">
+                  {user.firstName} {user.lastName}
+                </h3>
+                <p className="text-xs text-muted-foreground capitalize" data-testid="text-user-role">
+                  {user.role} • Computer Science
+                </p>
+                <div className="flex items-center mt-1 text-xs text-muted-foreground" data-testid="text-academic-info">
+                  <BookOpen className="w-3 h-3 mr-1" />
+                  Semester 6 • GPA {defaultStats.currentGPA}
+                </div>
               </div>
             </div>
-          </>
-        )}
-      </nav>
+          </CardContent>
+        </Card>
+
+        {/* Academic Statistics */}
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm flex items-center">
+              <TrendingUp className="w-4 h-4 mr-2" />
+              Academic Overview
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {isLoadingStats ? (
+              <div className="space-y-3" data-testid="loading-stats">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="text-center p-2 bg-muted rounded-lg animate-pulse">
+                    <div className="h-6 bg-muted-foreground/20 rounded mb-1"></div>
+                    <div className="h-3 bg-muted-foreground/20 rounded"></div>
+                  </div>
+                  <div className="text-center p-2 bg-muted rounded-lg animate-pulse">
+                    <div className="h-6 bg-muted-foreground/20 rounded mb-1"></div>
+                    <div className="h-3 bg-muted-foreground/20 rounded"></div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-3">
+                <div className="text-center p-2 bg-muted rounded-lg" data-testid="stat-activities">
+                  <div className="text-lg font-bold text-primary">{defaultStats.totalActivities}</div>
+                  <div className="text-xs text-muted-foreground">Activities</div>
+                </div>
+                <div className="text-center p-2 bg-muted rounded-lg" data-testid="stat-credits">
+                  <div className="text-lg font-bold text-green-600">{defaultStats.skillCredits}</div>
+                  <div className="text-xs text-muted-foreground">Skill Credits</div>
+                </div>
+              </div>
+            )}
+            
+            {!isLoadingStats && (
+              <>
+                <div className="space-y-2" data-testid="portfolio-progress">
+                  <div className="flex justify-between text-xs">
+                    <span>Portfolio Completion</span>
+                    <span className="font-medium">{defaultStats.portfolioCompletion}%</span>
+                  </div>
+                  <Progress value={defaultStats.portfolioCompletion} className="h-2" />
+                </div>
+                
+                {defaultStats.pendingApprovals > 0 && (
+                  <div className="flex items-center justify-between p-2 bg-yellow-50 dark:bg-yellow-950 rounded-lg" data-testid="alert-pending-approvals">
+                    <div className="flex items-center text-xs">
+                      <Clock className="w-3 h-3 mr-1 text-yellow-600" />
+                      Pending Approvals
+                    </div>
+                    <Badge variant="outline" className="text-yellow-600 border-yellow-600">
+                      {defaultStats.pendingApprovals}
+                    </Badge>
+                  </div>
+                )}
+              </>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Recent Activities */}
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm flex items-center">
+              <Award className="w-4 h-4 mr-2" />
+              Recent Activities
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {isLoadingActivities ? (
+              <div className="space-y-2" data-testid="loading-activities">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="flex items-start space-x-2 p-2 rounded-lg animate-pulse">
+                    <div className="mt-1 w-3 h-3 bg-muted-foreground/20 rounded-full"></div>
+                    <div className="flex-1 min-w-0 space-y-1">
+                      <div className="h-3 bg-muted-foreground/20 rounded w-3/4"></div>
+                      <div className="h-2 bg-muted-foreground/20 rounded w-1/2"></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : displayActivities.length > 0 ? (
+              displayActivities.map((activity, index) => (
+                <div key={activity.id} className="flex items-start space-x-2 p-2 rounded-lg hover:bg-muted/50 transition-colors" data-testid={`activity-item-${activity.id}`}>
+                  <div className="mt-1">
+                    {activity.status === 'approved' ? (
+                      <CheckCircle2 className="w-3 h-3 text-green-600" />
+                    ) : activity.status === 'pending' ? (
+                      <Clock className="w-3 h-3 text-yellow-600" />
+                    ) : (
+                      <AlertTriangle className="w-3 h-3 text-red-600" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium truncate" data-testid={`text-activity-title-${activity.id}`}>{activity.title}</p>
+                    <p className="text-xs text-muted-foreground" data-testid={`text-activity-meta-${activity.id}`}>
+                      {activity.type} • {activity.submittedAt}
+                    </p>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="text-xs text-muted-foreground text-center py-4" data-testid="text-no-activities">
+                No recent activities found
+              </p>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Quick Actions */}
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm flex items-center">
+              <Zap className="w-4 h-4 mr-2" />
+              Quick Actions
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <QuickAction
+              icon={<Calendar className="w-4 h-4" />}
+              label="Check Deadlines"
+              onClick={() => {}}
+            />
+            <QuickAction
+              icon={<Bell className="w-4 h-4" />}
+              label="View Notifications"
+              onClick={() => {}}
+            />
+            <QuickAction
+              icon={<Target className="w-4 h-4" />}
+              label="Set Goals"
+              onClick={() => {}}
+            />
+          </CardContent>
+        </Card>
+
+        {/* Notifications/Alerts */}
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm flex items-center">
+              <Bell className="w-4 h-4 mr-2" />
+              Important Alerts
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <div className="p-2 bg-blue-50 dark:bg-blue-950 rounded-lg" data-testid="alert-deadline">
+              <div className="flex items-start space-x-2">
+                <Target className="w-3 h-3 mt-1 text-blue-600" />
+                <div>
+                  <p className="text-xs font-medium text-blue-900 dark:text-blue-100">
+                    Portfolio Review Due
+                  </p>
+                  <p className="text-xs text-blue-700 dark:text-blue-300">
+                    Submit by Jan 30, 2024
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="p-2 bg-green-50 dark:bg-green-950 rounded-lg" data-testid="alert-achievement">
+              <div className="flex items-start space-x-2">
+                <CheckCircle2 className="w-3 h-3 mt-1 text-green-600" />
+                <div>
+                  <p className="text-xs font-medium text-green-900 dark:text-green-100">
+                    Achievement Approved
+                  </p>
+                  <p className="text-xs text-green-700 dark:text-green-300">
+                    ML Workshop certification verified
+                  </p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+      </div>
     </aside>
   );
 }
