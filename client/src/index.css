@@ -5,63 +5,71 @@
 @tailwind utilities;
 
 :root {
-  /* Enhanced Background Colors - Sophisticated Business Grade */
-  --background: hsl(215, 20%, 98%);
-  --foreground: hsl(215, 25%, 12%);
+  /* Enhanced Background Colors - Academic Institution Grade */
+  --background: hsl(215, 18%, 98%);
+  --foreground: hsl(215, 30%, 8%);
   --card: hsl(0, 0%, 100%);
-  --card-foreground: hsl(215, 25%, 12%);
+  --card-foreground: hsl(215, 30%, 8%);
   --popover: hsl(0, 0%, 100%);
-  --popover-foreground: hsl(215, 25%, 12%);
+  --popover-foreground: hsl(215, 30%, 8%);
   
-  /* Primary Brand Colors - Deep Professional Blue */
-  --primary: hsl(215, 85%, 25%);
-  --primary-foreground: hsl(0, 0%, 98%);
-  --primary-50: hsl(215, 85%, 97%);
-  --primary-100: hsl(215, 85%, 92%);
-  --primary-500: hsl(215, 85%, 45%);
-  --primary-600: hsl(215, 85%, 35%);
-  --primary-700: hsl(215, 85%, 25%);
-  --primary-800: hsl(215, 85%, 20%);
-  --primary-900: hsl(215, 85%, 15%);
+  /* Primary Brand Colors - Deep Academic Blue */
+  --primary: hsl(215, 88%, 27%);
+  --primary-foreground: hsl(0, 0%, 100%);
+  --primary-50: hsl(215, 88%, 97%);
+  --primary-100: hsl(215, 88%, 94%);
+  --primary-200: hsl(215, 88%, 87%);
+  --primary-300: hsl(215, 88%, 77%);
+  --primary-400: hsl(215, 88%, 62%);
+  --primary-500: hsl(215, 88%, 47%);
+  --primary-600: hsl(215, 88%, 37%);
+  --primary-700: hsl(215, 88%, 27%);
+  --primary-800: hsl(215, 88%, 22%);
+  --primary-900: hsl(215, 88%, 17%);
   
-  /* Secondary Colors - Professional Gray Scale */
-  --secondary: hsl(215, 16%, 95%);
-  --secondary-foreground: hsl(215, 25%, 12%);
-  --secondary-50: hsl(215, 16%, 98%);
-  --secondary-100: hsl(215, 16%, 95%);
-  --secondary-200: hsl(215, 16%, 90%);
-  --secondary-300: hsl(215, 16%, 80%);
-  --secondary-400: hsl(215, 16%, 65%);
-  --secondary-500: hsl(215, 16%, 50%);
-  --secondary-600: hsl(215, 16%, 35%);
-  --secondary-700: hsl(215, 16%, 25%);
+  /* Secondary Colors - Professional Academic Gray Scale */
+  --secondary: hsl(215, 20%, 96%);
+  --secondary-foreground: hsl(215, 30%, 8%);
+  --secondary-50: hsl(215, 20%, 98%);
+  --secondary-100: hsl(215, 20%, 96%);
+  --secondary-200: hsl(215, 20%, 92%);
+  --secondary-300: hsl(215, 20%, 85%);
+  --secondary-400: hsl(215, 20%, 70%);
+  --secondary-500: hsl(215, 20%, 55%);
+  --secondary-600: hsl(215, 20%, 40%);
+  --secondary-700: hsl(215, 20%, 28%);
+  --secondary-800: hsl(215, 20%, 18%);
+  --secondary-900: hsl(215, 20%, 10%);
   
-  /* Neutral Colors - Enhanced for Professional Use */
-  --muted: hsl(215, 16%, 96%);
-  --muted-foreground: hsl(215, 20%, 50%);
-  --accent: hsl(215, 16%, 94%);
-  --accent-foreground: hsl(215, 25%, 15%);
+  /* Neutral Colors - Enhanced for Academic Professional Use */
+  --muted: hsl(215, 20%, 97%);
+  --muted-foreground: hsl(215, 25%, 45%);
+  --accent: hsl(215, 20%, 95%);
+  --accent-foreground: hsl(215, 30%, 12%);
   
-  /* Status Colors - Professional and Accessible */
-  --destructive: hsl(0, 75%, 55%);
-  --destructive-foreground: hsl(0, 0%, 98%);
-  --success: hsl(140, 75%, 42%);
-  --success-foreground: hsl(0, 0%, 98%);
-  --success-50: hsl(140, 60%, 97%);
-  --success-100: hsl(140, 60%, 90%);
-  --warning: hsl(38, 85%, 50%);
-  --warning-foreground: hsl(0, 0%, 98%);
-  --warning-50: hsl(38, 85%, 97%);
-  --warning-100: hsl(38, 85%, 90%);
-  --info: hsl(215, 85%, 55%);
-  --info-foreground: hsl(0, 0%, 98%);
-  --info-50: hsl(215, 85%, 97%);
-  --info-100: hsl(215, 85%, 90%);
+  /* Status Colors - Academic Professional and Accessible */
+  --destructive: hsl(0, 84%, 60%);
+  --destructive-foreground: hsl(0, 0%, 100%);
+  --success: hsl(142, 76%, 36%);
+  --success-foreground: hsl(0, 0%, 100%);
+  --success-50: hsl(142, 76%, 96%);
+  --success-100: hsl(142, 76%, 91%);
+  --success-200: hsl(142, 76%, 81%);
+  --warning: hsl(32, 95%, 44%);
+  --warning-foreground: hsl(0, 0%, 100%);
+  --warning-50: hsl(32, 95%, 95%);
+  --warning-100: hsl(32, 95%, 90%);
+  --warning-200: hsl(32, 95%, 80%);
+  --info: hsl(215, 88%, 52%);
+  --info-foreground: hsl(0, 0%, 100%);
+  --info-50: hsl(215, 88%, 96%);
+  --info-100: hsl(215, 88%, 91%);
+  --info-200: hsl(215, 88%, 81%);
   
-  /* Border and Input Colors */
-  --border: hsl(215, 18%, 88%);
-  --input: hsl(215, 16%, 94%);
-  --ring: hsl(215, 85%, 25%);
+  /* Border and Input Colors - Enhanced Contrast for Accessibility */
+  --border: hsl(215, 22%, 86%);
+  --input: hsl(215, 20%, 96%);
+  --ring: hsl(215, 88%, 27%);
   
   /* Design System Variables */
   --radius: 0.5rem;
@@ -145,24 +153,142 @@
   body {
     @apply font-sans antialiased bg-background text-foreground;
     font-family: var(--font-sans);
-    font-feature-settings: 'rlig' 1, 'calt' 1;
+    font-feature-settings: 'rlig' 1, 'calt' 1, 'kern' 1;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    line-height: 1.6;
+    letter-spacing: -0.011em;
   }
   
-  /* Enhanced Typography Scale */
+  /* Professional Academic Typography Scale */
   h1, h2, h3, h4, h5, h6 {
-    @apply font-semibold tracking-tight;
-    line-height: 1.2;
+    @apply font-semibold tracking-tight text-foreground;
+    line-height: 1.25;
+    margin-bottom: 0.75em;
+    font-weight: 600;
+    letter-spacing: -0.025em;
   }
   
-  h1 { @apply text-4xl lg:text-5xl; }
-  h2 { @apply text-3xl lg:text-4xl; }
-  h3 { @apply text-2xl lg:text-3xl; }
-  h4 { @apply text-xl lg:text-2xl; }
-  h5 { @apply text-lg lg:text-xl; }
-  h6 { @apply text-base lg:text-lg; }
+  h1 { 
+    @apply text-4xl lg:text-5xl xl:text-6xl; 
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.04em;
+  }
+  
+  h2 { 
+    @apply text-3xl lg:text-4xl xl:text-5xl; 
+    font-weight: 650;
+    line-height: 1.15;
+    letter-spacing: -0.035em;
+  }
+  
+  h3 { 
+    @apply text-2xl lg:text-3xl xl:text-4xl; 
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.03em;
+  }
+  
+  h4 { 
+    @apply text-xl lg:text-2xl xl:text-3xl; 
+    font-weight: 600;
+    line-height: 1.25;
+    letter-spacing: -0.025em;
+  }
+  
+  h5 { 
+    @apply text-lg lg:text-xl xl:text-2xl; 
+    font-weight: 550;
+    line-height: 1.3;
+    letter-spacing: -0.02em;
+  }
+  
+  h6 { 
+    @apply text-base lg:text-lg xl:text-xl; 
+    font-weight: 550;
+    line-height: 1.35;
+    letter-spacing: -0.015em;
+  }
+
+  /* Professional Text Styles */
+  p {
+    line-height: 1.65;
+    margin-bottom: 1.25em;
+    color: hsl(var(--foreground));
+    font-weight: 400;
+  }
+
+  /* Professional Link Styles */
+  a {
+    color: hsl(var(--primary));
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s ease-in-out;
+  }
+
+  a:hover {
+    color: hsl(var(--primary-600));
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+  }
+
+  /* Professional List Styles */
+  ul, ol {
+    margin-bottom: 1.5em;
+    padding-left: 1.75em;
+  }
+
+  li {
+    line-height: 1.65;
+    margin-bottom: 0.5em;
+    color: hsl(var(--foreground));
+  }
+
+  /* Professional Code and Monospace */
+  code {
+    font-family: var(--font-mono);
+    font-size: 0.875em;
+    font-weight: 500;
+    background-color: hsl(var(--muted));
+    color: hsl(var(--foreground));
+    padding: 0.125rem 0.375rem;
+    border-radius: 0.25rem;
+    border: 1px solid hsl(var(--border));
+  }
+
+  pre {
+    font-family: var(--font-mono);
+    background-color: hsl(var(--muted));
+    color: hsl(var(--foreground));
+    padding: 1rem 1.25rem;
+    border-radius: 0.5rem;
+    border: 1px solid hsl(var(--border));
+    overflow-x: auto;
+    margin-bottom: 1.5em;
+    line-height: 1.45;
+  }
+
+  /* Professional Small Text */
+  small {
+    font-size: 0.875em;
+    color: hsl(var(--muted-foreground));
+    font-weight: 400;
+    line-height: 1.5;
+  }
+
+  /* Professional Strong and Emphasis */
+  strong, b {
+    font-weight: 600;
+    color: hsl(var(--foreground));
+  }
+
+  em, i {
+    font-style: italic;
+    font-weight: 450;
+  }
 }
 
 @layer components {

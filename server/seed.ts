@@ -464,17 +464,17 @@ const sampleActivityFiles = [
  * 5. Updating activity statuses with faculty verification
  */
 async function seedDatabase() {
-  console.log("🌱 Starting database seeding process...");
+  console.log("Starting database seeding process...");
   
   try {
     // Step 1: Create Departments
-    console.log("📚 Creating sample departments...");
+    console.log("Creating sample departments...");
     const createdDepartments = [];
     for (const dept of sampleDepartments) {
       try {
         const created = await storage.createDepartment(dept);
         createdDepartments.push(created);
-        console.log(`✅ Created department: ${created.name} (${created.code})`);
+        console.log(`Created department: ${created.name} (${created.code})`);
       } catch (error) {
         // Department might already exist, try to get it
         const existing = await db().select().from(departments).where(eq(departments.code, dept.code));
@@ -482,26 +482,26 @@ async function seedDatabase() {
           createdDepartments.push(existing[0]);
           console.log(`ℹ️ Department already exists: ${dept.name} (${dept.code})`);
         } else {
-          console.error(`❌ Failed to create department ${dept.name}:`, error);
+          console.error(`ERROR: Failed to create department ${dept.name}:`, error);
         }
       }
     }
     
     // Step 2: Create Users
-    console.log("👥 Creating sample users...");
+    console.log("Creating sample users...");
     const createdUsers = [];
     for (const user of sampleUsers) {
       try {
         const created = await storage.upsertUser(user);
         createdUsers.push(created);
-        console.log(`✅ Created ${created.role}: ${created.firstName} ${created.lastName} (${created.email})`);
+        console.log(`Created ${created.role}: ${created.firstName} ${created.lastName} (${created.email})`);
       } catch (error) {
-        console.error(`❌ Failed to create user ${user.firstName} ${user.lastName}:`, error);
+        console.error(`ERROR: Failed to create user ${user.firstName} ${user.lastName}:`, error);
       }
     }
     
     // Step 3: Update Department Heads
-    console.log("👨‍💼 Assigning department heads...");
+    console.log("Assigning department heads...");
     const facultyByDept = createdUsers.filter(u => u.role === 'faculty').reduce((acc, faculty) => {
       if (faculty.department) {
         if (!acc[faculty.department]) acc[faculty.department] = [];
@@ -517,15 +517,15 @@ async function seedDatabase() {
           await db().update(departments)
             .set({ headOfDepartment: deptFaculty[0].id })
             .where(eq(departments.id, dept.id));
-          console.log(`✅ Assigned ${deptFaculty[0].firstName} ${deptFaculty[0].lastName} as head of ${dept.name}`);
+          console.log(`Assigned ${deptFaculty[0].firstName} ${deptFaculty[0].lastName} as head of ${dept.name}`);
         } catch (error) {
-          console.error(`❌ Failed to assign head for ${dept.name}:`, error);
+          console.error(`ERROR: Failed to assign head for ${dept.name}:`, error);
         }
       }
     }
     
     // Step 4: Create Activities for ISHU KUMAR
-    console.log("🎯 Creating activities for ISHU KUMAR...");
+    console.log("Creating activities for ISHU KUMAR...");
     const createdActivities = [];
     let activityIndex = 0;
     
@@ -533,18 +533,18 @@ async function seedDatabase() {
       try {
         const created = await storage.createActivity(activity);
         createdActivities.push(created);
-        console.log(`✅ Created activity: ${created.title}`);
+        console.log(`Created activity: ${created.title}`);
         
         // Add some delays to make dates more realistic
         await new Promise(resolve => setTimeout(resolve, 100));
         activityIndex++;
       } catch (error) {
-        console.error(`❌ Failed to create activity ${activity.title}:`, error);
+        console.error(`ERROR: Failed to create activity ${activity.title}:`, error);
       }
     }
     
     // Step 5: Add Activity Files Metadata
-    console.log("📁 Adding activity file metadata...");
+    console.log("Adding activity file metadata...");
     for (const fileGroup of sampleActivityFiles) {
       const activity = createdActivities.find(a => a.title === fileGroup.activityTitle);
       if (activity) {
@@ -559,16 +559,16 @@ async function seedDatabase() {
               file.fileType,
               file.fileSize
             );
-            console.log(`✅ Added file: ${file.fileName} for activity: ${activity.title}`);
+            console.log(`Added file: ${file.fileName} for activity: ${activity.title}`);
           } catch (error) {
-            console.error(`❌ Failed to add file ${file.fileName}:`, error);
+            console.error(`ERROR: Failed to add file ${file.fileName}:`, error);
           }
         }
       }
     }
     
     // Step 6: Update Activity Statuses (Simulate Faculty Review)
-    console.log("✅ Simulating faculty review and approval process...");
+    console.log("Simulating faculty review and approval process...");
     const facultyMembers = createdUsers.filter(u => u.role === 'faculty');
     
     for (let i = 0; i < createdActivities.length; i++) {
@@ -601,9 +601,9 @@ async function seedDatabase() {
           { status, feedback, skillCredits },
           randomFaculty.id
         );
-        console.log(`✅ Updated activity "${activity.title}" - Status: ${status}`);
+        console.log(`Updated activity "${activity.title}" - Status: ${status}`);
       } catch (error) {
-        console.error(`❌ Failed to update activity status for ${activity.title}:`, error);
+        console.error(`ERROR: Failed to update activity status for ${activity.title}:`, error);
       }
       
       // Add small delay to simulate realistic review timing
@@ -611,7 +611,7 @@ async function seedDatabase() {
     }
     
     // Step 7: Generate Summary Statistics
-    console.log("📊 Generating summary statistics...");
+    console.log("Generating summary statistics...");
     const ishusStats = await storage.getStudentStats("ishu-kumar-2021cse001");
     const totalUsers = createdUsers.length;
     const totalActivities = createdActivities.length;
@@ -619,14 +619,14 @@ async function seedDatabase() {
       sampleActivities.find(sa => sa.title === a.title)
     ).length * 0.7; // Approximate based on our 70% approval rate
     
-    console.log("\n🎉 Database seeding completed successfully!");
+    console.log("\nDatabase seeding completed successfully!");
     console.log("=====================================");
-    console.log(`📚 Departments created: ${createdDepartments.length}`);
-    console.log(`👥 Users created: ${totalUsers}`);
+    console.log(`Departments created: ${createdDepartments.length}`);
+    console.log(`Users created: ${totalUsers}`);
     console.log(`   • Students: ${createdUsers.filter(u => u.role === 'student').length}`);
     console.log(`   • Faculty: ${createdUsers.filter(u => u.role === 'faculty').length}`);
     console.log(`   • Admins: ${createdUsers.filter(u => u.role === 'admin').length}`);
-    console.log(`🎯 Activities created: ${totalActivities}`);
+    console.log(`Activities created: ${totalActivities}`);
     console.log(`   • Academic: ${sampleActivities.filter(a => a.category === 'academic').length}`);
     console.log(`   • Co-curricular: ${sampleActivities.filter(a => a.category === 'co-curricular').length}`);
     console.log(`   • Extra-curricular: ${sampleActivities.filter(a => a.category === 'extra-curricular').length}`);
@@ -634,17 +634,17 @@ async function seedDatabase() {
     console.log(`   • Leadership: ${sampleActivities.filter(a => a.category === 'leadership').length}`);
     console.log(`   • MOOCs: ${sampleActivities.filter(a => a.category === 'mooc').length}`);
     console.log(`   • Volunteering: ${sampleActivities.filter(a => a.category === 'volunteering').length}`);
-    console.log(`📁 Activity files: ${sampleActivityFiles.reduce((sum, group) => sum + group.files.length, 0)}`);
-    console.log("\n🌟 ISHU KUMAR's Profile:");
+    console.log(`Activity files: ${sampleActivityFiles.reduce((sum, group) => sum + group.files.length, 0)}`);
+    console.log("\nISHU KUMAR's Profile:");
     console.log(`   • Total Activities: ${ishusStats.totalActivities}`);
     console.log(`   • Skill Credits: ${ishusStats.skillCredits}`);
     console.log(`   • Pending Approvals: ${ishusStats.pendingApprovals}`);
     console.log(`   • CGPA: 8.75`);
     console.log(`   • Current Semester: 6`);
-    console.log("\n🚀 Ready for testing and demonstration!");
+    console.log("\nReady for testing and demonstration!");
     
   } catch (error) {
-    console.error("❌ Fatal error during database seeding:", error);
+    console.error("FATAL ERROR: Database seeding failed:", error);
     throw error;
   }
 }
@@ -653,11 +653,11 @@ async function seedDatabase() {
 if (import.meta.url === `file://${process.argv[1]}`) {
   seedDatabase()
     .then(() => {
-      console.log("✅ Seeding process completed successfully");
+      console.log("Seeding process completed successfully");
       process.exit(0);
     })
     .catch((error) => {
-      console.error("❌ Seeding process failed:", error);
+      console.error("ERROR: Seeding process failed:", error);
       process.exit(1);
     });
 }

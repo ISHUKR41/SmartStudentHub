@@ -130,20 +130,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Database seeding endpoint (for development/testing) - BEFORE auth middleware
   app.get('/seed-database', async (req, res) => {
     try {
-      console.log("🌱 Starting database seeding via GET endpoint...");
+      console.log("Starting database seeding via GET endpoint...");
       
       // Import the seedDatabase function dynamically
       const { seedDatabase } = await import('./seed');
       
-      console.log("📦 Seeding function imported successfully");
+      console.log("Seeding function imported successfully");
       await seedDatabase();
       
-      console.log("✅ Database seeding completed successfully!");
+      console.log("Database seeding completed successfully!");
       
       res.setHeader('Content-Type', 'text/plain');
       res.send('Database seeded successfully with professional sample data!\n\nCheck the server logs for details.');
     } catch (error) {
-      console.error("❌ Database seeding failed:", error);
+      console.error("ERROR: Database seeding failed:", error);
       res.setHeader('Content-Type', 'text/plain');
       res.status(500).send(`Failed to seed database: ${error instanceof Error ? error.message : String(error)}`);
     }
