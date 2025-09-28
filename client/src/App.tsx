@@ -34,6 +34,7 @@ import FacultyApprovals from "@/pages/faculty-approvals";
 import AdminAnalytics from "@/pages/admin-analytics";
 import DigitalPortfolio from "@/pages/digital-portfolio";
 import { useAuth } from "@/hooks/useAuth";
+import { SignupDataHandler } from "@/components/SignupDataHandler";
 
 /**
  * Application Router Component
@@ -105,6 +106,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
+        <SignupDataHandler />
         <Router />
       </TooltipProvider>
     </QueryClientProvider>

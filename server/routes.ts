@@ -229,6 +229,72 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   /**
+   * Complete User Profile with Signup Data
+   * 
+   * This endpoint is called after authentication to merge signup data
+   * stored in sessionStorage with the authenticated user profile.
+   */
+  app.post('/api/auth/complete-profile', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const userId = (req.user as AuthenticatedUser).claims.sub;
+      const signupData = signupSchema.parse(req.body);
+      
+      // Check if roll number is already taken by another user
+      const existingRollNumber = await storage.getUserByRollNumber(signupData.rollNumber);
+      if (existingRollNumber && existingRollNumber.id !== userId) {
+        return res.status(409).json({
+          message: "This roll number is already registered. Please contact your institution if this is incorrect.",
+          success: false
+        });
+      }
+      
+      // Get current user data
+      const currentUser = await storage.getUser(userId);
+      if (!currentUser) {
+        return res.status(404).json({
+          message: "User not found",
+          success: false
+        });
+      }
+      
+      // Merge signup data with current user profile
+      const updatedUserData = {
+        id: userId,
+        email: currentUser.email,
+        firstName: signupData.firstName,
+        lastName: signupData.lastName,
+        profileImageUrl: currentUser.profileImageUrl,
+        rollNumber: signupData.rollNumber,
+        department: signupData.department,
+        currentSemester: signupData.currentSemester,
+        role: currentUser.role ?? 'student',
+      };
+      
+      // Update user with academic information
+      const updatedUser = await storage.upsertUser(updatedUserData);
+      
+      res.json({
+        success: true,
+        message: "Profile completed successfully",
+        user: updatedUser
+      });
+    } catch (error) {
+      console.error("Error completing user profile:", error);
+      if (error instanceof Error && error.message.includes('already registered')) {
+        res.status(409).json({
+          message: error.message,
+          success: false
+        });
+      } else {
+        res.status(500).json({ 
+          message: "Failed to complete profile",
+          success: false
+        });
+      }
+    }
+  });
+
+  /**
    * Simplified Login Endpoint
    * 
    * Validates email and redirects to Replit Auth for secure authentication.
