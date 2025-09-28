@@ -26,7 +26,7 @@ import {
 } from "@shared/schema";
 import { eq } from "drizzle-orm";
 
-// Sample Departments Data - Major Indian Engineering Departments
+// Sample Department Data - Common Engineering Disciplines
 const sampleDepartments: InsertDepartment[] = [
   {
     name: "Computer Science and Engineering",
@@ -107,7 +107,7 @@ const sampleUsers: UpsertUser[] = [
     profileImageUrl: null
   },
   
-  // Faculty Members - Professional Names and Departments
+  // Faculty Personnel Data
   {
     id: "dr-amit-sharma-cse",
     email: "amit.sharma@nitdelhi.ac.in",
@@ -184,7 +184,7 @@ const sampleUsers: UpsertUser[] = [
   }
 ];
 
-// Sample Activities for ISHU KUMAR - Diverse and Professional
+// Sample Activities for ISHU KUMAR - Varied and Representative
 const sampleActivities: InsertActivity[] = [
   // Academic Activities
   {
@@ -480,7 +480,7 @@ async function seedDatabase() {
         const existing = await db.select().from(departments).where(eq(departments.code, dept.code));
         if (existing.length > 0) {
           createdDepartments.push(existing[0]);
-          console.log(`ℹ️ Department already exists: ${dept.name} (${dept.code})`);
+          console.log(`Department already exists: ${dept.name} (${dept.code})`);
         } else {
           console.error(`ERROR: Failed to create department ${dept.name}:`, error);
         }

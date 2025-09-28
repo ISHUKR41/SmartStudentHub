@@ -87,14 +87,14 @@ export default function Landing() {
             Centralized Digital Platform for Comprehensive Student Activity Records
           </h1>
           <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
-            Transform your Higher Education Institution with a comprehensive digital backbone that records, verifies, and showcases every student's academic and co-curricular achievements from admission to graduation. Streamline NAAC, AICTE, and NIRF compliance while empowering students with verified digital portfolios.
+            Transform your Higher Education Institution with a comprehensive digital framework that records, verifies, and showcases every student's academic and co-curricular achievements from admission to graduation. Streamline NAAC, AICTE, and NIRF compliance while empowering students with verified digital portfolios.
           </p>
           <div className="flex justify-center space-x-4">
             <Button 
               onClick={() => window.location.href = '/api/login'}
               size="lg"
               className="btn-primary"
-              data-testid="button-get-started"
+              data-testid="button-access-portal"
             >
               Access Portal
             </Button>
@@ -108,7 +108,7 @@ export default function Landing() {
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-foreground mb-4">Complete Student Achievement Ecosystem</h2>
             <p className="text-lg text-muted-foreground max-w-4xl mx-auto">
-              Eliminate scattered documentation and manual data collection. Our platform provides a single source of truth for all student activities - from academic achievements to co-curricular participation, internships, and leadership roles.
+              Centralize documentation and streamline data collection. Our platform provides a unified repository for all student activities - from academic achievements to co-curricular participation, internships, and leadership roles.
             </p>
           </div>
 
@@ -194,7 +194,7 @@ export default function Landing() {
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-foreground mb-4">Addressing Critical Institutional Challenges</h2>
             <p className="text-lg text-muted-foreground max-w-4xl mx-auto">
-              Current student achievement documentation is scattered across departments, faculty files, and personal records, creating significant challenges during accreditation audits and placement processes.
+              Current student achievement documentation is distributed across departments, faculty files, and personal records, creating significant challenges during accreditation audits and placement processes.
             </p>
           </div>
 
@@ -468,7 +468,7 @@ export default function Landing() {
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-foreground mb-4">Institutional Excellence Through Digital Transformation</h2>
             <p className="text-lg text-muted-foreground max-w-4xl mx-auto">
-              Advance your institution's standing in national rankings while providing students with industry-leading achievement documentation and verification systems.
+              Enhance your institution's standing in national rankings while providing students with comprehensive achievement documentation and verification systems.
             </p>
           </div>
 

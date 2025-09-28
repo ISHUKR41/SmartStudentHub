@@ -54,6 +54,7 @@ import StatCard from "@/components/ui/stat-card";
 import ActivityList from "@/components/ui/activity-list";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Download, Plus, GraduationCap, ClipboardList, Star, Clock, Award, TrendingUp, Target, BookOpen, Briefcase, Users, Calendar, MapPin, Trophy, Globe, CheckCircle, BarChart3 } from "lucide-react";
 import { useLocation } from "wouter";
 import { Activity } from "@shared/schema";

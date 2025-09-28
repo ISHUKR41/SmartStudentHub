@@ -103,7 +103,7 @@ export default function Navigation() {
             <GraduationCap className="w-6 h-6 text-primary-foreground" />
           </div>
           
-          {/* Institutional Title and Description */}
+          {/* Institutional Name and System Designation */}
           <div>
             <h1 className="text-lg font-semibold text-foreground" data-testid="text-app-title">
               Smart Student Hub

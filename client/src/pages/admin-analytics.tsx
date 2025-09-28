@@ -67,7 +67,7 @@ import StatCard from "@/components/ui/stat-card";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Users, ClipboardList, Building, Clock, FileText, TrendingUp, Download, Award, BarChart3, Target, Globe, Shield, Star, CheckCircle, Calendar, BookOpen, Briefcase, GraduationCap, PieChart, Activity, TrendingDown, AlertTriangle, Database, Filter } from "lucide-react";
+import { Users, ClipboardList, Building, Clock, FileText, TrendingUp, Download, Award, BarChart3, Target, Globe, Shield, Star, CheckCircle, Calendar, BookOpen, Briefcase, GraduationCap, PieChart, Activity, TrendingDown, AlertTriangle, Database, Filter, Trophy } from "lucide-react";
 import { User } from "@shared/schema";
 
 /**

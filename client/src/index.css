@@ -13,7 +13,7 @@
 @tailwind utilities;
 
 :root {
-  /* Enhanced Background Colors - Prestigious Academic Institution Grade */
+  /* Background Color Variants - Core Academic Palette */
   --background: hsl(220, 15%, 97%);
   --foreground: hsl(220, 40%, 6%);
   --card: hsl(0, 0%, 100%);
@@ -21,7 +21,7 @@
   --popover: hsl(0, 0%, 100%);
   --popover-foreground: hsl(220, 35%, 8%);
   
-  /* Primary Brand Colors - Prestigious Academic Navy */
+  /* Primary Brand Colors - Academic Navy */
   --primary: hsl(222, 84%, 24%);
   --primary-foreground: hsl(0, 0%, 100%);
   --primary-50: hsl(222, 84%, 98%);
@@ -35,7 +35,7 @@
   --primary-800: hsl(222, 84%, 19%);
   --primary-900: hsl(222, 84%, 14%);
   
-  /* Secondary Colors - Professional Academic Gray Scale */
+  /* Secondary Palette - Professional Grayscale */
   --secondary: hsl(220, 18%, 96%);
   --secondary-foreground: hsl(220, 30%, 8%);
   --secondary-50: hsl(220, 18%, 98%);
@@ -49,13 +49,13 @@
   --secondary-800: hsl(220, 18%, 18%);
   --secondary-900: hsl(220, 18%, 10%);
   
-  /* Neutral Colors - Enhanced for Academic Professional Use */
+  /* Neutral Colors - Academic Professional Palette */
   --muted: hsl(220, 16%, 97%);
   --muted-foreground: hsl(220, 25%, 42%);
   --accent: hsl(220, 16%, 95%);
   --accent-foreground: hsl(220, 30%, 12%);
   
-  /* Status Colors - Academic Professional and Accessible */
+  /* Status Colors - Institutional Compliance Standards */
   --destructive: hsl(0, 76%, 54%);
   --destructive-foreground: hsl(0, 0%, 100%);
   --success: hsl(139, 69%, 32%);
@@ -74,7 +74,7 @@
   --info-100: hsl(222, 84%, 91%);
   --info-200: hsl(222, 84%, 81%);
   
-  /* Border and Input Colors - Enhanced Contrast for Accessibility */
+  /* Border and Input Colors - Accessibility Compliant */
   --border: hsl(220, 20%, 84%);
   --input: hsl(220, 16%, 96%);
   --ring: hsl(222, 84%, 24%);
@@ -91,7 +91,7 @@
   --font-mono: 'JetBrains Mono', 'Menlo', 'Monaco', 'Courier New', monospace;
   --font-serif: 'Georgia', 'Times New Roman', serif;
   
-  /* Shadow Scale for Professional Depth */
+  /* Shadow Scale - Professional Interface Depth */
   --shadow-sm: 0 1px 2px 0 hsl(215, 25%, 12%, 0.05);
   --shadow-md: 0 4px 6px -1px hsl(215, 25%, 12%, 0.08), 0 2px 4px -1px hsl(215, 25%, 12%, 0.06);
   --shadow-lg: 0 10px 15px -3px hsl(215, 25%, 12%, 0.08), 0 4px 6px -2px hsl(215, 25%, 12%, 0.05);
@@ -104,7 +104,7 @@
 }
 
 .dark {
-  /* Dark Mode - Professional Business Grade */
+  /* Dark Mode - Institutional Professional Theme */
   --background: hsl(215, 20%, 4%);
   --foreground: hsl(215, 20%, 95%);
   --card: hsl(215, 20%, 6%);
@@ -112,7 +112,7 @@
   --popover: hsl(215, 20%, 6%);
   --popover-foreground: hsl(215, 20%, 95%);
   
-  /* Primary Colors - Brighter for Dark Mode */
+  /* Primary Colors - Dark Mode Optimized */
   --primary: hsl(215, 85%, 60%);
   --primary-foreground: hsl(215, 20%, 6%);
   --primary-50: hsl(215, 85%, 10%);
@@ -123,7 +123,7 @@
   --primary-800: hsl(215, 85%, 65%);
   --primary-900: hsl(215, 85%, 70%);
   
-  /* Secondary and Neutral Colors */
+  /* Secondary and Neutral Color System */
   --secondary: hsl(215, 15%, 10%);
   --secondary-foreground: hsl(215, 20%, 95%);
   --muted: hsl(215, 15%, 10%);
@@ -131,7 +131,7 @@
   --accent: hsl(215, 15%, 12%);
   --accent-foreground: hsl(215, 20%, 95%);
   
-  /* Status Colors - Optimized for Dark Mode */
+  /* Status Colors - Dark Mode Accessibility */
   --destructive: hsl(0, 75%, 65%);
   --destructive-foreground: hsl(215, 20%, 6%);
   --success: hsl(140, 75%, 55%);
@@ -169,7 +169,7 @@
     letter-spacing: -0.011em;
   }
   
-  /* Professional Academic Typography Scale */
+  /* Academic Typography Scale - Institutional Standards */
   h1, h2, h3, h4, h5, h6 {
     @apply font-semibold tracking-tight text-foreground;
     line-height: 1.25;
@@ -220,7 +220,7 @@
     letter-spacing: -0.015em;
   }
 
-  /* Professional Text Styles */
+  /* Text Styles - Academic Standards */
   p {
     line-height: 1.65;
     margin-bottom: 1.25em;
@@ -228,7 +228,7 @@
     font-weight: 400;
   }
 
-  /* Professional Link Styles */
+  /* Link Styles - Institutional Standards */
   a {
     color: hsl(var(--primary));
     text-decoration: none;
@@ -243,7 +243,7 @@
     text-underline-offset: 3px;
   }
 
-  /* Professional List Styles */
+  /* List Styles - Academic Documentation */
   ul, ol {
     margin-bottom: 1.5em;
     padding-left: 1.75em;
@@ -255,7 +255,7 @@
     color: hsl(var(--foreground));
   }
 
-  /* Professional Code and Monospace */
+  /* Code and Monospace - Technical Documentation */
   code {
     font-family: var(--font-mono);
     font-size: 0.875em;
@@ -279,7 +279,7 @@
     line-height: 1.45;
   }
 
-  /* Professional Small Text */
+  /* Small Text - Supporting Information */
   small {
     font-size: 0.875em;
     color: hsl(var(--muted-foreground));
@@ -287,7 +287,7 @@
     line-height: 1.5;
   }
 
-  /* Professional Strong and Emphasis */
+  /* Text Emphasis - Academic Hierarchy */
   strong, b {
     font-weight: 600;
     color: hsl(var(--foreground));
@@ -300,7 +300,7 @@
 }
 
 @layer components {
-  /* Professional Dashboard Components */
+  /* Dashboard Components - Institutional Interface */
   .dashboard-card {
     @apply bg-card border border-border rounded-lg shadow-sm hover:shadow-md transition-all duration-300;
     backdrop-filter: blur(8px);
@@ -369,7 +369,7 @@
     box-shadow: 0 2px 6px hsl(var(--primary) / 0.15);
   }
   
-  /* Professional Status Badges */
+  /* Status Badges - Academic Workflow */
   .status-badge {
     @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border transition-all duration-200;
     letter-spacing: 0.05em;
@@ -457,7 +457,7 @@
 }
 
 @layer utilities {
-  /* Professional Animations */
+  /* Interface Animations - Academic Standards */
   .fade-in {
     animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
@@ -470,7 +470,7 @@
     animation: scaleIn 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
   
-  /* Professional Loading States */
+  /* Loading States - User Experience Standards */
   .loading-pulse {
     animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }

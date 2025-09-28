@@ -14,6 +14,8 @@
  */
 
 import { sql } from 'drizzle-orm';
+// Export sql for use in other files
+export { sql };
 import { relations } from 'drizzle-orm';
 import {
   index,

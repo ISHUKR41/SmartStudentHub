@@ -165,17 +165,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get('/api/health/db', async (req, res) => {
     try {
       const { db } = await import('./db');
-      const { users, activities } = await import('@shared/schema');
+      const { users, activities, sql } = await import('@shared/schema');
       
       // Test basic connectivity
-      const result = await db().execute('SELECT 1 as test');
+      const result = await db.execute(sql`SELECT 1 as test`);
       
       // Get user count to verify data
-      const userCountResult = await db().select().from(users);
+      const userCountResult = await db.select().from(users);
       const userCount = userCountResult.length;
       
       // Get activities count
-      const activitiesResult = await db().select().from(activities);
+      const activitiesResult = await db.select().from(activities);
       const activitiesCount = activitiesResult.length;
       
       // Get ISHU KUMAR specifically to verify seeding
@@ -191,7 +191,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         testQuery: result.rows?.[0] || result
       };
       
-      console.log(`🔍 Database Health Check:`);
+      console.log(`Database Health Check:`);
       console.log(`   Users in database: ${userCount}`);
       console.log(`   Activities in database: ${activitiesCount}`);
       console.log(`   ISHU KUMAR exists: ${!!ishuUser}`);
@@ -199,7 +199,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json(healthData);
     } catch (error) {
-      console.error('❌ Database health check failed:', error);
+      console.error('Database health check failed:', error);
       res.status(500).json({ 
         status: 'unhealthy',
         error: error instanceof Error ? error.message : String(error),

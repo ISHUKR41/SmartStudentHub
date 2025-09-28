@@ -39,11 +39,11 @@ app.use((req, res, next) => {
 (async () => {
   // Database startup logging and verification
   try {
-    console.log('🚀 Starting database connection verification...');
+    console.log('Starting database connection verification...');
     
     // Import database with new Neon serverless configuration
     const { db } = await import('./db');
-    console.log('🔌 Testing database connection with simple query...');
+    console.log('Testing database connection with simple query...');
     
     // Test database connection with timeout handling
     const connectionTest = await Promise.race([
@@ -53,18 +53,18 @@ app.use((req, res, next) => {
       )
     ]);
     
-    console.log('✅ Database connection successful!');
-    console.log('📡 Neon serverless connection established');
+    console.log('Database connection successful!');
+    console.log('Neon serverless connection established');
     
   } catch (error) {
-    console.error('❌ Database connection failed:', error instanceof Error ? error.message : String(error));
-    console.log('⚠️ Continuing startup despite database issues...');
+    console.error('Database connection failed:', error instanceof Error ? error.message : String(error));
+    console.log('Warning: Continuing startup despite database issues...');
   }
 
   // Auto-seed database in development if empty
   if (process.env.NODE_ENV === 'development') {
     try {
-      console.log('🌱 Checking if database needs seeding...');
+      console.log('Checking if database needs seeding...');
       const { db } = await import('./db');
       const { users } = await import('@shared/schema');
       
@@ -77,17 +77,17 @@ app.use((req, res, next) => {
       ]);
       
       if (Array.isArray(userCheck) && userCheck.length === 0) {
-        console.log('🌱 No users found in database. Starting auto-seeding...');
+        console.log('No users found in database. Starting auto-seeding...');
         
         const { seedDatabase } = await import('./seed');
         await seedDatabase();
         
-        console.log('✅ Database auto-seeding completed successfully!');
+        console.log('Database auto-seeding completed successfully!');
       } else {
-        console.log('📊 Database already contains data. Skipping auto-seeding.');
+        console.log('Database already contains data. Skipping auto-seeding.');
       }
     } catch (error) {
-      console.error('⚠️ Auto-seeding failed, but continuing server startup:', error instanceof Error ? error.message : String(error));
+      console.error('Warning: Auto-seeding failed, but continuing server startup:', error instanceof Error ? error.message : String(error));
     }
   }
 

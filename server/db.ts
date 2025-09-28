@@ -32,8 +32,8 @@ if (!process.env.DATABASE_URL) {
 
 // Log database configuration (masking sensitive info for security)
 const maskedUrl = process.env.DATABASE_URL.replace(/:(\/\/[^:]+:)[^@]+(@)/, ':$1***$2');
-console.log(`🔗 Database URL configured: ${maskedUrl}`);
-console.log(`📡 Using Neon Serverless driver with WebSocket pooling`);
+console.log(`Database URL configured: ${maskedUrl}`);
+console.log(`Using Neon Serverless driver with WebSocket pooling`);
 
 // Create optimized connection pool for serverless environment
 // Pool manages connections efficiently with timeout handling
@@ -46,6 +46,6 @@ export const pool = new Pool({
 });
 
 // Initialize Drizzle ORM with schema
-export const db = drizzle({ client: pool, schema });
+export const db = drizzle(pool, { schema });
 
-console.log(`✅ Database connection pool initialized successfully`);
+console.log(`Database connection pool initialized successfully`);
