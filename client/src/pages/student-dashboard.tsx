@@ -47,7 +47,6 @@ import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { isUnauthorizedError } from "@/lib/authUtils";
 import Navigation from "@/components/layout/navigation";
 import Sidebar from "@/components/layout/sidebar";
 import StatCard from "@/components/ui/stat-card";
@@ -55,7 +54,7 @@ import ActivityList from "@/components/ui/activity-list";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Download, Plus, GraduationCap, ClipboardList, Star, Clock, Award, TrendingUp, Target, BookOpen, Briefcase, Users, Calendar, MapPin, Trophy, Globe, CheckCircle, BarChart3, ChevronRight, AlertCircle, Zap, Flame, Brain, Heart, Shield, TrendingDown, ArrowUp, ArrowDown, Medal, Coffee, BookMarked, Calculator, FileText, Building, User, Phone, Mail, Home, Camera, Edit3, Filter, Search, Timer, DollarSign, Lightbulb, Rocket, Gamepad2, Music, Palette, Code, Database, Server, Bug, GitBranch } from "lucide-react";
+import { Download, Plus, GraduationCap, ClipboardList, Star, Clock, Award, TrendingUp, Target, BookOpen, Briefcase, Users, Calendar, MapPin, Trophy, Globe, CheckCircle, BarChart3, ChevronRight, AlertCircle, Zap, Flame, Brain, Heart, Shield, Medal, User, Lightbulb, Rocket } from "lucide-react";
 import { useLocation } from "wouter";
 import { Activity } from "@shared/schema";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
@@ -247,19 +246,19 @@ export default function StudentDashboard() {
     ]
   };
 
-  const { data: studentStats, isLoading: statsLoading } = useQuery<StudentStats>({
+  const { data: studentStats, isLoading: statsLoading, error: statsError } = useQuery<StudentStats>({
     queryKey: ["/api/students/stats"],
     retry: false,
   });
 
-  const { data: activities, isLoading: activitiesLoading } = useQuery<Activity[]>({
+  const { data: activities, isLoading: activitiesLoading, error: activitiesError } = useQuery<Activity[]>({
     queryKey: ["/api/students/activities"],
     retry: false,
   });
 
   if (isLoading || !user) {
     return (
-      <div className="min-h-screen w-full flex items-center justify-center bg-background">
+      <div className="min-h-screen w-full flex items-center justify-center bg-background" data-testid="loading-dashboard">
         <div className="flex items-center space-x-3">
           <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
           <span className="text-sm font-medium text-foreground">Loading...</span>
@@ -267,6 +266,31 @@ export default function StudentDashboard() {
       </div>
     );
   }
+
+  // Create unified data object with API data and fallbacks
+  const dashboardData = {
+    personalInfo: {
+      name: `${user.firstName || ''} ${user.lastName || ''}`.trim(),
+      rollNumber: user.rollNumber || 'N/A',
+      department: user.department || 'Department',
+      currentSemester: user.currentSemester || 6,
+      cgpa: user.cgpa ? parseFloat(user.cgpa) : 8.75,
+      totalCredits: studentStats?.skillCredits || realStudentData.personalInfo.totalCredits,
+      totalActivities: studentStats?.totalActivities || activities?.length || realStudentData.personalInfo.totalActivities,
+      pendingApprovals: studentStats?.pendingApprovals || realStudentData.personalInfo.pendingApprovals,
+      rank: realStudentData.personalInfo.rank, // This would come from backend ranking API
+      totalStudents: realStudentData.personalInfo.totalStudents, // This would come from backend stats
+      attendance: realStudentData.personalInfo.attendance // This would come from attendance API
+    },
+    recentActivities: activities?.slice(0, 5) || realStudentData.recentActivities.slice(0, 5),
+    // Use fallback data for complex analytics that would require additional APIs
+    semesterProgress: realStudentData.semesterProgress,
+    skillProgress: realStudentData.skillProgress,
+    categoryDistribution: realStudentData.categoryDistribution,
+    upcomingDeadlines: realStudentData.upcomingDeadlines,
+    achievements: realStudentData.achievements,
+    skillMatrix: realStudentData.skillMatrix
+  };
 
   const handleDownloadPortfolio = async () => {
     if (isDownloadingPortfolio) return; // Prevent multiple simultaneous downloads
@@ -353,76 +377,125 @@ export default function StudentDashboard() {
         <Sidebar />
         
         <main className="flex-1 p-6 space-y-6" data-testid="main-dashboard">
-          {/* Page Header */}
-          <div className="flex items-center justify-between">
-            <div>
+          {/* Enhanced Mobile-First Page Header */}
+          <div className="flex flex-col space-y-4 lg:flex-row lg:items-center lg:justify-between lg:space-y-0">
+            <div className="flex-1">
               <div>
-                <h2 className="text-2xl font-bold text-foreground" data-testid="text-dashboard-title">
+                <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-foreground" data-testid="text-dashboard-title">
                   Academic Excellence Dashboard
-                </h2>
-                <p className="text-muted-foreground" data-testid="text-welcome-message">
-                  Welcome back, {user.firstName} {user.lastName} | Roll No: {user.rollNumber || 'N/A'} | {user.department || 'Department'}
+                </h1>
+                <p className="text-sm md:text-base text-muted-foreground mt-1" data-testid="text-welcome-message">
+                  Welcome back, {user.firstName} {user.lastName}
                 </p>
-                <div className="flex items-center space-x-4 mt-2 text-sm text-muted-foreground">
+                <div className="text-xs md:text-sm text-muted-foreground">
+                  Roll No: {user.rollNumber || 'N/A'} | {user.department || 'Department'}
+                </div>
+                <div className="flex flex-col space-y-2 sm:flex-row sm:items-center sm:space-x-4 sm:space-y-0 mt-3 text-xs md:text-sm text-muted-foreground">
                   <div className="flex items-center space-x-1">
-                    <MapPin className="w-4 h-4" />
-                    <span>NIT Delhi, New Delhi</span>
+                    <MapPin className="w-3 h-3 md:w-4 md:h-4" />
+                    <span className="hidden sm:inline">NIT Delhi, New Delhi</span>
+                    <span className="sm:hidden">NIT Delhi</span>
                   </div>
                   <div className="flex items-center space-x-1">
-                    <Calendar className="w-4 h-4" />
+                    <Calendar className="w-3 h-3 md:w-4 md:h-4" />
                     <span>Academic Year 2024-25</span>
                   </div>
                   <div className="flex items-center space-x-1">
-                    <Trophy className="w-4 h-4" />
-                    <span>NAAC Grade A++ Institution</span>
+                    <Trophy className="w-3 h-3 md:w-4 md:h-4" />
+                    <span className="hidden md:inline">NAAC Grade A++ Institution</span>
+                    <span className="md:hidden">NAAC A++</span>
                   </div>
                 </div>
               </div>
             </div>
-            <div className="flex items-center space-x-3">
+            <div className="flex flex-col space-y-2 sm:flex-row sm:items-center sm:space-x-3 sm:space-y-0">
               <Button 
                 variant="outline" 
                 onClick={handleDownloadPortfolio}
                 disabled={isDownloadingPortfolio}
+                className="w-full sm:w-auto text-xs md:text-sm"
                 data-testid="button-download-portfolio"
               >
                 {isDownloadingPortfolio ? (
                   <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2"></div>
-                    Generating...
+                    <div className="animate-spin rounded-full h-3 w-3 md:h-4 md:w-4 border-b-2 border-current mr-2"></div>
+                    <span className="hidden sm:inline">Generating...</span>
+                    <span className="sm:hidden">Gen...</span>
                   </>
                 ) : (
                   <>
-                    <Download className="w-4 h-4 mr-2" />
-                    Generate Portfolio
+                    <Download className="w-3 h-3 md:w-4 md:h-4 mr-2" />
+                    <span className="hidden sm:inline">Generate Portfolio</span>
+                    <span className="sm:hidden">Portfolio</span>
                   </>
                 )}
               </Button>
               <Button 
                 onClick={() => setLocation('/upload')}
+                className="w-full sm:w-auto text-xs md:text-sm"
                 data-testid="button-add-activity"
               >
-                <Plus className="w-4 h-4 mr-2" />
-                Submit Achievement
+                <Plus className="w-3 h-3 md:w-4 md:h-4 mr-2" />
+                <span className="hidden sm:inline">Submit Achievement</span>
+                <span className="sm:hidden">Submit</span>
               </Button>
             </div>
           </div>
 
-          {/* Enhanced Statistics Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+          {/* Profile Completeness Indicator */}
+          <Card className="mb-6" data-testid="card-profile-completeness">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center justify-between text-base md:text-lg">
+                <div className="flex items-center space-x-2">
+                  <User className="w-4 h-4 md:w-5 md:h-5 text-primary" />
+                  <span>Profile Completeness</span>
+                </div>
+                <span className="text-sm font-medium text-primary">76%</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <Progress value={76} className="h-2" />
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+                  <div className="flex items-center space-x-2">
+                    <CheckCircle className="w-3 h-3 text-green-600" />
+                    <span className="text-muted-foreground">Basic Info</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <CheckCircle className="w-3 h-3 text-green-600" />
+                    <span className="text-muted-foreground">Academic Records</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <CheckCircle className="w-3 h-3 text-green-600" />
+                    <span className="text-muted-foreground">Activities Portfolio</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Clock className="w-3 h-3 text-orange-500" />
+                    <span className="text-muted-foreground">Skills Assessment</span>
+                  </div>
+                </div>
+                <div className="text-xs text-muted-foreground bg-muted/50 p-2 rounded">
+                  Complete your skills assessment to reach 100% profile completion and unlock advanced features.
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Enhanced Responsive Statistics Cards */}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4 lg:gap-6">
             <StatCard
               title="Current CGPA"
-              value={realStudentData.personalInfo.cgpa.toString()}
+              value={dashboardData.personalInfo.cgpa.toString()}
               icon={<GraduationCap className="w-6 h-6" />}
               color="success"
-              subtitle={`Semester ${realStudentData.personalInfo.currentSemester} of 8`}
-              progress={(realStudentData.personalInfo.cgpa / 10) * 100}
+              subtitle={`Semester ${dashboardData.personalInfo.currentSemester} of 8`}
+              progress={(dashboardData.personalInfo.cgpa / 10) * 100}
               data-testid="card-cgpa"
             />
 
             <StatCard
               title="Total Activities"
-              value={realStudentData.personalInfo.totalActivities.toString()}
+              value={dashboardData.personalInfo.totalActivities.toString()}
               icon={<ClipboardList className="w-6 h-6" />}
               color="primary"
               subtitle="Academic Year 2024-25"
@@ -431,17 +504,17 @@ export default function StudentDashboard() {
 
             <StatCard
               title="Skill Credits"
-              value={realStudentData.personalInfo.totalCredits.toString()}
+              value={dashboardData.personalInfo.totalCredits.toString()}
               icon={<Star className="w-6 h-6" />}
               color="info"
-              subtitle="Target: 250 | Progress: 76.4%"
-              progress={(realStudentData.personalInfo.totalCredits / 250) * 100}
+              subtitle={`Target: 250 | Progress: ${((dashboardData.personalInfo.totalCredits / 250) * 100).toFixed(1)}%`}
+              progress={(dashboardData.personalInfo.totalCredits / 250) * 100}
               data-testid="card-skill-credits"
             />
 
             <StatCard
               title="Pending Approvals"
-              value={realStudentData.personalInfo.pendingApprovals.toString()}
+              value={dashboardData.personalInfo.pendingApprovals.toString()}
               icon={<Clock className="w-6 h-6" />}
               color="warning"
               subtitle="Awaiting faculty review"
@@ -450,18 +523,114 @@ export default function StudentDashboard() {
 
             <StatCard
               title="Academic Rank"
-              value={`${realStudentData.personalInfo.rank}th`}
+              value={`${dashboardData.personalInfo.rank}th`}
               icon={<Trophy className="w-6 h-6" />}
               color="success"
-              subtitle={`Out of ${realStudentData.personalInfo.totalStudents} students`}
-              progress={(1 - (realStudentData.personalInfo.rank / realStudentData.personalInfo.totalStudents)) * 100}
+              subtitle={`Out of ${dashboardData.personalInfo.totalStudents} students`}
+              progress={(1 - (dashboardData.personalInfo.rank / dashboardData.personalInfo.totalStudents)) * 100}
               data-testid="card-rank"
             />
           </div>
 
-          {/* Quick Actions & Alerts Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <Card className="lg:col-span-2">
+          {/* Faculty Approval Workflow Monitoring */}
+          <Card className="mb-6" data-testid="card-faculty-approval-workflow">
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2 text-base md:text-lg">
+                <Users className="w-4 h-4 md:w-5 md:h-5 text-indigo-600" />
+                <span>Faculty Approval Workflow</span>
+                <Badge variant="outline" className="ml-auto" data-testid="badge-pending-approvals">
+                  {dashboardData.personalInfo.pendingApprovals} Pending
+                </Badge>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between p-3 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                      <Clock className="w-4 h-4 text-white" />
+                    </div>
+                    <div>
+                      <div className="text-sm font-medium">Dr. Priya Sharma (CS HOD)</div>
+                      <div className="text-xs text-muted-foreground">2 activities pending review</div>
+                    </div>
+                  </div>
+                  <Button size="sm" variant="outline" className="text-xs" data-testid="button-follow-up">
+                    Follow Up
+                  </Button>
+                </div>
+                <div className="flex items-center justify-between p-3 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
+                      <CheckCircle className="w-4 h-4 text-white" />
+                    </div>
+                    <div>
+                      <div className="text-sm font-medium">Prof. Rajesh Kumar (Mentor)</div>
+                      <div className="text-xs text-muted-foreground">Average approval time: 2.3 days</div>
+                    </div>
+                  </div>
+                  <Badge variant="secondary" className="text-xs" data-testid="badge-excellent">Excellent</Badge>
+                </div>
+                <div className="grid grid-cols-2 gap-4 text-center mt-4">
+                  <div className="p-3 bg-muted/50 rounded-lg">
+                    <div className="text-lg font-bold text-primary" data-testid="stat-approved-month">14</div>
+                    <div className="text-xs text-muted-foreground">Approved This Month</div>
+                  </div>
+                  <div className="p-3 bg-muted/50 rounded-lg">
+                    <div className="text-lg font-bold text-orange-600" data-testid="stat-avg-approval-time">1.8</div>
+                    <div className="text-xs text-muted-foreground">Avg. Days to Approve</div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* NAAC/NIRF Compliance Metrics */}
+          <Card className="mb-6" data-testid="card-naac-compliance">
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2 text-base md:text-lg">
+                <Award className="w-4 h-4 md:w-5 md:h-5 text-amber-600" />
+                <span>NAAC/NIRF Compliance Metrics</span>
+                <Badge variant="outline" className="ml-auto bg-green-50 text-green-700">
+                  Compliant
+                </Badge>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="text-center p-3 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg">
+                    <div className="text-xl font-bold text-blue-600">85%</div>
+                    <div className="text-xs text-muted-foreground">Activity Documentation</div>
+                  </div>
+                  <div className="text-center p-3 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg">
+                    <div className="text-xl font-bold text-green-600">92%</div>
+                    <div className="text-xs text-muted-foreground">Verification Rate</div>
+                  </div>
+                  <div className="text-center p-3 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-lg">
+                    <div className="text-xl font-bold text-purple-600">A++</div>
+                    <div className="text-xs text-muted-foreground">Institutional Grade</div>
+                  </div>
+                  <div className="text-center p-3 bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 rounded-lg">
+                    <div className="text-xl font-bold text-orange-600">76.4%</div>
+                    <div className="text-xs text-muted-foreground">Credit Target Progress</div>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span>NAAC Student Participation Index</span>
+                    <span className="font-medium text-green-600">Excellent</span>
+                  </div>
+                  <Progress value={88} className="h-2" />
+                  <div className="text-xs text-muted-foreground">Above institutional average (75%). Meeting all NAAC criteria for student engagement.</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Enhanced Quick Actions & Alerts Section */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
+            <Card className="lg:col-span-2" data-testid="card-upcoming-deadlines">
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <AlertCircle className="w-5 h-5 text-orange-600" />
@@ -470,7 +639,7 @@ export default function StudentDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {realStudentData.upcomingDeadlines.map((deadline, index) => {
+                  {dashboardData.upcomingDeadlines.map((deadline, index) => {
                     const daysLeft = Math.ceil((deadline.date.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
                     const priorityColors: Record<'high' | 'medium' | 'low', string> = {
                       high: 'bg-red-50 border-red-200 text-red-800',
@@ -479,7 +648,7 @@ export default function StudentDashboard() {
                     };
                     const priorityKey = deadline.priority as 'high' | 'medium' | 'low';
                     return (
-                      <div key={index} className={`p-3 rounded-lg border ${priorityColors[priorityKey]}`}>
+                      <div key={index} className={`p-3 rounded-lg border ${priorityColors[priorityKey]}`} data-testid={`deadline-row-${index}`}>
                         <div className="flex items-center justify-between">
                           <div className="flex-1">
                             <div className="font-medium">{deadline.task}</div>
@@ -489,7 +658,7 @@ export default function StudentDashboard() {
                               <span>{daysLeft > 0 ? `${daysLeft} days left` : 'Due today!'}</span>
                             </div>
                           </div>
-                          <Badge variant={deadline.priority === 'high' ? 'destructive' : deadline.priority === 'medium' ? 'default' : 'secondary'}>
+                          <Badge variant={deadline.priority === 'high' ? 'destructive' : deadline.priority === 'medium' ? 'default' : 'secondary'} data-testid={`badge-priority-${deadline.priority}`}>
                             {deadline.priority.toUpperCase()}
                           </Badge>
                         </div>
@@ -500,34 +669,42 @@ export default function StudentDashboard() {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card data-testid="card-quick-actions">
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
-                  <Zap className="w-5 h-5 text-blue-600" />
-                  <span>Quick Actions</span>
+                  <Zap className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
+                  <span>Quick Actions & Navigation</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
-                  <Button className="w-full justify-start" variant="outline" onClick={() => setLocation('/upload')}>
-                    <Plus className="w-4 h-4 mr-2" />
+                <div className="space-y-2">
+                  <Button className="w-full justify-start text-xs md:text-sm" variant="outline" onClick={() => setLocation('/upload')} data-testid="button-quick-submit">
+                    <Plus className="w-3 h-3 md:w-4 md:h-4 mr-2" />
                     Submit New Activity
                   </Button>
-                  <Button className="w-full justify-start" variant="outline" onClick={handleDownloadPortfolio}>
-                    <Download className="w-4 h-4 mr-2" />
+                  <Button className="w-full justify-start text-xs md:text-sm" variant="outline" onClick={handleDownloadPortfolio} data-testid="button-quick-portfolio">
+                    <Download className="w-3 h-3 md:w-4 md:h-4 mr-2" />
                     Generate Portfolio
                   </Button>
-                  <Button className="w-full justify-start" variant="outline">
-                    <Calendar className="w-4 h-4 mr-2" />
-                    View Academic Calendar
+                  <Button className="w-full justify-start text-xs md:text-sm" variant="outline" onClick={() => setLocation('/activities')} data-testid="button-quick-activities">
+                    <ClipboardList className="w-3 h-3 md:w-4 md:h-4 mr-2" />
+                    View All Activities
                   </Button>
-                  <Button className="w-full justify-start" variant="outline">
-                    <Users className="w-4 h-4 mr-2" />
-                    Connect with Faculty
+                  <Button className="w-full justify-start text-xs md:text-sm" variant="outline" onClick={() => setLocation('/digital-portfolio')} data-testid="button-quick-digital-portfolio">
+                    <FileText className="w-3 h-3 md:w-4 md:h-4 mr-2" />
+                    Digital Portfolio
                   </Button>
-                  <Button className="w-full justify-start" variant="outline">
-                    <Target className="w-4 h-4 mr-2" />
-                    Set Goals
+                  <Button className="w-full justify-start text-xs md:text-sm" variant="outline" onClick={() => setLocation('/faculty-approvals')} data-testid="button-quick-approvals">
+                    <Users className="w-3 h-3 md:w-4 md:h-4 mr-2" />
+                    Faculty Approvals
+                  </Button>
+                  <Button className="w-full justify-start text-xs md:text-sm" variant="outline" onClick={() => setLocation('/admin-analytics')} data-testid="button-quick-analytics">
+                    <BarChart3 className="w-3 h-3 md:w-4 md:h-4 mr-2" />
+                    View Analytics
+                  </Button>
+                  <Button className="w-full justify-start text-xs md:text-sm" variant="outline" onClick={() => setLocation('/help')} data-testid="button-quick-help">
+                    <Lightbulb className="w-3 h-3 md:w-4 md:h-4 mr-2" />
+                    Help & Support
                   </Button>
                 </div>
               </CardContent>
@@ -535,122 +712,153 @@ export default function StudentDashboard() {
           </div>
 
           {/* Comprehensive Analytics Dashboard */}
-          <Tabs defaultValue="overview" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-5">
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="academic">Academic</TabsTrigger>
-              <TabsTrigger value="activities">Activities</TabsTrigger>
-              <TabsTrigger value="skills">Skills</TabsTrigger>
-              <TabsTrigger value="goals">Goals</TabsTrigger>
+          <Tabs defaultValue="overview" className="space-y-4 md:space-y-6" data-testid="tabs-dashboard-analytics">
+            <TabsList className="grid w-full grid-cols-3 md:grid-cols-5 h-auto p-1">
+              <TabsTrigger value="overview" className="text-xs md:text-sm px-2 md:px-4" data-testid="tab-overview">Overview</TabsTrigger>
+              <TabsTrigger value="academic" className="text-xs md:text-sm px-2 md:px-4" data-testid="tab-academic">Academic</TabsTrigger>
+              <TabsTrigger value="activities" className="text-xs md:text-sm px-2 md:px-4" data-testid="tab-activities">Activities</TabsTrigger>
+              <TabsTrigger value="skills" className="text-xs md:text-sm px-2 md:px-4 hidden md:inline-flex" data-testid="tab-skills">Skills</TabsTrigger>
+              <TabsTrigger value="goals" className="text-xs md:text-sm px-2 md:px-4 hidden md:inline-flex" data-testid="tab-goals">Goals</TabsTrigger>
             </TabsList>
 
             <TabsContent value="overview" className="space-y-6">
               {/* Academic Performance & Skill Credit Progress */}
-              <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                <Card>
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 md:gap-6">
+                <Card data-testid="card-academic-progress-trends">
                   <CardHeader>
-                    <CardTitle className="flex items-center space-x-2">
-                      <TrendingUp className="w-5 h-5 text-blue-600" />
+                    <CardTitle className="flex items-center space-x-2 text-base md:text-lg">
+                      <TrendingUp className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
                       <span>Academic Progress Trends</span>
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <ChartContainer
-                      config={{
-                        gpa: { label: "CGPA", color: "hsl(221, 83%, 53%)" },
-                        credits: { label: "Credits", color: "hsl(142, 71%, 45%)" }
-                      }}
-                      className="h-[300px]"
-                    >
-                      <RechartsLineChart data={realStudentData.semesterProgress}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="semester" />
-                        <YAxis yAxisId="left" />
-                        <YAxis yAxisId="right" orientation="right" />
-                        <ChartTooltip content={<ChartTooltipContent />} />
-                        <Line yAxisId="left" type="monotone" dataKey="gpa" stroke="hsl(221, 83%, 53%)" strokeWidth={3} />
-                        <Line yAxisId="right" type="monotone" dataKey="credits" stroke="hsl(142, 71%, 45%)" strokeWidth={2} />
-                      </RechartsLineChart>
-                    </ChartContainer>
+                    {statsLoading ? (
+                      <div className="h-[200px] md:h-[300px] flex items-center justify-center">
+                        <div className="flex items-center space-x-2">
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                          <span className="text-sm text-muted-foreground">Loading chart data...</span>
+                        </div>
+                      </div>
+                    ) : (
+                      <ChartContainer
+                        config={{
+                          gpa: { label: "CGPA", color: "hsl(221, 83%, 53%)" },
+                          credits: { label: "Credits", color: "hsl(142, 71%, 45%)" }
+                        }}
+                        className="h-[200px] md:h-[300px]"
+                        data-testid="chart-academic-progress"
+                      >
+                        <RechartsLineChart data={dashboardData.semesterProgress}>
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="semester" fontSize={12} />
+                          <YAxis yAxisId="left" fontSize={12} />
+                          <YAxis yAxisId="right" orientation="right" fontSize={12} />
+                          <ChartTooltip content={<ChartTooltipContent />} />
+                          <Line yAxisId="left" type="monotone" dataKey="gpa" stroke="hsl(221, 83%, 53%)" strokeWidth={3} />
+                          <Line yAxisId="right" type="monotone" dataKey="credits" stroke="hsl(142, 71%, 45%)" strokeWidth={2} />
+                        </RechartsLineChart>
+                      </ChartContainer>
+                    )}
                   </CardContent>
                 </Card>
 
-                <Card>
+                <Card data-testid="card-skill-credit-accumulation">
                   <CardHeader>
-                    <CardTitle className="flex items-center space-x-2">
-                      <Star className="w-5 h-5 text-amber-600" />
+                    <CardTitle className="flex items-center space-x-2 text-base md:text-lg">
+                      <Star className="w-4 h-4 md:w-5 md:h-5 text-amber-600" />
                       <span>Skill Credit Accumulation</span>
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <ChartContainer
-                      config={{
-                        credits: { label: "Credits", color: "hsl(45, 93%, 47%)" }
-                      }}
-                      className="h-[300px]"
-                    >
-                      <AreaChart data={realStudentData.skillProgress}>
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis dataKey="month" />
-                        <YAxis />
-                        <ChartTooltip content={<ChartTooltipContent />} />
-                        <Area type="monotone" dataKey="credits" stroke="hsl(45, 93%, 47%)" fill="hsl(45, 93%, 47%)" fillOpacity={0.6} />
-                      </AreaChart>
-                    </ChartContainer>
+                    {statsLoading ? (
+                      <div className="h-[200px] md:h-[300px] flex items-center justify-center">
+                        <div className="flex items-center space-x-2">
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                          <span className="text-sm text-muted-foreground">Loading chart data...</span>
+                        </div>
+                      </div>
+                    ) : (
+                      <ChartContainer
+                        config={{
+                          credits: { label: "Credits", color: "hsl(45, 93%, 47%)" }
+                        }}
+                        className="h-[200px] md:h-[300px]"
+                        data-testid="chart-skill-credits"
+                      >
+                        <AreaChart data={dashboardData.skillProgress}>
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis dataKey="month" fontSize={12} />
+                          <YAxis fontSize={12} />
+                          <ChartTooltip content={<ChartTooltipContent />} />
+                          <Area type="monotone" dataKey="credits" stroke="hsl(45, 93%, 47%)" fill="hsl(45, 93%, 47%)" fillOpacity={0.6} />
+                        </AreaChart>
+                      </ChartContainer>
+                    )}
                   </CardContent>
                 </Card>
               </div>
 
               {/* Activity Distribution & Recent Achievements */}
-              <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                <Card>
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 md:gap-6">
+                <Card data-testid="card-activity-category-distribution">
                   <CardHeader>
-                    <CardTitle className="flex items-center space-x-2">
-                      <RechartsPieChart className="w-5 h-5 text-green-600" />
-                      <span>Activity Category Distribution</span>
+                    <CardTitle className="flex items-center space-x-2 text-base md:text-lg">
+                      <RechartsPieChart className="w-4 h-4 md:w-5 md:h-5 text-green-600" />
+                      <span className="hidden sm:inline">Activity Category Distribution</span>
+                      <span className="sm:hidden">Activity Categories</span>
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <ChartContainer
-                      config={{
-                        Academic: { label: "Academic", color: "hsl(221, 83%, 53%)" },
-                        Technical: { label: "Technical", color: "hsl(142, 71%, 45%)" },
-                        Leadership: { label: "Leadership", color: "hsl(45, 93%, 47%)" },
-                        Community: { label: "Community", color: "hsl(0, 72%, 51%)" },
-                        Research: { label: "Research", color: "hsl(262, 83%, 58%)" }
-                      }}
-                      className="h-[300px]"
-                    >
-                      <RechartsPieChart>
-                        <Pie
-                          data={realStudentData.categoryDistribution}
-                          cx="50%"
-                          cy="50%"
-                          outerRadius={80}
-                          fill="#8884d8"
-                          dataKey="value"
-                        >
-                          {realStudentData.categoryDistribution.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.color} />
-                          ))}
-                        </Pie>
-                        <ChartTooltip content={<ChartTooltipContent />} />
-                        <Legend />
-                      </RechartsPieChart>
-                    </ChartContainer>
+                    {activitiesLoading ? (
+                      <div className="h-[200px] md:h-[300px] flex items-center justify-center">
+                        <div className="flex items-center space-x-2">
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+                          <span className="text-sm text-muted-foreground">Loading activities...</span>
+                        </div>
+                      </div>
+                    ) : (
+                      <ChartContainer
+                        config={{
+                          Academic: { label: "Academic", color: "hsl(221, 83%, 53%)" },
+                          Technical: { label: "Technical", color: "hsl(142, 71%, 45%)" },
+                          Leadership: { label: "Leadership", color: "hsl(45, 93%, 47%)" },
+                          Community: { label: "Community", color: "hsl(0, 72%, 51%)" },
+                          Research: { label: "Research", color: "hsl(262, 83%, 58%)" }
+                        }}
+                        className="h-[200px] md:h-[300px]"
+                        data-testid="chart-activity-distribution"
+                      >
+                        <RechartsPieChart>
+                          <Pie
+                            data={dashboardData.categoryDistribution}
+                            cx="50%"
+                            cy="50%"
+                            outerRadius={60}
+                            fill="#8884d8"
+                            dataKey="value"
+                          >
+                            {dashboardData.categoryDistribution.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={entry.color} data-testid={`pie-slice-${index}`} />
+                            ))}
+                          </Pie>
+                          <ChartTooltip content={<ChartTooltipContent />} />
+                          <Legend wrapperStyle={{ fontSize: '12px' }} />
+                        </RechartsPieChart>
+                      </ChartContainer>
+                    )}
                   </CardContent>
                 </Card>
 
-                <Card>
+                <Card data-testid="card-recent-achievements">
                   <CardHeader>
-                    <CardTitle className="flex items-center space-x-2">
-                      <Medal className="w-5 h-5 text-purple-600" />
+                    <CardTitle className="flex items-center space-x-2 text-base md:text-lg">
+                      <Medal className="w-4 h-4 md:w-5 md:h-5 text-purple-600" />
                       <span>Recent Achievements</span>
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      {realStudentData.achievements.map((achievement, index) => {
+                      {dashboardData.achievements.map((achievement, index) => {
                         const typeIcons = {
                           academic: <GraduationCap className="w-5 h-5 text-blue-600" />,
                           research: <BookOpen className="w-5 h-5 text-green-600" />,
@@ -658,7 +866,7 @@ export default function StudentDashboard() {
                           leadership: <Users className="w-5 h-5 text-orange-600" />
                         };
                         return (
-                          <div key={index} className="flex items-center space-x-3 p-3 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg">
+                          <div key={index} className="flex items-center space-x-3 p-3 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-lg" data-testid={`achievement-${index}`}>
                             <div className="w-10 h-10 bg-white dark:bg-gray-800 rounded-full flex items-center justify-center shadow-sm">
                               {typeIcons[achievement.type as keyof typeof typeIcons]}
                             </div>
@@ -820,8 +1028,8 @@ export default function StudentDashboard() {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      {realStudentData.skillMatrix.map((item, index) => (
-                        <div key={index}>
+                      {dashboardData.skillMatrix.map((item, index) => (
+                        <div key={index} data-testid={`skill-item-${index}`}>
                           <div className="flex items-center justify-between mb-2">
                             <div>
                               <div className="text-sm font-medium text-foreground">{item.skill}</div>
@@ -900,9 +1108,43 @@ export default function StudentDashboard() {
               </div>
             </TabsContent>
 
-            <TabsContent value="goals" className="space-y-6">
-              {/* Goal Setting and Tracking */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <TabsContent value="goals" className="space-y-4 md:space-y-6" data-testid="tabcontent-goals">
+              {/* Enhanced Goal Setting and Progress Tracking with Charts */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+              
+                {/* Goal Progress Visualization Chart */}
+                <Card data-testid="card-goal-progress-chart">
+                  <CardHeader>
+                    <CardTitle className="flex items-center space-x-2 text-base md:text-lg">
+                      <Target className="w-4 h-4 md:w-5 md:h-5 text-green-600" />
+                      <span>Goal Progress Analytics</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ChartContainer
+                      config={{
+                        progress: { label: "Progress %", color: "hsl(142, 71%, 45%)" },
+                        target: { label: "Target %", color: "hsl(0, 72%, 51%)" }
+                      }}
+                      className="h-[200px] md:h-[250px]"
+                    >
+                      <BarChart data={[
+                        { goal: 'CGPA 9.0+', progress: 87, target: 100 },
+                        { goal: 'Credits 250', progress: 76, target: 100 },
+                        { goal: 'Publications', progress: 50, target: 100 },
+                        { goal: 'Internship', progress: 100, target: 100 },
+                        { goal: 'Leadership', progress: 65, target: 100 }
+                      ]}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="goal" fontSize={10} interval={0} />
+                        <YAxis fontSize={12} />
+                        <ChartTooltip content={<ChartTooltipContent />} />
+                        <Bar dataKey="progress" fill="hsl(142, 71%, 45%)" radius={4} />
+                        <Bar dataKey="target" fill="hsl(0, 72%, 51%)" radius={4} fillOpacity={0.3} />
+                      </BarChart>
+                    </ChartContainer>
+                  </CardContent>
+                </Card>
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center space-x-2">
@@ -998,13 +1240,13 @@ export default function StudentDashboard() {
             </TabsContent>
           </Tabs>
 
-          {/* Performance Analytics & Insights Dashboard */}
-          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-            {/* Performance Metrics Card */}
-            <Card>
+          {/* Enhanced Performance Analytics & Insights Dashboard */}
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 md:gap-6" data-testid="performance-analytics-section">
+            {/* Enhanced Performance Metrics Card */}
+            <Card data-testid="card-performance-metrics">
               <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <BarChart3 className="w-5 h-5 text-green-600" />
+                <CardTitle className="flex items-center space-x-2 text-base md:text-lg">
+                  <BarChart3 className="w-4 h-4 md:w-5 md:h-5 text-green-600" />
                   <span>Performance Metrics</span>
                 </CardTitle>
               </CardHeader>
@@ -1077,11 +1319,11 @@ export default function StudentDashboard() {
               </CardContent>
             </Card>
 
-            {/* Career Readiness Assessment */}
-            <Card>
+            {/* Enhanced Career Readiness Assessment */}
+            <Card data-testid="card-career-readiness">
               <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Briefcase className="w-5 h-5 text-indigo-600" />
+                <CardTitle className="flex items-center space-x-2 text-base md:text-lg">
+                  <Briefcase className="w-4 h-4 md:w-5 md:h-5 text-indigo-600" />
                   <span>Career Readiness</span>
                 </CardTitle>
               </CardHeader>
@@ -1138,11 +1380,11 @@ export default function StudentDashboard() {
               </CardContent>
             </Card>
 
-            {/* Institutional Recognition */}
-            <Card>
+            {/* Enhanced Institutional Recognition */}
+            <Card data-testid="card-institutional-recognition">
               <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Shield className="w-5 h-5 text-gold-600" />
+                <CardTitle className="flex items-center space-x-2 text-base md:text-lg">
+                  <Shield className="w-4 h-4 md:w-5 md:h-5 text-amber-600" />
                   <span>Institutional Recognition</span>
                 </CardTitle>
               </CardHeader>
