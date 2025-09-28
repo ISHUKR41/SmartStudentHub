@@ -164,12 +164,12 @@ export interface IStorage {
 export class DatabaseStorage implements IStorage {
   // User operations (mandatory for Replit Auth)
   async getUser(id: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.id, id));
+    const [user] = await db().select().from(users).where(eq(users.id, id));
     return user;
   }
 
   async upsertUser(userData: UpsertUser): Promise<User> {
-    const [user] = await db
+    const [user] = await db()
       .insert(users)
       .values(userData)
       .onConflictDoUpdate({
@@ -185,7 +185,7 @@ export class DatabaseStorage implements IStorage {
 
   // Activity operations
   async getActivitiesByStudent(studentId: string): Promise<Activity[]> {
-    return await db
+    return await db()
       .select()
       .from(activities)
       .where(eq(activities.studentId, studentId))
@@ -193,7 +193,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getActivitiesByStatus(status: 'pending' | 'approved' | 'rejected'): Promise<Activity[]> {
-    return await db
+    return await db()
       .select()
       .from(activities)
       .where(eq(activities.status, status))
@@ -201,14 +201,14 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAllActivities(): Promise<Activity[]> {
-    return await db
+    return await db()
       .select()
       .from(activities)
       .orderBy(desc(activities.createdAt));
   }
 
   async createActivity(activity: InsertActivity): Promise<Activity> {
-    const [newActivity] = await db
+    const [newActivity] = await db()
       .insert(activities)
       .values(activity)
       .returning();
@@ -216,7 +216,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateActivityStatus(activityId: string, updates: UpdateActivityStatus, verifierId: string): Promise<Activity> {
-    const [updatedActivity] = await db
+    const [updatedActivity] = await db()
       .update(activities)
       .set({
         ...updates,
@@ -231,7 +231,7 @@ export class DatabaseStorage implements IStorage {
 
   // File operations
   async addActivityFile(activityId: string, fileName: string, filePath: string, fileType: string, fileSize: number): Promise<ActivityFile> {
-    const [file] = await db
+    const [file] = await db()
       .insert(activityFiles)
       .values({
         activityId,
@@ -245,7 +245,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getActivityFiles(activityId: string): Promise<ActivityFile[]> {
-    return await db
+    return await db()
       .select()
       .from(activityFiles)
       .where(eq(activityFiles.activityId, activityId));
@@ -253,11 +253,11 @@ export class DatabaseStorage implements IStorage {
 
   // Department operations
   async getDepartments(): Promise<Department[]> {
-    return await db.select().from(departments);
+    return await db().select().from(departments);
   }
 
   async createDepartment(department: InsertDepartment): Promise<Department> {
-    const [newDepartment] = await db
+    const [newDepartment] = await db()
       .insert(departments)
       .values(department)
       .returning();
@@ -266,7 +266,7 @@ export class DatabaseStorage implements IStorage {
 
   // Analytics operations
   async getStudentStats(studentId: string): Promise<{ totalActivities: number; skillCredits: number; pendingApprovals: number }> {
-    const [stats] = await db
+    const [stats] = await db()
       .select({
         totalActivities: count(),
         skillCredits: sql<number>`COALESCE(SUM(${activities.skillCredits}), 0)`,
@@ -283,7 +283,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getDepartmentStats(): Promise<{ department: string; studentCount: number; activityCount: number; avgActivitiesPerStudent: number }[]> {
-    const stats = await db
+    const stats = await db()
       .select({
         department: users.department,
         studentCount: count(sql`DISTINCT ${users.id}`),
@@ -303,7 +303,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getCategoryStats(): Promise<{ category: string; count: number; percentage: number }[]> {
-    const stats = await db
+    const stats = await db()
       .select({
         category: activities.category,
         count: count(),
@@ -321,7 +321,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getStudentSummary(): Promise<{ student: User; totalActivities: number; skillCredits: number; lastActivity: Date | null }[]> {
-    const summary = await db
+    const summary = await db()
       .select({
         student: users,
         totalActivities: sql<number>`COUNT(${activities.id})`,
@@ -406,7 +406,7 @@ export class DatabaseStorage implements IStorage {
       sql`1=1`;
 
     // Monthly trends
-    const monthlyData = await db
+    const monthlyData = await db()
       .select({
         month: sql<string>`TO_CHAR(${activities.createdAt}, 'YYYY-MM')`,
         activities: count(activities.id),
@@ -418,7 +418,7 @@ export class DatabaseStorage implements IStorage {
       .orderBy(sql`TO_CHAR(${activities.createdAt}, 'YYYY-MM')`);
 
     // Yearly trends
-    const yearlyData = await db
+    const yearlyData = await db()
       .select({
         year: sql<number>`EXTRACT(YEAR FROM ${activities.createdAt})`,
         activities: count(activities.id),
@@ -432,7 +432,7 @@ export class DatabaseStorage implements IStorage {
       .orderBy(sql`EXTRACT(YEAR FROM ${activities.createdAt})`);
 
     // Category trends (simplified growth calculation)
-    const categoryData = await db
+    const categoryData = await db()
       .select({
         category: activities.category,
         count: count(),
@@ -471,13 +471,13 @@ export class DatabaseStorage implements IStorage {
     verificationRates: { facultyId: string; facultyName: string; verified: number; pending: number; rate: number }[];
   }> {
     // Get faculty count
-    const [facultyCount] = await db
+    const [facultyCount] = await db()
       .select({ count: count() })
       .from(users)
       .where(eq(users.role, 'faculty'));
 
     // Get faculty verification stats
-    const verificationStats = await db
+    const verificationStats = await db()
       .select({
         facultyId: users.id,
         facultyName: sql<string>`${users.firstName} || ' ' || ${users.lastName}`,
@@ -521,7 +521,7 @@ export class DatabaseStorage implements IStorage {
     qualityMetrics: { approvalRate: number; avgCreditsPerActivity: number; diversityIndex: number };
   }> {
     // Student engagement
-    const [studentStats] = await db
+    const [studentStats] = await db()
       .select({
         totalStudents: count(sql`DISTINCT ${users.id}`),
         activeStudents: count(sql`DISTINCT CASE WHEN ${activities.id} IS NOT NULL THEN ${users.id} END`)
@@ -531,7 +531,7 @@ export class DatabaseStorage implements IStorage {
       .where(eq(users.role, 'student'));
 
     // Department participation
-    const deptParticipation = await db
+    const deptParticipation = await db()
       .select({
         department: users.department,
         totalStudents: count(sql`DISTINCT ${users.id}`),
@@ -545,7 +545,7 @@ export class DatabaseStorage implements IStorage {
       .groupBy(users.department);
 
     // Faculty involvement
-    const [facultyStats] = await db
+    const [facultyStats] = await db()
       .select({
         totalFaculty: count(sql`DISTINCT ${users.id}`),
         involvedFaculty: count(sql`DISTINCT CASE WHEN ${activities.verifiedBy} IS NOT NULL THEN ${users.id} END`),
@@ -553,7 +553,7 @@ export class DatabaseStorage implements IStorage {
       })
       .from(users)
       .leftJoin(
-        db.select({
+        db().select({
           verifiedBy: activities.verifiedBy,
           activityCount: count().as('activity_count')
         }).from(activities).groupBy(activities.verifiedBy).as('faculty_activities'),
@@ -562,7 +562,7 @@ export class DatabaseStorage implements IStorage {
       .where(eq(users.role, 'faculty'));
 
     // Quality metrics
-    const [qualityStats] = await db
+    const [qualityStats] = await db()
       .select({
         totalActivities: count(),
         approvedActivities: count(sql`CASE WHEN ${activities.status} = 'approved' THEN 1 END`),
@@ -613,7 +613,7 @@ export class DatabaseStorage implements IStorage {
     graduationOutcomes: { placementRate: number; higherEducation: number; entrepreneurship: number };
   }> {
     // Student diversity
-    const deptDistribution = await db
+    const deptDistribution = await db()
       .select({
         department: users.department,
         count: count()
@@ -622,13 +622,13 @@ export class DatabaseStorage implements IStorage {
       .where(eq(users.role, 'student'))
       .groupBy(users.department);
 
-    const [totalStudents] = await db
+    const [totalStudents] = await db()
       .select({ count: count() })
       .from(users)
       .where(eq(users.role, 'student'));
 
     // Academic excellence
-    const [academicStats] = await db
+    const [academicStats] = await db()
       .select({
         highPerformers: count(sql`CASE WHEN ${users.cgpa} >= 8.5 THEN 1 END`),
         avgCGPA: sql<number>`AVG(${users.cgpa})`,
@@ -639,7 +639,7 @@ export class DatabaseStorage implements IStorage {
       .where(eq(users.role, 'student'));
 
     // Research and innovation (based on academic category)
-    const [researchStats] = await db
+    const [researchStats] = await db()
       .select({
         researchActivities: count(sql`CASE WHEN ${activities.category} = 'academic' THEN 1 END`),
         moocCertifications: count(sql`CASE WHEN ${activities.category} = 'mooc' THEN 1 END`)
@@ -648,7 +648,7 @@ export class DatabaseStorage implements IStorage {
       .where(eq(activities.status, 'approved'));
 
     // Outreach and inclusion (volunteering activities)
-    const [outreachStats] = await db
+    const [outreachStats] = await db()
       .select({
         volunteeringActivities: count(sql`CASE WHEN ${activities.category} = 'volunteering' THEN 1 END`),
         totalActivities: count()
@@ -710,7 +710,7 @@ export class DatabaseStorage implements IStorage {
       baseFilter;
 
     // Summary stats
-    const [summary] = await db
+    const [summary] = await db()
       .select({
         activities: count(activities.id),
         students: count(sql`DISTINCT ${activities.studentId}`),
@@ -721,7 +721,7 @@ export class DatabaseStorage implements IStorage {
       .where(deptFilter);
 
     // Category breakdown
-    const categoryData = await db
+    const categoryData = await db()
       .select({
         category: activities.category,
         count: count()
@@ -734,7 +734,7 @@ export class DatabaseStorage implements IStorage {
     const totalActivities = categoryData.reduce((sum, cat) => sum + cat.count, 0);
     
     // Monthly distribution
-    const monthlyData = await db
+    const monthlyData = await db()
       .select({
         month: sql<string>`TO_CHAR(${activities.createdAt}, 'YYYY-MM')`,
         count: count()
@@ -746,7 +746,7 @@ export class DatabaseStorage implements IStorage {
       .orderBy(sql`TO_CHAR(${activities.createdAt}, 'YYYY-MM')`);
 
     // Top performers
-    const topPerformers = await db
+    const topPerformers = await db()
       .select({
         student: users,
         activities: count(activities.id),
@@ -793,7 +793,7 @@ export class DatabaseStorage implements IStorage {
 
     switch (type) {
       case 'activities':
-        return await db
+        return await db()
           .select({
             title: activities.title,
             student: sql<string>`${users.firstName} || ' ' || ${users.lastName}`,
@@ -812,7 +812,7 @@ export class DatabaseStorage implements IStorage {
           .orderBy(desc(activities.createdAt));
 
       case 'students':
-        return await db
+        return await db()
           .select({
             firstName: users.firstName,
             lastName: users.lastName,
@@ -831,7 +831,7 @@ export class DatabaseStorage implements IStorage {
           .orderBy(users.lastName, users.firstName);
 
       case 'departments':
-        return await db
+        return await db()
           .select({
             department: users.department,
             totalStudents: count(sql`DISTINCT ${users.id}`),

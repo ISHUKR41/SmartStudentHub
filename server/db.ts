@@ -24,18 +24,39 @@ import * as schema from "@shared/schema";
 // This enables real-time features and improves connection reliability
 neonConfig.webSocketConstructor = ws;
 
-// Validate that database URL is configured
-// This prevents runtime errors and provides clear error messages for setup issues
-if (!process.env.DATABASE_URL) {
-  throw new Error(
-    "DATABASE_URL must be set. Did you forget to provision a database?",
-  );
+// Get database URL with fallback handling for different Replit environments
+// This ensures compatibility across development and production environments
+function getDatabaseUrl(): string {
+  const dbUrl = process.env.DATABASE_URL;
+  if (!dbUrl) {
+    throw new Error(
+      "DATABASE_URL must be set. Did you forget to provision a database?",
+    );
+  }
+  return dbUrl;
 }
 
-// Create connection pool for efficient database connections
+// Create connection pool lazily to ensure environment variables are loaded
 // Pool manages multiple connections and handles connection reuse
-export const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+let pool: Pool | null = null;
+let db: ReturnType<typeof drizzle> | null = null;
 
-// Initialize Drizzle ORM with schema and connection pool
+function getDb() {
+  if (!db) {
+    const connectionString = getDatabaseUrl();
+    pool = new Pool({ connectionString });
+    db = drizzle({ client: pool, schema });
+  }
+  return db;
+}
+
+function getPool() {
+  if (!pool) {
+    getDb(); // This will initialize both pool and db
+  }
+  return pool!;
+}
+
+// Export the database instance and pool
 // This provides type-safe database operations throughout the application
-export const db = drizzle({ client: pool, schema });
+export { getDb as db, getPool as pool };
