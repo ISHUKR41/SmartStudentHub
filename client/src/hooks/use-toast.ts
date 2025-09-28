@@ -1,3 +1,16 @@
+/**
+ * Global toast notification system for Smart Student Hub.
+ * 
+ * Manages toast state outside React tree for application-wide access.
+ * Uses observer pattern for efficient component subscriptions.
+ * 
+ * @example
+ * ```tsx
+ * const { toast } = useToast();
+ * toast({ title: "Success", description: "Activity saved" });
+ * ```
+ */
+
 import * as React from "react"
 
 import type {
@@ -90,8 +103,6 @@ export const reducer = (state: State, action: Action): State => {
     case "DISMISS_TOAST": {
       const { toastId } = action
 
-      // ! Side effects ! - This could be extracted into a dismissToast() action,
-      // but I'll keep it here for simplicity
       if (toastId) {
         addToRemoveQueue(toastId)
       } else {
@@ -112,6 +123,7 @@ export const reducer = (state: State, action: Action): State => {
         ),
       }
     }
+
     case "REMOVE_TOAST":
       if (action.toastId === undefined) {
         return {
@@ -147,6 +159,7 @@ function toast({ ...props }: Toast) {
       type: "UPDATE_TOAST",
       toast: { ...props, id },
     })
+  
   const dismiss = () => dispatch({ type: "DISMISS_TOAST", toastId: id })
 
   dispatch({
@@ -168,11 +181,20 @@ function toast({ ...props }: Toast) {
   }
 }
 
+/**
+ * React hook for toast management in Smart Student Hub.
+ * 
+ * Provides reactive access to global toast state and control functions.
+ * Automatically handles subscription cleanup on unmount.
+ * 
+ * @returns Toast state and control functions
+ */
 function useToast() {
   const [state, setState] = React.useState<State>(memoryState)
 
   React.useEffect(() => {
     listeners.push(setState)
+    
     return () => {
       const index = listeners.indexOf(setState)
       if (index > -1) {

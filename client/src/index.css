@@ -1,3 +1,11 @@
+/**
+ * Smart Student Hub global design system.
+ * 
+ * Implements professional academic styling with Inter/JetBrains Mono typography,
+ * academic navy primary colors (hsl(222, 84%, 24%)), and dark mode support.
+ * Integrates with Tailwind CSS and shadcn/ui components.
+ */
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
 @tailwind base;

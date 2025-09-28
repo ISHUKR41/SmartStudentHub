@@ -1,7 +1,58 @@
+/**
+ * Landing Page Component for Smart Student Hub
+ * 
+ * The main landing page that introduces the Smart Student Hub platform to prospective users.
+ * This page serves as the primary entry point for unauthenticated users and showcases the
+ * institutional capabilities of the Student Activity Record Management System.
+ * 
+ * Key Features:
+ * - Professional institutional branding and messaging
+ * - Comprehensive feature showcase for different user roles
+ * - Responsive design optimized for academic environments
+ * - Integration with Replit authentication system
+ * - Clear call-to-action for accessing the portal
+ * 
+ * Target Audiences:
+ * - Students: Activity documentation and portfolio creation
+ * - Faculty: Activity approval and student monitoring
+ * - Administrators: Institutional analytics and compliance reporting
+ * - Institutional Stakeholders: System overview and benefits
+ * 
+ * Design Principles:
+ * - Professional academic aesthetic suitable for higher education
+ * - Clear value proposition for each user type
+ * - Emphasis on institutional benefits and compliance
+ * - User-friendly navigation to authentication system
+ * 
+ * Authentication Flow:
+ * - Redirects to '/api/login' for Replit OIDC authentication
+ * - Supports role-based access control post-authentication
+ * - Seamless integration with institutional identity providers
+ * 
+ * Accessibility Features:
+ * - Semantic HTML structure for screen readers
+ * - Proper heading hierarchy and navigation
+ * - High contrast colors for visual accessibility
+ * - Keyboard navigation support
+ * 
+ * Responsive Design:
+ * - Mobile-first approach with adaptive layouts
+ * - Flexible grid system for various screen sizes
+ * - Optimized typography for readability across devices
+ */
+
 import { GraduationCap, Shield, Users, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
+/**
+ * Landing Page Component
+ * 
+ * Renders the main landing page with institutional branding, feature showcase,
+ * and authentication integration for the Smart Student Hub platform.
+ * 
+ * @returns {JSX.Element} Complete landing page with header, hero, features, and footer
+ */
 export default function Landing() {
   return (
     <div className="min-h-screen bg-background">
