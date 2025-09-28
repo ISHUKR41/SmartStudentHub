@@ -54,7 +54,7 @@ import ActivityList from "@/components/ui/activity-list";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Download, Plus, GraduationCap, ClipboardList, Star, Clock, Award, TrendingUp, Target, BookOpen, Briefcase, Users, Calendar, MapPin, Trophy, Globe, CheckCircle, BarChart3, ChevronRight, AlertCircle, Zap, Flame, Brain, Heart, Shield, Medal, User, Lightbulb, Rocket } from "lucide-react";
+import { Download, Plus, GraduationCap, ClipboardList, Star, Clock, Award, TrendingUp, Target, BookOpen, Briefcase, Users, Calendar, MapPin, Trophy, Globe, CheckCircle, BarChart3, ChevronRight, AlertCircle, Zap, Flame, Brain, Heart, Shield, Medal, User, Lightbulb, Rocket, FileText } from "lucide-react";
 import { useLocation } from "wouter";
 import { Activity } from "@shared/schema";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
