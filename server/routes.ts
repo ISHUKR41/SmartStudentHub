@@ -104,9 +104,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
    * Handles user authentication and profile management.
    * All routes require valid authentication tokens.
    */
-  app.get('/api/auth/user', isAuthenticated, async (req: AuthenticatedRequest, res: Response) => {
+  app.get('/api/auth/user', isAuthenticated, async (req: Request, res: Response) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = (req.user as AuthenticatedUser).claims.sub;
       const user = await storage.getUser(userId);
       res.json(user);
     } catch (error) {
@@ -121,9 +121,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
    * API endpoints for student-specific functionality.
    * Students can manage their activities, view portfolios, and track progress.
    */
-  app.get('/api/students/activities', isAuthenticated, async (req: AuthenticatedRequest, res: Response) => {
+  app.get('/api/students/activities', isAuthenticated, async (req: Request, res: Response) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = (req.user as AuthenticatedUser).claims.sub;
       const activities = await storage.getActivitiesByStudent(userId);
       res.json(activities);
     } catch (error) {
@@ -132,9 +132,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/students/stats', isAuthenticated, async (req: AuthenticatedRequest, res: Response) => {
+  app.get('/api/students/stats', isAuthenticated, async (req: Request, res: Response) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = (req.user as AuthenticatedUser).claims.sub;
       const stats = await storage.getStudentStats(userId);
       res.json(stats);
     } catch (error) {
@@ -144,9 +144,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Activity routes
-  app.post('/api/activities', isAuthenticated, upload.array('files', 5), async (req: AuthenticatedRequest, res: Response) => {
+  app.post('/api/activities', isAuthenticated, upload.array('files', 5), async (req: Request, res: Response) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = (req.user as AuthenticatedUser).claims.sub;
       const activityData = insertActivitySchema.parse({
         ...req.body,
         studentId: userId,
@@ -156,7 +156,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const activity = await storage.createActivity(activityData);
 
       // Handle file uploads
-      if (req.files && req.files.length > 0) {
+      if (req.files && Array.isArray(req.files) && req.files.length > 0) {
         for (const file of req.files) {
           await storage.addActivityFile(
             activity.id,
@@ -187,9 +187,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Faculty routes
-  app.get('/api/faculty/pending-activities', isAuthenticated, async (req: AuthenticatedRequest, res: Response) => {
+  app.get('/api/faculty/pending-activities', isAuthenticated, async (req: Request, res: Response) => {
     try {
-      const user = await storage.getUser(req.user.claims.sub);
+      const user = await storage.getUser((req.user as AuthenticatedUser).claims.sub);
       if (!user || (user.role !== 'faculty' && user.role !== 'admin')) {
         return res.status(403).json({ message: "Access denied" });
       }
@@ -202,9 +202,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch('/api/faculty/activities/:activityId/status', isAuthenticated, async (req: AuthenticatedRequest, res: Response) => {
+  app.patch('/api/faculty/activities/:activityId/status', isAuthenticated, async (req: Request, res: Response) => {
     try {
-      const user = await storage.getUser(req.user.claims.sub);
+      const user = await storage.getUser((req.user as AuthenticatedUser).claims.sub);
       if (!user || (user.role !== 'faculty' && user.role !== 'admin')) {
         return res.status(403).json({ message: "Access denied" });
       }
@@ -215,7 +215,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const updatedActivity = await storage.updateActivityStatus(
         activityId,
         updates,
-        req.user.claims.sub
+        (req.user as AuthenticatedUser).claims.sub
       );
 
       res.json(updatedActivity);
@@ -226,9 +226,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Admin routes
-  app.get('/api/admin/department-stats', isAuthenticated, async (req: AuthenticatedRequest, res: Response) => {
+  app.get('/api/admin/department-stats', isAuthenticated, async (req: Request, res: Response) => {
     try {
-      const user = await storage.getUser(req.user.claims.sub);
+      const user = await storage.getUser((req.user as AuthenticatedUser).claims.sub);
       if (!user || user.role !== 'admin') {
         return res.status(403).json({ message: "Access denied" });
       }
@@ -241,9 +241,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/admin/category-stats', isAuthenticated, async (req: AuthenticatedRequest, res: Response) => {
+  app.get('/api/admin/category-stats', isAuthenticated, async (req: Request, res: Response) => {
     try {
-      const user = await storage.getUser(req.user.claims.sub);
+      const user = await storage.getUser((req.user as AuthenticatedUser).claims.sub);
       if (!user || user.role !== 'admin') {
         return res.status(403).json({ message: "Access denied" });
       }
@@ -256,9 +256,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/admin/student-summary', isAuthenticated, async (req: AuthenticatedRequest, res: Response) => {
+  app.get('/api/admin/student-summary', isAuthenticated, async (req: Request, res: Response) => {
     try {
-      const user = await storage.getUser(req.user.claims.sub);
+      const user = await storage.getUser((req.user as AuthenticatedUser).claims.sub);
       if (!user || user.role !== 'admin') {
         return res.status(403).json({ message: "Access denied" });
       }

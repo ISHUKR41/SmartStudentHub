@@ -110,7 +110,7 @@ export const users = pgTable("users", {
   profileImageUrl: varchar("profile_image_url"),
   role: userRoleEnum("role").default('student').notNull(),
   rollNumber: varchar("roll_number").unique(),
-  department: varchar("department").references(() => departments.code),
+  department: varchar("department"),
   currentSemester: integer("current_semester"),
   cgpa: decimal("cgpa", { precision: 3, scale: 2 }),
   createdAt: timestamp("created_at").defaultNow(),
@@ -182,7 +182,7 @@ export const departments = pgTable("departments", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   name: varchar("name").notNull().unique(),
   code: varchar("code").notNull().unique(),
-  headOfDepartment: varchar("head_of_department").references(() => users.id),
+  headOfDepartment: varchar("head_of_department"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
