@@ -1,35 +1,7 @@
-/**
- * Virtual Activity List Component for Smart Student Hub
- * 
- * High-performance virtualized list component designed for efficiently rendering
- * large datasets of student activities within the institutional platform.
- * Uses react-window for optimal performance with hundreds of activity records.
- * 
- * Core Features:
- * - Virtual scrolling for optimal performance with large datasets
- * - Professional institutional interface design
- * - Responsive layout optimized for various screen sizes
- * - Loading states and error handling for enhanced user experience
- * - Activity interaction handlers for viewing and downloading
- * - Category-specific styling with institutional color coding
- * - Professional status indicators for faculty verification workflow
- * 
- * Performance Benefits:
- * - Renders only visible items for optimal memory usage
- * - Smooth scrolling performance regardless of dataset size
- * - Efficient DOM manipulation reducing browser overhead
- * - Responsive to window resizing and orientation changes
- * 
- * Professional Implementation:
- * - Consistent with Higher Education Institution design standards
- * - Accessible design patterns following WCAG guidelines
- * - Professional terminology and language for academic environments
- * - Integration with institutional branding and color schemes
- * - Optimized for both desktop and mobile academic workflows
- */
-
 import { forwardRef } from "react";
-import { FixedSizeList as List } from "react-window";
+import { useSpring, animated } from "react-spring";
+import { FixedSizeList } from "react-window";
+const List = FixedSizeList;
 import { Activity } from "@shared/schema";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -55,9 +27,6 @@ import {
   Award
 } from "lucide-react";
 
-/**
- * Component Props Interface
- */
 interface VirtualActivityListProps {
   activities: Activity[];
   height: number;
@@ -67,9 +36,6 @@ interface VirtualActivityListProps {
   className?: string;
 }
 
-/**
- * Individual Activity Item Props
- */
 interface ActivityItemProps {
   index: number;
   style: React.CSSProperties;
@@ -80,9 +46,6 @@ interface ActivityItemProps {
   };
 }
 
-/**
- * Status Badge Configuration
- */
 const getStatusConfig = (status: string) => {
   const configs = {
     pending: {
@@ -108,9 +71,6 @@ const getStatusConfig = (status: string) => {
   return configs[status as keyof typeof configs] || configs.pending;
 };
 
-/**
- * Category Icon and Styling Configuration
- */
 const getCategoryConfig = (category: string) => {
   const configs = {
     academic: { icon: GraduationCap, color: "text-blue-600", bg: "bg-blue-50 dark:bg-blue-900/20" },
@@ -125,12 +85,6 @@ const getCategoryConfig = (category: string) => {
   return configs[category as keyof typeof configs] || configs.academic;
 };
 
-/**
- * Individual Activity Item Component
- * 
- * Renders a single activity item within the virtualized list.
- * Optimized for performance with minimal re-renders.
- */
 const ActivityItem = forwardRef<HTMLDivElement, ActivityItemProps>(
   ({ index, style, data }, ref) => {
     const activity = data.activities[index];
@@ -139,7 +93,13 @@ const ActivityItem = forwardRef<HTMLDivElement, ActivityItemProps>(
     const StatusIcon = statusConfig.icon;
     const CategoryIcon = categoryConfig.icon;
 
-    // Safe date formatting
+    const springProps = useSpring({
+      from: { opacity: 0, transform: 'translateX(-20px)' },
+      to: { opacity: 1, transform: 'translateX(0px)' },
+      config: { tension: 200, friction: 25 },
+      delay: index * 50
+    });
+
     const formatActivityDate = (dateValue: Date | string | null): string => {
       if (!dateValue) return 'Date not specified';
       try {
@@ -153,7 +113,7 @@ const ActivityItem = forwardRef<HTMLDivElement, ActivityItemProps>(
     };
 
     return (
-      <div ref={ref} style={style} className="px-4 py-2">
+      <animated.div ref={ref} style={{ ...style, ...springProps }} className="px-4 py-2">
         <Card className="h-full hover:shadow-md transition-all duration-200 border border-border hover:border-primary/20">
           <CardContent className="p-4">
             <div className="flex items-start justify-between space-x-4">
@@ -242,18 +202,13 @@ const ActivityItem = forwardRef<HTMLDivElement, ActivityItemProps>(
             </div>
           </CardContent>
         </Card>
-      </div>
+      </animated.div>
     );
   }
 );
 
 ActivityItem.displayName = "ActivityItem";
 
-/**
- * Loading Skeleton Component
- * 
- * Professional loading state for the virtual activity list.
- */
 const ActivityListSkeleton = ({ height }: { height: number }) => {
   const skeletonCount = Math.floor(height / 120); // Estimate items that would fit
 
@@ -294,12 +249,6 @@ const ActivityListSkeleton = ({ height }: { height: number }) => {
   );
 };
 
-/**
- * Virtual Activity List Component
- * 
- * High-performance virtualized list for rendering large numbers of student activities.
- * Provides smooth scrolling and efficient memory usage for institutional-scale datasets.
- */
 export default function VirtualActivityList({
   activities,
   height,
@@ -309,21 +258,27 @@ export default function VirtualActivityList({
   className
 }: VirtualActivityListProps) {
   
+  const containerSpring = useSpring({
+    from: { opacity: 0, transform: 'scale(0.98)' },
+    to: { opacity: isLoading ? 0.7 : 1, transform: 'scale(1)' },
+    config: { tension: 300, friction: 30 }
+  });
+
   // Loading state
   if (isLoading) {
     return (
-      <div className={cn("border border-border rounded-lg bg-card", className)} style={{ height }}>
+      <animated.div style={{...containerSpring, height}} className={cn("border border-border rounded-lg bg-card", className)}>
         <ActivityListSkeleton height={height} />
-      </div>
+      </animated.div>
     );
   }
 
   // Empty state
   if (activities.length === 0) {
     return (
-      <div 
-        className={cn("border border-border rounded-lg bg-card flex items-center justify-center", className)} 
-        style={{ height }}
+      <animated.div 
+        style={{...containerSpring, height}}
+        className={cn("border border-border rounded-lg bg-card flex items-center justify-center", className)}
         data-testid="empty-activity-list"
       >
         <div className="text-center space-y-3 p-8">
@@ -337,7 +292,7 @@ export default function VirtualActivityList({
             </p>
           </div>
         </div>
-      </div>
+      </animated.div>
     );
   }
 
@@ -345,7 +300,7 @@ export default function VirtualActivityList({
   const ITEM_HEIGHT = 140;
 
   return (
-    <div className={cn("border border-border rounded-lg bg-card overflow-hidden", className)}>
+    <animated.div style={containerSpring} className={cn("border border-border rounded-lg bg-card overflow-hidden", className)}>
       <List
         height={height}
         itemCount={activities.length}
@@ -360,6 +315,6 @@ export default function VirtualActivityList({
       >
         {ActivityItem}
       </List>
-    </div>
+    </animated.div>
   );
 }

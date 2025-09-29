@@ -1,43 +1,6 @@
-/**
- * Advanced Activity Search and Filter Component for Smart Student Hub
- * 
- * This comprehensive search and filtering component provides professional-grade
- * functionality for students to efficiently locate and organize their academic
- * activities within the institutional platform.
- * 
- * Core Features:
- * - Debounced search with real-time results using react-use hooks
- * - Multi-criteria filtering (status, category, date range, verification)
- * - Advanced filter combinations with institutional compliance focus
- * - Professional interface design suitable for Higher Education environments
- * - Keyboard navigation support for accessibility and power users
- * - Filter state persistence using localStorage for improved UX
- * - Export-ready filtered results for academic portfolio generation
- * 
- * Search Capabilities:
- * - Title and description text search with fuzzy matching
- * - Organization and institution name search
- * - Activity category and type search
- * - Date range filtering for semester and academic year organization
- * - Faculty approval status filtering for workflow management
- * 
- * Filter Categories:
- * - Status: Pending, Approved, Rejected (faculty verification workflow)
- * - Category: Academic, Co-curricular, Extra-curricular, Leadership, etc.
- * - Date Range: Custom ranges, predefined periods (semester, year)
- * - Verification: Verified/unverified activities for portfolio preparation
- * - Credits: Activities with/without skill credit awards
- * 
- * Professional Implementation:
- * - Institutional design consistency with academic branding
- * - Responsive layout optimized for various screen sizes
- * - Professional language and terminology for Higher Education
- * - WCAG compliant accessibility features for inclusive design
- * - Performance optimization for large activity datasets
- */
-
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { useDebounce, useLocalStorage } from "react-use";
+import { useSpring, animated } from "react-spring";
 import { format, isAfter, isBefore, parseISO } from "date-fns";
 import { Activity } from "@shared/schema";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -73,11 +36,6 @@ import {
   Target
 } from "lucide-react";
 
-/**
- * Filter State Interface
- * 
- * Defines the complete filter state structure for activity search and filtering.
- */
 interface FilterState {
   searchQuery: string;
   status: string;
@@ -92,9 +50,6 @@ interface FilterState {
   sortOrder: 'asc' | 'desc';
 }
 
-/**
- * Component Props Interface
- */
 interface ActivitySearchFilterProps {
   activities: Activity[];
   onFilteredActivitiesChange: (filteredActivities: Activity[]) => void;
@@ -102,9 +57,6 @@ interface ActivitySearchFilterProps {
   className?: string;
 }
 
-/**
- * Default Filter State
- */
 const defaultFilterState: FilterState = {
   searchQuery: '',
   status: 'all',
@@ -116,9 +68,6 @@ const defaultFilterState: FilterState = {
   sortOrder: 'desc'
 };
 
-/**
- * Activity Categories Configuration
- */
 const activityCategories = [
   { value: 'all', label: 'All Categories', icon: BookOpen, color: 'text-muted-foreground' },
   { value: 'academic', label: 'Academic Excellence', icon: GraduationCap, color: 'text-blue-600' },
@@ -130,9 +79,6 @@ const activityCategories = [
   { value: 'mooc', label: 'Technical Certifications', icon: Monitor, color: 'text-indigo-600' }
 ];
 
-/**
- * Status Options Configuration
- */
 const statusOptions = [
   { value: 'all', label: 'All Status', icon: Target, color: 'text-muted-foreground' },
   { value: 'pending', label: 'Pending Review', icon: Clock, color: 'text-amber-600' },
@@ -140,12 +86,6 @@ const statusOptions = [
   { value: 'rejected', label: 'Needs Revision', icon: XCircle, color: 'text-red-600' }
 ];
 
-/**
- * Advanced Activity Search and Filter Component
- * 
- * Comprehensive search and filtering interface for student activity management.
- * Provides professional tools for organizing, searching, and filtering academic activities.
- */
 export default function ActivitySearchFilter({
   activities,
   onFilteredActivitiesChange,
@@ -158,6 +98,18 @@ export default function ActivitySearchFilter({
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState(filters?.searchQuery || '');
   
+  const containerSpring = useSpring({
+    from: { opacity: 0, transform: 'translateY(-10px)' },
+    to: { opacity: 1, transform: 'translateY(0px)' },
+    config: { tension: 300, friction: 30 }
+  });
+
+  const advancedFiltersSpring = useSpring({
+    height: showAdvancedFilters ? 'auto' : 0,
+    opacity: showAdvancedFilters ? 1 : 0,
+    config: { tension: 200, friction: 25 }
+  });
+  
   // Debounced search for optimal performance
   useDebounce(
     () => {
@@ -169,11 +121,6 @@ export default function ActivitySearchFilter({
     [debouncedSearchQuery]
   );
 
-  /**
-   * Activity Filtering Logic
-   * 
-   * Comprehensive filtering system supporting multiple criteria and search terms.
-   */
   const filteredActivities = useMemo(() => {
     if (!activities || !filters) return activities;
 
@@ -266,13 +213,10 @@ export default function ActivitySearchFilter({
   }, [activities, filters]);
 
   // Notify parent component of filtered results
-  React.useEffect(() => {
+  useEffect(() => {
     onFilteredActivitiesChange(filteredActivities);
   }, [filteredActivities, onFilteredActivitiesChange]);
 
-  /**
-   * Filter Update Handlers
-   */
   const updateFilter = useCallback((key: keyof FilterState, value: any) => {
     if (filters) {
       setFilters({ ...filters, [key]: value });
@@ -285,13 +229,11 @@ export default function ActivitySearchFilter({
     setShowAdvancedFilters(false);
   }, [setFilters]);
 
-  const handleDateRangeSelect = useCallback((range: { from: Date | undefined; to: Date | undefined }) => {
+  const handleDateRangeSelect = useCallback((range: { from: Date | undefined; to?: Date | undefined } | undefined) => {
+    if (!range) return;
     updateFilter('dateRange', { from: range.from || null, to: range.to || null });
   }, [updateFilter]);
 
-  /**
-   * Active Filter Count
-   */
   const activeFilterCount = useMemo(() => {
     if (!filters) return 0;
     let count = 0;
@@ -307,7 +249,8 @@ export default function ActivitySearchFilter({
   if (!filters) return null;
 
   return (
-    <Card className={cn("w-full", className)} data-testid="activity-search-filter">
+    <animated.div style={containerSpring}>
+      <Card className={cn("w-full", className)} data-testid="activity-search-filter">
       <CardHeader className="pb-4">
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
@@ -420,7 +363,7 @@ export default function ActivitySearchFilter({
         {showAdvancedFilters && (
           <>
             <Separator />
-            <div className="space-y-4">
+            <animated.div style={advancedFiltersSpring} className="space-y-4">
               <h4 className="font-medium text-sm text-muted-foreground">Advanced Filters</h4>
               
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -526,7 +469,7 @@ export default function ActivitySearchFilter({
                   </div>
                 </div>
               </div>
-            </div>
+            </animated.div>
           </>
         )}
 
@@ -550,6 +493,7 @@ export default function ActivitySearchFilter({
           </div>
         </div>
       </CardContent>
-    </Card>
+      </Card>
+    </animated.div>
   );
 }
