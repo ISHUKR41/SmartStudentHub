@@ -120,8 +120,6 @@ import {
   Clock,
   ArrowRight,
   FileText,
-  Linkedin,
-  Github
 } from "lucide-react";
 import { Activity } from "@shared/schema";
 
@@ -642,47 +640,6 @@ export default function DigitalPortfolio() {
                       </div>
                     </div>
 
-                    {/* Professional Contact Information */}
-                    <div className="border-t pt-6">
-                      <h3 className="text-xl font-semibold text-foreground mb-4 flex items-center">
-                        <Users className="w-5 h-5 mr-2 text-primary" />
-                        Professional Contact & Networks
-                      </h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-4">
-                          <div className="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                            <Mail className="w-5 h-5 text-blue-600" />
-                            <div>
-                              <div className="font-medium text-foreground">Email</div>
-                              <div className="text-sm text-muted-foreground">{portfolioDisplayData.personalInfo.email}</div>
-                            </div>
-                          </div>
-                          <div className="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                            <Phone className="w-5 h-5 text-green-600" />
-                            <div>
-                              <div className="font-medium text-foreground">Phone</div>
-                              <div className="text-sm text-muted-foreground">{portfolioDisplayData.personalInfo.phone}</div>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="space-y-4">
-                          <div className="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                            <Linkedin className="w-5 h-5 text-blue-700" />
-                            <div>
-                              <div className="font-medium text-foreground">LinkedIn</div>
-                              <div className="text-sm text-muted-foreground">linkedin.com/in/ishu-kumar-cs</div>
-                            </div>
-                          </div>
-                          <div className="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                            <Github className="w-5 h-5 text-gray-800 dark:text-gray-200" />
-                            <div>
-                              <div className="font-medium text-foreground">GitHub</div>
-                              <div className="text-sm text-muted-foreground">github.com/ishu-kumar</div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
 
                   </CardContent>
                 </Card>
