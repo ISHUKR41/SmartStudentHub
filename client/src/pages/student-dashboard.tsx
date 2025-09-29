@@ -532,6 +532,197 @@ export default function StudentDashboard() {
             </CardContent>
           </Card>
 
+          {/* Attendance Management System */}
+          <Card className="mb-6" data-testid="card-attendance-management">
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between text-base md:text-lg">
+                <div className="flex items-center space-x-2">
+                  <Calendar className="w-4 h-4 md:w-5 md:h-5 text-primary" />
+                  <span>Attendance Management</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Badge variant={dashboardData.personalInfo.attendance >= 75 ? "default" : "destructive"} className="text-xs">
+                    {dashboardData.personalInfo.attendance >= 75 ? "Eligible" : "Below Required"}
+                  </Badge>
+                  <span className="text-2xl font-bold text-primary">
+                    {dashboardData.personalInfo.attendance}%
+                  </span>
+                </div>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                
+                {/* Overall Attendance Summary */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                  <div className="text-center p-3 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg">
+                    <div className="text-xl font-bold text-green-600">94.5%</div>
+                    <div className="text-xs text-muted-foreground">Overall</div>
+                  </div>
+                  <div className="text-center p-3 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg">
+                    <div className="text-xl font-bold text-blue-600">142</div>
+                    <div className="text-xs text-muted-foreground">Present Days</div>
+                  </div>
+                  <div className="text-center p-3 bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 rounded-lg">
+                    <div className="text-xl font-bold text-orange-600">8</div>
+                    <div className="text-xs text-muted-foreground">Absent Days</div>
+                  </div>
+                  <div className="text-center p-3 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-lg">
+                    <div className="text-xl font-bold text-purple-600">150</div>
+                    <div className="text-xs text-muted-foreground">Total Days</div>
+                  </div>
+                </div>
+
+                {/* Subject-wise Attendance */}
+                <div>
+                  <h4 className="text-sm font-semibold text-foreground mb-3 flex items-center">
+                    <BookOpen className="w-4 h-4 mr-2 text-primary" />
+                    Subject-wise Attendance
+                  </h4>
+                  <div className="space-y-3">
+                    {[
+                      { subject: "Data Structures & Algorithms", code: "CS201", attendance: 96.8, total: 31, attended: 30, status: "excellent" },
+                      { subject: "Computer Networks", code: "CS301", attendance: 94.1, total: 34, attended: 32, status: "good" },
+                      { subject: "Database Management Systems", code: "CS302", attendance: 91.3, total: 23, attended: 21, status: "good" },
+                      { subject: "Operating Systems", code: "CS203", attendance: 88.9, total: 27, attended: 24, status: "good" },
+                      { subject: "Software Engineering", code: "CS401", attendance: 93.8, total: 32, attended: 30, status: "good" },
+                      { subject: "Machine Learning", code: "CS501", attendance: 72.4, total: 29, attended: 21, status: "warning" }
+                    ].map((subject, index) => (
+                      <div key={index} className="flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors duration-200" data-testid={`subject-attendance-${index}`}>
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between mb-1">
+                            <div>
+                              <div className="font-medium text-sm">{subject.subject}</div>
+                              <div className="text-xs text-muted-foreground">{subject.code}</div>
+                            </div>
+                            <div className="text-right">
+                              <div className="flex items-center space-x-2">
+                                <Badge 
+                                  variant={subject.status === 'excellent' ? "default" : subject.status === 'good' ? "secondary" : "destructive"}
+                                  className="text-xs"
+                                >
+                                  {subject.attendance}%
+                                </Badge>
+                                {subject.status === 'warning' && (
+                                  <AlertCircle className="w-4 h-4 text-red-500" />
+                                )}
+                              </div>
+                              <div className="text-xs text-muted-foreground mt-1">
+                                {subject.attended}/{subject.total} classes
+                              </div>
+                            </div>
+                          </div>
+                          <Progress 
+                            value={subject.attendance} 
+                            className={`h-2 ${subject.status === 'warning' ? 'progress-warning' : ''}`}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Attendance Trend Chart */}
+                <div>
+                  <h4 className="text-sm font-semibold text-foreground mb-3 flex items-center">
+                    <TrendingUp className="w-4 h-4 mr-2 text-primary" />
+                    Monthly Attendance Trend
+                  </h4>
+                  <div className="h-64 sm:h-72 md:h-80">
+                    <ChartContainer
+                      config={{
+                        attendance: {
+                          label: "Attendance %",
+                          color: "hsl(var(--primary))",
+                        },
+                        target: {
+                          label: "Required (75%)",
+                          color: "hsl(var(--destructive))",
+                        },
+                      }}
+                      className="h-full w-full"
+                    >
+                      <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart
+                          data={[
+                            { month: 'Aug', attendance: 92.3, target: 75 },
+                            { month: 'Sep', attendance: 94.7, target: 75 },
+                            { month: 'Oct', attendance: 93.2, target: 75 },
+                            { month: 'Nov', attendance: 95.8, target: 75 },
+                            { month: 'Dec', attendance: 91.4, target: 75 },
+                            { month: 'Jan', attendance: 94.5, target: 75 }
+                          ]}
+                        >
+                          <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                          <XAxis 
+                            dataKey="month" 
+                            className="text-muted-foreground"
+                            fontSize={12}
+                          />
+                          <YAxis 
+                            className="text-muted-foreground"
+                            fontSize={12}
+                            domain={[60, 100]}
+                          />
+                          <ChartTooltip content={<ChartTooltipContent />} />
+                          <defs>
+                            <linearGradient id="attendanceGradient" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
+                              <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0.05}/>
+                            </linearGradient>
+                          </defs>
+                          <Area
+                            type="monotone"
+                            dataKey="attendance"
+                            stroke="hsl(var(--primary))"
+                            strokeWidth={2}
+                            fill="url(#attendanceGradient)"
+                          />
+                          <Line
+                            type="monotone"
+                            dataKey="target"
+                            stroke="hsl(var(--destructive))"
+                            strokeWidth={2}
+                            strokeDasharray="5 5"
+                          />
+                        </AreaChart>
+                      </ResponsiveContainer>
+                    </ChartContainer>
+                  </div>
+                </div>
+
+                {/* Attendance Insights & Recommendations */}
+                <div className="bg-muted/30 rounded-lg p-4">
+                  <h4 className="text-sm font-semibold text-foreground mb-2 flex items-center">
+                    <Lightbulb className="w-4 h-4 mr-2 text-amber-500" />
+                    Attendance Insights
+                  </h4>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex items-start space-x-2">
+                      <CheckCircle className="w-4 h-4 text-green-500 mt-0.5" />
+                      <span className="text-muted-foreground">
+                        Overall attendance is <strong>excellent</strong> at 94.5%, well above the 75% requirement.
+                      </span>
+                    </div>
+                    <div className="flex items-start space-x-2">
+                      <AlertCircle className="w-4 h-4 text-red-500 mt-0.5" />
+                      <span className="text-muted-foreground">
+                        <strong>Machine Learning (CS501)</strong> attendance is at 72.4% - below required minimum. 
+                        Attend next 3 classes to reach safe threshold.
+                      </span>
+                    </div>
+                    <div className="flex items-start space-x-2">
+                      <Star className="w-4 h-4 text-blue-500 mt-0.5" />
+                      <span className="text-muted-foreground">
+                        Best performing subject: <strong>Data Structures & Algorithms</strong> with 96.8% attendance.
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Enhanced Quick Actions & Alerts Section */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
             <Card className="lg:col-span-2" data-testid="card-upcoming-deadlines">
