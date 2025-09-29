@@ -43,7 +43,7 @@
  * - Faculty approval and feedback system
  */
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useMemo, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -54,13 +54,21 @@ import ActivityList from "@/components/custom/activity-list";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Download, Plus, GraduationCap, ClipboardList, Star, Clock, Award, TrendingUp, Target, BookOpen, Briefcase, Users, Calendar, MapPin, Trophy, Globe, CheckCircle, BarChart3, ChevronRight, AlertCircle, Zap, Flame, Brain, Heart, Shield, Medal, User, Lightbulb, Rocket, FileText, Code, Timer, Calculator, Coffee, Bookmark } from "lucide-react";
+import { Download, Plus, GraduationCap, ClipboardList, Star, Clock, Award, TrendingUp, Target, BookOpen, Briefcase, Users, Calendar, MapPin, Trophy, Globe, CheckCircle, BarChart3, ChevronRight, AlertCircle, Zap, Flame, Brain, Heart, Shield, Medal, User, Lightbulb, Rocket, FileText, Code, Timer, Calculator, Coffee, Bookmark, Bell, Settings, Filter, RefreshCw, Info, ArrowUp, ArrowDown, TrendingDown, Activity as ActivityIcon, Compass, PieChart, LineChart, BarChart2, Calendar as CalendarIcon, Mail, Phone, MessageSquare, Send } from "lucide-react";
 import { useLocation } from "wouter";
 import { Activity } from "@shared/schema";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { AreaChart, Area, BarChart, Bar, LineChart as RechartsLineChart, Line, PieChart as RechartsPieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Legend } from "recharts";
+import { AreaChart, Area, BarChart, Bar, LineChart as RechartsLineChart, Line, PieChart as RechartsPieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Legend, RadialBarChart, RadialBar, ComposedChart } from "recharts";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { motion, AnimatePresence } from "framer-motion";
+import { useInView } from "react-intersection-observer";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Separator } from "@/components/ui/separator";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 /**
  * Student Statistics Interface
@@ -72,6 +80,101 @@ interface StudentStats {
   totalActivities: number;     // Total number of documented activities
   skillCredits: number;        // Accumulated skill credits from verified activities
   pendingApprovals: number;    // Activities awaiting faculty verification
+}
+
+/**
+ * Attendance Statistics Interface
+ * 
+ * Defines the structure for attendance-related statistics
+ */
+interface AttendanceStats {
+  overallPercentage: number;
+  attendedClasses: number;
+  totalClasses: number;
+  missedClasses: number;
+  subjectWise: SubjectAttendance[];
+}
+
+/**
+ * Attendance Trends Interface
+ * 
+ * Defines the structure for attendance trend data
+ */
+interface AttendanceTrends {
+  weeklyTrends: WeeklyTrend[];
+  monthlyTrends: MonthlyTrend[];
+}
+
+/**
+ * Weekly Trend Interface
+ */
+interface WeeklyTrend {
+  week: string;
+  attendance: number;
+  target: number;
+}
+
+/**
+ * Monthly Trend Interface
+ */
+interface MonthlyTrend {
+  month: string;
+  attendance: number;
+}
+
+/**
+ * Subject Attendance Interface
+ */
+interface SubjectAttendance {
+  subject: {
+    name: string;
+    code: string;
+  };
+  attended: number;
+  total: number;
+  percentage: number;
+}
+
+/**
+ * Notification Interface
+ */
+interface Notification {
+  id: string;
+  title: string;
+  message: string;
+  type: 'info' | 'success' | 'warning' | 'error';
+  timestamp: Date;
+  read: boolean;
+  actionUrl?: string;
+}
+
+/**
+ * Goal Interface
+ */
+interface Goal {
+  id: string;
+  title: string;
+  description: string;
+  target: number;
+  current: number;
+  deadline: Date;
+  category: string;
+  priority: 'low' | 'medium' | 'high';
+  status: 'active' | 'completed' | 'overdue';
+}
+
+/**
+ * Achievement Interface
+ */
+interface Achievement {
+  id: string;
+  title: string;
+  description: string;
+  date: Date;
+  type: string;
+  category: string;
+  verified: boolean;
+  points: number;
 }
 
 /**
@@ -102,6 +205,123 @@ export default function StudentDashboard() {
       return;
     }
   }, [isAuthenticated, isLoading, toast]);
+
+  // Load notifications, goals, and achievements
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      // Mock notifications data - replace with actual API calls
+      setNotifications([
+        {
+          id: '1',
+          title: 'New Achievement Unlocked!',
+          message: 'You have earned the Academic Excellence badge',
+          type: 'success',
+          timestamp: new Date(),
+          read: false,
+          actionUrl: '/achievements'
+        },
+        {
+          id: '2',
+          title: 'Faculty Feedback Available',
+          message: 'Dr. Sharma has reviewed your research project',
+          type: 'info',
+          timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
+          read: false,
+          actionUrl: '/activities'
+        },
+        {
+          id: '3',
+          title: 'Attendance Warning',
+          message: 'Your Software Engineering attendance is below 95%',
+          type: 'warning',
+          timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000),
+          read: true
+        }
+      ]);
+
+      // Mock goals data
+      setGoals([
+        {
+          id: '1',
+          title: 'Complete 250 Skill Credits',
+          description: 'Achieve target skill credits for semester certification',
+          target: 250,
+          current: 191,
+          deadline: new Date('2024-12-31'),
+          category: 'Academic',
+          priority: 'high',
+          status: 'active'
+        },
+        {
+          id: '2',
+          title: 'Maintain 95% Attendance',
+          description: 'Keep attendance above institutional requirement',
+          target: 95,
+          current: 94.5,
+          deadline: new Date('2024-12-31'),
+          category: 'Attendance',
+          priority: 'medium',
+          status: 'active'
+        },
+        {
+          id: '3',
+          title: 'Publish Research Paper',
+          description: 'Submit research work to peer-reviewed journal',
+          target: 1,
+          current: 0,
+          deadline: new Date('2025-03-31'),
+          category: 'Research',
+          priority: 'high',
+          status: 'active'
+        }
+      ]);
+
+      // Mock achievements data with UUID-like IDs and proper typing
+      setAchievements([
+        {
+          id: 'ach_academic_excellence_2024',
+          title: 'Academic Excellence',
+          description: 'Maintained CGPA above 8.5 for 4 consecutive semesters',
+          date: new Date('2024-11-15'),
+          type: 'academic',
+          category: 'Academic Performance',
+          verified: true,
+          points: 50
+        },
+        {
+          id: 'ach_research_pioneer_2024',
+          title: 'Research Pioneer',
+          description: 'Published first-author research paper in IEEE conference',
+          date: new Date('2024-10-20'),
+          type: 'research',
+          category: 'Research & Innovation',
+          verified: true,
+          points: 75
+        },
+        {
+          id: 'ach_leadership_champion_2024',
+          title: 'Leadership Champion',
+          description: 'Successfully led team of 15 in college technical fest',
+          date: new Date('2024-09-30'),
+          type: 'leadership',
+          category: 'Leadership & Management',
+          verified: true,
+          points: 60
+        }
+      ]);
+    }
+  }, [isAuthenticated, user]);
+
+  // Handle notification click outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (notificationRef.current && !notificationRef.current.contains(event.target as Node)) {
+        setShowNotifications(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // Minimal fallback data for display when API data is loading
   const fallbackDisplayData = {
@@ -134,10 +354,61 @@ export default function StudentDashboard() {
       { task: 'Project Showcase', date: new Date('2024-11-10'), priority: 'high', category: 'Academic' }
     ],
     achievements: [
-      { title: 'Academic Excellence', description: 'Consistent academic performance', date: 'Dec 2023', type: 'academic' },
-      { title: 'Technical Innovation', description: 'Research contributions', date: 'Nov 2023', type: 'research' },
-      { title: 'Leadership Development', description: 'Student activities coordination', date: 'Oct 2023', type: 'leadership' }
-    ],
+      { 
+        id: 'fallback_academic_excellence_2024', 
+        title: 'Academic Excellence Award', 
+        description: 'Achieved CGPA above 8.5 for consecutive semesters with distinction in core subjects', 
+        date: new Date('2024-12-15'), 
+        category: 'Academic',
+        verified: true,
+        points: 50
+      },
+      { 
+        id: 'fallback_research_publication_2024', 
+        title: 'Research Publication', 
+        description: 'Published research paper in international conference on Machine Learning applications', 
+        date: new Date('2024-11-20'), 
+        category: 'Research',
+        verified: true,
+        points: 75
+      },
+      { 
+        id: 'fallback_technical_leader_2024', 
+        title: 'Technical Project Leader', 
+        description: 'Led development team for institutional web application with modern technology stack', 
+        date: new Date('2024-10-30'), 
+        category: 'Leadership',
+        verified: true,
+        points: 40
+      },
+      { 
+        id: 'fallback_coding_winner_2024', 
+        title: 'Coding Competition Winner', 
+        description: 'First place in inter-collegiate programming contest with algorithmic problem solving', 
+        date: new Date('2024-09-25'), 
+        category: 'Technical',
+        verified: true,
+        points: 60
+      },
+      { 
+        id: 'fallback_community_service_2024', 
+        title: 'Community Service Initiative', 
+        description: 'Organized digital literacy program for local community members', 
+        date: new Date('2024-08-18'), 
+        category: 'Community',
+        verified: false,
+        points: 35
+      },
+      { 
+        id: 'fallback_internship_2024', 
+        title: 'Industry Internship', 
+        description: 'Completed summer internship at leading technology company with excellent feedback', 
+        date: new Date('2024-07-30'), 
+        category: 'Professional',
+        verified: true,
+        points: 80
+      }
+    ] as Achievement[],
     skillMatrix: [
       { skill: 'Machine Learning', level: 95, category: 'Technical' },
       { skill: 'Software Development', level: 92, category: 'Technical' },
@@ -160,30 +431,55 @@ export default function StudentDashboard() {
     enabled: isAuthenticated && !!user, // Gate query on authentication
   });
 
-  // Attendance Data Queries
-  const { data: attendanceStats, isLoading: attendanceStatsLoading } = useQuery({
+  // Attendance Data Queries - Conditionally fetched based on active tab for performance
+  const isAttendanceTabActive = activeTab === 'attendance';
+  
+  const { data: attendanceStats, isLoading: attendanceStatsLoading, error: attendanceStatsError } = useQuery<AttendanceStats>({
     queryKey: ["/api/students/attendance/stats"],
     retry: false,
-    enabled: isAuthenticated && !!user,
+    enabled: isAuthenticated && !!user && isAttendanceTabActive,
   });
 
-  const { data: attendanceTrends, isLoading: attendanceTrendsLoading } = useQuery({
+  const { data: attendanceTrends, isLoading: attendanceTrendsLoading, error: attendanceTrendsError } = useQuery<AttendanceTrends>({
     queryKey: ["/api/students/attendance/trends"],
     retry: false,
-    enabled: isAuthenticated && !!user,
+    enabled: isAuthenticated && !!user && isAttendanceTabActive,
   });
 
-  const { data: subjects, isLoading: subjectsLoading } = useQuery({
+  const { data: subjects, isLoading: subjectsLoading, error: subjectsError } = useQuery<SubjectAttendance[]>({
     queryKey: ["/api/students/subjects"],
     retry: false,
-    enabled: isAuthenticated && !!user,
+    enabled: isAuthenticated && !!user && isAttendanceTabActive,
   });
 
-  const { data: attendanceRecords, isLoading: attendanceRecordsLoading } = useQuery({
+  const { data: attendanceRecords, isLoading: attendanceRecordsLoading, error: attendanceRecordsError } = useQuery({
     queryKey: ["/api/students/attendance"],
     retry: false,
-    enabled: isAuthenticated && !!user,
+    enabled: isAuthenticated && !!user && isAttendanceTabActive,
   });
+
+  // State for advanced features
+  const [selectedTimeframe, setSelectedTimeframe] = useState('semester');
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [goals, setGoals] = useState<Goal[]>([]);
+  const [achievements, setAchievements] = useState<Achievement[]>([]);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [activeTab, setActiveTab] = useState('overview');
+  const notificationRef = useRef<HTMLDivElement>(null);
+
+  // Intersection Observer for animations
+  const [headerRef, headerInView] = useInView({ threshold: 0.1, triggerOnce: true });
+  const [statsRef, statsInView] = useInView({ threshold: 0.1, triggerOnce: true });
+  const [chartsRef, chartsInView] = useInView({ threshold: 0.1, triggerOnce: true });
+  const [skillsRef, skillsInView] = useInView({ threshold: 0.1, triggerOnce: true });
+
+  // Detect user's motion preferences for accessibility
+  const prefersReducedMotion = useMemo(() => {
+    if (typeof window !== 'undefined') {
+      return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    }
+    return false;
+  }, []);
 
   if (isLoading || !user) {
     return (
@@ -196,8 +492,97 @@ export default function StudentDashboard() {
     );
   }
 
-  // Create unified data object with API data and minimal fallbacks
-  const dashboardData = {
+  // Handle query errors with Alert components
+  const hasErrors = statsError || activitiesError || attendanceStatsError || attendanceTrendsError || subjectsError || attendanceRecordsError;
+  
+  if (hasErrors) {
+    return (
+      <div className="min-h-screen w-full bg-background" data-testid="dashboard-with-errors">
+        <Navigation />
+        <div className="flex">
+          <Sidebar />
+          <main className="flex-1 p-4 md:p-6 lg:p-8 ml-0 lg:ml-64">
+            <div className="max-w-7xl mx-auto space-y-6">
+              <div className="space-y-4">
+                {statsError && (
+                  <Alert variant="destructive" data-testid="alert-stats-error">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Statistics Loading Error</AlertTitle>
+                    <AlertDescription>
+                      Failed to load student statistics. Please refresh the page or try again later.
+                      {statsError instanceof Error && ` Error: ${statsError.message}`}
+                    </AlertDescription>
+                  </Alert>
+                )}
+                {activitiesError && (
+                  <Alert variant="destructive" data-testid="alert-activities-error">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Activities Loading Error</AlertTitle>
+                    <AlertDescription>
+                      Failed to load activities data. Please refresh the page or try again later.
+                      {activitiesError instanceof Error && ` Error: ${activitiesError.message}`}
+                    </AlertDescription>
+                  </Alert>
+                )}
+                {attendanceStatsError && (
+                  <Alert variant="destructive" data-testid="alert-attendance-stats-error">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Attendance Statistics Error</AlertTitle>
+                    <AlertDescription>
+                      Failed to load attendance statistics. Please refresh the page or try again later.
+                      {attendanceStatsError instanceof Error && ` Error: ${attendanceStatsError.message}`}
+                    </AlertDescription>
+                  </Alert>
+                )}
+                {attendanceTrendsError && (
+                  <Alert variant="destructive" data-testid="alert-attendance-trends-error">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Attendance Trends Error</AlertTitle>
+                    <AlertDescription>
+                      Failed to load attendance trends. Please refresh the page or try again later.
+                      {attendanceTrendsError instanceof Error && ` Error: ${attendanceTrendsError.message}`}
+                    </AlertDescription>
+                  </Alert>
+                )}
+                {subjectsError && (
+                  <Alert variant="destructive" data-testid="alert-subjects-error">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Subjects Data Error</AlertTitle>
+                    <AlertDescription>
+                      Failed to load subjects data. Please refresh the page or try again later.
+                      {subjectsError instanceof Error && ` Error: ${subjectsError.message}`}
+                    </AlertDescription>
+                  </Alert>
+                )}
+                {attendanceRecordsError && (
+                  <Alert variant="destructive" data-testid="alert-attendance-records-error">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Attendance Records Error</AlertTitle>
+                    <AlertDescription>
+                      Failed to load attendance records. Please refresh the page or try again later.
+                      {attendanceRecordsError instanceof Error && ` Error: ${attendanceRecordsError.message}`}
+                    </AlertDescription>
+                  </Alert>
+                )}
+              </div>
+              
+              {/* Show partial data with warnings if some queries failed */}
+              <Alert variant="default" data-testid="alert-partial-data">
+                <Info className="h-4 w-4" />
+                <AlertTitle>Using Fallback Data</AlertTitle>
+                <AlertDescription>
+                  Some data could not be loaded from the server. Displaying available information with fallback data.
+                </AlertDescription>
+              </Alert>
+            </div>
+          </main>
+        </div>
+      </div>
+    );
+  }
+
+  // Memoize dashboard data to prevent unnecessary re-renders
+  const dashboardData = useMemo(() => ({
     personalInfo: {
       name: `${user.firstName || ''} ${user.lastName || ''}`.trim(),
       rollNumber: user.rollNumber || 'N/A',
@@ -219,7 +604,31 @@ export default function StudentDashboard() {
     upcomingDeadlines: fallbackDisplayData.upcomingDeadlines,
     achievements: fallbackDisplayData.achievements,
     skillMatrix: fallbackDisplayData.skillMatrix
-  };
+  }), [user, studentStats, activities, fallbackDisplayData]);
+
+  // Memoize chart data for performance
+  const chartData = useMemo(() => ({
+    semesterProgressChart: dashboardData.semesterProgress,
+    skillProgressChart: dashboardData.skillProgress,
+    categoryChart: dashboardData.categoryDistribution,
+    skillMatrixChart: dashboardData.skillMatrix
+  }), [dashboardData]);
+
+  // Lazy loading for chart-heavy sections based on intersection observer
+  const shouldRenderCharts = chartsInView || activeTab === 'overview';
+  const shouldRenderSkillCharts = skillsInView || activeTab === 'academic';
+  
+  // Create motion props that respect user preferences
+  const getMotionProps = useCallback((defaultProps: any) => {
+    if (prefersReducedMotion) {
+      return {
+        initial: { opacity: 1 },
+        animate: { opacity: 1 },
+        transition: { duration: 0 }
+      };
+    }
+    return defaultProps;
+  }, [prefersReducedMotion]);
 
   const handleDownloadPortfolio = async () => {
     if (isDownloadingPortfolio) return; // Prevent multiple simultaneous downloads
@@ -299,77 +708,212 @@ export default function StudentDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
-      
-      <div className="flex">
-        <Sidebar />
+    <TooltipProvider>
+      <div className="min-h-screen bg-background">
+        <Navigation />
         
-        <main className="flex-1 p-6 space-y-6" data-testid="main-dashboard">
-          {/* Enhanced Mobile-First Page Header */}
-          <div className="flex flex-col space-y-4 lg:flex-row lg:items-center lg:justify-between lg:space-y-0">
-            <div className="flex-1">
-              <div>
-                <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-foreground" data-testid="text-dashboard-title">
-                  Academic Excellence Dashboard
-                </h1>
-                <p className="text-sm md:text-base text-muted-foreground mt-1" data-testid="text-welcome-message">
-                  Welcome back, {user.firstName} {user.lastName}
-                </p>
-                <div className="text-xs md:text-sm text-muted-foreground">
-                  Roll No: {user.rollNumber || 'N/A'} | {user.department || 'Department'}
-                </div>
-                <div className="flex flex-col space-y-2 sm:flex-row sm:items-center sm:space-x-4 sm:space-y-0 mt-3 text-xs md:text-sm text-muted-foreground">
-                  <div className="flex items-center space-x-1">
-                    <MapPin className="w-3 h-3 md:w-4 md:h-4" />
-                    <span className="hidden sm:inline">NIT Delhi, New Delhi</span>
-                    <span className="sm:hidden">NIT Delhi</span>
+        <div className="flex">
+          <Sidebar />
+          
+          <main className="flex-1 p-3 md:p-6 space-y-4 md:space-y-6" data-testid="main-dashboard">
+            {/* Enhanced Mobile-First Page Header with Notifications */}
+            <motion.div 
+              ref={headerRef}
+              initial={prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: -20 }}
+              animate={headerInView ? { opacity: 1, y: 0 } : (prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: -20 })}
+              transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.6, ease: "easeOut" }}
+              className="flex flex-col space-y-4 lg:flex-row lg:items-center lg:justify-between lg:space-y-0"
+            >
+              <div className="flex-1">
+                <div>
+                  <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-foreground" data-testid="text-dashboard-title">
+                    Academic Excellence Dashboard
+                  </h1>
+                  <p className="text-sm md:text-base text-muted-foreground mt-1" data-testid="text-welcome-message">
+                    Welcome back, {user.firstName} {user.lastName}
+                  </p>
+                  <div className="text-xs md:text-sm text-muted-foreground">
+                    Roll No: {user.rollNumber || 'N/A'} | {user.department || 'Department'}
                   </div>
-                  <div className="flex items-center space-x-1">
-                    <Calendar className="w-3 h-3 md:w-4 md:h-4" />
-                    <span>Academic Year 2024-25</span>
-                  </div>
-                  <div className="flex items-center space-x-1">
-                    <Trophy className="w-3 h-3 md:w-4 md:h-4" />
-                    <span className="hidden md:inline">NAAC Grade A++ Institution</span>
-                    <span className="md:hidden">NAAC A++</span>
+                  <div className="flex flex-col space-y-2 sm:flex-row sm:items-center sm:space-x-4 sm:space-y-0 mt-3 text-xs md:text-sm text-muted-foreground">
+                    <motion.div 
+                      className="flex items-center space-x-1"
+                      whileHover={{ scale: 1.05 }}
+                      transition={{ type: "spring", stiffness: 300 }}
+                    >
+                      <MapPin className="w-3 h-3 md:w-4 md:h-4" />
+                      <span className="hidden sm:inline">NIT Delhi, New Delhi</span>
+                      <span className="sm:hidden">NIT Delhi</span>
+                    </motion.div>
+                    <motion.div 
+                      className="flex items-center space-x-1"
+                      whileHover={{ scale: 1.05 }}
+                      transition={{ type: "spring", stiffness: 300 }}
+                    >
+                      <Calendar className="w-3 h-3 md:w-4 md:h-4" />
+                      <span>Academic Year 2024-25</span>
+                    </motion.div>
+                    <motion.div 
+                      className="flex items-center space-x-1"
+                      whileHover={{ scale: 1.05 }}
+                      transition={{ type: "spring", stiffness: 300 }}
+                    >
+                      <Trophy className="w-3 h-3 md:w-4 md:h-4" />
+                      <span className="hidden md:inline">NAAC Grade A++ Institution</span>
+                      <span className="md:hidden">NAAC A++</span>
+                    </motion.div>
                   </div>
                 </div>
               </div>
-            </div>
-            <div className="flex flex-col space-y-2 sm:flex-row sm:items-center sm:space-x-3 sm:space-y-0">
-              <Button 
-                variant="outline" 
-                onClick={handleDownloadPortfolio}
-                disabled={isDownloadingPortfolio}
-                className="w-full sm:w-auto text-xs md:text-sm"
-                data-testid="button-download-portfolio"
-              >
-                {isDownloadingPortfolio ? (
-                  <>
-                    <div className="animate-spin rounded-full h-3 w-3 md:h-4 md:w-4 border-b-2 border-current mr-2"></div>
-                    <span className="hidden sm:inline">Generating...</span>
-                    <span className="sm:hidden">Gen...</span>
-                  </>
-                ) : (
-                  <>
-                    <Download className="w-3 h-3 md:w-4 md:h-4 mr-2" />
-                    <span className="hidden sm:inline">Generate Portfolio</span>
-                    <span className="sm:hidden">Portfolio</span>
-                  </>
-                )}
-              </Button>
-              <Button 
-                onClick={() => setLocation('/upload')}
-                className="w-full sm:w-auto text-xs md:text-sm"
-                data-testid="button-add-activity"
-              >
-                <Plus className="w-3 h-3 md:w-4 md:h-4 mr-2" />
-                <span className="hidden sm:inline">Submit Achievement</span>
-                <span className="sm:hidden">Submit</span>
-              </Button>
-            </div>
-          </div>
+              <div className="flex flex-col space-y-2 sm:flex-row sm:items-center sm:space-x-3 sm:space-y-0">
+                {/* Real-time Notifications */}
+                <div className="relative" ref={notificationRef}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowNotifications(!showNotifications)}
+                    className="relative w-full sm:w-auto"
+                    data-testid="button-notifications"
+                  >
+                    <Bell className="w-4 h-4" />
+                    {notifications.filter(n => !n.read).length > 0 && (
+                      <motion.span 
+                        initial={{ scale: 0 }}
+                        animate={{ scale: 1 }}
+                        className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center"
+                      >
+                        {notifications.filter(n => !n.read).length}
+                      </motion.span>
+                    )}
+                  </Button>
+                  
+                  <AnimatePresence>
+                    {showNotifications && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                        transition={{ duration: 0.2 }}
+                        className="absolute right-0 top-full mt-2 w-80 max-w-[90vw] bg-white dark:bg-gray-800 border rounded-lg shadow-lg z-50"
+                      >
+                        <div className="p-4 border-b">
+                          <h3 className="font-semibold text-foreground">Notifications</h3>
+                          <p className="text-xs text-muted-foreground">
+                            {notifications.filter(n => !n.read).length} unread
+                          </p>
+                        </div>
+                        <div className="max-h-80 overflow-y-auto">
+                          {notifications.length === 0 ? (
+                            <div className="p-4 text-center text-muted-foreground">
+                              No notifications
+                            </div>
+                          ) : (
+                            notifications.map((notification) => (
+                              <motion.div
+                                key={notification.id}
+                                whileHover={{ backgroundColor: "rgba(0,0,0,0.05)" }}
+                                className={`p-3 border-b last:border-b-0 cursor-pointer ${
+                                  !notification.read ? 'bg-blue-50 dark:bg-blue-900/20' : ''
+                                }`}
+                                onClick={() => {
+                                  if (notification.actionUrl) {
+                                    setLocation(notification.actionUrl);
+                                  }
+                                  setShowNotifications(false);
+                                }}
+                              >
+                                <div className="flex items-start space-x-2">
+                                  <div className={`w-2 h-2 rounded-full mt-2 ${
+                                    notification.type === 'success' ? 'bg-green-500' :
+                                    notification.type === 'warning' ? 'bg-yellow-500' :
+                                    notification.type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+                                  }`} />
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-medium text-foreground truncate">
+                                      {notification.title}
+                                    </p>
+                                    <p className="text-xs text-muted-foreground line-clamp-2">
+                                      {notification.message}
+                                    </p>
+                                    <p className="text-xs text-muted-foreground mt-1">
+                                      {notification.timestamp.toLocaleDateString()}
+                                    </p>
+                                  </div>
+                                </div>
+                              </motion.div>
+                            ))
+                          )}
+                        </div>
+                        <div className="p-2 border-t">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="w-full text-xs"
+                            onClick={() => {
+                              setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+                              setShowNotifications(false);
+                            }}
+                          >
+                            Mark all as read
+                          </Button>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+
+                <Button 
+                  variant="outline" 
+                  onClick={handleDownloadPortfolio}
+                  disabled={isDownloadingPortfolio}
+                  className="w-full sm:w-auto text-xs md:text-sm"
+                  data-testid="button-download-portfolio"
+                >
+                  {isDownloadingPortfolio ? (
+                    <>
+                      <div className="animate-spin rounded-full h-3 w-3 md:h-4 md:w-4 border-b-2 border-current mr-2"></div>
+                      <span className="hidden sm:inline">Generating...</span>
+                      <span className="sm:hidden">Gen...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Download className="w-3 h-3 md:w-4 md:h-4 mr-2" />
+                      <span className="hidden sm:inline">Generate Portfolio</span>
+                      <span className="sm:hidden">Portfolio</span>
+                    </>
+                  )}
+                </Button>
+                <Button 
+                  onClick={() => setLocation('/upload')}
+                  className="w-full sm:w-auto text-xs md:text-sm"
+                  data-testid="button-add-activity"
+                >
+                  <Plus className="w-3 h-3 md:w-4 md:h-4 mr-2" />
+                  <span className="hidden sm:inline">Submit Achievement</span>
+                  <span className="sm:hidden">Submit</span>
+                </Button>
+              </div>
+            </motion.div>
+
+            {/* Error Handling Alerts */}
+            <AnimatePresence>
+              {(statsError || activitiesError || attendanceStatsError || attendanceTrendsError) && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <Alert variant="destructive">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Connection Issue</AlertTitle>
+                    <AlertDescription>
+                      Some data may not be up to date. Please check your connection and refresh the page.
+                    </AlertDescription>
+                  </Alert>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
           {/* Profile Completeness Indicator */}
           <Card className="mb-6" data-testid="card-profile-completeness">
@@ -410,8 +954,14 @@ export default function StudentDashboard() {
             </CardContent>
           </Card>
 
-          {/* Enhanced Responsive Statistics Cards */}
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4 lg:gap-6">
+          {/* Enhanced Responsive Statistics Cards with Animations */}
+          <motion.div 
+            ref={statsRef}
+            initial={{ opacity: 0, y: 20 }}
+            animate={statsInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 md:gap-4 lg:gap-6"
+          >
             <StatCard
               title="Current CGPA"
               value={dashboardData.personalInfo.cgpa.toString()}
@@ -459,60 +1009,142 @@ export default function StudentDashboard() {
               progress={(1 - (dashboardData.personalInfo.rank / dashboardData.personalInfo.totalStudents)) * 100}
               data-testid="card-rank"
             />
-          </div>
+          </motion.div>
 
-          {/* Faculty Approval Workflow Monitoring */}
-          <Card className="mb-6" data-testid="card-faculty-approval-workflow">
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2 text-base md:text-lg">
-                <Users className="w-4 h-4 md:w-5 md:h-5 text-indigo-600" />
-                <span>Faculty Approval Workflow</span>
-                <Badge variant="outline" className="ml-auto" data-testid="badge-pending-approvals">
-                  {dashboardData.personalInfo.pendingApprovals} Pending
-                </Badge>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-3 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-                      <Clock className="w-4 h-4 text-white" />
+          {/* Enhanced Faculty Approval Workflow Monitoring with Status Indicators */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+          >
+            <Card className="mb-6" data-testid="card-faculty-approval-workflow">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2 text-base md:text-lg">
+                  <Users className="w-4 h-4 md:w-5 md:h-5 text-indigo-600" />
+                  <span>Faculty Approval Workflow</span>
+                  <div className="ml-auto flex items-center space-x-2">
+                    <div className="flex items-center space-x-1">
+                      <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                      <span className="text-xs text-green-600">Active</span>
                     </div>
-                    <div>
-                      <div className="text-sm font-medium">Dr. Priya Sharma (CS HOD)</div>
-                      <div className="text-xs text-muted-foreground">2 activities pending review</div>
+                    <Badge variant="outline" data-testid="badge-pending-approvals">
+                      {dashboardData.personalInfo.pendingApprovals} Pending
+                    </Badge>
+                  </div>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {/* Faculty Status Cards with Enhanced Indicators */}
+                  <motion.div 
+                    className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg border border-blue-200 dark:border-blue-800"
+                    whileHover={{ scale: 1.02 }}
+                    transition={{ type: "spring", stiffness: 300 }}
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className="relative">
+                        <Avatar className="w-10 h-10">
+                          <AvatarImage src="/avatars/dr-priya-sharma.jpg" alt="Dr. Priya Sharma" />
+                          <AvatarFallback className="bg-blue-500 text-white text-sm">PS</AvatarFallback>
+                        </Avatar>
+                        <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-orange-500 rounded-full flex items-center justify-center">
+                          <Clock className="w-2 h-2 text-white" />
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-sm font-medium text-blue-900 dark:text-blue-200">Dr. Priya Sharma</div>
+                        <div className="text-xs text-blue-700 dark:text-blue-300">Computer Science HOD</div>
+                        <div className="text-xs text-muted-foreground">2 activities pending • Est. 1-2 days</div>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button size="sm" variant="outline" className="text-xs" data-testid="button-follow-up">
+                            <Send className="w-3 h-3 mr-1" />
+                            Follow Up
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Send a polite reminder about pending activities</p>
+                        </TooltipContent>
+                      </Tooltip>
+                      <div className="text-xs text-muted-foreground mt-1">Response Rate: 95%</div>
+                    </div>
+                  </motion.div>
+
+                  <motion.div 
+                    className="flex items-center justify-between p-4 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg border border-green-200 dark:border-green-800"
+                    whileHover={{ scale: 1.02 }}
+                    transition={{ type: "spring", stiffness: 300 }}
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className="relative">
+                        <Avatar className="w-10 h-10">
+                          <AvatarImage src="/avatars/prof-rajesh-kumar.jpg" alt="Prof. Rajesh Kumar" />
+                          <AvatarFallback className="bg-green-500 text-white text-sm">RK</AvatarFallback>
+                        </Avatar>
+                        <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
+                          <CheckCircle className="w-2 h-2 text-white" />
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-sm font-medium text-green-900 dark:text-green-200">Prof. Rajesh Kumar</div>
+                        <div className="text-xs text-green-700 dark:text-green-300">Academic Mentor</div>
+                        <div className="text-xs text-muted-foreground">Average approval: 2.3 days • Very responsive</div>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <Badge variant="secondary" className="text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200" data-testid="badge-excellent">
+                        <CheckCircle className="w-3 h-3 mr-1" />
+                        Excellent
+                      </Badge>
+                      <div className="text-xs text-muted-foreground mt-1">Response Rate: 98%</div>
+                    </div>
+                  </motion.div>
+
+                  {/* Faculty Performance Analytics */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+                    <div className="p-3 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/30 rounded-lg text-center">
+                      <div className="text-lg font-bold text-blue-600" data-testid="stat-approved-month">14</div>
+                      <div className="text-xs text-blue-700 dark:text-blue-300">Approved This Month</div>
+                    </div>
+                    <div className="p-3 bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/30 rounded-lg text-center">
+                      <div className="text-lg font-bold text-orange-600" data-testid="stat-avg-approval-time">1.8</div>
+                      <div className="text-xs text-orange-700 dark:text-orange-300">Avg. Days to Approve</div>
+                    </div>
+                    <div className="p-3 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/30 rounded-lg text-center">
+                      <div className="text-lg font-bold text-green-600">96%</div>
+                      <div className="text-xs text-green-700 dark:text-green-300">Approval Rate</div>
+                    </div>
+                    <div className="p-3 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/30 rounded-lg text-center">
+                      <div className="text-lg font-bold text-purple-600">2.1</div>
+                      <div className="text-xs text-purple-700 dark:text-purple-300">Avg. Review Days</div>
                     </div>
                   </div>
-                  <Button size="sm" variant="outline" className="text-xs" data-testid="button-follow-up">
-                    Follow Up
-                  </Button>
+
+                  {/* Quick Actions */}
+                  <div className="mt-4 p-4 bg-muted/30 rounded-lg">
+                    <h4 className="text-sm font-medium text-foreground mb-3">Quick Actions</h4>
+                    <div className="flex flex-wrap gap-2">
+                      <Button size="sm" variant="outline" className="text-xs">
+                        <Mail className="w-3 h-3 mr-1" />
+                        Email All Faculty
+                      </Button>
+                      <Button size="sm" variant="outline" className="text-xs">
+                        <RefreshCw className="w-3 h-3 mr-1" />
+                        Refresh Status
+                      </Button>
+                      <Button size="sm" variant="outline" className="text-xs">
+                        <BarChart3 className="w-3 h-3 mr-1" />
+                        View Analytics
+                      </Button>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex items-center justify-between p-3 bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center">
-                      <CheckCircle className="w-4 h-4 text-white" />
-                    </div>
-                    <div>
-                      <div className="text-sm font-medium">Prof. Rajesh Kumar (Mentor)</div>
-                      <div className="text-xs text-muted-foreground">Average approval time: 2.3 days</div>
-                    </div>
-                  </div>
-                  <Badge variant="secondary" className="text-xs" data-testid="badge-excellent">Excellent</Badge>
-                </div>
-                <div className="grid grid-cols-2 gap-4 text-center mt-4">
-                  <div className="p-3 bg-muted/50 rounded-lg">
-                    <div className="text-lg font-bold text-primary" data-testid="stat-approved-month">14</div>
-                    <div className="text-xs text-muted-foreground">Approved This Month</div>
-                  </div>
-                  <div className="p-3 bg-muted/50 rounded-lg">
-                    <div className="text-lg font-bold text-orange-600" data-testid="stat-avg-approval-time">1.8</div>
-                    <div className="text-xs text-muted-foreground">Avg. Days to Approve</div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </motion.div>
 
           {/* NAAC/NIRF Compliance Metrics */}
           <Card className="mb-6" data-testid="card-naac-compliance">
@@ -831,15 +1463,36 @@ export default function StudentDashboard() {
             </Card>
           </div>
 
-          {/* Comprehensive Analytics Dashboard */}
+          {/* Comprehensive Analytics Dashboard with Enhanced Responsive Design */}
           <Tabs defaultValue="overview" className="space-y-4 md:space-y-6" data-testid="tabs-dashboard-analytics">
-            <TabsList className="grid w-full grid-cols-3 md:grid-cols-6 h-auto p-1">
-              <TabsTrigger value="overview" className="text-xs md:text-sm px-2 md:px-4" data-testid="tab-overview">Overview</TabsTrigger>
-              <TabsTrigger value="academic" className="text-xs md:text-sm px-2 md:px-4" data-testid="tab-academic">Academic</TabsTrigger>
-              <TabsTrigger value="attendance" className="text-xs md:text-sm px-2 md:px-4" data-testid="tab-attendance">Attendance</TabsTrigger>
-              <TabsTrigger value="activities" className="text-xs md:text-sm px-2 md:px-4" data-testid="tab-activities">Activities</TabsTrigger>
-              <TabsTrigger value="skills" className="text-xs md:text-sm px-2 md:px-4 hidden md:inline-flex" data-testid="tab-skills">Skills</TabsTrigger>
-              <TabsTrigger value="goals" className="text-xs md:text-sm px-2 md:px-4 hidden md:inline-flex" data-testid="tab-goals">Goals</TabsTrigger>
+            <TabsList className="grid w-full h-auto p-1 gap-1 grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7">
+              <TabsTrigger value="overview" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 md:px-3 lg:px-4 py-2 sm:py-3 flex-1 min-w-0 truncate" data-testid="tab-overview">
+                <span className="hidden sm:inline">Overview</span>
+                <span className="sm:hidden">Home</span>
+              </TabsTrigger>
+              <TabsTrigger value="academic" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 md:px-3 lg:px-4 py-2 sm:py-3 flex-1 min-w-0 truncate" data-testid="tab-academic">
+                <span className="hidden sm:inline">Academic</span>
+                <span className="sm:hidden">Acad</span>
+              </TabsTrigger>
+              <TabsTrigger value="attendance" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 md:px-3 lg:px-4 py-2 sm:py-3 flex-1 min-w-0 truncate" data-testid="tab-attendance">
+                <span className="hidden sm:inline">Attendance</span>
+                <span className="sm:hidden">Att</span>
+              </TabsTrigger>
+              <TabsTrigger value="activities" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 md:px-3 lg:px-4 py-2 sm:py-3 flex-1 min-w-0 truncate hidden sm:inline-flex" data-testid="tab-activities">
+                <span className="hidden md:inline">Activities</span>
+                <span className="md:hidden">Act</span>
+              </TabsTrigger>
+              <TabsTrigger value="skills" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 md:px-3 lg:px-4 py-2 sm:py-3 flex-1 min-w-0 truncate hidden md:inline-flex" data-testid="tab-skills">
+                <span className="hidden lg:inline">Skills</span>
+                <span className="lg:hidden">Ski</span>
+              </TabsTrigger>
+              <TabsTrigger value="goals" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 md:px-3 lg:px-4 py-2 sm:py-3 flex-1 min-w-0 truncate hidden lg:inline-flex" data-testid="tab-goals">
+                <span className="hidden xl:inline">Goals</span>
+                <span className="xl:hidden">G</span>
+              </TabsTrigger>
+              <TabsTrigger value="achievements" className="text-xs sm:text-sm md:text-base px-1 sm:px-2 md:px-3 lg:px-4 py-2 sm:py-3 flex-1 min-w-0 truncate hidden xl:inline-flex" data-testid="tab-achievements">
+                Achievements
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="overview" className="space-y-6">
@@ -994,7 +1647,13 @@ export default function StudentDashboard() {
                             <div className="flex-1">
                               <div className="font-medium text-foreground">{achievement.title}</div>
                               <div className="text-sm text-muted-foreground">{achievement.description}</div>
-                              <div className="text-xs text-blue-600 font-medium">{achievement.date}</div>
+                              <div className="text-xs text-blue-600 font-medium">
+                                {achievement.date instanceof Date ? achievement.date.toLocaleDateString('en-US', { 
+                                  month: 'short', 
+                                  day: 'numeric', 
+                                  year: 'numeric' 
+                                }) : achievement.date}
+                              </div>
                             </div>
                             <CheckCircle className="w-5 h-5 text-green-600" />
                           </div>
@@ -1673,6 +2332,187 @@ export default function StudentDashboard() {
                   </CardContent>
                 </Card>
               </div>
+            </TabsContent>
+
+            <TabsContent value="achievements" className="space-y-4 md:space-y-6" data-testid="tabcontent-achievements">
+              {/* Animated Achievement Timeline with Motion */}
+              <motion.div 
+                ref={chartsRef}
+                initial={{ opacity: 0, y: 20 }}
+                animate={chartsInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+                transition={{ duration: 0.6, delay: 0.1 }}
+                className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6"
+              >
+                {/* Achievement Timeline */}
+                <Card data-testid="card-achievement-timeline">
+                  <CardHeader>
+                    <CardTitle className="flex items-center space-x-2 text-base md:text-lg">
+                      <Award className="w-4 h-4 md:w-5 md:h-5 text-yellow-600" />
+                      <span>Achievement Timeline</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="relative">
+                      <div className="absolute left-6 top-8 bottom-8 w-0.5 bg-gradient-to-b from-yellow-500 via-blue-500 to-green-500"></div>
+                      
+                      <div className="space-y-6">
+                        {achievements.map((achievement, index) => (
+                          <motion.div
+                            key={achievement.id}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: index * 0.1 + 0.3, duration: 0.5 }}
+                            className="relative flex items-start space-x-4"
+                            data-testid={`achievement-timeline-${index}`}
+                          >
+                            <motion.div 
+                              className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 z-10 ${
+                                achievement.verified ? 'bg-green-500' : 'bg-yellow-500'
+                              }`}
+                              whileHover={{ scale: 1.1 }}
+                              transition={{ type: "spring", stiffness: 300 }}
+                            >
+                              {achievement.verified ? (
+                                <CheckCircle className="w-6 h-6 text-white" />
+                              ) : (
+                                <Clock className="w-6 h-6 text-white" />
+                              )}
+                            </motion.div>
+                            <div className="flex-1 min-w-0">
+                              <div className="bg-white dark:bg-gray-800 border rounded-lg p-4 shadow-sm hover:shadow-md transition-shadow">
+                                <div className="flex items-start justify-between mb-2">
+                                  <div className="flex-1">
+                                    <h4 className="font-semibold text-foreground">{achievement.title}</h4>
+                                    <p className="text-sm text-muted-foreground mt-1">{achievement.description}</p>
+                                  </div>
+                                  <div className="ml-4 text-right">
+                                    <Badge 
+                                      variant={achievement.verified ? "default" : "secondary"}
+                                      className="mb-2"
+                                    >
+                                      {achievement.verified ? 'Verified' : 'Pending'}
+                                    </Badge>
+                                    <div className="text-xs text-muted-foreground">
+                                      +{achievement.points} points
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className="flex items-center justify-between text-xs">
+                                  <span className="text-blue-600 font-medium">{achievement.category}</span>
+                                  <span className="text-muted-foreground">
+                                    {achievement.date instanceof Date ? achievement.date.toLocaleDateString('en-US', { 
+                                      month: 'short', 
+                                      day: 'numeric', 
+                                      year: 'numeric' 
+                                    }) : achievement.date}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          </motion.div>
+                        ))}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Achievement Statistics & Analytics */}
+                <Card data-testid="card-achievement-stats">
+                  <CardHeader>
+                    <CardTitle className="flex items-center space-x-2 text-base md:text-lg">
+                      <BarChart3 className="w-4 h-4 md:w-5 md:h-5 text-purple-600" />
+                      <span>Achievement Analytics</span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-6">
+                      {/* Achievement Points Chart */}
+                      <div>
+                        <h4 className="text-sm font-medium text-foreground mb-3">Points by Category</h4>
+                        <ChartContainer
+                          config={{
+                            points: { label: "Points", color: "hsl(262, 83%, 58%)" }
+                          }}
+                          className="h-[180px]"
+                          data-testid="chart-achievement-points"
+                        >
+                          <RechartsPieChart>
+                            <Pie
+                              data={[
+                                { category: 'Academic', points: 125, fill: '#3b82f6' },
+                                { category: 'Research', points: 75, fill: '#10b981' },
+                                { category: 'Leadership', points: 60, fill: '#f59e0b' },
+                                { category: 'Technical', points: 45, fill: '#ef4444' },
+                                { category: 'Community', points: 30, fill: '#8b5cf6' }
+                              ]}
+                              cx="50%"
+                              cy="50%"
+                              outerRadius={60}
+                              innerRadius={25}
+                              dataKey="points"
+                            >
+                              {/* Color cells will be handled by fill property in data */}
+                            </Pie>
+                            <ChartTooltip content={<ChartTooltipContent />} />
+                          </RechartsPieChart>
+                        </ChartContainer>
+                      </div>
+
+                      {/* Achievement Summary Stats */}
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="text-center p-4 bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 rounded-lg">
+                          <div className="text-2xl font-bold text-yellow-600">{achievements.length}</div>
+                          <div className="text-xs text-yellow-700 dark:text-yellow-300">Total Achievements</div>
+                        </div>
+                        <div className="text-center p-4 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg">
+                          <div className="text-2xl font-bold text-green-600">
+                            {achievements.filter(a => a.verified).length}
+                          </div>
+                          <div className="text-xs text-green-700 dark:text-green-300">Verified</div>
+                        </div>
+                        <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 rounded-lg">
+                          <div className="text-2xl font-bold text-purple-600">
+                            {achievements.reduce((sum, a) => sum + a.points, 0)}
+                          </div>
+                          <div className="text-xs text-purple-700 dark:text-purple-300">Total Points</div>
+                        </div>
+                        <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-lg">
+                          <div className="text-2xl font-bold text-blue-600">85%</div>
+                          <div className="text-xs text-blue-700 dark:text-blue-300">Completion Rate</div>
+                        </div>
+                      </div>
+
+                      {/* Recent Milestones */}
+                      <div>
+                        <h4 className="text-sm font-medium text-foreground mb-3">Recent Milestones</h4>
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                            <div className="flex items-center space-x-2">
+                              <Trophy className="w-4 h-4 text-green-600" />
+                              <span className="text-sm font-medium text-green-800 dark:text-green-200">Academic Excellence</span>
+                            </div>
+                            <span className="text-xs text-green-600">2 days ago</span>
+                          </div>
+                          <div className="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                            <div className="flex items-center space-x-2">
+                              <BookOpen className="w-4 h-4 text-blue-600" />
+                              <span className="text-sm font-medium text-blue-800 dark:text-blue-200">Research Publication</span>
+                            </div>
+                            <span className="text-xs text-blue-600">1 week ago</span>
+                          </div>
+                          <div className="flex items-center justify-between p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                            <div className="flex items-center space-x-2">
+                              <Users className="w-4 h-4 text-purple-600" />
+                              <span className="text-sm font-medium text-purple-800 dark:text-purple-200">Leadership Recognition</span>
+                            </div>
+                            <span className="text-xs text-purple-600">2 weeks ago</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
             </TabsContent>
           </Tabs>
 
@@ -2730,5 +3570,6 @@ export default function StudentDashboard() {
         </main>
       </div>
     </div>
+    </TooltipProvider>
   );
 }
