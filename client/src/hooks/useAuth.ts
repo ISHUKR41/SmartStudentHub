@@ -4,6 +4,9 @@
  * Integrates with Replit Auth to provide reactive authentication state throughout
  * the application. Manages user session data via React Query caching.
  * 
+ * Features development mode bypass for testing dashboard functionality
+ * when database connectivity is limited.
+ * 
  * @returns Authentication state with user data, loading status, and computed authentication flag
  */
 
@@ -12,11 +15,38 @@ import { getQueryFn } from "@/lib/queryClient";
 import type { User } from "@shared/schema";
 
 export function useAuth() {
+  // Development mode bypass when database isn't available
+  const isDevelopment = import.meta.env.MODE === 'development';
+  const bypassAuth = isDevelopment && import.meta.env.VITE_BYPASS_AUTH !== 'false';
+  
   const { data: user, isLoading } = useQuery<User | null>({
     queryKey: ["/api/auth/user"],
     queryFn: getQueryFn({ on401: "returnNull" }),
     retry: false,
+    enabled: !bypassAuth, // Skip query when bypassing auth
   });
+
+  // Return mock user data when bypassing authentication
+  if (bypassAuth) {
+    const mockUser: User = {
+      id: 'dev-user-123',
+      email: 'ishu.kumar@nitdelhi.ac.in',
+      firstName: 'ISHU',
+      lastName: 'KUMAR',
+      profileImageUrl: null,
+      rollNumber: '2021CSB1234',
+      department: 'Computer Science & Engineering',
+      currentSemester: 6,
+      role: 'student',
+      cgpa: '8.75'
+    };
+
+    return {
+      user: mockUser,
+      isLoading: false,
+      isAuthenticated: true,
+    };
+  }
 
   return {
     user: user || null,
