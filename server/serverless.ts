@@ -1,7 +1,7 @@
 import "dotenv/config";
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
-import { setupVite, serveStatic, log } from "./vite";
+import { log } from "./vite";
 
 const app = express();
 app.use(express.json());
@@ -37,7 +37,8 @@ app.use((req, res, next) => {
   next();
 });
 
-(async () => {
+// Initialize database connection and routes for serverless environment
+const initializeApp = async () => {
   // Database startup logging and verification
   try {
     console.log("Starting database connection verification...");
@@ -67,43 +68,7 @@ app.use((req, res, next) => {
     console.log("Warning: Continuing startup despite database issues...");
   }
 
-  // Auto-seed database in development if empty
-  if (process.env.NODE_ENV === "development") {
-    try {
-      console.log("Checking if database needs seeding...");
-      const { db } = await import("./db");
-      const { users } = await import("@shared/schema");
-
-      // Check if database has any users with timeout protection
-      const userCheck = await Promise.race([
-        db.select().from(users).limit(1),
-        new Promise((_, reject) =>
-          setTimeout(
-            () => reject(new Error("User check timeout after 8 seconds")),
-            8000
-          )
-        ),
-      ]);
-
-      if (Array.isArray(userCheck) && userCheck.length === 0) {
-        console.log("No users found in database. Starting auto-seeding...");
-
-        const { seedDatabase } = await import("./seed");
-        await seedDatabase();
-
-        console.log("Database auto-seeding completed successfully!");
-      } else {
-        console.log("Database already contains data. Skipping auto-seeding.");
-      }
-    } catch (error) {
-      console.error(
-        "Warning: Auto-seeding failed, but continuing server startup:",
-        error instanceof Error ? error.message : String(error)
-      );
-    }
-  }
-
-  const server = await registerRoutes(app);
+  await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
@@ -113,33 +78,7 @@ app.use((req, res, next) => {
     throw err;
   });
 
-  // importantly only setup vite in development and after
-  // setting up all the other routes so the catch-all route
-  // doesn't interfere with the other routes
-  if (app.get("env") === "development") {
-    await setupVite(app, server);
-  } else {
-    serveStatic(app);
-  }
-
-  // ALWAYS serve the app on the port specified in the environment variable PORT
-  // Other ports are firewalled. Default to 5000 if not specified.
-  // this serves both the API and the client.
-  // It is the only port that is not firewalled.
-  const port = parseInt(process.env.PORT || "5000", 10);
-
-  // Traditional server startup for local development
-  server.listen(
-    {
-      port,
-      host: "0.0.0.0",
-      reusePort: true,
-    },
-    () => {
-      log(`serving on port ${port}`);
-    }
-  );
-
-  // Export app for serverless environments
   return app;
-})();
+};
+
+export default initializeApp;
