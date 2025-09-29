@@ -25,6 +25,9 @@ import {
   departments,
   subjects,
   attendance,
+  notifications,
+  goals,
+  achievements,
   type User,
   type UpsertUser,
   type Activity,
@@ -36,7 +39,13 @@ import {
   type Subject,
   type InsertSubject,
   type Attendance,
-  type InsertAttendance
+  type InsertAttendance,
+  type Notification,
+  type InsertNotification,
+  type Goal,
+  type InsertGoal,
+  type Achievement,
+  type InsertAchievement
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, count, sql } from "drizzle-orm";
@@ -188,6 +197,32 @@ export interface IStorage {
       activitiesPerSemester: Record<number, number> 
     } 
   }>;
+
+  /**
+   * Notification Management Operations
+   * 
+   * Handles student notifications for real-time updates and alerts.
+   */
+  getNotificationsByStudent(studentId: string): Promise<Notification[]>;
+  createNotification(notification: InsertNotification): Promise<Notification>;
+  markNotificationAsRead(notificationId: string): Promise<Notification>;
+
+  /**
+   * Goal Management Operations
+   * 
+   * Manages student goals and progress tracking.
+   */
+  getGoalsByStudent(studentId: string): Promise<Goal[]>;
+  createGoal(goal: InsertGoal): Promise<Goal>;
+  updateGoal(goalId: string, updates: Partial<Goal>): Promise<Goal>;
+
+  /**
+   * Achievement Management Operations
+   * 
+   * Handles student achievements and milestone tracking.
+   */
+  getAchievementsByStudent(studentId: string): Promise<Achievement[]>;
+  createAchievement(achievement: InsertAchievement): Promise<Achievement>;
 }
 
 /**
@@ -1049,6 +1084,75 @@ export class DatabaseStorage implements IStorage {
     }));
 
     return { weeklyTrends, monthlyTrends };
+  }
+
+  // Notification operations
+  async getNotificationsByStudent(studentId: string): Promise<Notification[]> {
+    return await db
+      .select()
+      .from(notifications)
+      .where(eq(notifications.studentId, studentId))
+      .orderBy(desc(notifications.createdAt));
+  }
+
+  async createNotification(notification: InsertNotification): Promise<Notification> {
+    const [created] = await db
+      .insert(notifications)
+      .values(notification)
+      .returning();
+    return created;
+  }
+
+  async markNotificationAsRead(notificationId: string): Promise<Notification> {
+    const [updated] = await db
+      .update(notifications)
+      .set({ read: true })
+      .where(eq(notifications.id, notificationId))
+      .returning();
+    return updated;
+  }
+
+  // Goal operations
+  async getGoalsByStudent(studentId: string): Promise<Goal[]> {
+    return await db
+      .select()
+      .from(goals)
+      .where(eq(goals.studentId, studentId))
+      .orderBy(desc(goals.createdAt));
+  }
+
+  async createGoal(goal: InsertGoal): Promise<Goal> {
+    const [created] = await db
+      .insert(goals)
+      .values(goal)
+      .returning();
+    return created;
+  }
+
+  async updateGoal(goalId: string, updates: Partial<Goal>): Promise<Goal> {
+    const [updated] = await db
+      .update(goals)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(goals.id, goalId))
+      .returning();
+    return updated;
+  }
+
+  // Achievement operations
+  async getAchievementsByStudent(studentId: string): Promise<Achievement[]> {
+    return await db
+      .select()
+      .from(achievements)
+      .where(eq(achievements.studentId, studentId))
+      .orderBy(desc(achievements.date));
+  }
+
+  async createAchievement(achievement: InsertAchievement): Promise<Achievement> {
+    const [created] = await db
+      .insert(achievements)
+      .values(achievement)
+      .returning();
+    return created;
   }
 }
 

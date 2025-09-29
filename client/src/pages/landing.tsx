@@ -129,7 +129,7 @@ const InteractiveChart = ({ data, type = "area", color = "#3B82F6" }: {
   }
 
   // Render the appropriate chart type as a single child
-  let chartElement;
+  let chartElement: React.ReactElement = <div>Loading...</div>;
   
   if (type === "area") {
     chartElement = (
@@ -204,7 +204,7 @@ const InteractiveChart = ({ data, type = "area", color = "#3B82F6" }: {
     );
   } else if (type === "pie") {
     chartElement = (
-      <RechartsPieChart width={300} height={300}>
+      <RechartsPieChart>
         <Pie
           data={data}
           cx="50%"

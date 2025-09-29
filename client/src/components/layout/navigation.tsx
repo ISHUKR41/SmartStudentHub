@@ -142,10 +142,10 @@ function NavLink({ href, label, icon: Icon, testId, className, onClick }: NavLin
     <Button
       variant={isActive ? "default" : "ghost"}
       className={cn(
-        "flex items-center space-x-2 justify-start touch-button enhanced-focus active-touch transition-all duration-200",
-        "h-8 px-2 md:h-9 md:px-3 lg:h-10 lg:px-4 xl:h-10 xl:px-4 2xl:h-11 2xl:px-5",
-        "text-xs md:text-xs lg:text-xs xl:text-xs 2xl:text-xs",
-        "min-w-[40px] min-h-[40px] md:min-w-[42px] md:min-h-[42px] lg:min-w-[44px] lg:min-h-[44px] xl:min-w-[44px] xl:min-h-[44px] 2xl:min-w-[48px] 2xl:min-h-[48px]",
+        "flex items-center space-x-1.5 justify-start touch-button enhanced-focus active-touch transition-all duration-200",
+        "h-8 px-2 md:h-9 md:px-3 lg:h-9 lg:px-3 xl:h-10 xl:px-4 2xl:h-10 2xl:px-4",
+        "text-xs md:text-xs lg:text-xs xl:text-xs 2xl:text-sm",
+        "min-w-[40px] min-h-[40px] md:min-w-[42px] md:min-h-[42px] lg:min-w-[42px] lg:min-h-[42px] xl:min-w-[44px] xl:min-h-[44px] 2xl:min-w-[46px] 2xl:min-h-[46px]",
         className
       )}
       data-testid={testId}
@@ -224,13 +224,13 @@ export default function Navigation() {
               </div>
             </Link>
             
-            {/* Institutional Name and System Designation - Compact sizing */}
+            {/* Institutional Name and System Designation - Optimized compact sizing */}
             <div className="hidden sm:block">
-              <h1 className="text-xs sm:text-sm md:text-sm lg:text-base xl:text-base 2xl:text-base font-semibold text-foreground leading-tight transition-all duration-200" data-testid="text-app-title">
+              <h1 className="text-xs sm:text-sm md:text-sm lg:text-sm xl:text-sm 2xl:text-base font-semibold text-foreground leading-tight transition-all duration-200" data-testid="text-app-title">
                 Smart Student Hub
               </h1>
               <p className="text-xs sm:text-xs md:text-xs lg:text-xs xl:text-xs 2xl:text-xs text-muted-foreground hidden sm:block transition-all duration-200" data-testid="text-app-subtitle">
-                Institutional Excellence Management System
+                Excellence Management System
               </p>
             </div>
           </div>
@@ -260,7 +260,7 @@ export default function Navigation() {
                   placeholder="Search..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-32 sm:w-40 md:w-48 lg:w-56 xl:w-64 2xl:w-72 pl-9 sm:pl-10 h-10 sm:h-11 md:h-12 lg:h-12 xl:h-12 2xl:h-14 text-xs md:text-xs lg:text-sm xl:text-sm 2xl:text-sm mobile-search enhanced-focus transition-all duration-200"
+                  className="w-28 sm:w-36 md:w-40 lg:w-48 xl:w-52 2xl:w-56 pl-8 sm:pl-9 h-8 sm:h-9 md:h-10 lg:h-10 xl:h-10 2xl:h-11 text-xs md:text-xs lg:text-sm xl:text-sm 2xl:text-sm mobile-search enhanced-focus transition-all duration-200"
                   data-testid="input-search"
                 />
                 {/* Search Icon with Professional Styling */}
@@ -321,12 +321,12 @@ export default function Navigation() {
                       </AvatarFallback>
                     </Avatar>
                     
-                    {/* User Information Display - Compact sizing */}
+                    {/* User Information Display - Optimized compact sizing */}
                     <div className="hidden lg:block text-left">
-                      <div className="text-xs md:text-xs lg:text-xs xl:text-xs 2xl:text-xs font-medium text-foreground truncate max-w-32 xl:max-w-40 2xl:max-w-52" data-testid="text-user-name">
+                      <div className="text-xs lg:text-xs xl:text-xs 2xl:text-xs font-medium text-foreground truncate max-w-28 xl:max-w-32 2xl:max-w-36" data-testid="text-user-name">
                         {user.firstName} {user.lastName}
                       </div>
-                      <div className="text-xs md:text-xs lg:text-xs xl:text-xs 2xl:text-xs text-muted-foreground capitalize truncate" data-testid="text-user-role">
+                      <div className="text-xs lg:text-xs xl:text-xs 2xl:text-xs text-muted-foreground capitalize truncate" data-testid="text-user-role">
                         {user.role}
                       </div>
                     </div>

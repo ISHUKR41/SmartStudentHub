@@ -501,6 +501,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Student Notifications, Goals, and Achievements Routes
+  app.get('/api/students/notifications', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const userId = (req.user as AuthenticatedUser).claims.sub;
+      const notifications = await storage.getNotificationsByStudent(userId);
+      res.json(notifications);
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
+      res.status(500).json({ message: "Failed to fetch notifications" });
+    }
+  });
+
+  app.get('/api/students/goals', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const userId = (req.user as AuthenticatedUser).claims.sub;
+      const goals = await storage.getGoalsByStudent(userId);
+      res.json(goals);
+    } catch (error) {
+      console.error("Error fetching goals:", error);
+      res.status(500).json({ message: "Failed to fetch goals" });
+    }
+  });
+
+  app.get('/api/students/achievements', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const userId = (req.user as AuthenticatedUser).claims.sub;
+      const achievements = await storage.getAchievementsByStudent(userId);
+      res.json(achievements);
+    } catch (error) {
+      console.error("Error fetching achievements:", error);
+      res.status(500).json({ message: "Failed to fetch achievements" });
+    }
+  });
+
   // Activity routes
   app.post('/api/activities', isAuthenticated, upload.array('files', 5), async (req: Request, res: Response) => {
     try {

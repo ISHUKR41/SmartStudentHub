@@ -187,143 +187,29 @@ interface Achievement {
 
 
 export default function StudentDashboard() {
+  // ALL HOOKS MUST BE DECLARED FIRST - BEFORE ANY EARLY RETURNS
   const { toast } = useToast();
   const { isAuthenticated, isLoading, user } = useAuth();
   const [, setLocation] = useLocation();
   const [isDownloadingPortfolio, setIsDownloadingPortfolio] = useState(false);
+  
+  // State for advanced features - moved up to fix hooks order
+  const [activeTab, setActiveTab] = useState('overview');
+  const [selectedTimeframe, setSelectedTimeframe] = useState('semester');
+  const [showNotifications, setShowNotifications] = useState(false);
+  
+  // Refs - must be declared before any useEffect that uses them
+  const notificationRef = useRef<HTMLDivElement>(null);
+  
+  // Intersection Observer refs for animations
+  const [headerRef, headerInView] = useInView({ threshold: 0.1, triggerOnce: true });
+  const [statsRef, statsInView] = useInView({ threshold: 0.1, triggerOnce: true });
+  const [chartsRef, chartsInView] = useInView({ threshold: 0.1, triggerOnce: true });
+  const [skillsRef, skillsInView] = useInView({ threshold: 0.1, triggerOnce: true });
 
-  // Redirect to home if not authenticated
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      toast({
-        title: "Unauthorized",
-        description: "You are logged out. Logging in again...",
-        variant: "destructive",
-      });
-      setTimeout(() => {
-        setLocation("/");
-      }, 500);
-      return;
-    }
-  }, [isAuthenticated, isLoading, toast]);
-
-  // Load notifications, goals, and achievements
-  useEffect(() => {
-    if (isAuthenticated && user) {
-      // Mock notifications data - replace with actual API calls
-      setNotifications([
-        {
-          id: '1',
-          title: 'New Achievement Unlocked!',
-          message: 'You have earned the Academic Excellence badge',
-          type: 'success',
-          timestamp: new Date(),
-          read: false,
-          actionUrl: '/achievements'
-        },
-        {
-          id: '2',
-          title: 'Faculty Feedback Available',
-          message: 'Dr. Sharma has reviewed your research project',
-          type: 'info',
-          timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
-          read: false,
-          actionUrl: '/activities'
-        },
-        {
-          id: '3',
-          title: 'Attendance Warning',
-          message: 'Your Software Engineering attendance is below 95%',
-          type: 'warning',
-          timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000),
-          read: true
-        }
-      ]);
-
-      // Mock goals data
-      setGoals([
-        {
-          id: '1',
-          title: 'Complete 250 Skill Credits',
-          description: 'Achieve target skill credits for semester certification',
-          target: 250,
-          current: 191,
-          deadline: new Date('2024-12-31'),
-          category: 'Academic',
-          priority: 'high',
-          status: 'active'
-        },
-        {
-          id: '2',
-          title: 'Maintain 95% Attendance',
-          description: 'Keep attendance above institutional requirement',
-          target: 95,
-          current: 94.5,
-          deadline: new Date('2024-12-31'),
-          category: 'Attendance',
-          priority: 'medium',
-          status: 'active'
-        },
-        {
-          id: '3',
-          title: 'Publish Research Paper',
-          description: 'Submit research work to peer-reviewed journal',
-          target: 1,
-          current: 0,
-          deadline: new Date('2025-03-31'),
-          category: 'Research',
-          priority: 'high',
-          status: 'active'
-        }
-      ]);
-
-      // Mock achievements data with UUID-like IDs and proper typing
-      setAchievements([
-        {
-          id: 'ach_academic_excellence_2024',
-          title: 'Academic Excellence',
-          description: 'Maintained CGPA above 8.5 for 4 consecutive semesters',
-          date: new Date('2024-11-15'),
-          type: 'academic',
-          category: 'Academic Performance',
-          verified: true,
-          points: 50
-        },
-        {
-          id: 'ach_research_pioneer_2024',
-          title: 'Research Pioneer',
-          description: 'Published first-author research paper in IEEE conference',
-          date: new Date('2024-10-20'),
-          type: 'research',
-          category: 'Research & Innovation',
-          verified: true,
-          points: 75
-        },
-        {
-          id: 'ach_leadership_champion_2024',
-          title: 'Leadership Champion',
-          description: 'Successfully led team of 15 in college technical fest',
-          date: new Date('2024-09-30'),
-          type: 'leadership',
-          category: 'Leadership & Management',
-          verified: true,
-          points: 60
-        }
-      ]);
-    }
-  }, [isAuthenticated, user]);
-
-  // Handle notification click outside
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (notificationRef.current && !notificationRef.current.contains(event.target as Node)) {
-        setShowNotifications(false);
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
+  // Conditional query enables based on authentication and tab state
+  const isAttendanceTabActive = activeTab === 'attendance';
+  
   // Minimal fallback data for display when API data is loading
   const fallbackDisplayData = {
     semesterProgress: [
@@ -432,11 +318,7 @@ export default function StudentDashboard() {
     enabled: isAuthenticated && !!user, // Gate query on authentication
   });
 
-  // State for active tab - moved up to fix LSP error
-  const [activeTab, setActiveTab] = useState('overview');
-
   // Attendance Data Queries - Conditionally fetched based on active tab for performance
-  const isAttendanceTabActive = activeTab === 'attendance';
   
   const { data: attendanceStats, isLoading: attendanceStatsLoading, error: attendanceStatsError } = useQuery<AttendanceStats>({
     queryKey: ["/api/students/attendance/stats"],
@@ -462,19 +344,51 @@ export default function StudentDashboard() {
     enabled: isAuthenticated && !!user && isAttendanceTabActive,
   });
 
-  // State for advanced features
-  const [selectedTimeframe, setSelectedTimeframe] = useState('semester');
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [goals, setGoals] = useState<Goal[]>([]);
-  const [achievements, setAchievements] = useState<Achievement[]>([]);
-  const [showNotifications, setShowNotifications] = useState(false);
-  const notificationRef = useRef<HTMLDivElement>(null);
+  // Notifications, Goals, and Achievements Queries
+  const { data: notifications, isLoading: notificationsLoading, error: notificationsError } = useQuery<Notification[]>({
+    queryKey: ["/api/students/notifications"],
+    retry: false,
+    enabled: isAuthenticated && !!user,
+  });
 
-  // Intersection Observer for animations
-  const [headerRef, headerInView] = useInView({ threshold: 0.1, triggerOnce: true });
-  const [statsRef, statsInView] = useInView({ threshold: 0.1, triggerOnce: true });
-  const [chartsRef, chartsInView] = useInView({ threshold: 0.1, triggerOnce: true });
-  const [skillsRef, skillsInView] = useInView({ threshold: 0.1, triggerOnce: true });
+  const { data: goals, isLoading: goalsLoading, error: goalsError } = useQuery<Goal[]>({
+    queryKey: ["/api/students/goals"], 
+    retry: false,
+    enabled: isAuthenticated && !!user,
+  });
+
+  const { data: achievements, isLoading: achievementsLoading, error: achievementsError } = useQuery<Achievement[]>({
+    queryKey: ["/api/students/achievements"],
+    retry: false,
+    enabled: isAuthenticated && !!user,
+  });
+
+  // Effects - must come after all state and refs are declared
+  // Redirect to home if not authenticated
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      toast({
+        title: "Unauthorized",
+        description: "You are logged out. Logging in again...",
+        variant: "destructive",
+      });
+      setTimeout(() => {
+        setLocation("/");
+      }, 500);
+      return;
+    }
+  }, [isAuthenticated, isLoading, toast, setLocation]);
+
+  // Handle notification click outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (notificationRef.current && !notificationRef.current.contains(event.target as Node)) {
+        setShowNotifications(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // Detect user's motion preferences for accessibility
   const prefersReducedMotion = useMemo(() => {
@@ -484,6 +398,7 @@ export default function StudentDashboard() {
     return false;
   }, []);
 
+  // Early returns ONLY after all hooks are declared
   if (isLoading || !user) {
     return (
       <div className="min-h-screen w-full flex items-center justify-center bg-background" data-testid="loading-dashboard">
@@ -779,13 +694,13 @@ export default function StudentDashboard() {
                     data-testid="button-notifications"
                   >
                     <Bell className="w-4 h-4" />
-                    {notifications.filter(n => !n.read).length > 0 && (
+                    {notifications?.filter(n => !n.read).length > 0 && (
                       <motion.span 
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center"
                       >
-                        {notifications.filter(n => !n.read).length}
+                        {notifications?.filter(n => !n.read).length || 0}
                       </motion.span>
                     )}
                   </Button>
@@ -802,16 +717,16 @@ export default function StudentDashboard() {
                         <div className="p-4 border-b">
                           <h3 className="font-semibold text-foreground">Notifications</h3>
                           <p className="text-xs text-muted-foreground">
-                            {notifications.filter(n => !n.read).length} unread
+                            {notifications?.filter(n => !n.read).length || 0} unread
                           </p>
                         </div>
                         <div className="max-h-80 overflow-y-auto">
-                          {notifications.length === 0 ? (
+                          {!notifications || !notifications?.length ? (
                             <div className="p-4 text-center text-muted-foreground">
                               No notifications
                             </div>
                           ) : (
-                            notifications.map((notification) => (
+                            (notifications || []).map((notification) => (
                               <motion.div
                                 key={notification.id}
                                 whileHover={{ backgroundColor: "rgba(0,0,0,0.05)" }}
@@ -853,7 +768,7 @@ export default function StudentDashboard() {
                             size="sm"
                             className="w-full text-xs"
                             onClick={() => {
-                              setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+                              // TODO: Implement mark all as read API call
                               setShowNotifications(false);
                             }}
                           >
@@ -1452,7 +1367,7 @@ export default function StudentDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {dashboardData.upcomingDeadlines.map((deadline, index) => {
+                  {(dashboardData.upcomingDeadlines || []).map((deadline, index) => {
                     const daysLeft = Math.ceil((deadline.date.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
                     const priorityColors: Record<'high' | 'medium' | 'low', string> = {
                       high: 'bg-red-50 border-red-200 text-red-800',
@@ -1568,7 +1483,7 @@ export default function StudentDashboard() {
                   </CardHeader>
                   <CardContent>
                     {statsLoading ? (
-                      <div className="h-[200px] md:h-[300px] flex items-center justify-center">
+                      <div className="h-[300px] sm:h-[320px] md:h-[360px] lg:h-[400px] xl:h-[420px] flex items-center justify-center">
                         <div className="flex items-center space-x-2">
                           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
                           <span className="text-sm text-muted-foreground">Loading chart data...</span>
@@ -1580,7 +1495,7 @@ export default function StudentDashboard() {
                           gpa: { label: "CGPA", color: "hsl(221, 83%, 53%)" },
                           credits: { label: "Credits", color: "hsl(142, 71%, 45%)" }
                         }}
-                        className="h-[200px] md:h-[300px]"
+                        className="h-[300px] sm:h-[320px] md:h-[360px] lg:h-[400px] xl:h-[420px]"
                         data-testid="chart-academic-progress"
                       >
                         <RechartsLineChart data={dashboardData.semesterProgress}>
@@ -1606,7 +1521,7 @@ export default function StudentDashboard() {
                   </CardHeader>
                   <CardContent>
                     {statsLoading ? (
-                      <div className="h-[200px] md:h-[300px] flex items-center justify-center">
+                      <div className="h-[300px] sm:h-[320px] md:h-[360px] lg:h-[400px] xl:h-[420px] flex items-center justify-center">
                         <div className="flex items-center space-x-2">
                           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
                           <span className="text-sm text-muted-foreground">Loading chart data...</span>
@@ -1617,7 +1532,7 @@ export default function StudentDashboard() {
                         config={{
                           credits: { label: "Credits", color: "hsl(45, 93%, 47%)" }
                         }}
-                        className="h-[200px] md:h-[300px]"
+                        className="h-[300px] sm:h-[320px] md:h-[360px] lg:h-[400px] xl:h-[420px]"
                         data-testid="chart-skill-credits"
                       >
                         <AreaChart data={dashboardData.skillProgress}>
@@ -1645,7 +1560,7 @@ export default function StudentDashboard() {
                   </CardHeader>
                   <CardContent>
                     {activitiesLoading ? (
-                      <div className="h-[200px] md:h-[300px] flex items-center justify-center">
+                      <div className="h-[300px] sm:h-[320px] md:h-[360px] lg:h-[400px] xl:h-[420px] flex items-center justify-center">
                         <div className="flex items-center space-x-2">
                           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
                           <span className="text-sm text-muted-foreground">Loading activities...</span>
@@ -1660,7 +1575,7 @@ export default function StudentDashboard() {
                           Community: { label: "Community", color: "hsl(0, 72%, 51%)" },
                           Research: { label: "Research", color: "hsl(262, 83%, 58%)" }
                         }}
-                        className="h-[200px] md:h-[300px]"
+                        className="h-[300px] sm:h-[320px] md:h-[360px] lg:h-[400px] xl:h-[420px]"
                         data-testid="chart-activity-distribution"
                       >
                         <Tabs defaultValue="pie" className="w-full">
@@ -1679,7 +1594,7 @@ export default function StudentDashboard() {
                                 fill="#8884d8"
                                 dataKey="value"
                               >
-                                {dashboardData.categoryDistribution.map((entry, index) => (
+                                {(dashboardData.categoryDistribution || []).map((entry, index) => (
                                   <Cell key={`cell-${index}`} fill={entry.color} data-testid={`pie-slice-${index}`} />
                                 ))}
                               </Pie>
@@ -1690,7 +1605,7 @@ export default function StudentDashboard() {
                           
                           <TabsContent value="treemap" className="mt-0">
                             <Treemap
-                              data={dashboardData.categoryDistribution.map(item => ({
+                              data={(dashboardData.categoryDistribution || []).map(item => ({
                                 name: item.category,
                                 size: item.value,
                                 fill: item.color
@@ -1718,7 +1633,7 @@ export default function StudentDashboard() {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      {dashboardData.achievements.map((achievement, index) => {
+                      {(dashboardData.achievements || []).map((achievement, index) => {
                         const typeIcons = {
                           academic: <GraduationCap className="w-5 h-5 text-blue-600" />,
                           research: <BookOpen className="w-5 h-5 text-green-600" />,
@@ -1806,7 +1721,7 @@ export default function StudentDashboard() {
                         gpa: { label: "CGPA", color: "hsl(221, 83%, 53%)" },
                         credits: { label: "Credits", color: "hsl(142, 71%, 45%)" }
                       }}
-                      className="h-[300px]"
+                      className="h-[300px] sm:h-[320px] md:h-[360px] lg:h-[400px] xl:h-[420px]"
                     >
                       <BarChart data={dashboardData.semesterProgress}>
                         <CartesianGrid strokeDasharray="3 3" />
@@ -1905,7 +1820,7 @@ export default function StudentDashboard() {
                         attendance: { label: "Attendance %", color: "hsl(142, 71%, 45%)" },
                         target: { label: "Target %", color: "hsl(0, 72%, 51%)" }
                       }}
-                      className="h-[250px] md:h-[300px] 3xl:h-[350px]"
+                      className="h-[300px] sm:h-[320px] md:h-[360px] lg:h-[400px] xl:h-[420px]"
                       data-testid="chart-weekly-attendance"
                     >
                       <AreaChart data={attendanceTrends?.weeklyTrends || [
@@ -2005,7 +1920,7 @@ export default function StudentDashboard() {
                           config={{
                             attendance: { label: "Attendance %", color: "hsl(221, 83%, 53%)" }
                           }}
-                          className="h-[180px]"
+                          className="h-[300px] sm:h-[320px] md:h-[360px] lg:h-[400px] xl:h-[420px]"
                           data-testid="chart-monthly-attendance"
                         >
                           <BarChart data={[
@@ -2153,7 +2068,7 @@ export default function StudentDashboard() {
                       <div className="absolute left-6 top-12 bottom-0 w-0.5 bg-gradient-to-b from-primary via-blue-400 to-transparent"></div>
                       
                       <div className="space-y-6">
-                        {dashboardData.recentActivities.map((activity, index) => {
+                        {(dashboardData.recentActivities || []).map((activity, index) => {
                           const statusColors = {
                             approved: 'bg-green-500',
                             pending: 'bg-yellow-500', 
@@ -2209,7 +2124,7 @@ export default function StudentDashboard() {
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      {dashboardData.skillMatrix.map((item, index) => (
+                      {(dashboardData.skillMatrix || []).map((item, index) => (
                         <div key={index} data-testid={`skill-item-${index}`}>
                           <div className="flex items-center justify-between mb-2">
                             <div>
@@ -2243,10 +2158,10 @@ export default function StudentDashboard() {
                         config={{
                           skill: { label: "Skill Level", color: "hsl(221, 83%, 53%)" }
                         }}
-                        className="h-[300px]"
+                        className="h-[300px] sm:h-[320px] md:h-[360px] lg:h-[400px] xl:h-[420px]"
                         data-testid="chart-skills-radar"
                       >
-                        <RadarChart data={dashboardData.skillMatrix.map(skill => ({
+                        <RadarChart data={(dashboardData.skillMatrix || []).map(skill => ({
                           skill: skill.skill,
                           level: skill.level,
                           fullMark: 100
@@ -2272,7 +2187,7 @@ export default function StudentDashboard() {
                       </ChartContainer>
                       
                       <div className="mt-4 grid grid-cols-2 gap-2 text-xs">
-                        {dashboardData.skillMatrix.map((skill, index) => (
+                        {(dashboardData.skillMatrix || []).map((skill, index) => (
                           <motion.div
                             key={index}
                             initial={{ opacity: 0, x: -10 }}
@@ -2310,7 +2225,7 @@ export default function StudentDashboard() {
                         progress: { label: "Progress %", color: "hsl(142, 71%, 45%)" },
                         target: { label: "Target %", color: "hsl(0, 72%, 51%)" }
                       }}
-                      className="h-[200px] md:h-[250px]"
+                      className="h-[300px] sm:h-[320px] md:h-[360px] lg:h-[400px] xl:h-[420px]"
                     >
                       <BarChart data={[
                         { goal: 'CGPA 9.0+', progress: 87, target: 100 },
@@ -2445,7 +2360,7 @@ export default function StudentDashboard() {
                       <div className="absolute left-6 top-8 bottom-8 w-0.5 bg-gradient-to-b from-yellow-500 via-blue-500 to-green-500"></div>
                       
                       <div className="space-y-6">
-                        {achievements.map((achievement, index) => (
+                        {(achievements || []).map((achievement, index) => (
                           <motion.div
                             key={achievement.id}
                             initial={{ opacity: 0, x: -20 }}
@@ -2522,7 +2437,7 @@ export default function StudentDashboard() {
                           config={{
                             points: { label: "Points", color: "hsl(262, 83%, 58%)" }
                           }}
-                          className="h-[180px]"
+                          className="h-[300px] sm:h-[320px] md:h-[360px] lg:h-[400px] xl:h-[420px]"
                           data-testid="chart-achievement-points"
                         >
                           <RechartsPieChart>
@@ -2550,18 +2465,18 @@ export default function StudentDashboard() {
                       {/* Achievement Summary Stats */}
                       <div className="grid grid-cols-2 gap-4">
                         <div className="text-center p-4 bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 rounded-lg">
-                          <div className="text-2xl font-bold text-yellow-600">{achievements.length}</div>
+                          <div className="text-2xl font-bold text-yellow-600">{(achievements || []).length}</div>
                           <div className="text-xs text-yellow-700 dark:text-yellow-300">Total Achievements</div>
                         </div>
                         <div className="text-center p-4 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg">
                           <div className="text-2xl font-bold text-green-600">
-                            {achievements.filter(a => a.verified).length}
+                            {achievements?.filter(a => a.verified).length || 0}
                           </div>
                           <div className="text-xs text-green-700 dark:text-green-300">Verified</div>
                         </div>
                         <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 rounded-lg">
                           <div className="text-2xl font-bold text-purple-600">
-                            {achievements.reduce((sum, a) => sum + a.points, 0)}
+                            {(achievements || []).reduce((sum, a) => sum + (a?.points || 0), 0)}
                           </div>
                           <div className="text-xs text-purple-700 dark:text-purple-300">Total Points</div>
                         </div>
@@ -2997,7 +2912,7 @@ export default function StudentDashboard() {
                       Community: { label: "Community", color: "hsl(0, 72%, 51%)" },
                       Research: { label: "Research", color: "hsl(262, 83%, 58%)" }
                     }}
-                    className="h-[200px]"
+                    className="h-[300px] sm:h-[320px] md:h-[360px] lg:h-[400px] xl:h-[420px]"
                   >
                     <RechartsPieChart>
                       <Pie
@@ -3009,7 +2924,7 @@ export default function StudentDashboard() {
                         fill="#8884d8"
                         dataKey="value"
                       >
-                        {dashboardData.categoryDistribution.map((entry, index) => (
+                        {(dashboardData.categoryDistribution || []).map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={entry.color} />
                         ))}
                       </Pie>
@@ -3018,7 +2933,7 @@ export default function StudentDashboard() {
                   </ChartContainer>
 
                   <div className="space-y-2">
-                    {dashboardData.categoryDistribution.map((category, index) => (
+                    {(dashboardData.categoryDistribution || []).map((category, index) => (
                       <div key={index} className="flex items-center justify-between text-sm">
                         <div className="flex items-center space-x-2">
                           <div className="w-3 h-3 rounded-full" style={{ backgroundColor: category.color }}></div>

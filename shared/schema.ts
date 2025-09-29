@@ -103,6 +103,37 @@ export const activityCategoryEnum = pgEnum('activity_category', [
 export const attendanceStatusEnum = pgEnum('attendance_status', ['present', 'absent', 'late', 'excused']);
 
 /**
+ * Notification Type Enumeration
+ * 
+ * Types of notifications that can be sent to students:
+ * - info: General information notifications
+ * - success: Achievement and positive updates
+ * - warning: Important warnings and reminders
+ * - error: Critical issues that need attention
+ */
+export const notificationTypeEnum = pgEnum('notification_type', ['info', 'success', 'warning', 'error']);
+
+/**
+ * Goal Priority Enumeration
+ * 
+ * Priority levels for student goals:
+ * - low: Optional goals with flexible deadlines
+ * - medium: Important goals for academic progress
+ * - high: Critical goals that must be completed
+ */
+export const goalPriorityEnum = pgEnum('goal_priority', ['low', 'medium', 'high']);
+
+/**
+ * Goal Status Enumeration
+ * 
+ * Status of student goals:
+ * - active: Currently working on this goal
+ * - completed: Goal has been achieved
+ * - overdue: Goal deadline has passed without completion
+ */
+export const goalStatusEnum = pgEnum('goal_status', ['active', 'completed', 'overdue']);
+
+/**
  * Users Table
  * 
  * Central user management table supporting Replit Authentication.
@@ -248,6 +279,81 @@ export const attendance = pgTable("attendance", {
 });
 
 /**
+ * Notifications Table
+ * 
+ * Student notification system for real-time updates and alerts.
+ * Stores system-generated and manual notifications for student engagement.
+ * 
+ * Features:
+ * - Type-based notification categorization
+ * - Read/unread status tracking
+ * - Optional action URLs for navigation
+ * - Timestamp tracking for chronological ordering
+ */
+export const notifications = pgTable("notifications", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  studentId: varchar("student_id").references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  title: varchar("title").notNull(),
+  message: text("message").notNull(),
+  type: notificationTypeEnum("type").default('info').notNull(),
+  read: boolean("read").default(false).notNull(),
+  actionUrl: varchar("action_url"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+/**
+ * Goals Table
+ * 
+ * Student goal tracking and progress monitoring system.
+ * Enables students to set and track academic and skill development goals.
+ * 
+ * Features:
+ * - Target and current progress tracking
+ * - Priority-based categorization
+ * - Deadline management
+ * - Status tracking (active/completed/overdue)
+ */
+export const goals = pgTable("goals", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  studentId: varchar("student_id").references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  title: varchar("title").notNull(),
+  description: text("description"),
+  target: integer("target").notNull(),
+  current: integer("current").default(0).notNull(),
+  deadline: timestamp("deadline").notNull(),
+  category: varchar("category").notNull(),
+  priority: goalPriorityEnum("priority").default('medium').notNull(),
+  status: goalStatusEnum("status").default('active').notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+/**
+ * Achievements Table
+ * 
+ * Student achievement and milestone tracking system.
+ * Records significant accomplishments, badges, and recognitions.
+ * 
+ * Features:
+ * - Achievement categorization by type
+ * - Verification status for credibility
+ * - Points system for gamification
+ * - Date tracking for chronological display
+ */
+export const achievements = pgTable("achievements", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  studentId: varchar("student_id").references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  title: varchar("title").notNull(),
+  description: text("description").notNull(),
+  date: timestamp("date").notNull(),
+  type: varchar("type").notNull(),
+  category: varchar("category").notNull(),
+  verified: boolean("verified").default(false).notNull(),
+  points: integer("points").default(0).notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+/**
  * Database Relations
  * 
  * Defines the relationships between tables using Drizzle ORM relations.
@@ -256,6 +362,10 @@ export const attendance = pgTable("attendance", {
 export const usersRelations = relations(users, ({ many, one }) => ({
   activities: many(activities, { relationName: 'student_activities' }),
   verifiedActivities: many(activities, { relationName: 'faculty_verifications' }),
+  notifications: many(notifications),
+  goals: many(goals),
+  achievements: many(achievements),
+  attendance: many(attendance),
   department: one(departments, {
     fields: [users.department],
     references: [departments.code],
@@ -319,6 +429,27 @@ export const attendanceRelations = relations(attendance, ({ one }) => ({
   }),
 }));
 
+export const notificationsRelations = relations(notifications, ({ one }) => ({
+  student: one(users, {
+    fields: [notifications.studentId],
+    references: [users.id],
+  }),
+}));
+
+export const goalsRelations = relations(goals, ({ one }) => ({
+  student: one(users, {
+    fields: [goals.studentId],
+    references: [users.id],
+  }),
+}));
+
+export const achievementsRelations = relations(achievements, ({ one }) => ({
+  student: one(users, {
+    fields: [achievements.studentId],
+    references: [users.id],
+  }),
+}));
+
 /**
  * Validation Schemas
  * 
@@ -371,6 +502,22 @@ export const insertSubjectSchema = createInsertSchema(subjects).omit({
 export const insertAttendanceSchema = createInsertSchema(attendance).omit({
   id: true,
   markedAt: true,
+  createdAt: true,
+});
+
+export const insertNotificationSchema = createInsertSchema(notifications).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertGoalSchema = createInsertSchema(goals).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertAchievementSchema = createInsertSchema(achievements).omit({
+  id: true,
   createdAt: true,
 });
 
@@ -513,6 +660,12 @@ export type Subject = typeof subjects.$inferSelect;
 export type InsertSubject = z.infer<typeof insertSubjectSchema>;
 export type Attendance = typeof attendance.$inferSelect;
 export type InsertAttendance = z.infer<typeof insertAttendanceSchema>;
+export type Notification = typeof notifications.$inferSelect;
+export type InsertNotification = z.infer<typeof insertNotificationSchema>;
+export type Goal = typeof goals.$inferSelect;
+export type InsertGoal = z.infer<typeof insertGoalSchema>;
+export type Achievement = typeof achievements.$inferSelect;
+export type InsertAchievement = z.infer<typeof insertAchievementSchema>;
 
 /**
  * Authentication Form Type Definitions
