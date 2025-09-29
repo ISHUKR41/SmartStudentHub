@@ -354,6 +354,65 @@ export const achievements = pgTable("achievements", {
 });
 
 /**
+ * Analytics Event Type Enumeration
+ * 
+ * Types of analytics events that can be tracked:
+ * - activity: Student activity submissions, approvals, rejections
+ * - attendance: Class attendance records
+ * - goal: Goal creation, updates, completion
+ * - system: System-wide events and milestones
+ */
+export const analyticsEventTypeEnum = pgEnum('analytics_event_type', ['activity', 'attendance', 'goal', 'system']);
+
+/**
+ * Analytics Events Table
+ * 
+ * Real-time tracking of all student-related events for analytics and insights.
+ * This table powers the real-time analytics dashboard with detailed event data.
+ * 
+ * Features:
+ * - Real-time event tracking across all system activities
+ * - Flexible payload structure using JSONB for custom data
+ * - High-performance indexing for analytics queries
+ * - Supports streaming analytics and live dashboard updates
+ */
+export const analyticsEvents = pgTable("analytics_events", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  studentId: varchar("student_id").references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  type: analyticsEventTypeEnum("type").notNull(),
+  ts: timestamp("ts").defaultNow().notNull(),
+  payload: jsonb("payload").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("idx_analytics_events_student_ts").on(table.studentId, table.ts),
+  index("idx_analytics_events_type_ts").on(table.type, table.ts),
+]);
+
+/**
+ * Analytics Snapshots Table
+ * 
+ * Pre-computed analytics data for improved dashboard performance.
+ * Stores cached results of complex analytics queries with automatic invalidation.
+ * 
+ * Features:
+ * - Caching layer for expensive analytics computations
+ * - Range-based data storage (daily, weekly, monthly, yearly)
+ * - Automatic cache invalidation with computed timestamps
+ * - Optimized for real-time dashboard loading
+ */
+export const analyticsSnapshots = pgTable("analytics_snapshots", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  studentId: varchar("student_id").references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  range: varchar("range").notNull(), // 'day', 'week', 'month', 'year'
+  computedAt: timestamp("computed_at").defaultNow().notNull(),
+  data: jsonb("data").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (table) => [
+  index("idx_analytics_snapshots_student_range").on(table.studentId, table.range),
+  index("idx_analytics_snapshots_computed").on(table.computedAt),
+]);
+
+/**
  * Database Relations
  * 
  * Defines the relationships between tables using Drizzle ORM relations.
@@ -366,6 +425,8 @@ export const usersRelations = relations(users, ({ many, one }) => ({
   goals: many(goals),
   achievements: many(achievements),
   attendance: many(attendance),
+  analyticsEvents: many(analyticsEvents),
+  analyticsSnapshots: many(analyticsSnapshots),
   department: one(departments, {
     fields: [users.department],
     references: [departments.code],
@@ -450,6 +511,20 @@ export const achievementsRelations = relations(achievements, ({ one }) => ({
   }),
 }));
 
+export const analyticsEventsRelations = relations(analyticsEvents, ({ one }) => ({
+  student: one(users, {
+    fields: [analyticsEvents.studentId],
+    references: [users.id],
+  }),
+}));
+
+export const analyticsSnapshotsRelations = relations(analyticsSnapshots, ({ one }) => ({
+  student: one(users, {
+    fields: [analyticsSnapshots.studentId],
+    references: [users.id],
+  }),
+}));
+
 /**
  * Validation Schemas
  * 
@@ -517,6 +592,16 @@ export const insertGoalSchema = createInsertSchema(goals).omit({
 });
 
 export const insertAchievementSchema = createInsertSchema(achievements).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertAnalyticsEventSchema = createInsertSchema(analyticsEvents).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertAnalyticsSnapshotSchema = createInsertSchema(analyticsSnapshots).omit({
   id: true,
   createdAt: true,
 });
@@ -666,6 +751,66 @@ export type Goal = typeof goals.$inferSelect;
 export type InsertGoal = z.infer<typeof insertGoalSchema>;
 export type Achievement = typeof achievements.$inferSelect;
 export type InsertAchievement = z.infer<typeof insertAchievementSchema>;
+
+// Analytics Types
+export type AnalyticsEvent = typeof analyticsEvents.$inferSelect;
+export type InsertAnalyticsEvent = z.infer<typeof insertAnalyticsEventSchema>;
+export type AnalyticsSnapshot = typeof analyticsSnapshots.$inferSelect;
+export type InsertAnalyticsSnapshot = z.infer<typeof insertAnalyticsSnapshotSchema>;
+
+/**
+ * Advanced Chart Data Type Schemas
+ * 
+ * Zod schemas for complex chart data structures used in the analytics dashboard.
+ * These schemas ensure type safety for advanced visualizations.
+ */
+
+// Heatmap Chart Data Schema
+export const heatmapCellSchema = z.object({
+  date: z.string(),
+  hour: z.number().min(0).max(23),
+  value: z.number().min(0)
+});
+
+// Sankey Diagram Data Schema  
+export const sankeyLinkSchema = z.object({
+  source: z.string(),
+  target: z.string(),
+  value: z.number().min(0)
+});
+
+// Waterfall Chart Data Schema
+export const waterfallStepSchema = z.object({
+  label: z.string(),
+  value: z.number()
+});
+
+// Gantt Timeline Data Schema
+export const ganttTaskSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  start: z.date(),
+  end: z.date(),
+  progress: z.number().min(0).max(100),
+  dependsOn: z.array(z.string()).optional()
+});
+
+// Analytics API Response Schemas
+export const analyticsDataSchema = z.object({
+  heatmapData: z.array(heatmapCellSchema),
+  sankeyData: z.array(sankeyLinkSchema),
+  waterfallData: z.array(waterfallStepSchema),
+  ganttData: z.array(ganttTaskSchema),
+  computedAt: z.date(),
+  range: z.enum(['day', 'week', 'month', 'year'])
+});
+
+// Chart Data Type Exports
+export type HeatmapCell = z.infer<typeof heatmapCellSchema>;
+export type SankeyLink = z.infer<typeof sankeyLinkSchema>;
+export type WaterfallStep = z.infer<typeof waterfallStepSchema>;
+export type GanttTask = z.infer<typeof ganttTaskSchema>;
+export type AnalyticsData = z.infer<typeof analyticsDataSchema>;
 
 /**
  * Authentication Form Type Definitions
