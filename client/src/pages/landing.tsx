@@ -25,7 +25,7 @@ import {
   Workflow, Target, Calendar, Smartphone, ChevronDown, Menu, X,
   Facebook, Twitter, Linkedin, Instagram, Mail, Phone, MapPin,
   Plus, Minus, ArrowRight, Play, CheckSquare, AlertCircle,
-  Lightbulb, Layers, Rocket, Heart, Monitor, TabletSmartphone
+  Lightbulb, Layers, Rocket, Heart, Monitor, TabletSmartphone, FileText
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -514,6 +514,223 @@ export default function Landing() {
                   </Card>
                 </motion.div>
               ))}
+            </div>
+          </motion.div>
+        </section>
+
+        {/* Institutional Compliance & Standards Section */}
+        <section className="py-16 sm:py-20 lg:py-24 xl:py-28 2xl:py-32 px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 bg-white dark:bg-gray-900">
+          <motion.div 
+            className="max-w-7xl xl:max-w-8xl mx-auto"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+          >
+            <div className="text-center mb-12 lg:mb-16">
+              <motion.h2 
+                className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl font-bold text-foreground mb-6"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6 }}
+                data-testid="compliance-title"
+              >
+                Industry-Leading Compliance & Security Standards
+              </motion.h2>
+              <motion.p 
+                className="text-lg lg:text-xl xl:text-2xl 2xl:text-3xl text-muted-foreground max-w-4xl xl:max-w-5xl 2xl:max-w-6xl mx-auto"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+              >
+                Built with enterprise-grade security and compliance frameworks that meet the highest standards 
+                of Higher Education Institutions and regulatory bodies worldwide.
+              </motion.p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 xl:gap-10 2xl:gap-12">
+              {[
+                {
+                  icon: Shield,
+                  title: "NAAC Ready",
+                  description: "Fully compliant with NAAC accreditation standards and reporting requirements",
+                  badge: "Grade A+ Compatible"
+                },
+                {
+                  icon: Award,
+                  title: "NIRF Aligned", 
+                  description: "Structured data collection aligned with NIRF ranking parameters and metrics",
+                  badge: "Ranking Optimized"
+                },
+                {
+                  icon: Lock,
+                  title: "Data Security",
+                  description: "Enterprise-grade encryption, secure authentication, and GDPR compliance",
+                  badge: "ISO 27001 Ready"
+                },
+                {
+                  icon: Cloud,
+                  title: "Cloud Infrastructure",
+                  description: "Scalable, reliable cloud hosting with 99.9% uptime and automatic backups",
+                  badge: "99.9% Uptime"
+                }
+              ].map((item, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 50 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.8, delay: index * 0.1 }}
+                  whileHover={{ scale: 1.02, y: -5 }}
+                  className="group"
+                >
+                  <Card className="h-full bg-card/50 backdrop-blur-sm border border-border/50 hover:border-primary/30 transition-all duration-300 hover:shadow-xl">
+                    <CardContent className="p-6 text-center">
+                      <div className="w-16 h-16 xl:w-20 xl:h-20 2xl:w-24 2xl:h-24 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/20 transition-colors duration-300">
+                        <item.icon className="w-8 h-8 xl:w-10 xl:h-10 2xl:w-12 2xl:h-12 text-primary" />
+                      </div>
+                      <Badge variant="secondary" className="mb-3 text-xs xl:text-sm font-medium">{item.badge}</Badge>
+                      <h3 className="text-lg xl:text-xl 2xl:text-2xl font-bold text-foreground mb-3">{item.title}</h3>
+                      <p className="text-sm xl:text-base 2xl:text-lg text-muted-foreground leading-relaxed">{item.description}</p>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        </section>
+
+        {/* Technical Specifications Section */}
+        <section className="py-16 sm:py-20 lg:py-24 xl:py-28 2xl:py-32 px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-950/20 dark:via-indigo-950/20 dark:to-purple-950/20">
+          <motion.div 
+            className="max-w-7xl xl:max-w-8xl mx-auto"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+          >
+            <div className="text-center mb-12 lg:mb-16">
+              <motion.h2 
+                className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl font-bold text-foreground mb-6"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6 }}
+              >
+                Advanced Technical Capabilities
+              </motion.h2>
+              <motion.p 
+                className="text-lg lg:text-xl xl:text-2xl 2xl:text-3xl text-muted-foreground max-w-4xl xl:max-w-5xl 2xl:max-w-6xl mx-auto"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+              >
+                Built on modern architecture with cutting-edge technology stack for optimal performance, 
+                scalability, and user experience across all institutional environments.
+              </motion.p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 xl:gap-16">
+              <motion.div
+                initial={{ opacity: 0, x: -50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8 }}
+                className="space-y-6"
+              >
+                <h3 className="text-2xl xl:text-3xl 2xl:text-4xl font-bold text-foreground mb-6">Platform Architecture</h3>
+                {[
+                  {
+                    icon: Database,
+                    title: "PostgreSQL Database",
+                    description: "Robust relational database with advanced indexing and transaction support"
+                  },
+                  {
+                    icon: Cloud,
+                    title: "Cloud-Native Design",
+                    description: "Microservices architecture with horizontal scaling and load balancing"
+                  },
+                  {
+                    icon: Shield,
+                    title: "JWT Authentication",
+                    description: "Secure token-based authentication with role-based access control"
+                  },
+                  {
+                    icon: Zap,
+                    title: "Real-time Updates",
+                    description: "WebSocket integration for instant notifications and live data synchronization"
+                  }
+                ].map((tech, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, x: -30 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6, delay: index * 0.1 }}
+                    className="flex items-start space-x-4 p-4 rounded-xl bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm"
+                  >
+                    <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <tech.icon className="w-6 h-6 text-primary" />
+                    </div>
+                    <div>
+                      <h4 className="text-lg xl:text-xl font-semibold text-foreground mb-2">{tech.title}</h4>
+                      <p className="text-sm xl:text-base text-muted-foreground">{tech.description}</p>
+                    </div>
+                  </motion.div>
+                ))}
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, x: 50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8 }}
+                className="space-y-6"
+              >
+                <h3 className="text-2xl xl:text-3xl 2xl:text-4xl font-bold text-foreground mb-6">Integration Capabilities</h3>
+                {[
+                  {
+                    icon: Globe,
+                    title: "ERP System Integration",
+                    description: "Seamless integration with existing institutional ERP and management systems"
+                  },
+                  {
+                    icon: FileText,
+                    title: "Document Processing",
+                    description: "AI-powered document verification and automated certificate validation"
+                  },
+                  {
+                    icon: BarChart3,
+                    title: "Analytics Engine",
+                    description: "Advanced analytics with custom dashboards and predictive insights"
+                  },
+                  {
+                    icon: Smartphone,
+                    title: "Mobile Responsive",
+                    description: "Progressive Web App (PWA) with native mobile app performance"
+                  }
+                ].map((feature, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, x: 30 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6, delay: index * 0.1 }}
+                    className="flex items-start space-x-4 p-4 rounded-xl bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm"
+                  >
+                    <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <feature.icon className="w-6 h-6 text-primary" />
+                    </div>
+                    <div>
+                      <h4 className="text-lg xl:text-xl font-semibold text-foreground mb-2">{feature.title}</h4>
+                      <p className="text-sm xl:text-base text-muted-foreground">{feature.description}</p>
+                    </div>
+                  </motion.div>
+                ))}
+              </motion.div>
             </div>
           </motion.div>
         </section>
