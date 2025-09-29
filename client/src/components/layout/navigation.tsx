@@ -144,7 +144,7 @@ function NavLink({ href, label, icon: Icon, testId, className, onClick }: NavLin
       className={cn(
         "flex items-center space-x-2 justify-start touch-button enhanced-focus active-touch transition-all duration-200",
         "h-8 px-2 md:h-9 md:px-3 lg:h-10 lg:px-4 xl:h-10 xl:px-4 2xl:h-11 2xl:px-5",
-        "text-xs md:text-xs lg:text-sm xl:text-sm 2xl:text-sm",
+        "text-xs md:text-xs lg:text-xs xl:text-xs 2xl:text-xs",
         "min-w-[40px] min-h-[40px] md:min-w-[42px] md:min-h-[42px] lg:min-w-[44px] lg:min-h-[44px] xl:min-w-[44px] xl:min-h-[44px] 2xl:min-w-[48px] 2xl:min-h-[48px]",
         className
       )}
@@ -226,10 +226,10 @@ export default function Navigation() {
             
             {/* Institutional Name and System Designation - Compact sizing */}
             <div className="hidden sm:block">
-              <h1 className="text-sm sm:text-base md:text-lg lg:text-lg xl:text-xl 2xl:text-xl font-semibold text-foreground leading-tight transition-all duration-200" data-testid="text-app-title">
+              <h1 className="text-xs sm:text-sm md:text-sm lg:text-base xl:text-base 2xl:text-base font-semibold text-foreground leading-tight transition-all duration-200" data-testid="text-app-title">
                 Smart Student Hub
               </h1>
-              <p className="text-xs sm:text-xs md:text-xs lg:text-sm xl:text-sm 2xl:text-sm text-muted-foreground hidden sm:block transition-all duration-200" data-testid="text-app-subtitle">
+              <p className="text-xs sm:text-xs md:text-xs lg:text-xs xl:text-xs 2xl:text-xs text-muted-foreground hidden sm:block transition-all duration-200" data-testid="text-app-subtitle">
                 Institutional Excellence Management System
               </p>
             </div>
@@ -260,7 +260,7 @@ export default function Navigation() {
                   placeholder="Search..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-32 sm:w-40 md:w-48 lg:w-56 xl:w-64 2xl:w-72 pl-9 sm:pl-10 h-10 sm:h-11 md:h-12 lg:h-12 xl:h-12 2xl:h-14 text-sm md:text-base lg:text-lg xl:text-xl 2xl:text-xl mobile-search enhanced-focus transition-all duration-200"
+                  className="w-32 sm:w-40 md:w-48 lg:w-56 xl:w-64 2xl:w-72 pl-9 sm:pl-10 h-10 sm:h-11 md:h-12 lg:h-12 xl:h-12 2xl:h-14 text-xs md:text-xs lg:text-sm xl:text-sm 2xl:text-sm mobile-search enhanced-focus transition-all duration-200"
                   data-testid="input-search"
                 />
                 {/* Search Icon with Professional Styling */}
@@ -289,13 +289,13 @@ export default function Navigation() {
             {/* Authentication Buttons for Unauthenticated Users - Enhanced responsive design */}
             {!user && (
               <div className="hidden sm:flex items-center space-x-1 sm:space-x-2 md:space-x-3">
-                <Button variant="ghost" size="sm" className="h-10 w-auto px-3 sm:h-11 sm:px-4 md:h-12 md:px-5 lg:h-12 lg:px-6 xl:h-12 xl:px-7 2xl:h-14 2xl:px-8 text-sm md:text-base lg:text-lg xl:text-xl 2xl:text-xl touch-button enhanced-focus" data-testid="button-login" asChild>
+                <Button variant="ghost" size="sm" className="h-8 w-auto px-2 sm:h-9 sm:px-3 md:h-10 md:px-4 lg:h-10 lg:px-4 xl:h-10 xl:px-5 2xl:h-11 2xl:px-6 text-xs md:text-xs lg:text-sm xl:text-sm 2xl:text-sm touch-button enhanced-focus" data-testid="button-login" asChild>
                   <Link href="/login">
                     <span className="hidden sm:inline">Login</span>
                     <span className="sm:hidden">In</span>
                   </Link>
                 </Button>
-                <Button size="sm" className="h-10 w-auto px-3 sm:h-11 sm:px-4 md:h-12 md:px-5 lg:h-12 lg:px-6 xl:h-12 xl:px-7 2xl:h-14 2xl:px-8 text-sm md:text-base lg:text-lg xl:text-xl 2xl:text-xl touch-button enhanced-focus" data-testid="button-signup" asChild>
+                <Button size="sm" className="h-8 w-auto px-2 sm:h-9 sm:px-3 md:h-10 md:px-4 lg:h-10 lg:px-4 xl:h-10 xl:px-5 2xl:h-11 2xl:px-6 text-xs md:text-xs lg:text-sm xl:text-sm 2xl:text-sm touch-button enhanced-focus" data-testid="button-signup" asChild>
                   <Link href="/signup">
                     <span className="hidden sm:inline">Sign Up</span>
                     <span className="sm:hidden">Up</span>
@@ -323,7 +323,7 @@ export default function Navigation() {
                     
                     {/* User Information Display - Compact sizing */}
                     <div className="hidden lg:block text-left">
-                      <div className="text-xs md:text-sm lg:text-sm xl:text-sm 2xl:text-sm font-medium text-foreground truncate max-w-32 xl:max-w-40 2xl:max-w-52" data-testid="text-user-name">
+                      <div className="text-xs md:text-xs lg:text-xs xl:text-xs 2xl:text-xs font-medium text-foreground truncate max-w-32 xl:max-w-40 2xl:max-w-52" data-testid="text-user-name">
                         {user.firstName} {user.lastName}
                       </div>
                       <div className="text-xs md:text-xs lg:text-xs xl:text-xs 2xl:text-xs text-muted-foreground capitalize truncate" data-testid="text-user-role">
@@ -342,20 +342,20 @@ export default function Navigation() {
                   <DropdownMenuItem className="touch-dropdown-item enhanced-focus" data-testid="menu-item-profile" asChild>
                     <Link href="/profile">
                       <User className="mr-3 h-4 w-4 md:h-5 md:w-5 lg:h-6 lg:w-6 xl:h-7 xl:w-7 2xl:h-8 2xl:w-8" />
-                      <span className="text-xs md:text-sm lg:text-sm xl:text-sm 2xl:text-sm">Account Profile</span>
+                      <span className="text-xs md:text-xs lg:text-xs xl:text-xs 2xl:text-xs">Account Profile</span>
                     </Link>
                   </DropdownMenuItem>
                   
                   {/* System Preferences and Settings */}
                   <DropdownMenuItem className="touch-dropdown-item enhanced-focus" data-testid="menu-item-settings">
                     <Settings className="mr-3 h-4 w-4 md:h-5 md:w-5 lg:h-6 lg:w-6 xl:h-7 xl:w-7 2xl:h-8 2xl:w-8" />
-                    <span className="text-xs md:text-sm lg:text-sm xl:text-sm 2xl:text-sm">System Preferences</span>
+                    <span className="text-xs md:text-xs lg:text-xs xl:text-xs 2xl:text-xs">System Preferences</span>
                   </DropdownMenuItem>
                   
                   {/* Secure Logout Functionality */}
                   <DropdownMenuItem onClick={handleLogout} className="touch-dropdown-item enhanced-focus text-destructive hover:text-destructive" data-testid="menu-item-logout">
                     <LogOut className="mr-3 h-4 w-4 md:h-5 md:w-5 lg:h-6 lg:w-6 xl:h-7 xl:w-7 2xl:h-8 2xl:w-8" />
-                    <span className="text-xs md:text-sm lg:text-sm xl:text-sm 2xl:text-sm">Sign Out</span>
+                    <span className="text-xs md:text-xs lg:text-xs xl:text-xs 2xl:text-xs">Sign Out</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
