@@ -19,7 +19,7 @@
  */
 
 import { useState, useEffect, useMemo, useRef, useCallback } from "react";
-import { motion, useInView, useSpring, animated, useTransition } from "framer-motion";
+import { motion, useInView } from "framer-motion";
 import { useLocation } from "wouter";
 import { useInView as useIntersectionObserver } from "react-intersection-observer";
 import { HelmetProvider, Helmet } from "react-helmet-async";
@@ -27,7 +27,8 @@ import { useHotkeys } from "react-hotkeys-hook";
 import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
 import CountUp from "react-countup";
-import { FixedSizeList as List } from "react-window";
+import { useSpring } from "react-spring";
+// import { FixedSizeList as List } from "react-window";
 import useEmblaCarousel from "embla-carousel-react";
 import { DayPicker } from "react-day-picker";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
@@ -40,16 +41,16 @@ import {
   Activity, ChevronRight, Quote, ExternalLink, Check,
   Twitter, Linkedin, Facebook, Instagram, AlertTriangle,
   BookOpen, Target, PieChart, LineChart, BarChart,
-  FileText, Camera, Upload, Verify, Share2, Globe,
-  Smartphone, Laptop, Tablet, Code, Server, Cloud,
+  FileText, Camera, Upload, Share2, Globe,
+  Smartphone, Laptop, Tablet, Code, Server,
   MonitorSpeaker, Headphones, Volume2, Mic, Video,
   CreditCard, DollarSign, Calculator, Percent, Euro,
   Fingerprint, KeyRound, ShieldCheck, ScanLine, Cpu,
   Wifi, Signal, Battery, HardDrive, MemoryStick,
   MousePointer, Keyboard, Monitor, Printer, Webcam,
   MessageCircle, MessageSquare, Bell, BellRing, Inbox,
-  Navigation, Compass, Map, Route, Flag, MapPin2,
-  Sun, Moon, Cloud2, CloudRain, Thermometer, Wind,
+  Navigation, Compass, Map, Route, Flag,
+  Sun, Moon, Cloud, CloudRain, Thermometer, Wind,
   UserCheck, UserPlus, UserMinus, UserX, Users2,
   BookmarkCheck, BookmarkPlus, BookmarkX, Bookmark,
   FolderOpen, FolderPlus, FolderCheck, FolderX, Folder,
@@ -58,17 +59,17 @@ import {
   Plus, Minus, Equal, Divide, X as Close,
   Edit, Edit2, Edit3, PenTool, Pen, Pencil,
   Save, SaveAll, Archive, ArchiveX, ArchiveRestore,
-  Copy, Paste, Cut, Scissors, Clipboard, ClipboardCheck,
-  Filter, FilterX, Search as SearchIcon, Zoom, ZoomIn, ZoomOut,
-  Refresh, RefreshCw, RotateCcw, RotateCw, Repeat, Repeat1,
-  SkipBack, SkipForward, FastForward, Rewind, Pause, Stop,
+  Copy, Scissors, Clipboard, ClipboardCheck,
+  Filter, FilterX, Search as SearchIcon, ZoomIn, ZoomOut,
+  RefreshCw, RotateCcw, RotateCw, Repeat, Repeat1,
+  SkipBack, SkipForward, FastForward, Rewind, Pause,
   VolumeX, Volume, Volume1, AlertCircle, Info, HelpCircle,
   ThumbsUp, ThumbsDown, Heart as LikeHeart, Smile, Frown,
   GitBranch, GitCommit, GitMerge, GitPullRequest, Github,
-  Chrome, Firefox, Safari, Edge, Opera,
-  Android, Apple, Windows, Linux, Ubuntu,
+  Chrome,
+  Apple,
   Facebook as Meta, Instagram as Insta, Twitter as TwitterX,
-  Youtube, Twitch, Discord, Slack, Telegram
+  Youtube
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
