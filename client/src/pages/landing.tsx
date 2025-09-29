@@ -2175,7 +2175,7 @@ export default function Landing() {
             >
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                 <Button 
-                  onClick={() => setLocation('/api/login')}
+                  onClick={() => setLocation('/login')}
                   size="lg"
                   className="bg-white text-primary hover:bg-gray-100 px-10 py-4 text-lg font-semibold rounded-full shadow-xl hover:shadow-2xl transition-all duration-300"
                   data-testid="cta-get-started"
