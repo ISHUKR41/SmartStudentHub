@@ -143,16 +143,16 @@ function NavLink({ href, label, icon: Icon, testId, className, onClick }: NavLin
       variant={isActive ? "default" : "ghost"}
       className={cn(
         "flex items-center space-x-2 justify-start touch-button enhanced-focus active-touch transition-all duration-200",
-        "h-10 px-3 md:h-11 md:px-4 lg:h-12 lg:px-5 xl:h-12 xl:px-6 2xl:h-14 2xl:px-8",
-        "text-sm md:text-sm lg:text-base xl:text-lg 2xl:text-xl",
-        "min-w-[44px] min-h-[44px] md:min-w-[48px] md:min-h-[48px] lg:min-w-[52px] lg:min-h-[52px] xl:min-w-[56px] xl:min-h-[56px] 2xl:min-w-[60px] 2xl:min-h-[60px]",
+        "h-8 px-2 md:h-9 md:px-3 lg:h-10 lg:px-4 xl:h-10 xl:px-4 2xl:h-11 2xl:px-5",
+        "text-xs md:text-xs lg:text-sm xl:text-sm 2xl:text-sm",
+        "min-w-[40px] min-h-[40px] md:min-w-[42px] md:min-h-[42px] lg:min-w-[44px] lg:min-h-[44px] xl:min-w-[44px] xl:min-h-[44px] 2xl:min-w-[48px] 2xl:min-h-[48px]",
         className
       )}
       data-testid={testId}
       asChild
     >
       <Link href={href} onClick={onClick}>
-        <Icon className="w-4 h-4 md:w-4 md:h-4 lg:w-5 lg:h-5 xl:w-6 xl:h-6 2xl:w-7 2xl:h-7 flex-shrink-0" />
+        <Icon className="w-3 h-3 md:w-3 md:h-3 lg:w-4 lg:h-4 xl:w-4 xl:h-4 2xl:w-4 2xl:h-4 flex-shrink-0" />
         <span className="font-medium truncate">{label}</span>
       </Link>
     </Button>
@@ -224,12 +224,12 @@ export default function Navigation() {
               </div>
             </Link>
             
-            {/* Institutional Name and System Designation - Enhanced responsive visibility */}
+            {/* Institutional Name and System Designation - Compact sizing */}
             <div className="hidden sm:block">
-              <h1 className="text-lg sm:text-xl md:text-2xl lg:text-2xl xl:text-3xl 2xl:text-4xl font-semibold text-foreground leading-tight transition-all duration-200" data-testid="text-app-title">
+              <h1 className="text-sm sm:text-base md:text-lg lg:text-lg xl:text-xl 2xl:text-xl font-semibold text-foreground leading-tight transition-all duration-200" data-testid="text-app-title">
                 Smart Student Hub
               </h1>
-              <p className="text-xs sm:text-xs md:text-sm lg:text-sm xl:text-base 2xl:text-lg text-muted-foreground hidden sm:block transition-all duration-200" data-testid="text-app-subtitle">
+              <p className="text-xs sm:text-xs md:text-xs lg:text-sm xl:text-sm 2xl:text-sm text-muted-foreground hidden sm:block transition-all duration-200" data-testid="text-app-subtitle">
                 Institutional Excellence Management System
               </p>
             </div>
@@ -321,12 +321,12 @@ export default function Navigation() {
                       </AvatarFallback>
                     </Avatar>
                     
-                    {/* User Information Display - Enhanced responsive visibility */}
+                    {/* User Information Display - Compact sizing */}
                     <div className="hidden lg:block text-left">
-                      <div className="text-sm md:text-base lg:text-lg xl:text-xl 2xl:text-2xl font-medium text-foreground truncate max-w-32 xl:max-w-40 2xl:max-w-52" data-testid="text-user-name">
+                      <div className="text-xs md:text-sm lg:text-sm xl:text-sm 2xl:text-sm font-medium text-foreground truncate max-w-32 xl:max-w-40 2xl:max-w-52" data-testid="text-user-name">
                         {user.firstName} {user.lastName}
                       </div>
-                      <div className="text-xs md:text-sm lg:text-base xl:text-lg 2xl:text-xl text-muted-foreground capitalize truncate" data-testid="text-user-role">
+                      <div className="text-xs md:text-xs lg:text-xs xl:text-xs 2xl:text-xs text-muted-foreground capitalize truncate" data-testid="text-user-role">
                         {user.role}
                       </div>
                     </div>
@@ -342,20 +342,20 @@ export default function Navigation() {
                   <DropdownMenuItem className="touch-dropdown-item enhanced-focus" data-testid="menu-item-profile" asChild>
                     <Link href="/profile">
                       <User className="mr-3 h-4 w-4 md:h-5 md:w-5 lg:h-6 lg:w-6 xl:h-7 xl:w-7 2xl:h-8 2xl:w-8" />
-                      <span className="text-sm md:text-base lg:text-lg xl:text-xl 2xl:text-2xl">Account Profile</span>
+                      <span className="text-xs md:text-sm lg:text-sm xl:text-sm 2xl:text-sm">Account Profile</span>
                     </Link>
                   </DropdownMenuItem>
                   
                   {/* System Preferences and Settings */}
                   <DropdownMenuItem className="touch-dropdown-item enhanced-focus" data-testid="menu-item-settings">
                     <Settings className="mr-3 h-4 w-4 md:h-5 md:w-5 lg:h-6 lg:w-6 xl:h-7 xl:w-7 2xl:h-8 2xl:w-8" />
-                    <span className="text-sm md:text-base lg:text-lg xl:text-xl 2xl:text-2xl">System Preferences</span>
+                    <span className="text-xs md:text-sm lg:text-sm xl:text-sm 2xl:text-sm">System Preferences</span>
                   </DropdownMenuItem>
                   
                   {/* Secure Logout Functionality */}
                   <DropdownMenuItem onClick={handleLogout} className="touch-dropdown-item enhanced-focus text-destructive hover:text-destructive" data-testid="menu-item-logout">
                     <LogOut className="mr-3 h-4 w-4 md:h-5 md:w-5 lg:h-6 lg:w-6 xl:h-7 xl:w-7 2xl:h-8 2xl:w-8" />
-                    <span className="text-sm md:text-base lg:text-lg xl:text-xl 2xl:text-2xl">Sign Out</span>
+                    <span className="text-xs md:text-sm lg:text-sm xl:text-sm 2xl:text-sm">Sign Out</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -385,8 +385,8 @@ export default function Navigation() {
                       <GraduationCap className="w-8 h-8 sm:w-9 sm:h-9 text-primary-foreground" />
                     </div>
                     <div>
-                      <h2 className="text-xl sm:text-2xl font-bold text-foreground leading-tight">Smart Student Hub</h2>
-                      <p className="text-sm sm:text-base text-muted-foreground leading-snug">Institutional Excellence Management</p>
+                      <h2 className="text-base sm:text-lg font-bold text-foreground leading-tight">Smart Student Hub</h2>
+                      <p className="text-xs sm:text-sm text-muted-foreground leading-snug">Institutional Excellence Management</p>
                     </div>
                   </div>
                 
@@ -403,7 +403,7 @@ export default function Navigation() {
                           label={item.label}
                           icon={item.icon}
                           testId={`mobile-${item.testId}`}
-                          className="mobile-nav-item w-full justify-start text-base sm:text-lg rounded-xl"
+                          className="mobile-nav-item w-full justify-start text-sm sm:text-base rounded-xl"
                           onClick={closeMobileMenu}
                         />
                       </div>
@@ -413,13 +413,13 @@ export default function Navigation() {
                   {/* Mobile Authentication Section - Enhanced touch optimization */}
                   {!user && (
                     <div className="flex flex-col space-y-4 pt-6 border-t border-border/50 mt-auto">
-                      <Button variant="ghost" className="mobile-nav-item w-full justify-start text-base sm:text-lg rounded-xl border border-border/30 hover:border-primary/30" data-testid="mobile-button-login" asChild>
+                      <Button variant="ghost" className="mobile-nav-item w-full justify-start text-sm sm:text-base rounded-xl border border-border/30 hover:border-primary/30" data-testid="mobile-button-login" asChild>
                         <Link href="/login" onClick={closeMobileMenu}>
                           <User className="w-5 h-5 mr-4" />
                           Login to Account
                         </Link>
                       </Button>
-                      <Button className="mobile-nav-item w-full justify-start text-base sm:text-lg rounded-xl shadow-md" data-testid="mobile-button-signup" asChild>
+                      <Button className="mobile-nav-item w-full justify-start text-sm sm:text-base rounded-xl shadow-md" data-testid="mobile-button-signup" asChild>
                         <Link href="/signup" onClick={closeMobileMenu}>
                           <User className="w-5 h-5 mr-4" />
                           Create Account
