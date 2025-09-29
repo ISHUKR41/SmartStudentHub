@@ -386,14 +386,14 @@ export default function DigitalPortfolio() {
     achievementTimeline: activities && activities.length > 0 
       ? activities
           .filter(activity => activity.status === 'approved')
-          .sort((a, b) => new Date(b.dateAchieved || '').getTime() - new Date(a.dateAchieved || '').getTime())
+          .sort((a, b) => new Date(b.activityDate || '').getTime() - new Date(a.activityDate || '').getTime())
           .slice(0, 8) // Show latest 8 achievements
           .map(activity => ({
-            date: activity.dateAchieved || new Date().toISOString(),
+            date: activity.activityDate || new Date().toISOString(),
             title: activity.title || 'Achievement',
             category: activity.category || 'academic',
-            organization: activity.organizationName || 'Institution',
-            impact: activity.impactLevel || 'Medium',
+            organization: activity.organization || 'Institution',
+            impact: 'Medium', // Default since impactLevel doesn't exist in schema
             description: activity.description || 'Professional achievement and milestone'
           }))
       : [

@@ -106,7 +106,7 @@ const MobileMenu = ({ isOpen, onToggle }: { isOpen: boolean; onToggle: () => voi
               Schedule Demo
             </Button>
             <Button
-              onClick={() => setLocation('/api/login')}
+              onClick={() => window.location.href = '/api/login'}
               size="sm"
               className="w-full"
               data-testid="mobile-login-button"
