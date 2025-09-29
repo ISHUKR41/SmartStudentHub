@@ -223,6 +223,88 @@ export interface IStorage {
    */
   getAchievementsByStudent(studentId: string): Promise<Achievement[]>;
   createAchievement(achievement: InsertAchievement): Promise<Achievement>;
+  updateAchievement(achievementId: string, updates: Partial<Achievement>): Promise<Achievement>;
+  deleteAchievement(achievementId: string): Promise<void>;
+
+  /**
+   * Enhanced Attendance Operations
+   * 
+   * Full CRUD operations for attendance management.
+   */
+  createAttendanceRecord(attendance: InsertAttendance): Promise<Attendance>;
+  updateAttendanceRecord(attendanceId: string, updates: Partial<Attendance>): Promise<Attendance>;
+  deleteAttendanceRecord(attendanceId: string): Promise<void>;
+  getAttendanceAnalytics(studentId?: string, subjectId?: string, dateRange?: { start: Date; end: Date }): Promise<{
+    totalClasses: number;
+    attendedClasses: number;
+    absentClasses: number;
+    lateClasses: number;
+    attendanceRate: number;
+    weeklyTrends: Array<{ week: string; rate: number }>;
+    monthlyTrends: Array<{ month: string; rate: number }>;
+    subjectWise: Array<{ subject: string; rate: number; total: number; attended: number }>;
+  }>;
+
+  /**
+   * Enhanced Subject Operations
+   * 
+   * Full CRUD operations for subject management with grades and credits.
+   */
+  updateSubject(subjectId: string, updates: Partial<Subject>): Promise<Subject>;
+  deleteSubject(subjectId: string): Promise<void>;
+  getSubjectAnalytics(studentId: string): Promise<{
+    totalSubjects: number;
+    totalCredits: number;
+    avgGrade: number;
+    subjectPerformance: Array<{ subject: string; grade: number; credits: number; attendance: number }>;
+  }>;
+
+  /**
+   * Enhanced Notification Operations
+   * 
+   * Full CRUD operations for notification management.
+   */
+  updateNotification(notificationId: string, updates: Partial<Notification>): Promise<Notification>;
+  deleteNotification(notificationId: string): Promise<void>;
+  markAllNotificationsAsRead(studentId: string): Promise<void>;
+  getUnreadNotificationCount(studentId: string): Promise<number>;
+
+  /**
+   * Enhanced Goal Operations
+   * 
+   * Full CRUD operations for goal management with progress tracking.
+   */
+  deleteGoal(goalId: string): Promise<void>;
+  getGoalAnalytics(studentId: string): Promise<{
+    totalGoals: number;
+    completedGoals: number;
+    inProgressGoals: number;
+    completionRate: number;
+    avgTimeToComplete: number;
+  }>;
+
+  /**
+   * Advanced Analytics Operations
+   * 
+   * Comprehensive metrics and snapshots for dashboard enhancement.
+   */
+  getDashboardSnapshots(studentId: string): Promise<{
+    personalMetrics: {
+      gpa: number;
+      totalCredits: number;
+      attendanceRate: number;
+      activitiesCount: number;
+      rank: number;
+      totalStudents: number;
+    };
+    chartData: {
+      gpaProgress: Array<{ semester: number; gpa: number }>;
+      creditsProgress: Array<{ semester: number; credits: number }>;
+      attendanceCalendar: Array<{ date: string; status: 'present' | 'absent' | 'late' | 'excused' }>;
+      categoryDistribution: Array<{ category: string; count: number; percentage: number }>;
+      monthlyActivity: Array<{ month: string; activities: number }>;
+    };
+  }>;
 }
 
 /**

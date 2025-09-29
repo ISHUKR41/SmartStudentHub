@@ -32,6 +32,11 @@ import Help from "@/pages/help";
 import StudentDashboard from "@/pages/student-dashboard";
 import Activities from "@/pages/activities";
 import ActivityUpload from "@/pages/activity-upload";
+import Attendance from "@/pages/attendance";
+import Courses from "@/pages/courses";
+import Analytics from "@/pages/analytics";
+import Notifications from "@/pages/notifications";
+import GoalsAchievements from "@/pages/goals-achievements";
 import { FacultyApprovals } from "@/faculty";
 import { AdminAnalytics } from "@/admin";
 import DigitalPortfolio from "@/pages/digital-portfolio";
@@ -81,13 +86,18 @@ function Router() {
           <Route path="/" component={StudentDashboard} />
           <Route path="/activities" component={Activities} />
           <Route path="/upload" component={ActivityUpload} />
+          <Route path="/attendance" component={Attendance} />
+          <Route path="/courses" component={Courses} />
+          <Route path="/analytics" component={Analytics} />
+          <Route path="/notifications" component={Notifications} />
+          <Route path="/goals" component={GoalsAchievements} />
           <Route path="/portfolio" component={DigitalPortfolio} />
           <Route path="/profile" component={AccountProfile} />
           {(user?.role === 'faculty' || user?.role === 'admin') && (
             <Route path="/approvals" component={FacultyApprovals} />
           )}
           {user?.role === 'admin' && (
-            <Route path="/analytics" component={AdminAnalytics} />
+            <Route path="/admin/analytics" component={AdminAnalytics} />
           )}
         </>
       )}

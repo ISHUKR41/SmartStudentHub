@@ -26,6 +26,10 @@ import {
   LayoutDashboard,
   ClipboardList,
   BarChart3,
+  Calendar,
+  BookOpen,
+  Bell,
+  Target,
   User
 } from "lucide-react";
 
@@ -49,16 +53,16 @@ const mobileTabItems = [
     testId: "mobile-tab-activities"
   },
   {
+    href: "/courses", 
+    label: "Courses",
+    icon: BookOpen,
+    testId: "mobile-tab-courses"
+  },
+  {
     href: "/analytics", 
     label: "Analytics",
     icon: BarChart3,
     testId: "mobile-tab-analytics"
-  },
-  {
-    href: "/profile",
-    label: "Profile",
-    icon: User,
-    testId: "mobile-tab-profile"
   }
 ];
 

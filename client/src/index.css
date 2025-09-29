@@ -583,6 +583,47 @@
       hsl(var(--primary)), 
       hsl(var(--primary-500))) 1;
   }
+  
+  /* Content Visibility Optimization */
+  .content-visibility-auto {
+    content-visibility: auto;
+    contain-intrinsic-size: 0 500px;
+  }
+  
+  /* Advanced Responsive Grid System */
+  .grid-responsive {
+    @apply grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: clamp(1rem, 2.5vw, 2rem);
+  }
+  
+  .grid-dashboard {
+    @apply grid gap-4 xs:gap-5 sm:gap-6 md:gap-7 lg:gap-8 xl:gap-10 2xl:gap-12 3xl:gap-14;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+  }
+  
+  /* Fluid Typography System */
+  .text-fluid-xs { font-size: clamp(0.75rem, 0.5rem + 1vw, 0.875rem); }
+  .text-fluid-sm { font-size: clamp(0.875rem, 0.625rem + 1.25vw, 1rem); }
+  .text-fluid-base { font-size: clamp(1rem, 0.75rem + 1.5vw, 1.125rem); }
+  .text-fluid-lg { font-size: clamp(1.125rem, 0.875rem + 1.75vw, 1.25rem); }
+  .text-fluid-xl { font-size: clamp(1.25rem, 1rem + 2vw, 1.5rem); }
+  .text-fluid-2xl { font-size: clamp(1.5rem, 1.25rem + 2.5vw, 2rem); }
+  .text-fluid-3xl { font-size: clamp(1.875rem, 1.5rem + 3vw, 2.5rem); }
+  .text-fluid-4xl { font-size: clamp(2.25rem, 1.75rem + 3.5vw, 3rem); }
+  
+  /* Responsive Spacing System */
+  .space-responsive-tight {
+    @apply space-y-2 xs:space-y-3 sm:space-y-4 md:space-y-5 lg:space-y-6 xl:space-y-7 2xl:space-y-8 3xl:space-y-10;
+  }
+  
+  .space-responsive-normal {
+    @apply space-y-4 xs:space-y-5 sm:space-y-6 md:space-y-7 lg:space-y-8 xl:space-y-10 2xl:space-y-12 3xl:space-y-14;
+  }
+  
+  .space-responsive-relaxed {
+    @apply space-y-6 xs:space-y-7 sm:space-y-8 md:space-y-10 lg:space-y-12 xl:space-y-14 2xl:space-y-16 3xl:space-y-20;
+  }
 
   /* Touch-Friendly Interactive Elements */
   .touch-target {
@@ -660,6 +701,56 @@
     transform: scale(0.98);
   }
 
+  /* Safe Area Insets for Mobile Devices */
+  .pb-safe-area-inset-bottom {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+  
+  .pt-safe-area-inset-top {
+    padding-top: max(1rem, env(safe-area-inset-top));
+  }
+  
+  .pl-safe-area-inset-left {
+    padding-left: max(1rem, env(safe-area-inset-left));
+  }
+  
+  .pr-safe-area-inset-right {
+    padding-right: max(1rem, env(safe-area-inset-right));
+  }
+  
+  /* Advanced Container Queries Support */
+  @container (min-width: 20rem) {
+    .container-responsive {
+      @apply p-4;
+    }
+  }
+  
+  @container (min-width: 32rem) {
+    .container-responsive {
+      @apply p-6;
+    }
+  }
+  
+  @container (min-width: 48rem) {
+    .container-responsive {
+      @apply p-8;
+    }
+  }
+  
+  /* Performance Optimizations */
+  .transform-gpu {
+    transform: translateZ(0);
+    will-change: transform;
+  }
+  
+  .contain-layout {
+    contain: layout;
+  }
+  
+  .contain-paint {
+    contain: paint;
+  }
+  
   /* Device-Specific Responsive Breakpoints */
   
   /* Mobile Phones: 320px-640px */

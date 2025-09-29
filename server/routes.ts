@@ -24,7 +24,17 @@ import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
-import { insertActivitySchema, updateActivityStatusSchema, loginSchema, signupSchema } from "@shared/schema";
+import { 
+  insertActivitySchema, 
+  updateActivityStatusSchema, 
+  loginSchema, 
+  signupSchema,
+  insertAttendanceSchema,
+  insertSubjectSchema,
+  insertNotificationSchema,
+  insertGoalSchema,
+  insertAchievementSchema
+} from "@shared/schema";
 import { AuthenticatedUser } from "../types/express";
 import { PDFPortfolioService } from "./pdfService";
 import { InstitutionalReportPDFService, NAACReportData, NIRFReportData } from "./reportPdfService";
@@ -535,6 +545,331 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  /**
+   * Enhanced Attendance API Routes
+   * 
+   * Comprehensive attendance management with filtering, analytics, and CRUD operations.
+   */
+  app.get('/api/attendance', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const userId = (req.user as AuthenticatedUser).claims.sub;
+      const { subjectId, dateFrom, dateTo, status } = req.query;
+      
+      let attendance;
+      if (subjectId) {
+        attendance = await storage.getStudentAttendanceBySubject(userId, subjectId as string);
+      } else {
+        attendance = await storage.getStudentAttendance(userId);
+      }
+      
+      // Apply filters if provided
+      let filteredAttendance = attendance;
+      if (dateFrom) {
+        const fromDate = new Date(dateFrom as string);
+        filteredAttendance = filteredAttendance.filter(record => new Date(record.date) >= fromDate);
+      }
+      if (dateTo) {
+        const toDate = new Date(dateTo as string);
+        filteredAttendance = filteredAttendance.filter(record => new Date(record.date) <= toDate);
+      }
+      if (status) {
+        filteredAttendance = filteredAttendance.filter(record => record.status === status);
+      }
+      
+      res.json(filteredAttendance);
+    } catch (error) {
+      console.error("Error fetching attendance:", error);
+      res.status(500).json({ message: "Failed to fetch attendance records" });
+    }
+  });
+
+  app.post('/api/attendance', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const user = await storage.getUser((req.user as AuthenticatedUser).claims.sub);
+      if (!user || (user.role !== 'faculty' && user.role !== 'admin')) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const attendanceData = insertAttendanceSchema.parse({
+        ...req.body,
+        date: new Date(req.body.date),
+      });
+
+      const attendance = await storage.createAttendanceRecord(attendanceData);
+      res.status(201).json(attendance);
+    } catch (error) {
+      console.error("Error creating attendance:", error);
+      res.status(400).json({ message: "Failed to create attendance record" });
+    }
+  });
+
+  app.get('/api/attendance/analytics', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const userId = (req.user as AuthenticatedUser).claims.sub;
+      const { subjectId, dateFrom, dateTo } = req.query;
+      
+      const dateRange = dateFrom && dateTo ? {
+        start: new Date(dateFrom as string),
+        end: new Date(dateTo as string)
+      } : undefined;
+      
+      const analytics = await storage.getAttendanceAnalytics(
+        userId,
+        subjectId as string,
+        dateRange
+      );
+      
+      res.json(analytics);
+    } catch (error) {
+      console.error("Error fetching attendance analytics:", error);
+      res.status(500).json({ message: "Failed to fetch attendance analytics" });
+    }
+  });
+
+  /**
+   * Enhanced Subjects API Routes
+   * 
+   * Comprehensive subject management with grades, credits, and CRUD operations.
+   */
+  app.get('/api/subjects', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const user = await storage.getUser((req.user as AuthenticatedUser).claims.sub);
+      let subjects;
+      
+      if (user?.role === 'student') {
+        subjects = await storage.getSubjectsByStudent(user.id);
+      } else {
+        subjects = await storage.getSubjects();
+      }
+      
+      res.json(subjects);
+    } catch (error) {
+      console.error("Error fetching subjects:", error);
+      res.status(500).json({ message: "Failed to fetch subjects" });
+    }
+  });
+
+  app.post('/api/subjects', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const user = await storage.getUser((req.user as AuthenticatedUser).claims.sub);
+      if (!user || (user.role !== 'faculty' && user.role !== 'admin')) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const subjectData = insertSubjectSchema.parse(req.body);
+      const subject = await storage.createSubject(subjectData);
+      res.status(201).json(subject);
+    } catch (error) {
+      console.error("Error creating subject:", error);
+      res.status(400).json({ message: "Failed to create subject" });
+    }
+  });
+
+  app.put('/api/subjects/:subjectId', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const user = await storage.getUser((req.user as AuthenticatedUser).claims.sub);
+      if (!user || (user.role !== 'faculty' && user.role !== 'admin')) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const { subjectId } = req.params;
+      const updates = req.body;
+      
+      const subject = await storage.updateSubject(subjectId, updates);
+      res.json(subject);
+    } catch (error) {
+      console.error("Error updating subject:", error);
+      res.status(400).json({ message: "Failed to update subject" });
+    }
+  });
+
+  app.delete('/api/subjects/:subjectId', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const user = await storage.getUser((req.user as AuthenticatedUser).claims.sub);
+      if (!user || (user.role !== 'faculty' && user.role !== 'admin')) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const { subjectId } = req.params;
+      await storage.deleteSubject(subjectId);
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting subject:", error);
+      res.status(400).json({ message: "Failed to delete subject" });
+    }
+  });
+
+  /**
+   * Enhanced Notifications API Routes
+   * 
+   * Comprehensive notification management with read/unread status and CRUD operations.
+   */
+  app.post('/api/notifications', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const user = await storage.getUser((req.user as AuthenticatedUser).claims.sub);
+      if (!user || (user.role !== 'faculty' && user.role !== 'admin')) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const notificationData = insertNotificationSchema.parse(req.body);
+      const notification = await storage.createNotification(notificationData);
+      res.status(201).json(notification);
+    } catch (error) {
+      console.error("Error creating notification:", error);
+      res.status(400).json({ message: "Failed to create notification" });
+    }
+  });
+
+  app.patch('/api/notifications/:notificationId/read', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const { notificationId } = req.params;
+      const notification = await storage.markNotificationAsRead(notificationId);
+      res.json(notification);
+    } catch (error) {
+      console.error("Error marking notification as read:", error);
+      res.status(400).json({ message: "Failed to mark notification as read" });
+    }
+  });
+
+  app.patch('/api/notifications/mark-all-read', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const userId = (req.user as AuthenticatedUser).claims.sub;
+      await storage.markAllNotificationsAsRead(userId);
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error marking all notifications as read:", error);
+      res.status(400).json({ message: "Failed to mark all notifications as read" });
+    }
+  });
+
+  app.get('/api/notifications/unread-count', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const userId = (req.user as AuthenticatedUser).claims.sub;
+      const count = await storage.getUnreadNotificationCount(userId);
+      res.json({ count });
+    } catch (error) {
+      console.error("Error fetching unread notification count:", error);
+      res.status(500).json({ message: "Failed to fetch unread notification count" });
+    }
+  });
+
+  /**
+   * Enhanced Goals API Routes
+   * 
+   * Comprehensive goal management with progress tracking and CRUD operations.
+   */
+  app.post('/api/goals', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const userId = (req.user as AuthenticatedUser).claims.sub;
+      const goalData = insertGoalSchema.parse({
+        ...req.body,
+        studentId: userId,
+        targetDate: new Date(req.body.targetDate),
+      });
+
+      const goal = await storage.createGoal(goalData);
+      res.status(201).json(goal);
+    } catch (error) {
+      console.error("Error creating goal:", error);
+      res.status(400).json({ message: "Failed to create goal" });
+    }
+  });
+
+  app.put('/api/goals/:goalId', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const { goalId } = req.params;
+      const updates = req.body;
+      
+      if (updates.targetDate) {
+        updates.targetDate = new Date(updates.targetDate);
+      }
+      
+      const goal = await storage.updateGoal(goalId, updates);
+      res.json(goal);
+    } catch (error) {
+      console.error("Error updating goal:", error);
+      res.status(400).json({ message: "Failed to update goal" });
+    }
+  });
+
+  app.delete('/api/goals/:goalId', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const { goalId } = req.params;
+      await storage.deleteGoal(goalId);
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting goal:", error);
+      res.status(400).json({ message: "Failed to delete goal" });
+    }
+  });
+
+  app.get('/api/goals/analytics', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const userId = (req.user as AuthenticatedUser).claims.sub;
+      const analytics = await storage.getGoalAnalytics(userId);
+      res.json(analytics);
+    } catch (error) {
+      console.error("Error fetching goal analytics:", error);
+      res.status(500).json({ message: "Failed to fetch goal analytics" });
+    }
+  });
+
+  /**
+   * Enhanced Achievements API Routes
+   * 
+   * Comprehensive achievement management with verification and CRUD operations.
+   */
+  app.post('/api/achievements', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const userId = (req.user as AuthenticatedUser).claims.sub;
+      const achievementData = insertAchievementSchema.parse({
+        ...req.body,
+        studentId: userId,
+        dateEarned: new Date(req.body.dateEarned),
+      });
+
+      const achievement = await storage.createAchievement(achievementData);
+      res.status(201).json(achievement);
+    } catch (error) {
+      console.error("Error creating achievement:", error);
+      res.status(400).json({ message: "Failed to create achievement" });
+    }
+  });
+
+  app.put('/api/achievements/:achievementId', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const user = await storage.getUser((req.user as AuthenticatedUser).claims.sub);
+      if (!user || (user.role !== 'faculty' && user.role !== 'admin')) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const { achievementId } = req.params;
+      const updates = req.body;
+      
+      const achievement = await storage.updateAchievement(achievementId, updates);
+      res.json(achievement);
+    } catch (error) {
+      console.error("Error updating achievement:", error);
+      res.status(400).json({ message: "Failed to update achievement" });
+    }
+  });
+
+  /**
+   * Comprehensive Analytics API Routes
+   * 
+   * Advanced dashboard metrics and snapshots for enhanced user experience.
+   */
+  app.get('/api/analytics/dashboard', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const userId = (req.user as AuthenticatedUser).claims.sub;
+      const snapshots = await storage.getDashboardSnapshots(userId);
+      res.json(snapshots);
+    } catch (error) {
+      console.error("Error fetching dashboard analytics:", error);
+      res.status(500).json({ message: "Failed to fetch dashboard analytics" });
+    }
+  });
+
   // Activity routes
   app.post('/api/activities', isAuthenticated, upload.array('files', 5), async (req: Request, res: Response) => {
     try {
@@ -897,6 +1232,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching departments:", error);
       res.status(500).json({ message: "Failed to fetch departments" });
+    }
+  });
+
+  app.post('/api/departments', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const user = await storage.getUser((req.user as AuthenticatedUser).claims.sub);
+      if (!user || user.role !== 'admin') {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const department = await storage.createDepartment(req.body);
+      res.status(201).json(department);
+    } catch (error) {
+      console.error("Error creating department:", error);
+      res.status(400).json({ message: "Failed to create department" });
     }
   });
 
