@@ -58,6 +58,10 @@ import { Download, Plus, GraduationCap, ClipboardList, Star, Clock, Award, Trend
 import { useLocation } from "wouter";
 import { Activity } from "@shared/schema";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { useSmartNotifications } from "@/hooks/useSmartNotifications";
+import ActivitySearchFilter from "@/components/features/activity-search-filter";
+import VirtualActivityList from "@/components/features/virtual-activity-list";
+import { useHotkeys } from "react-hotkeys-hook";
 import { AreaChart, Area, BarChart, Bar, LineChart as RechartsLineChart, Line, PieChart as RechartsPieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Legend, RadialBarChart, RadialBar, ComposedChart, Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Treemap, Funnel, FunnelChart, ScatterChart, Scatter, Brush } from "recharts";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -70,6 +74,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import toast from 'react-hot-toast';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { useDebounce, useLocalStorage } from "react-use";
 
 /**
  * Student Statistics Interface
@@ -188,7 +196,8 @@ interface Achievement {
 
 export default function StudentDashboard() {
   // ALL HOOKS MUST BE DECLARED FIRST - BEFORE ANY EARLY RETURNS
-  const { toast } = useToast();
+  const { toast: shadcnToast } = useToast();
+  const smartNotifications = useSmartNotifications();
   const { isAuthenticated, isLoading, user } = useAuth();
   const [, setLocation] = useLocation();
   const [isDownloadingPortfolio, setIsDownloadingPortfolio] = useState(false);
@@ -197,18 +206,55 @@ export default function StudentDashboard() {
   const [activeTab, setActiveTab] = useState('overview');
   const [selectedTimeframe, setSelectedTimeframe] = useState('semester');
   const [showNotifications, setShowNotifications] = useState(false);
+  const [filteredActivities, setFilteredActivities] = useState<Activity[]>([]);
+  const [showAdvancedAnalytics, setShowAdvancedAnalytics] = useState(false);
+  const [showAchievementCenter, setShowAchievementCenter] = useState(false);
+  
+  // Enhanced state management with localStorage
+  const [dashboardPreferences, setDashboardPreferences] = useLocalStorage('dashboard-preferences', {
+    showQuickStats: true,
+    preferredChartType: 'line',
+    notificationSettings: { deadlines: true, approvals: true, achievements: true }
+  });
   
   // Refs - must be declared before any useEffect that uses them
   const notificationRef = useRef<HTMLDivElement>(null);
+  const activityListRef = useRef<HTMLDivElement>(null);
   
   // Intersection Observer refs for animations
   const [headerRef, headerInView] = useInView({ threshold: 0.1, triggerOnce: true });
   const [statsRef, statsInView] = useInView({ threshold: 0.1, triggerOnce: true });
   const [chartsRef, chartsInView] = useInView({ threshold: 0.1, triggerOnce: true });
   const [skillsRef, skillsInView] = useInView({ threshold: 0.1, triggerOnce: true });
+  
+  // Enhanced keyboard shortcuts for power users
+  useHotkeys('ctrl+f, cmd+f', (e) => {
+    e.preventDefault();
+    const searchInput = document.querySelector('[data-testid="input-search-activities"]') as HTMLInputElement;
+    if (searchInput) {
+      searchInput.focus();
+      toast('🔍 Search activities using keywords', { duration: 2000 });
+    }
+  }, { enableOnFormTags: false });
+  
+  useHotkeys('ctrl+n, cmd+n', (e) => {
+    e.preventDefault();
+    setLocation('/upload');
+    toast('➕ Adding new activity', { duration: 2000 });
+  });
+  
+  useHotkeys('ctrl+p, cmd+p', (e) => {
+    e.preventDefault();
+    handlePortfolioDownload();
+  });
+  
+  useHotkeys('ctrl+1', () => setActiveTab('overview'));
+  useHotkeys('ctrl+2', () => setActiveTab('attendance'));
+  useHotkeys('ctrl+3', () => setActiveTab('analytics'));
 
   // Conditional query enables based on authentication and tab state
   const isAttendanceTabActive = activeTab === 'attendance';
+  const isAnalyticsTabActive = activeTab === 'analytics';
   
   // Minimal fallback data for display when API data is loading
   const fallbackDisplayData = {
