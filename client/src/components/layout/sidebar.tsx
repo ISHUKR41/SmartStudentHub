@@ -192,7 +192,7 @@ export default function Sidebar() {
   })) || [];
 
   return (
-    <aside className="hidden md:block w-64 lg:w-72 xl:w-80 bg-background border-r border-border overflow-y-auto" data-testid="sidebar">
+    <aside className="w-64 lg:w-72 xl:w-80 bg-background border-r border-border overflow-y-auto" data-testid="sidebar">
       <div className="p-3 lg:p-4 space-y-4 lg:space-y-6">
         
         {/* User Profile Section */}

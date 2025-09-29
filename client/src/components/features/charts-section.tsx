@@ -122,7 +122,7 @@ export default function ChartsSection({
             <CardContent>
               <ChartContainer
                 config={chartConfigs.skillProgress}
-                className="aspect-[4/3] lg:aspect-[16/9] w-full min-h-[300px]"
+                className="w-full h-[260px] sm:h-[300px] md:h-[340px] lg:h-[380px] xl:h-[420px] 2xl:h-[460px]"
               >
                 <Suspense fallback={<ChartSkeleton className="aspect-[4/3] lg:aspect-[16/9]" />}>
                   <AreaChart data={dashboardData.chartData.skillProgress}>
@@ -180,7 +180,7 @@ export default function ChartsSection({
             <CardContent>
               <ChartContainer
                 config={chartConfigs.semesterProgress}
-                className="aspect-[4/3] lg:aspect-[16/9] w-full min-h-[300px]"
+                className="w-full h-[260px] sm:h-[300px] md:h-[340px] lg:h-[380px] xl:h-[420px] 2xl:h-[460px]"
               >
                 <Suspense fallback={<ChartSkeleton className="aspect-[4/3] lg:aspect-[16/9]" />}>
                   <ComposedChart data={dashboardData.chartData.semesterProgress}>
@@ -246,7 +246,7 @@ export default function ChartsSection({
             <CardContent>
               <ChartContainer
                 config={chartConfigs.categoryDistribution}
-                className="aspect-[4/3] lg:aspect-[16/9] w-full min-h-[300px]"
+                className="w-full h-[260px] sm:h-[300px] md:h-[340px] lg:h-[380px] xl:h-[420px] 2xl:h-[460px]"
               >
                 <Suspense fallback={<ChartSkeleton className="aspect-[4/3] lg:aspect-[16/9]" />}>
                   <PieChart>
@@ -295,7 +295,7 @@ export default function ChartsSection({
             <CardContent>
               <ChartContainer
                 config={chartConfigs.skillMatrix}
-                className="aspect-[4/3] lg:aspect-[16/9] w-full min-h-[300px]"
+                className="w-full h-[260px] sm:h-[300px] md:h-[340px] lg:h-[380px] xl:h-[420px] 2xl:h-[460px]"
               >
                 <Suspense fallback={<ChartSkeleton className="aspect-[4/3] lg:aspect-[16/9]" />}>
                   <RadarChart data={dashboardData.chartData.skillMatrix}>

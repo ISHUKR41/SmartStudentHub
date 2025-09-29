@@ -36,7 +36,7 @@ import {
 } from "recharts";
 
 // Create proper chart skeleton component for loading states
-function ChartSkeleton({ className = "h-[300px]" }: { className?: string }) {
+function ChartSkeleton({ className = "h-[260px] sm:h-[300px] md:h-[340px] lg:h-[380px] xl:h-[420px] 2xl:h-[460px]" }: { className?: string }) {
   return (
     <div className={`w-full ${className} bg-muted animate-pulse rounded-lg flex items-center justify-center`}>
       <div className="flex flex-col items-center space-y-2">
@@ -354,32 +354,39 @@ export default function StudentDashboard() {
       <div className="min-h-screen bg-background">
         <Navigation />
         
-        <div className="flex min-h-[calc(100vh-72px)]">
-          {/* Desktop Sidebar */}
-          <Sidebar />
+        {/* Responsive Container Wrapper */}
+        <div className="container mx-auto px-3 sm:px-4 lg:px-6 max-w-screen-2xl pb-16 sm:pb-0">
           
-          {/* Mobile Sidebar Drawer */}
-          <Sheet open={isMobileSidebarOpen} onOpenChange={setIsMobileSidebarOpen}>
-            <SheetTrigger asChild>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="lg:hidden fixed top-4 left-4 z-50 bg-background/95 backdrop-blur-sm border border-border shadow-sm h-11 w-11 transition-all duration-200 hover:bg-accent active:scale-95"
-                data-testid="button-mobile-sidebar"
-                aria-label="Open sidebar menu"
-              >
-                <Menu className="w-5 h-5" />
-              </Button>
-            </SheetTrigger>
-            <SheetContent side="left" className="lg:hidden w-80 p-0">
-              <div className="h-full overflow-y-auto">
-                <Sidebar />
-              </div>
-            </SheetContent>
-          </Sheet>
-          
-          <main className="flex-1 min-w-0 pb-20 lg:pb-6">
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 lg:py-6 space-y-4 lg:space-y-6 max-w-7xl">
+          {/* Main Grid Layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 2xl:gap-8">
+            
+            {/* Content Area */}
+            <main className="lg:col-span-8 xl:col-span-9 min-w-0">
+              {/* Mobile Sidebar Drawer */}
+              <Sheet open={isMobileSidebarOpen} onOpenChange={setIsMobileSidebarOpen}>
+                <SheetTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="lg:hidden fixed top-4 left-4 z-50 bg-background/95 backdrop-blur-sm border border-border shadow-sm min-h-[44px] min-w-[44px] transition-all duration-200 hover:bg-accent active:scale-95"
+                    style={{
+                      paddingTop: 'max(16px, env(safe-area-inset-top))',
+                      paddingLeft: 'max(16px, env(safe-area-inset-left))'
+                    }}
+                    data-testid="button-mobile-sidebar"
+                    aria-label="Open sidebar menu"
+                  >
+                    <Menu className="w-5 h-5" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="left" className="lg:hidden w-80 p-0">
+                  <div className="h-full overflow-y-auto">
+                    <Sidebar />
+                  </div>
+                </SheetContent>
+              </Sheet>
+
+              <div className="space-y-4 lg:space-y-6 py-4 lg:py-6">
             {/* Header */}
             <motion.div 
               ref={headerRef}
@@ -526,7 +533,7 @@ export default function StudentDashboard() {
               initial={animationSettings.initial}
               animate={statsInView ? animationSettings.animate : animationSettings.initial}
               transition={{ duration: animationSettings.duration }}
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4"
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6"
             >
               <StatCard
                 title="Current CGPA"
@@ -691,10 +698,11 @@ export default function StudentDashboard() {
                       <CardTitle className="text-base lg:text-lg">Credit Accumulation Trend</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <ChartContainer
-                        config={{ credits: { label: "Credits", color: "hsl(142, 76%, 36%)" } }}
-                        className="aspect-[4/3] lg:aspect-[16/9] w-full"
-                      >
+                      <div className="h-[260px] sm:h-[300px] md:h-[340px] lg:h-[380px] xl:h-[420px] 2xl:h-[460px]">
+                        <ChartContainer
+                          config={{ credits: { label: "Credits", color: "hsl(142, 76%, 36%)" } }}
+                          className="w-full h-full"
+                        >
                         <Suspense fallback={
                           <div className="w-full h-full flex items-center justify-center">
                             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -708,7 +716,8 @@ export default function StudentDashboard() {
                             <Area type="monotone" dataKey="credits" stroke="hsl(142, 76%, 36%)" fill="hsl(142, 76%, 36%)" fillOpacity={0.6} />
                           </AreaChart>
                         </Suspense>
-                      </ChartContainer>
+                        </ChartContainer>
+                      </div>
                     </CardContent>
                   </Card>
 
@@ -717,10 +726,11 @@ export default function StudentDashboard() {
                       <CardTitle className="text-base lg:text-lg">Category Distribution</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <ChartContainer
-                        config={{ value: { label: "Percentage", color: "hsl(221, 83%, 53%)" } }}
-                        className="aspect-[4/3] lg:aspect-[16/9] w-full"
-                      >
+                      <div className="h-[260px] sm:h-[300px] md:h-[340px] lg:h-[380px] xl:h-[420px] 2xl:h-[460px]">
+                        <ChartContainer
+                          config={{ value: { label: "Percentage", color: "hsl(221, 83%, 53%)" } }}
+                          className="w-full h-full"
+                        >
                         <Suspense fallback={
                           <div className="w-full h-full flex items-center justify-center">
                             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -744,7 +754,8 @@ export default function StudentDashboard() {
                             <ChartTooltip content={<ChartTooltipContent />} />
                           </PieChart>
                         </Suspense>
-                      </ChartContainer>
+                        </ChartContainer>
+                      </div>
                     </CardContent>
                   </Card>
                 </div>
@@ -890,8 +901,15 @@ export default function StudentDashboard() {
                 </div>
               </CardContent>
             </Card>
-            </div>
-          </main>
+              </div>
+            </main>
+
+            {/* Desktop Sidebar */}
+            <aside className="lg:col-span-4 xl:col-span-3 hidden lg:block">
+              <Sidebar />
+            </aside>
+            
+          </div>
         </div>
         
         {/* Mobile Tab Bar - Conditionally rendered for small screens only */}

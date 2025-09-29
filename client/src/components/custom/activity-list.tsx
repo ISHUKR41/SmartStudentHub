@@ -178,20 +178,20 @@ export default function ActivityList({
     <div className={cn("space-y-3 lg:space-y-4", className)} data-testid="activity-list">
       {activities.map((activity, index) => (
         <Card key={activity.id} className="dashboard-card hover:shadow-md transition-shadow">
-          <CardContent className="p-4 sm:p-5 lg:p-6">
-            <div className="flex items-start space-x-3 lg:space-x-4" data-testid={`activity-item-${index}`}>
+          <CardContent className="p-3 sm:p-4">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4" data-testid={`activity-item-${index}`}>
               {/* Activity Icon - Responsive sizing */}
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0 self-start sm:self-center">
                 <div className="w-5 h-5 sm:w-6 sm:h-6">
                   {getCategoryIcon(activity.category)}
                 </div>
               </div>
 
               {/* Activity Details */}
-              <div className="flex-1 min-w-0">
+              <div className="flex-1 min-w-0 space-y-2 sm:space-y-1">
                 <div className="flex items-start justify-between">
                   <div className="flex-1 min-w-0">
-                    <h4 className="text-sm font-medium text-foreground truncate" data-testid={`activity-title-${index}`}>
+                    <h4 className="text-sm font-medium text-foreground line-clamp-2 sm:line-clamp-1" data-testid={`activity-title-${index}`}>
                       {activity.title}
                     </h4>
                     <div className="flex items-center space-x-4 mt-1 text-xs text-muted-foreground">
@@ -236,40 +236,42 @@ export default function ActivityList({
                       </div>
                     )}
                   </div>
+                </div>
+              </div>
 
-                  {/* Status and Actions */}
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-3 ml-0 sm:ml-4">
-                    {getStatusBadge(activity.status)}
+              {/* Status and Actions */}
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 self-start sm:self-center">
+                <div className="flex items-center gap-2">
+                  {getStatusBadge(activity.status)}
+                </div>
+                
+                {showActions && (
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => onViewActivity?.(activity)}
+                      className="min-h-[44px] min-w-[44px] h-10 w-10 p-0 sm:h-9 sm:w-9 sm:p-2 touch-manipulation"
+                      data-testid={`button-view-activity-${index}`}
+                      aria-label="View activity details"
+                    >
+                      <Eye className="w-4 h-4" />
+                    </Button>
                     
-                    {showActions && (
-                      <div className="flex items-center space-x-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => onViewActivity?.(activity)}
-                          className="min-h-[44px] min-w-[44px] h-10 w-10 p-0 sm:h-8 sm:w-8 sm:p-2"
-                          data-testid={`button-view-activity-${index}`}
-                          aria-label="View activity details"
-                        >
-                          <Eye className="w-4 h-4" />
-                        </Button>
-                        
-                        {activity.status === 'approved' && onDownloadCertificate && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => onDownloadCertificate(activity)}
-                            className="min-h-[44px] min-w-[44px] h-10 w-10 p-0 sm:h-8 sm:w-8 sm:p-2"
-                            data-testid={`button-download-certificate-${index}`}
-                            aria-label="Download certificate"
-                          >
-                            <Download className="w-4 h-4" />
-                          </Button>
-                        )}
-                      </div>
+                    {activity.status === 'approved' && onDownloadCertificate && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => onDownloadCertificate(activity)}
+                        className="min-h-[44px] min-w-[44px] h-10 w-10 p-0 sm:h-9 sm:w-9 sm:p-2 touch-manipulation"
+                        data-testid={`button-download-certificate-${index}`}
+                        aria-label="Download certificate"
+                      >
+                        <Download className="w-4 h-4" />
+                      </Button>
                     )}
                   </div>
-                </div>
+                )}
               </div>
             </div>
           </CardContent>
