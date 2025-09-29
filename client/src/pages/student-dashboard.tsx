@@ -245,7 +245,7 @@ export default function StudentDashboard() {
   
   useHotkeys('ctrl+p, cmd+p', (e) => {
     e.preventDefault();
-    handlePortfolioDownload();
+    handleDownloadPortfolio();
   });
   
   useHotkeys('ctrl+1', () => setActiveTab('overview'));
@@ -413,7 +413,7 @@ export default function StudentDashboard() {
   // Redirect to home if not authenticated
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      toast({
+      shadcnToast({
         title: "Unauthorized",
         description: "You are logged out. Logging in again...",
         variant: "destructive",
@@ -599,7 +599,7 @@ export default function StudentDashboard() {
     
     setIsDownloadingPortfolio(true);
     
-    toast({
+    shadcnToast({
       title: "Portfolio Generation",
       description: "Your digital portfolio is being generated...",
     });
@@ -652,7 +652,7 @@ export default function StudentDashboard() {
       // Clean up the object URL
       window.URL.revokeObjectURL(url);
 
-      toast({
+      shadcnToast({
         title: "Portfolio Downloaded",
         description: "Your digital portfolio has been successfully generated and downloaded.",
         variant: "default",
@@ -661,7 +661,7 @@ export default function StudentDashboard() {
     } catch (error) {
       console.error('Portfolio download error:', error);
       
-      toast({
+      shadcnToast({
         title: "Download Failed",
         description: error instanceof Error ? error.message : "Failed to generate portfolio. Please try again.",
         variant: "destructive",
