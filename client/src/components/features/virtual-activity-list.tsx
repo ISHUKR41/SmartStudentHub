@@ -1,7 +1,17 @@
 import { forwardRef } from "react";
 import { useSpring, animated } from "react-spring";
-import { FixedSizeList } from "react-window";
-const List = FixedSizeList;
+// Temporary fix: Create a simple List component to replace react-window until build issue is resolved
+const List = forwardRef<HTMLDivElement, any>(({ height, itemSize, itemCount, children: ItemComponent, itemData, ...props }, ref) => {
+  const items = Array.from({ length: itemCount }, (_, index) => (
+    <ItemComponent key={index} index={index} style={{ height: itemSize }} data={itemData} />
+  ));
+  
+  return (
+    <div ref={ref} style={{ height, overflowY: 'auto' }} {...props}>
+      {items}
+    </div>
+  );
+});
 import { Activity } from "@shared/schema";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";

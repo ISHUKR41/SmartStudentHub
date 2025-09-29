@@ -5,7 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
 import { useInView } from "react-intersection-observer";
 import { useHotkeys } from "react-hotkeys-hook";
-import { useLocalStorage, useDebounce } from "react-use";
+import { useLocalStorage } from "react-use";
 import { motion, AnimatePresence } from "framer-motion";
 import CountUp from "react-countup";
 import { format } from "date-fns";
@@ -13,6 +13,8 @@ import toast from 'react-hot-toast';
 
 import Navigation from "@/components/layout/navigation";
 import Sidebar from "@/components/layout/sidebar";
+import MobileTabBar from "@/components/layout/mobile-tab-bar";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import StatCard from "@/components/custom/stat-card";
 import ActivityList from "@/components/custom/activity-list";
 import { Button } from "@/components/ui/button";
@@ -33,11 +35,23 @@ import {
   PolarRadiusAxis, Treemap, FunnelChart, Funnel, ScatterChart, Scatter, ComposedChart
 } from "recharts";
 
+// Create proper chart skeleton component for loading states
+function ChartSkeleton({ className = "h-[300px]" }: { className?: string }) {
+  return (
+    <div className={`w-full ${className} bg-muted animate-pulse rounded-lg flex items-center justify-center`}>
+      <div className="flex flex-col items-center space-y-2">
+        <div className="w-8 h-8 bg-muted-foreground/20 rounded-full animate-pulse"></div>
+        <div className="w-24 h-3 bg-muted-foreground/20 rounded animate-pulse"></div>
+      </div>
+    </div>
+  );
+}
+
 import {
   GraduationCap, ClipboardList, Star, Clock, Trophy, Download, Plus, Bell, Filter, RefreshCw,
   Users, Calendar, MapPin, Target, Award, CheckCircle, AlertCircle, TrendingUp, BarChart3,
   BookOpen, Heart, Crown, Shield, Medal, Rocket, User, Eye, Send, Zap, Activity as ActivityIcon,
-  FileText, Code, Timer, Search, Settings, Moon, Sun, Maximize, Upload, Mail
+  FileText, Code, Timer, Search, Settings, Moon, Sun, Maximize, Upload, Mail, Menu
 } from "lucide-react";
 
 import { Activity } from "@shared/schema";
@@ -45,6 +59,9 @@ import { Activity } from "@shared/schema";
 // Lazy load heavy components for better performance
 const VirtualActivityList = lazy(() => import("@/components/features/virtual-activity-list"));
 const ActivitySearchFilter = lazy(() => import("@/components/features/activity-search-filter"));
+
+// Real lazy loading with dynamic imports for true code-splitting
+const ChartsSection = lazy(() => import("@/components/features/charts-section"));
 
 interface StudentStats {
   totalActivities: number;
@@ -88,14 +105,59 @@ export default function StudentDashboard() {
   const [exportFormat, setExportFormat] = useState('pdf');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [showAdvancedCharts, setShowAdvancedCharts] = useState(false);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
-  // Intersection observers for animations
+  // Intersection observers for animations and lazy loading
   const [headerRef, headerInView] = useInView({ threshold: 0.1, triggerOnce: true });
   const [statsRef, statsInView] = useInView({ threshold: 0.1, triggerOnce: true });
   const [chartsRef, chartsInView] = useInView({ threshold: 0.1, triggerOnce: true });
+  
+  // Enhanced reduced motion detection with runtime change listener
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
 
-  // Debounced search
-  const debouncedSearchTerm = useDebounce(searchTerm, 300)[0];
+  useEffect(() => {
+    // Check initial preference
+    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setPrefersReducedMotion(mediaQuery.matches);
+
+    // Add listener for runtime changes
+    const handleChange = (e: MediaQueryListEvent) => {
+      setPrefersReducedMotion(e.matches);
+    };
+
+    mediaQuery.addEventListener('change', handleChange);
+
+    // Cleanup listener on unmount
+    return () => {
+      mediaQuery.removeEventListener('change', handleChange);
+    };
+  }, []);
+
+  // Animation settings based on user preference with runtime updates
+  const animationSettings = useMemo(() => {
+    return {
+      duration: prefersReducedMotion ? 0.1 : 0.6,
+      initial: prefersReducedMotion ? { opacity: 1 } : { opacity: 0, y: 20 },
+      animate: prefersReducedMotion ? { opacity: 1 } : { opacity: 1, y: 0 }
+    };
+  }, [prefersReducedMotion]);
+
+  // Custom debounce hook for search term
+  const useDebounceValue = (value: string, delay: number) => {
+    const [debouncedValue, setDebouncedValue] = useState(value);
+    
+    useEffect(() => {
+      const handler = setTimeout(() => {
+        setDebouncedValue(value);
+      }, delay);
+      
+      return () => clearTimeout(handler);
+    }, [value, delay]);
+    
+    return debouncedValue;
+  };
+  
+  const debouncedSearchTerm = useDebounceValue(searchTerm || '', 300);
 
   // Data queries
   const { data: studentStats, isLoading: statsLoading } = useQuery<StudentStats>({
@@ -164,8 +226,11 @@ export default function StudentDashboard() {
   const filteredActivities = useMemo(() => {
     if (!activities) return [];
     return activities.filter(activity => {
-      const matchesSearch = activity.title.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
-                           activity.description?.toLowerCase().includes(debouncedSearchTerm.toLowerCase());
+      const title = activity.title || '';
+      const description = activity.description || '';
+      const searchTerm = debouncedSearchTerm.toLowerCase();
+      const matchesSearch = title.toLowerCase().includes(searchTerm) ||
+                           description.toLowerCase().includes(searchTerm);
       const matchesCategory = selectedCategory === 'all' || activity.category === selectedCategory;
       return matchesSearch && matchesCategory;
     });
@@ -174,7 +239,7 @@ export default function StudentDashboard() {
   // Keyboard shortcuts
   useHotkeys('ctrl+f, cmd+f', (e) => {
     e.preventDefault();
-    document.querySelector('[data-testid="input-search"]')?.focus();
+    (document.querySelector('[data-testid="input-search"]') as HTMLInputElement)?.focus();
   }, { enableOnFormTags: false });
 
   useHotkeys('ctrl+n, cmd+n', (e) => {
@@ -229,26 +294,26 @@ export default function StudentDashboard() {
   }, [isDownloadingPortfolio, user?.firstName, shadcnToast]);
 
   // Export data handler
-  const handleExport = useCallback(async (format: 'csv' | 'pdf' | 'excel') => {
+  const handleExport = useCallback(async (exportType: 'csv' | 'pdf' | 'excel') => {
     try {
-      const response = await fetch(`/api/students/export/${format}`, {
+      const response = await fetch(`/api/students/export/${exportType}`, {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ activities: filteredActivities, studentInfo: dashboardData.personalInfo })
       });
 
-      if (!response.ok) throw new Error(`Failed to export ${format.toUpperCase()}`);
+      if (!response.ok) throw new Error(`Failed to export ${exportType.toUpperCase()}`);
 
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `student_data_${format(new Date(), 'yyyy-MM-dd')}.${format}`;
+      link.download = `student_data_${format(new Date(), 'yyyy-MM-dd')}.${exportType}`;
       link.click();
       window.URL.revokeObjectURL(url);
 
-      toast.success(`Data exported as ${format.toUpperCase()}`);
+      toast.success(`Data exported as ${exportType.toUpperCase()}`);
     } catch (error) {
       toast.error(`Export failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
@@ -290,22 +355,44 @@ export default function StudentDashboard() {
         <Navigation />
         
         <div className="flex min-h-[calc(100vh-72px)]">
+          {/* Desktop Sidebar */}
           <Sidebar />
           
-          <main className="flex-1 min-w-0 p-3 md:p-4 lg:p-6 space-y-4 lg:space-y-6 overflow-x-auto">
+          {/* Mobile Sidebar Drawer */}
+          <Sheet open={isMobileSidebarOpen} onOpenChange={setIsMobileSidebarOpen}>
+            <SheetTrigger asChild>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="lg:hidden fixed top-4 left-4 z-50 bg-background/95 backdrop-blur-sm border border-border shadow-sm h-11 w-11 transition-all duration-200 hover:bg-accent active:scale-95"
+                data-testid="button-mobile-sidebar"
+                aria-label="Open sidebar menu"
+              >
+                <Menu className="w-5 h-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="lg:hidden w-80 p-0">
+              <div className="h-full overflow-y-auto">
+                <Sidebar />
+              </div>
+            </SheetContent>
+          </Sheet>
+          
+          <main className="flex-1 min-w-0 pb-20 lg:pb-6">
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 lg:py-6 space-y-4 lg:space-y-6 max-w-7xl">
             {/* Header */}
             <motion.div 
               ref={headerRef}
-              initial={{ opacity: 0, y: -20 }}
-              animate={headerInView ? { opacity: 1, y: 0 } : { opacity: 0, y: -20 }}
-              transition={{ duration: 0.6 }}
+              initial={animationSettings.initial}
+              animate={headerInView ? animationSettings.animate : animationSettings.initial}
+              transition={{ duration: animationSettings.duration }}
               className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between"
             >
               <div className="flex-1">
-                <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-foreground">
+                <h1 className="font-bold text-foreground" style={{ fontSize: 'clamp(1.25rem, 2.5vw, 2rem)' }}>
                   Academic Excellence Dashboard
                 </h1>
-                <p className="text-sm md:text-base text-muted-foreground mt-1">
+                <p className="text-muted-foreground mt-1" style={{ fontSize: 'clamp(0.875rem, 2vw, 1rem)' }}>
                   Welcome back, {dashboardData.personalInfo.name}
                 </p>
                 <div className="flex flex-wrap gap-3 mt-2 text-xs md:text-sm text-muted-foreground">
@@ -325,11 +412,25 @@ export default function StudentDashboard() {
               </div>
               
               <div className="flex flex-wrap gap-2">
-                <Button variant="outline" size="sm" onClick={toggleTheme}>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={toggleTheme}
+                  className="min-w-[44px] min-h-[44px]"
+                  aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+                  data-testid="button-theme-toggle"
+                >
                   {theme === 'light' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
                 </Button>
                 
-                <Button variant="outline" size="sm" onClick={() => setShowNotifications(!showNotifications)}>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => setShowNotifications(!showNotifications)}
+                  className="min-w-[44px] min-h-[44px]"
+                  aria-label="Toggle notifications"
+                  data-testid="button-notifications"
+                >
                   <Bell className="w-4 h-4" />
                   <Badge className="ml-1 bg-red-500 text-white text-xs">3</Badge>
                 </Button>
@@ -339,6 +440,9 @@ export default function StudentDashboard() {
                   size="sm"
                   onClick={handleDownloadPortfolio}
                   disabled={isDownloadingPortfolio}
+                  className="min-w-[44px] min-h-[44px]"
+                  aria-label="Download academic portfolio"
+                  data-testid="button-download-portfolio"
                 >
                   {isDownloadingPortfolio ? (
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2" />
@@ -348,7 +452,13 @@ export default function StudentDashboard() {
                   Portfolio
                 </Button>
                 
-                <Button size="sm" onClick={() => setLocation('/upload')}>
+                <Button 
+                  size="sm" 
+                  onClick={() => setLocation('/upload')}
+                  className="min-w-[44px] min-h-[44px]"
+                  aria-label="Add new activity"
+                  data-testid="button-add-activity"
+                >
                   <Plus className="w-4 h-4 mr-2" />
                   Add Activity
                 </Button>
@@ -410,13 +520,13 @@ export default function StudentDashboard() {
               </CardContent>
             </Card>
 
-            {/* Stats Cards */}
+            {/* Stats Cards - Mobile-first responsive grid */}
             <motion.div 
               ref={statsRef}
-              initial={{ opacity: 0, y: 20 }}
-              animate={statsInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-              transition={{ duration: 0.6 }}
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 md:gap-4"
+              initial={animationSettings.initial}
+              animate={statsInView ? animationSettings.animate : animationSettings.initial}
+              transition={{ duration: animationSettings.duration }}
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4"
             >
               <StatCard
                 title="Current CGPA"
@@ -472,132 +582,25 @@ export default function StudentDashboard() {
               </TabsList>
 
               <TabsContent value="overview" className="space-y-6">
-                {/* Charts Grid */}
+                {/* Charts Section with Proper Parent-Level Code-Splitting Gating */}
                 <motion.div 
                   ref={chartsRef}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={chartsInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-                  transition={{ duration: 0.6 }}
-                  className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+                  initial={animationSettings.initial}
+                  animate={chartsInView ? animationSettings.animate : animationSettings.initial}
+                  transition={{ duration: animationSettings.duration }}
                 >
-                  {/* Academic Progress */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center space-x-2">
-                        <TrendingUp className="w-5 h-5 text-green-600" />
-                        <span>Academic Progress</span>
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <ChartContainer
-                        config={{
-                          gpa: { label: "GPA", color: "hsl(142, 76%, 36%)" },
-                          credits: { label: "Credits", color: "hsl(221, 83%, 53%)" }
-                        }}
-                        className="h-[300px]"
-                      >
-                        <ComposedChart data={dashboardData.chartData.semesterProgress}>
-                          <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis dataKey="semester" />
-                          <YAxis yAxisId="left" />
-                          <YAxis yAxisId="right" orientation="right" />
-                          <ChartTooltip content={<ChartTooltipContent />} />
-                          <Bar yAxisId="right" dataKey="credits" fill="hsl(221, 83%, 53%)" radius={4} />
-                          <Line yAxisId="left" type="monotone" dataKey="gpa" stroke="hsl(142, 76%, 36%)" strokeWidth={3} />
-                        </ComposedChart>
-                      </ChartContainer>
-                    </CardContent>
-                  </Card>
-
-                  {/* Skills Radar */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center space-x-2">
-                        <Target className="w-5 h-5 text-blue-600" />
-                        <span>Skills Assessment</span>
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <ChartContainer
-                        config={{ skill: { label: "Skill Level", color: "hsl(221, 83%, 53%)" } }}
-                        className="h-[300px]"
-                      >
-                        <RadarChart data={dashboardData.chartData.skillMatrix}>
-                          <PolarGrid />
-                          <PolarAngleAxis dataKey="skill" className="text-xs" />
-                          <PolarRadiusAxis domain={[0, 100]} tick={false} />
-                          <Radar
-                            dataKey="level"
-                            stroke="hsl(221, 83%, 53%)"
-                            fill="hsl(221, 83%, 53%)"
-                            fillOpacity={0.1}
-                            strokeWidth={2}
-                          />
-                          <ChartTooltip content={<ChartTooltipContent />} />
-                        </RadarChart>
-                      </ChartContainer>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-
-                {/* Advanced Charts Toggle */}
-                <AnimatePresence>
-                  {showAdvancedCharts && (
-                    <motion.div
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: "auto" }}
-                      exit={{ opacity: 0, height: 0 }}
-                      transition={{ duration: 0.3 }}
-                      className="grid grid-cols-1 lg:grid-cols-2 gap-6"
-                    >
-                      {/* Treemap */}
-                      <Card>
-                        <CardHeader>
-                          <CardTitle>Activity Categories Treemap</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <ChartContainer
-                            config={{ category: { label: "Category", color: "hsl(221, 83%, 53%)" } }}
-                            className="h-[300px]"
-                          >
-                            <Treemap
-                              data={dashboardData.chartData.categoryDistribution}
-                              dataKey="value"
-                              nameKey="category"
-                              fill="hsl(221, 83%, 53%)"
-                            />
-                          </ChartContainer>
-                        </CardContent>
-                      </Card>
-
-                      {/* Funnel Chart */}
-                      <Card>
-                        <CardHeader>
-                          <CardTitle>Achievement Funnel</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <ChartContainer
-                            config={{ value: { label: "Count", color: "hsl(142, 76%, 36%)" } }}
-                            className="h-[300px]"
-                          >
-                            <FunnelChart>
-                              <Funnel
-                                dataKey="value"
-                                data={[
-                                  { name: 'Activities Submitted', value: 20 },
-                                  { name: 'Under Review', value: 15 },
-                                  { name: 'Approved', value: 12 },
-                                  { name: 'Certified', value: 10 }
-                                ]}
-                                fill="hsl(142, 76%, 36%)"
-                              />
-                            </FunnelChart>
-                          </ChartContainer>
-                        </CardContent>
-                      </Card>
-                    </motion.div>
+                  {chartsInView ? (
+                    <Suspense fallback={<ChartSkeleton className="w-full h-96" />}>
+                      <ChartsSection 
+                        dashboardData={dashboardData}
+                        showAdvancedCharts={showAdvancedCharts}
+                        animationSettings={animationSettings}
+                      />
+                    </Suspense>
+                  ) : (
+                    <ChartSkeleton className="w-full h-96" />
                   )}
-                </AnimatePresence>
+                </motion.div>
 
                 {/* Quick Stats */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -682,53 +685,65 @@ export default function StudentDashboard() {
               </TabsContent>
 
               <TabsContent value="analytics" className="space-y-6">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
                   <Card>
                     <CardHeader>
-                      <CardTitle>Credit Accumulation Trend</CardTitle>
+                      <CardTitle className="text-base lg:text-lg">Credit Accumulation Trend</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <ChartContainer
                         config={{ credits: { label: "Credits", color: "hsl(142, 76%, 36%)" } }}
-                        className="h-[300px]"
+                        className="aspect-[4/3] lg:aspect-[16/9] w-full"
                       >
-                        <AreaChart data={dashboardData.chartData.skillProgress}>
-                          <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis dataKey="month" />
-                          <YAxis />
-                          <ChartTooltip content={<ChartTooltipContent />} />
-                          <Area type="monotone" dataKey="credits" stroke="hsl(142, 76%, 36%)" fill="hsl(142, 76%, 36%)" fillOpacity={0.6} />
-                        </AreaChart>
+                        <Suspense fallback={
+                          <div className="w-full h-full flex items-center justify-center">
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                          </div>
+                        }>
+                          <AreaChart data={dashboardData.chartData.skillProgress}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="month" />
+                            <YAxis />
+                            <ChartTooltip content={<ChartTooltipContent />} />
+                            <Area type="monotone" dataKey="credits" stroke="hsl(142, 76%, 36%)" fill="hsl(142, 76%, 36%)" fillOpacity={0.6} />
+                          </AreaChart>
+                        </Suspense>
                       </ChartContainer>
                     </CardContent>
                   </Card>
 
                   <Card>
                     <CardHeader>
-                      <CardTitle>Category Distribution</CardTitle>
+                      <CardTitle className="text-base lg:text-lg">Category Distribution</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <ChartContainer
                         config={{ value: { label: "Percentage", color: "hsl(221, 83%, 53%)" } }}
-                        className="h-[300px]"
+                        className="aspect-[4/3] lg:aspect-[16/9] w-full"
                       >
-                        <PieChart>
-                          <Pie
-                            data={dashboardData.chartData.categoryDistribution}
-                            cx="50%"
-                            cy="50%"
-                            labelLine={false}
-                            label={({ category, value }) => `${category}: ${value}%`}
-                            outerRadius={80}
-                            fill="#8884d8"
-                            dataKey="value"
-                          >
-                            {dashboardData.chartData.categoryDistribution.map((entry, index) => (
-                              <Cell key={`cell-${index}`} fill={entry.color} />
-                            ))}
-                          </Pie>
-                          <ChartTooltip content={<ChartTooltipContent />} />
-                        </PieChart>
+                        <Suspense fallback={
+                          <div className="w-full h-full flex items-center justify-center">
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                          </div>
+                        }>
+                          <PieChart>
+                            <Pie
+                              data={dashboardData.chartData.categoryDistribution}
+                              cx="50%"
+                              cy="50%"
+                              labelLine={false}
+                              label={({ category, value }) => `${category}: ${value}%`}
+                              outerRadius={80}
+                              fill="#8884d8"
+                              dataKey="value"
+                            >
+                              {dashboardData.chartData.categoryDistribution.map((entry, index) => (
+                                <Cell key={`cell-${index}`} fill={entry.color} />
+                              ))}
+                            </Pie>
+                            <ChartTooltip content={<ChartTooltipContent />} />
+                          </PieChart>
+                        </Suspense>
                       </ChartContainer>
                     </CardContent>
                   </Card>
@@ -875,7 +890,13 @@ export default function StudentDashboard() {
                 </div>
               </CardContent>
             </Card>
+            </div>
           </main>
+        </div>
+        
+        {/* Mobile Tab Bar - Conditionally rendered for small screens only */}
+        <div className="lg:hidden">
+          <MobileTabBar />
         </div>
       </div>
     </TooltipProvider>

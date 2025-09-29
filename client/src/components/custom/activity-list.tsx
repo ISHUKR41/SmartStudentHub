@@ -139,18 +139,18 @@ export default function ActivityList({
 
   if (isLoading) {
     return (
-      <div className={cn("space-y-4", className)} data-testid="activity-list-loading">
+      <div className={cn("space-y-3 lg:space-y-4", className)} data-testid="activity-list-loading">
         {[...Array(3)].map((_, index) => (
           <Card key={index} className="dashboard-card">
-            <CardContent className="p-4">
+            <CardContent className="p-4 sm:p-5 lg:p-6">
               <div className="animate-pulse">
-                <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-muted rounded-lg"></div>
-                  <div className="flex-1 space-y-2">
+                <div className="flex items-center space-x-3 lg:space-x-4">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-muted rounded-lg flex-shrink-0"></div>
+                  <div className="flex-1 space-y-2 min-w-0">
                     <div className="h-4 bg-muted rounded w-3/4"></div>
                     <div className="h-3 bg-muted rounded w-1/2"></div>
                   </div>
-                  <div className="w-20 h-6 bg-muted rounded"></div>
+                  <div className="w-16 sm:w-20 h-6 bg-muted rounded flex-shrink-0"></div>
                 </div>
               </div>
             </CardContent>
@@ -175,14 +175,16 @@ export default function ActivityList({
   }
 
   return (
-    <div className={cn("space-y-4", className)} data-testid="activity-list">
+    <div className={cn("space-y-3 lg:space-y-4", className)} data-testid="activity-list">
       {activities.map((activity, index) => (
         <Card key={activity.id} className="dashboard-card hover:shadow-md transition-shadow">
-          <CardContent className="p-4">
-            <div className="flex items-start space-x-4" data-testid={`activity-item-${index}`}>
-              {/* Activity Icon */}
-              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center text-xl">
-                {getCategoryIcon(activity.category)}
+          <CardContent className="p-4 sm:p-5 lg:p-6">
+            <div className="flex items-start space-x-3 lg:space-x-4" data-testid={`activity-item-${index}`}>
+              {/* Activity Icon - Responsive sizing */}
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                <div className="w-5 h-5 sm:w-6 sm:h-6">
+                  {getCategoryIcon(activity.category)}
+                </div>
               </div>
 
               {/* Activity Details */}
@@ -236,16 +238,18 @@ export default function ActivityList({
                   </div>
 
                   {/* Status and Actions */}
-                  <div className="flex items-center space-x-3 ml-4">
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-3 ml-0 sm:ml-4">
                     {getStatusBadge(activity.status)}
                     
                     {showActions && (
-                      <div className="flex items-center space-x-1">
+                      <div className="flex items-center space-x-2">
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => onViewActivity?.(activity)}
+                          className="min-h-[44px] min-w-[44px] h-10 w-10 p-0 sm:h-8 sm:w-8 sm:p-2"
                           data-testid={`button-view-activity-${index}`}
+                          aria-label="View activity details"
                         >
                           <Eye className="w-4 h-4" />
                         </Button>
@@ -255,7 +259,9 @@ export default function ActivityList({
                             variant="ghost"
                             size="sm"
                             onClick={() => onDownloadCertificate(activity)}
+                            className="min-h-[44px] min-w-[44px] h-10 w-10 p-0 sm:h-8 sm:w-8 sm:p-2"
                             data-testid={`button-download-certificate-${index}`}
+                            aria-label="Download certificate"
                           >
                             <Download className="w-4 h-4" />
                           </Button>
