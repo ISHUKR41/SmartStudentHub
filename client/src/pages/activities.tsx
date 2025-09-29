@@ -38,7 +38,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import Navigation from "@/components/layout/navigation";
 import Sidebar from "@/components/layout/sidebar";
-import ActivityList from "@/components/ui/activity-list";
+import ActivityList from "@/components/custom/activity-list";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -93,7 +93,7 @@ import {
   ExternalLink,
   Upload,
   FileSpreadsheet,
-  FilePdf,
+  FileText as FilePdf,
   Clock,
   Zap,
   Settings,
@@ -108,6 +108,7 @@ import { format, isAfter, isBefore, parseISO } from "date-fns";
 // Comprehensive filtering and sorting interfaces for advanced activity management
 interface FilterState {
   categories: string[];                    // Multi-select categories for enhanced filtering
+  category: string;                       // Single category filter (for compatibility)
   status: string;                         // Activity verification status
   dateRange: string;                      // Predefined date ranges
   customDateFrom: Date | null;            // Custom date range start
@@ -208,6 +209,7 @@ export default function Activities() {
   // Enhanced state management for comprehensive activity filtering and management
   const [filters, setFilters] = useState<FilterState>({
     categories: ['all'],                    // Multi-select categories
+    category: 'all',                       // Single category filter (for compatibility)
     status: 'all',                         // Activity verification status
     dateRange: 'all',                      // Predefined date ranges
     customDateFrom: null,                   // Custom date range start
@@ -462,6 +464,7 @@ export default function Activities() {
   const clearAllFilters = useCallback(() => {
     setFilters({
       categories: ['all'],
+      category: 'all',
       status: 'all',
       dateRange: 'all',
       customDateFrom: null,
@@ -485,9 +488,9 @@ export default function Activities() {
   }, [updateFilter]);
 
   // Enhanced export functionality
-  const handleExport = useCallback(async (format: string) => {
+  const handleExport = useCallback(async (exportFormat: string) => {
     try {
-      const endpoint = `/api/students/activities/export?format=${format}`;
+      const endpoint = `/api/students/activities/export?format=${exportFormat}`;
       const queryParams = new URLSearchParams({
         categories: filters.categories.join(','),
         status: filters.status,
@@ -504,7 +507,7 @@ export default function Activities() {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `activities-${format}-${format(new Date(), 'yyyy-MM-dd')}.${format === 'pdf' ? 'pdf' : format === 'excel' ? 'xlsx' : 'csv'}`;
+      a.download = `activities-${exportFormat}-${format(new Date(), 'yyyy-MM-dd')}.${exportFormat === 'pdf' ? 'pdf' : exportFormat === 'excel' ? 'xlsx' : 'csv'}`;
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
@@ -512,7 +515,7 @@ export default function Activities() {
 
       toast({
         title: "Export Successful",
-        description: `Activities exported as ${format.toUpperCase()} file.`,
+        description: `Activities exported as ${exportFormat.toUpperCase()} file.`,
       });
     } catch (error) {
       toast({

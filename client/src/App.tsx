@@ -36,7 +36,7 @@ import AdminAnalytics from "@/pages/admin-analytics";
 import DigitalPortfolio from "@/pages/digital-portfolio";
 import AccountProfile from "@/pages/account-profile";
 import { useAuth } from "@/hooks/useAuth";
-import { SignupDataHandler } from "@/components/SignupDataHandler";
+import { SignupDataHandler } from "@/components/features/SignupDataHandler";
 
 /**
  * Application Router Component

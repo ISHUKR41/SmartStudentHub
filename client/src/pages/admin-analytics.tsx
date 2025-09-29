@@ -63,7 +63,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import Navigation from "@/components/layout/navigation";
 import Sidebar from "@/components/layout/sidebar";
-import StatCard from "@/components/ui/stat-card";
+import StatCard from "@/components/custom/stat-card";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
