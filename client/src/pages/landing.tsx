@@ -70,7 +70,7 @@ import {
   Apple,
   Facebook as Meta, Instagram as Insta, Twitter as TwitterX,
   Youtube,
-  Layers, Layout, Brain, Crown
+  Layers, Layout, Brain, Crown, Key
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

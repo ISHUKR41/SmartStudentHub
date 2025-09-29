@@ -26,8 +26,7 @@ neonConfig.webSocketConstructor = ws;
 // Validate DATABASE_URL exists with better error handling
 const databaseUrl = process.env.DATABASE_URL?.trim();
 console.log('DATABASE_URL debug info:');
-console.log('- Raw value:', JSON.stringify(process.env.DATABASE_URL));
-console.log('- Trimmed value:', JSON.stringify(databaseUrl));
+console.log('- Status:', databaseUrl ? 'configured' : 'missing');
 console.log('- Type:', typeof process.env.DATABASE_URL);
 console.log('- Length:', process.env.DATABASE_URL?.length);
 
