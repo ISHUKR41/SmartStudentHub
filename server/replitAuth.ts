@@ -43,8 +43,9 @@ import memoize from "memoizee";
 import connectPg from "connect-pg-simple";
 import { storage } from "./storage";
 
-// Validate required environment variables
-if (!process.env.REPLIT_DOMAINS) {
+// Validate required environment variables for Replit environment
+const isReplitEnvironment = process.env.REPLIT_DOMAINS || process.env.REPL_ID;
+if (!isReplitEnvironment && process.env.NODE_ENV !== 'development') {
   throw new Error("Environment variable REPLIT_DOMAINS not provided");
 }
 
@@ -95,7 +96,21 @@ const getOidcConfig = memoize(
 export function getSession() {
   const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week session lifetime
   
-  // Configure PostgreSQL session store
+  // Use default session store for local development
+  if (!isReplitEnvironment && process.env.NODE_ENV === 'development') {
+    return session({
+      secret: process.env.SESSION_SECRET || 'dev-fallback-secret',
+      resave: false, // Don't save session if unmodified
+      saveUninitialized: false, // Don't create session for anonymous users
+      cookie: {
+        httpOnly: true, // Prevent client-side JavaScript access
+        secure: false, // Allow HTTP in development
+        maxAge: sessionTtl, // Cookie expiration time
+      },
+    });
+  }
+  
+  // Configure PostgreSQL session store for production
   const pgStore = connectPg(session);
   const sessionStore = new pgStore({
     conString: process.env.DATABASE_URL,
@@ -200,6 +215,17 @@ export async function setupAuth(app: Express) {
   app.use(getSession());
   app.use(passport.initialize());
   app.use(passport.session());
+
+  // Check if we're in local development environment
+  if (!isReplitEnvironment && process.env.NODE_ENV === 'development') {
+    console.log('🔧 Running in local development mode - skipping Replit Auth setup');
+    
+    // Setup simple passport serialization for development
+    passport.serializeUser((user: Express.User, cb) => cb(null, user));
+    passport.deserializeUser((user: Express.User, cb) => cb(null, user));
+    
+    return; // Skip Replit-specific setup
+  }
 
   // Get OIDC configuration from Replit
   const config = await getOidcConfig();
@@ -317,6 +343,26 @@ export async function setupAuth(app: Express) {
  * @returns {void} Calls next() if authenticated, returns 401 if not
  */
 export const isAuthenticated: RequestHandler = async (req, res, next) => {
+  // In local development, bypass authentication
+  if (!isReplitEnvironment && process.env.NODE_ENV === 'development') {
+    // Create a mock user for development
+    (req as any).user = {
+      claims: {
+        sub: 'dev-user-id',
+        email: 'developer@localhost.dev',
+        name: 'Developer User',
+        given_name: 'Developer',
+        family_name: 'User'
+      },
+      id: 'dev-user-id',
+      email: 'developer@localhost.dev',
+      first_name: 'Developer',
+      last_name: 'User',
+      role: 'admin'
+    };
+    return next();
+  }
+
   const user = req.user as any;
 
   // Check basic authentication status

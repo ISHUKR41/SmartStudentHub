@@ -23,7 +23,7 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./replitAuth";
+import { setupGoogleAuth, isAuthenticated } from "./googleAuth";
 import { 
   insertActivitySchema, 
   updateActivityStatusSchema, 
@@ -219,7 +219,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Initialize Replit Authentication middleware
-  await setupAuth(app);
+  setupGoogleAuth(app);
 
   /**
    * Authentication Routes
@@ -305,23 +305,58 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   /**
-   * Simplified Login Endpoint
-   * 
-   * Validates email and redirects to Replit Auth for secure authentication.
-   * No password processing for maximum security.
+   * Google OAuth Login Routes
    */
+  
+  // Initiate Google OAuth login
+  app.get('/api/auth/google', (req, res, next) => {
+    const isDevelopment = process.env.NODE_ENV === 'development';
+    const hasGoogleCredentials = process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_ID !== 'dummy-client-id';
+    
+    if (isDevelopment && !hasGoogleCredentials) {
+      // Mock login for development
+      req.login({ id: 'dev-user-123' }, (err) => {
+        if (err) return next(err);
+        return res.redirect('/');
+      });
+    } else {
+      // Real Google OAuth
+      const passport = require('passport');
+      passport.authenticate('google', { scope: ['profile', 'email'] })(req, res, next);
+    }
+  });
+
+  // Google OAuth callback
+  app.get('/api/auth/google/callback', (req, res, next) => {
+    const isDevelopment = process.env.NODE_ENV === 'development';
+    const hasGoogleCredentials = process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_ID !== 'dummy-client-id';
+    
+    if (isDevelopment && !hasGoogleCredentials) {
+      // Mock callback for development
+      req.login({ id: 'dev-user-123' }, (err) => {
+        if (err) return next(err);
+        return res.redirect('/');
+      });
+    } else {
+      // Real Google OAuth callback
+      const passport = require('passport');
+      passport.authenticate('google', { 
+        successRedirect: '/',
+        failureRedirect: '/login?error=authentication_failed'
+      })(req, res, next);
+    }
+  });
+
+  // Traditional login endpoint (now redirects to Google OAuth)
   app.post('/api/auth/login', async (req: Request, res: Response) => {
     try {
       const validatedData = loginSchema.parse(req.body);
       
-      // Optional: Check if user exists in our system for better UX
-      // This is optional since Replit Auth will handle authentication
-      
-      // Redirect to Replit Auth for actual authentication
+      // Redirect to Google OAuth for authentication
       res.status(200).json({ 
         success: true, 
-        message: "Redirecting to institutional authentication system...",
-        redirectUrl: "/api/login" // Replit Auth login endpoint
+        message: "Redirecting to Google authentication...",
+        redirectUrl: "/api/auth/google"
       });
     } catch (error) {
       console.error("Login validation error:", error);
@@ -330,6 +365,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
         success: false
       });
     }
+  });
+
+  // Logout endpoint
+  app.post('/api/auth/logout', (req: Request, res: Response) => {
+    req.logout((err) => {
+      if (err) {
+        return res.status(500).json({ message: 'Logout failed' });
+      }
+      res.json({ success: true, message: 'Logged out successfully' });
+    });
   });
 
   /**

@@ -121,43 +121,32 @@ export default function Signup() {
   }, [watchedFields]);
 
 
-  // Signup mutation for backend integration
-  const signupMutation = useMutation({
-    mutationFn: async (signupData: SignupFormData) => {
-      const response = await apiRequest('POST', '/api/auth/signup', signupData);
-      return response.json();
-    },
-    onSuccess: (response) => {
-      toast({
-        title: "Registration Successful",
-        description: "Account created successfully! Redirecting to login...",
-        variant: "default",
-      });
-      // Redirect to login page after successful registration
-      setTimeout(() => {
-        setLocation('/login');
-      }, 1500);
-    },
-    onError: (error: any) => {
-      const errorMessage = error?.message || "Registration failed. Please try again.";
-      toast({
-        title: "Registration Failed",
-        description: errorMessage,
-        variant: "destructive",
-      });
-      form.setError("root", {
-        type: "manual",
-        message: errorMessage,
-      });
-    },
-  });
+  // Google signup handler
+  const handleGoogleSignup = () => {
+    // Store signup data in sessionStorage to be processed after Google auth
+    const formData = form.getValues();
+    if (formData.firstName && formData.lastName && formData.rollNumber && formData.department) {
+      sessionStorage.setItem('signupData', JSON.stringify(formData));
+    }
+    
+    toast({
+      title: "Redirecting to Google",
+      description: "Please authenticate with Google to complete your registration...",
+      variant: "default",
+    });
+    
+    // Redirect to Google OAuth
+    setTimeout(() => {
+      window.location.href = '/api/auth/google';
+    }, 1000);
+  };
 
   /**
    * Form Submission Handler
-   * 
-   * Validates academic information and creates user account via backend API.
-   * Provides meaningful feedback and handles errors properly.
-   * 
+   *
+   * Validates academic information and then redirects to Google OAuth for account creation.
+   * The form data is stored in sessionStorage to be processed after authentication.
+   *
    * @param data - Validated academic data from the registration form
    */
   const onSubmit = async (data: SignupFormData) => {
@@ -167,8 +156,8 @@ export default function Signup() {
       // Validate the form first
       signupSchema.parse(data);
       
-      // Submit to backend API
-      await signupMutation.mutateAsync(data);
+      // Proceed with Google signup
+      handleGoogleSignup();
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Please check your information.";
       toast({
@@ -182,8 +171,6 @@ export default function Signup() {
       });
     }
   };
-
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/10 to-background flex items-center justify-center p-4 relative overflow-hidden">
       {/* Enhanced Animated Background Elements */}
@@ -305,7 +292,7 @@ export default function Signup() {
                               {...field}
                               placeholder="Enter first name"
                               className="h-11 transition-all duration-200 focus:ring-2 focus:ring-primary/20 hover:border-primary/50"
-                              disabled={signupMutation.isPending}
+                              disabled={isSubmitting}
                               data-testid="input-first-name"
                               aria-label="First name as per institutional records"
                               autoComplete="given-name"
@@ -329,7 +316,7 @@ export default function Signup() {
                               {...field}
                               placeholder="Enter last name"
                               className="h-11 transition-all duration-200 focus:ring-2 focus:ring-primary/20 hover:border-primary/50"
-                              disabled={signupMutation.isPending}
+                              disabled={isSubmitting}
                               data-testid="input-last-name"
                               aria-label="Last name as per institutional records"
                               autoComplete="family-name"
@@ -357,7 +344,7 @@ export default function Signup() {
                               type="email"
                               placeholder="Enter your official academic email address"
                               className="pl-10 h-11 transition-all duration-200 focus:ring-2 focus:ring-primary/20 hover:border-primary/50"
-                              disabled={signupMutation.isPending}
+                              disabled={isSubmitting}
                               data-testid="input-email"
                               aria-describedby="email-description"
                               aria-label="Official institutional email address"
@@ -407,7 +394,7 @@ export default function Signup() {
                               {...field}
                               placeholder="Enter your roll number"
                               className="pl-10 h-11 uppercase transition-all duration-200 focus:ring-2 focus:ring-primary/20 hover:border-primary/50"
-                              disabled={signupMutation.isPending}
+                              disabled={isSubmitting}
                               data-testid="input-roll-number"
                               onChange={(e) => field.onChange(e.target.value.toUpperCase())}
                               aria-describedby="roll-number-description"
@@ -468,7 +455,7 @@ export default function Signup() {
                           <Select 
                             onValueChange={(value) => field.onChange(parseInt(value))} 
                             defaultValue={field.value?.toString()} 
-                            disabled={signupMutation.isPending}
+                            disabled={isSubmitting}
                           >
                             <FormControl>
                               <SelectTrigger className="h-11 transition-all duration-200 focus:ring-2 focus:ring-primary/20 hover:border-primary/50" data-testid="select-semester">
@@ -513,15 +500,20 @@ export default function Signup() {
                     <div className="absolute inset-0 bg-gradient-to-r from-primary to-primary/80 transition-all duration-300 group-hover:from-primary/90 group-hover:to-primary" />
                     
                     <div className="relative z-10">
-                      {signupMutation.isPending ? (
+                      {isSubmitting ? (
                         <div className="flex items-center space-x-2">
                           <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-foreground"></div>
-                          <span>Creating Your Account...</span>
+                          <span>Redirecting to Google...</span>
                         </div>
                       ) : (
                         <div className="flex items-center space-x-2 group-hover:scale-105 transition-transform duration-200">
-                          <GraduationCap className="h-4 w-4" />
-                          <span>Complete Academic Registration</span>
+                          <svg className="w-4 h-4" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                            <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                            <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                            <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                          </svg>
+                          <span>Sign Up with Google</span>
                           {progressPercentage === 100 && (
                             <Star className="h-4 w-4 text-yellow-300 animate-pulse" />
                           )}
