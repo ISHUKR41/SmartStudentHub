@@ -69,7 +69,8 @@ import {
   Chrome,
   Apple,
   Facebook as Meta, Instagram as Insta, Twitter as TwitterX,
-  Youtube
+  Youtube,
+  Layers, Layout, Brain
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -564,6 +565,7 @@ export default function Landing() {
   const [, setLocation] = useLocation();
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("overview");
+  const [featureTab, setFeatureTab] = useState("dashboard");
   
   // Simulate initial loading
   useEffect(() => {
@@ -1808,7 +1810,1004 @@ export default function Landing() {
           </motion.div>
         </section>
 
-        {/* 3. DETAILED IMPLEMENTATION PROCESS SECTION */}
+        {/* 3. CORE FEATURES DEEP DIVE - SMART STUDENT HUB PLATFORM */}
+        <section id="features" className="py-16 sm:py-20 lg:py-24 px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-indigo-950 dark:to-purple-950">
+          <motion.div 
+            className="max-w-7xl mx-auto"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+          >
+            <div className="text-center mb-16 lg:mb-20">
+              <motion.h2 
+                className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-foreground mb-8"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6 }}
+                data-testid="features-title"
+              >
+                <Layers className="inline w-12 h-12 lg:w-16 lg:h-16 text-indigo-600 mr-4" />
+                Smart Student Hub Core Features
+              </motion.h2>
+              <motion.p 
+                className="text-xl lg:text-2xl xl:text-3xl text-muted-foreground max-w-5xl mx-auto leading-relaxed"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                data-testid="features-description"
+              >
+                <strong className="text-indigo-600">Six revolutionary modules</strong> designed specifically for Higher Education Institutions 
+                in Jammu and Kashmir, addressing every aspect of student activity management with <strong className="text-purple-600">AI-powered automation 
+                and NAAC/AICTE compliance</strong>.
+              </motion.p>
+            </div>
+
+            {/* Feature Deep Dive with Interactive Tabs */}
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8 }}
+              className="mb-16"
+            >
+              <Tabs value={featureTab} onValueChange={setFeatureTab} className="w-full">
+                <TabsList className="grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-6 h-auto p-2 bg-white dark:bg-gray-800 rounded-2xl shadow-lg">
+                  <TabsTrigger 
+                    value="dashboard" 
+                    className="h-16 text-xs font-medium data-[state=active]:bg-indigo-600 data-[state=active]:text-white flex flex-col"
+                    data-testid="tab-dashboard"
+                  >
+                    <Monitor className="w-4 h-4 mb-1" />
+                    Student Dashboard
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="tracker" 
+                    className="h-16 text-xs font-medium data-[state=active]:bg-purple-600 data-[state=active]:text-white flex flex-col"
+                    data-testid="tab-tracker"
+                  >
+                    <Activity className="w-4 h-4 mb-1" />
+                    Activity Tracker
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="approval" 
+                    className="h-16 text-xs font-medium data-[state=active]:bg-green-600 data-[state=active]:text-white flex flex-col"
+                    data-testid="tab-approval"
+                  >
+                    <Shield className="w-4 h-4 mb-1" />
+                    Faculty Panel
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="portfolio" 
+                    className="h-16 text-xs font-medium data-[state=active]:bg-blue-600 data-[state=active]:text-white flex flex-col"
+                    data-testid="tab-portfolio"
+                  >
+                    <FileText className="w-4 h-4 mb-1" />
+                    Digital Portfolio
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="analytics" 
+                    className="h-16 text-xs font-medium data-[state=active]:bg-orange-600 data-[state=active]:text-white flex flex-col"
+                    data-testid="tab-analytics"
+                  >
+                    <BarChart3 className="w-4 h-4 mb-1" />
+                    Analytics
+                  </TabsTrigger>
+                  <TabsTrigger 
+                    value="integration" 
+                    className="h-16 text-xs font-medium data-[state=active]:bg-pink-600 data-[state=active]:text-white flex flex-col"
+                    data-testid="tab-integration"
+                  >
+                    <Code className="w-4 h-4 mb-1" />
+                    Integrations
+                  </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="dashboard" className="mt-8">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                    <div>
+                      <h3 className="text-3xl font-bold mb-6 text-indigo-700 dark:text-indigo-300">Dynamic Student Dashboard</h3>
+                      <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
+                        A personalized command center for students featuring real-time activity tracking, 
+                        achievement visualization, and career development insights powered by advanced analytics.
+                      </p>
+                      
+                      <div className="space-y-6">
+                        {[
+                          {
+                            feature: "Real-time Activity Feed",
+                            description: "Live updates on conferences, certifications, competitions, internships, and community service activities",
+                            benefit: "100% visibility into all activities",
+                            icon: Activity
+                          },
+                          {
+                            feature: "Achievement Visualization", 
+                            description: "Interactive charts and progress tracking for skill development and career milestones",
+                            benefit: "Motivates 85% more engagement",
+                            icon: TrendingUp
+                          },
+                          {
+                            feature: "Smart Recommendations",
+                            description: "AI-powered suggestions for skills to develop, events to attend, and career opportunities",
+                            benefit: "40% improvement in goal achievement",
+                            icon: Lightbulb
+                          },
+                          {
+                            feature: "Mobile-First Design",
+                            description: "Responsive interface optimized for smartphones, tablets, and desktop computers",
+                            benefit: "95% user adoption rate",
+                            icon: Smartphone
+                          }
+                        ].map((item, index) => (
+                          <motion.div
+                            key={index}
+                            className="flex items-start space-x-4 p-6 bg-indigo-50 dark:bg-indigo-950/20 rounded-xl border border-indigo-200 dark:border-indigo-800"
+                            initial={{ opacity: 0, x: -30 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.6, delay: index * 0.1 }}
+                          >
+                            <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                              <item.icon className="w-6 h-6 text-white" />
+                            </div>
+                            <div className="flex-1">
+                              <h4 className="font-semibold text-lg mb-2 text-indigo-800 dark:text-indigo-200">{item.feature}</h4>
+                              <p className="text-muted-foreground mb-3 text-sm leading-relaxed">{item.description}</p>
+                              <div className="bg-green-100 dark:bg-green-900/30 px-3 py-1 rounded-lg inline-block">
+                                <span className="text-xs font-medium text-green-700 dark:text-green-300">✓ {item.benefit}</span>
+                              </div>
+                            </div>
+                          </motion.div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="relative">
+                      <motion.div
+                        className="bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-950 dark:to-purple-950 p-8 rounded-3xl border-2 border-indigo-200 dark:border-indigo-800"
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        whileInView={{ opacity: 1, scale: 1 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.8 }}
+                      >
+                        <div className="text-center mb-6">
+                          <Monitor className="w-16 h-16 text-indigo-600 mx-auto mb-4" />
+                          <h4 className="text-2xl font-bold text-indigo-800 dark:text-indigo-200">Dashboard Features</h4>
+                        </div>
+                        
+                        <div className="space-y-4">
+                          {[
+                            { feature: "Activity Timeline", count: "50+ Activities", progress: 100 },
+                            { feature: "Skill Progress Tracking", count: "25+ Skills", progress: 85 },
+                            { feature: "Achievement Badges", count: "15+ Categories", progress: 90 },
+                            { feature: "Career Roadmap", count: "10+ Paths", progress: 75 },
+                            { feature: "Peer Comparison", count: "Class Rankings", progress: 80 }
+                          ].map((item, index) => (
+                            <div key={index} className="space-y-2">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center space-x-3">
+                                  <CheckCircle className="w-5 h-5 text-indigo-600" />
+                                  <span className="font-medium text-sm">{item.feature}</span>
+                                </div>
+                                <span className="text-xs text-muted-foreground">{item.count}</span>
+                              </div>
+                              <Progress value={item.progress} className="h-2" />
+                            </div>
+                          ))}
+                        </div>
+
+                        <div className="mt-8 text-center">
+                          <Badge variant="secondary" className="px-4 py-2 bg-indigo-600 text-white">
+                            <Users className="w-4 h-4 mr-2" />
+                            Used by 50,000+ Students
+                          </Badge>
+                        </div>
+                      </motion.div>
+                    </div>
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="tracker" className="mt-8">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                    <div>
+                      <h3 className="text-3xl font-bold mb-6 text-purple-700 dark:text-purple-300">Comprehensive Activity Tracker</h3>
+                      <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
+                        Advanced tracking system for all student activities including conferences, certifications, 
+                        club participation, competitions, leadership roles, internships, and community service with automated verification.
+                      </p>
+                      
+                      <div className="space-y-6">
+                        {[
+                          {
+                            category: "Academic Conferences & Seminars",
+                            description: "Track attendance, presentations, papers published, and networking activities",
+                            types: ["National Conferences", "International Symposiums", "Research Presentations", "Academic Workshops"],
+                            icon: BookOpen
+                          },
+                          {
+                            category: "Professional Certifications",
+                            description: "Monitor industry certifications, skill badges, and professional development courses",
+                            types: ["Technical Certifications", "Industry Standards", "Skill Assessments", "Online Courses"],
+                            icon: Award
+                          },
+                          {
+                            category: "Club Activities & Leadership",
+                            description: "Document club memberships, leadership positions, events organized, and team contributions",
+                            types: ["Student Government", "Technical Clubs", "Cultural Activities", "Sports Teams"],
+                            icon: Users
+                          },
+                          {
+                            category: "Competitions & Achievements",
+                            description: "Record hackathons, coding contests, sports competitions, and academic olympiads",
+                            types: ["Technical Competitions", "Sports Events", "Academic Contests", "Innovation Challenges"],
+                            icon: Trophy
+                          }
+                        ].map((category, index) => (
+                          <motion.div
+                            key={index}
+                            className="p-6 bg-purple-50 dark:bg-purple-950/20 rounded-xl border border-purple-200 dark:border-purple-800"
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.6, delay: index * 0.1 }}
+                          >
+                            <div className="flex items-start space-x-4 mb-4">
+                              <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <category.icon className="w-5 h-5 text-white" />
+                              </div>
+                              <div className="flex-1">
+                                <h4 className="font-semibold text-lg mb-2 text-purple-800 dark:text-purple-200">{category.category}</h4>
+                                <p className="text-muted-foreground text-sm mb-3">{category.description}</p>
+                              </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-2">
+                              {category.types.map((type, typeIndex) => (
+                                <div key={typeIndex} className="bg-white dark:bg-gray-800 px-3 py-2 rounded-lg text-center">
+                                  <span className="text-xs font-medium text-purple-700 dark:text-purple-300">{type}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </motion.div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="space-y-8">
+                      <motion.div
+                        className="bg-gradient-to-br from-purple-100 to-pink-100 dark:from-purple-950 dark:to-pink-950 p-8 rounded-3xl border-2 border-purple-200 dark:border-purple-800"
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        whileInView={{ opacity: 1, scale: 1 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.8 }}
+                      >
+                        <div className="text-center mb-6">
+                          <Activity className="w-16 h-16 text-purple-600 mx-auto mb-4" />
+                          <h4 className="text-2xl font-bold text-purple-800 dark:text-purple-200">Activity Categories</h4>
+                        </div>
+                        
+                        <div className="space-y-4">
+                          {[
+                            { category: "Conferences & Seminars", count: "2,847", icon: BookOpen, color: "text-blue-600" },
+                            { category: "Certifications", count: "1,205", icon: Award, color: "text-green-600" },
+                            { category: "Club Activities", count: "5,432", icon: Users, color: "text-purple-600" },
+                            { category: "Competitions", count: "876", icon: Trophy, color: "text-orange-600" },
+                            { category: "Internships", count: "1,089", icon: Building, color: "text-cyan-600" },
+                            { category: "Community Service", count: "3,234", icon: Heart, color: "text-pink-600" }
+                          ].map((item, index) => (
+                            <motion.div
+                              key={index}
+                              className="flex items-center justify-between p-4 bg-white dark:bg-gray-800 rounded-xl"
+                              initial={{ opacity: 0, x: 30 }}
+                              whileInView={{ opacity: 1, x: 0 }}
+                              viewport={{ once: true }}
+                              transition={{ duration: 0.5, delay: index * 0.1 }}
+                            >
+                              <div className="flex items-center space-x-3">
+                                <item.icon className={`w-6 h-6 ${item.color}`} />
+                                <span className="font-medium text-sm">{item.category}</span>
+                              </div>
+                              <div className="text-right">
+                                <div className={`text-lg font-bold ${item.color}`}>
+                                  <AnimatedCounter end={parseInt(item.count.replace(',', ''))} />
+                                </div>
+                                <div className="text-xs text-muted-foreground">This Month</div>
+                              </div>
+                            </motion.div>
+                          ))}
+                        </div>
+                      </motion.div>
+
+                      <motion.div
+                        className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-xl"
+                        initial={{ opacity: 0, y: 30 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.8, delay: 0.3 }}
+                      >
+                        <h4 className="text-xl font-bold mb-4 text-center">Automated Verification Process</h4>
+                        <div className="space-y-3">
+                          {[
+                            { step: "Document Upload", status: "Instant", icon: Upload },
+                            { step: "AI Analysis", status: "2 mins", icon: Zap },
+                            { step: "Faculty Review", status: "24 hrs", icon: Shield },
+                            { step: "Verification Complete", status: "Automated", icon: CheckCircle }
+                          ].map((step, index) => (
+                            <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                              <div className="flex items-center space-x-3">
+                                <step.icon className="w-5 h-5 text-purple-600" />
+                                <span className="font-medium text-sm">{step.step}</span>
+                              </div>
+                              <Badge variant="secondary">{step.status}</Badge>
+                            </div>
+                          ))}
+                        </div>
+                      </motion.div>
+                    </div>
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="approval" className="mt-8">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                    <div>
+                      <h3 className="text-3xl font-bold mb-6 text-green-700 dark:text-green-300">Faculty Approval Panel</h3>
+                      <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
+                        Streamlined verification system for faculty members with bulk approval workflows, 
+                        automated notifications, and comprehensive mentoring dashboards to reduce administrative burden by 75%.
+                      </p>
+                      
+                      <div className="space-y-6">
+                        {[
+                          {
+                            feature: "Bulk Verification System",
+                            description: "Process multiple student submissions simultaneously with one-click approval for verified activities",
+                            benefit: "80% faster processing",
+                            workflow: ["Select Multiple Items", "AI Pre-screening", "Bulk Approve/Reject", "Auto Notifications"],
+                            icon: CheckSquare
+                          },
+                          {
+                            feature: "Smart Notification Engine",
+                            description: "Intelligent alerts prioritizing urgent verifications and reducing notification fatigue",
+                            benefit: "60% reduction in emails",
+                            workflow: ["Priority Scoring", "Batched Notifications", "Customizable Alerts", "Mobile Push"],
+                            icon: Bell
+                          },
+                          {
+                            feature: "Comprehensive Mentoring Dashboard",
+                            description: "Complete view of student progress, achievements, and development areas for effective guidance",
+                            benefit: "50% better mentoring outcomes",
+                            workflow: ["Student Progress Overview", "Achievement Analytics", "Recommendation Engine", "Goal Tracking"],
+                            icon: Users
+                          },
+                          {
+                            feature: "Advanced Analytics & Reporting",
+                            description: "Real-time insights into departmental performance, student engagement, and verification metrics",
+                            benefit: "100% data-driven decisions",
+                            workflow: ["Department Analytics", "Student Insights", "Performance Metrics", "Custom Reports"],
+                            icon: BarChart3
+                          }
+                        ].map((item, index) => (
+                          <motion.div
+                            key={index}
+                            className="p-6 bg-green-50 dark:bg-green-950/20 rounded-xl border border-green-200 dark:border-green-800"
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.6, delay: index * 0.1 }}
+                          >
+                            <div className="flex items-start space-x-4 mb-4">
+                              <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                                <item.icon className="w-6 h-6 text-white" />
+                              </div>
+                              <div className="flex-1">
+                                <h4 className="font-semibold text-lg mb-2 text-green-800 dark:text-green-200">{item.feature}</h4>
+                                <p className="text-muted-foreground text-sm mb-3">{item.description}</p>
+                                <div className="bg-blue-100 dark:bg-blue-900/30 px-3 py-1 rounded-lg inline-block mb-3">
+                                  <span className="text-xs font-medium text-blue-700 dark:text-blue-300">⚡ {item.benefit}</span>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-2">
+                              {item.workflow.map((step, stepIndex) => (
+                                <div key={stepIndex} className="bg-white dark:bg-gray-800 px-3 py-2 rounded-lg text-center">
+                                  <span className="text-xs font-medium text-green-700 dark:text-green-300">{stepIndex + 1}. {step}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </motion.div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="space-y-8">
+                      <motion.div
+                        className="bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-950 dark:to-emerald-950 p-8 rounded-3xl border-2 border-green-200 dark:border-green-800"
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        whileInView={{ opacity: 1, scale: 1 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.8 }}
+                      >
+                        <div className="text-center mb-6">
+                          <Shield className="w-16 h-16 text-green-600 mx-auto mb-4" />
+                          <h4 className="text-2xl font-bold text-green-800 dark:text-green-200">Faculty Efficiency Metrics</h4>
+                        </div>
+                        
+                        <div className="space-y-4">
+                          {[
+                            { metric: "Verification Speed", before: "4-6 hours", after: "15 minutes", improvement: "75%" },
+                            { metric: "Administrative Load", before: "12 hours/week", after: "3 hours/week", improvement: "75%" },
+                            { metric: "Student Visibility", before: "Limited", after: "360° View", improvement: "100%" },
+                            { metric: "Approval Accuracy", before: "85%", after: "99.5%", improvement: "17%" }
+                          ].map((metric, index) => (
+                            <div key={index} className="bg-white dark:bg-gray-800 p-4 rounded-xl">
+                              <div className="flex justify-between items-center mb-2">
+                                <span className="font-medium text-sm">{metric.metric}</span>
+                                <Badge variant="secondary" className="bg-green-600 text-white">+{metric.improvement}</Badge>
+                              </div>
+                              <div className="grid grid-cols-2 gap-2 text-center">
+                                <div className="p-2 bg-red-50 dark:bg-red-950/20 rounded">
+                                  <div className="text-xs text-muted-foreground">Before</div>
+                                  <div className="font-semibold text-red-600 text-sm">{metric.before}</div>
+                                </div>
+                                <div className="p-2 bg-green-50 dark:bg-green-950/20 rounded">
+                                  <div className="text-xs text-muted-foreground">After</div>
+                                  <div className="font-semibold text-green-600 text-sm">{metric.after}</div>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </motion.div>
+
+                      <motion.div
+                        className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-xl"
+                        initial={{ opacity: 0, y: 30 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.8, delay: 0.3 }}
+                      >
+                        <h4 className="text-xl font-bold mb-4 text-center">Faculty Tools & Features</h4>
+                        <div className="grid grid-cols-2 gap-4">
+                          {[
+                            { tool: "Bulk Actions", icon: CheckSquare, users: "1,245" },
+                            { tool: "Smart Filters", icon: Filter, users: "987" },
+                            { tool: "Quick Templates", icon: FileText, users: "1,567" },
+                            { tool: "Mobile App", icon: Smartphone, users: "834" },
+                            { tool: "Analytics", icon: BarChart3, users: "1,123" },
+                            { tool: "Export Tools", icon: Download, users: "756" }
+                          ].map((tool, index) => (
+                            <div key={index} className="text-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                              <tool.icon className="w-6 h-6 text-green-600 mx-auto mb-2" />
+                              <div className="font-medium text-sm mb-1">{tool.tool}</div>
+                              <div className="text-xs text-muted-foreground">{tool.users} users</div>
+                            </div>
+                          ))}
+                        </div>
+                      </motion.div>
+                    </div>
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="portfolio" className="mt-8">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                    <div>
+                      <h3 className="text-3xl font-bold mb-6 text-blue-700 dark:text-blue-300">Auto-Generated Digital Portfolio</h3>
+                      <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
+                        AI-powered portfolio generation system that creates professional, verified digital portfolios 
+                        automatically from student activities, dramatically improving placement success rates and recruiter engagement.
+                      </p>
+                      
+                      <div className="space-y-6">
+                        {[
+                          {
+                            feature: "AI-Powered Content Generation",
+                            description: "Automatically generates professional descriptions, skill summaries, and achievement narratives from raw activity data",
+                            benefits: ["95% time savings", "Professional quality", "Industry-standard format", "Multilingual support"],
+                            icon: Sparkles
+                          },
+                          {
+                            feature: "Blockchain Verification System",
+                            description: "Every certificate and achievement is cryptographically verified and stored on blockchain for tamper-proof authenticity",
+                            benefits: ["100% authenticity", "Instant verification", "Global recognition", "Future-proof security"],
+                            icon: Lock
+                          },
+                          {
+                            feature: "Dynamic Template Engine",
+                            description: "Multiple professional templates that adapt to student's field of study, career goals, and achievement types",
+                            benefits: ["15+ templates", "Industry-specific", "Mobile responsive", "Print optimized"],
+                            icon: Layout
+                          },
+                          {
+                            feature: "One-Click Sharing & Export",
+                            description: "Generate shareable links, PDF exports, and direct integration with job portals and recruitment platforms",
+                            benefits: ["Instant sharing", "Multiple formats", "Social integration", "Recruiter dashboard"],
+                            icon: Share2
+                          }
+                        ].map((item, index) => (
+                          <motion.div
+                            key={index}
+                            className="p-6 bg-blue-50 dark:bg-blue-950/20 rounded-xl border border-blue-200 dark:border-blue-800"
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.6, delay: index * 0.1 }}
+                          >
+                            <div className="flex items-start space-x-4 mb-4">
+                              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                                <item.icon className="w-6 h-6 text-white" />
+                              </div>
+                              <div className="flex-1">
+                                <h4 className="font-semibold text-lg mb-2 text-blue-800 dark:text-blue-200">{item.feature}</h4>
+                                <p className="text-muted-foreground text-sm mb-3">{item.description}</p>
+                              </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-2">
+                              {item.benefits.map((benefit, benefitIndex) => (
+                                <div key={benefitIndex} className="bg-white dark:bg-gray-800 px-3 py-2 rounded-lg">
+                                  <div className="flex items-center space-x-2">
+                                    <CheckCircle className="w-3 h-3 text-green-500" />
+                                    <span className="text-xs font-medium text-blue-700 dark:text-blue-300">{benefit}</span>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </motion.div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="space-y-8">
+                      <motion.div
+                        className="bg-gradient-to-br from-blue-100 to-cyan-100 dark:from-blue-950 dark:to-cyan-950 p-8 rounded-3xl border-2 border-blue-200 dark:border-blue-800"
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        whileInView={{ opacity: 1, scale: 1 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.8 }}
+                      >
+                        <div className="text-center mb-6">
+                          <FileText className="w-16 h-16 text-blue-600 mx-auto mb-4" />
+                          <h4 className="text-2xl font-bold text-blue-800 dark:text-blue-200">Portfolio Impact</h4>
+                        </div>
+                        
+                        <div className="space-y-4">
+                          {[
+                            { metric: "Placement Success Rate", value: "85%", increase: "+40%", icon: TrendingUp },
+                            { metric: "Recruiter Engagement", value: "92%", increase: "+65%", icon: Users },
+                            { metric: "Portfolio Quality Score", value: "9.8/10", increase: "+95%", icon: Award },
+                            { metric: "Time to Create", value: "5 mins", decrease: "-95%", icon: Clock }
+                          ].map((item, index) => (
+                            <motion.div
+                              key={index}
+                              className="flex items-center justify-between p-4 bg-white dark:bg-gray-800 rounded-xl"
+                              initial={{ opacity: 0, x: 30 }}
+                              whileInView={{ opacity: 1, x: 0 }}
+                              viewport={{ once: true }}
+                              transition={{ duration: 0.5, delay: index * 0.1 }}
+                            >
+                              <div className="flex items-center space-x-3">
+                                <item.icon className="w-6 h-6 text-blue-600" />
+                                <div>
+                                  <div className="font-medium text-sm">{item.metric}</div>
+                                  <div className="text-xs text-muted-foreground">vs Traditional Methods</div>
+                                </div>
+                              </div>
+                              <div className="text-right">
+                                <div className="text-lg font-bold text-blue-600">{item.value}</div>
+                                <div className={`text-xs font-medium ${item.decrease ? 'text-green-600' : 'text-green-600'}`}>
+                                  {item.increase || item.decrease}
+                                </div>
+                              </div>
+                            </motion.div>
+                          ))}
+                        </div>
+                      </motion.div>
+
+                      <motion.div
+                        className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-xl"
+                        initial={{ opacity: 0, y: 30 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.8, delay: 0.3 }}
+                      >
+                        <h4 className="text-xl font-bold mb-4 text-center">Portfolio Templates</h4>
+                        <div className="grid grid-cols-1 gap-4">
+                          {[
+                            { template: "Engineering Graduate", features: ["Technical Skills", "Project Portfolio", "Certification Timeline"], color: "bg-orange-50 dark:bg-orange-950/20 border-orange-200" },
+                            { template: "Business Student", features: ["Leadership Experience", "Internship History", "Achievement Summary"], color: "bg-green-50 dark:bg-green-950/20 border-green-200" },
+                            { template: "Research Scholar", features: ["Publication List", "Conference Papers", "Research Impact"], color: "bg-purple-50 dark:bg-purple-950/20 border-purple-200" },
+                            { template: "Creative Arts", features: ["Portfolio Gallery", "Exhibition History", "Creative Projects"], color: "bg-pink-50 dark:bg-pink-950/20 border-pink-200" }
+                          ].map((template, index) => (
+                            <div key={index} className={`p-4 rounded-lg border ${template.color}`}>
+                              <div className="font-medium text-sm mb-2">{template.template}</div>
+                              <div className="flex flex-wrap gap-1">
+                                {template.features.map((feature, featureIndex) => (
+                                  <Badge key={featureIndex} variant="secondary" className="text-xs">
+                                    {feature}
+                                  </Badge>
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </motion.div>
+                    </div>
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="analytics" className="mt-8">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                    <div>
+                      <h3 className="text-3xl font-bold mb-6 text-orange-700 dark:text-orange-300">Advanced Analytics & Reporting</h3>
+                      <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
+                        Comprehensive analytics platform specifically designed for NAAC, AICTE, and NIRF compliance 
+                        with real-time dashboards, automated report generation, and predictive insights for institutional excellence.
+                      </p>
+                      
+                      <div className="space-y-6">
+                        {[
+                          {
+                            module: "NAAC Assessment Analytics",
+                            description: "Comprehensive metrics tracking for all NAAC criteria with automated data collection and criterion-wise analysis",
+                            features: ["Criterion-wise Scoring", "Evidence Repository", "Gap Analysis", "Compliance Tracking"],
+                            compliance: "100% NAAC 2020 Standards",
+                            icon: Target
+                          },
+                          {
+                            module: "NIRF Ranking Dashboard",
+                            description: "Real-time tracking of all NIRF parameters including Teaching, Research, Graduation Outcomes, and Industry Income",
+                            features: ["Parameter Monitoring", "Peer Comparison", "Trend Analysis", "Improvement Recommendations"],
+                            compliance: "NIRF 2024 Framework",
+                            icon: TrendingUp
+                          },
+                          {
+                            module: "AICTE Compliance Reports",
+                            description: "Automated generation of AICTE mandatory reports with real-time data validation and submission tracking",
+                            features: ["Mandatory Reports", "Data Validation", "Submission Tracking", "Compliance Alerts"],
+                            compliance: "AICTE Regulations 2023",
+                            icon: FileCheck
+                          },
+                          {
+                            module: "Institutional Intelligence Platform",
+                            description: "AI-powered insights for strategic decision making with predictive analytics and benchmarking",
+                            features: ["Predictive Analytics", "Benchmarking", "Strategic Insights", "Performance Forecasting"],
+                            compliance: "ISO 21500 Standards",
+                            icon: Brain
+                          }
+                        ].map((item, index) => (
+                          <motion.div
+                            key={index}
+                            className="p-6 bg-orange-50 dark:bg-orange-950/20 rounded-xl border border-orange-200 dark:border-orange-800"
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.6, delay: index * 0.1 }}
+                          >
+                            <div className="flex items-start space-x-4 mb-4">
+                              <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                                <item.icon className="w-6 h-6 text-white" />
+                              </div>
+                              <div className="flex-1">
+                                <h4 className="font-semibold text-lg mb-2 text-orange-800 dark:text-orange-200">{item.module}</h4>
+                                <p className="text-muted-foreground text-sm mb-3">{item.description}</p>
+                                <div className="bg-green-100 dark:bg-green-900/30 px-3 py-1 rounded-lg inline-block mb-3">
+                                  <span className="text-xs font-medium text-green-700 dark:text-green-300">✓ {item.compliance}</span>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-2">
+                              {item.features.map((feature, featureIndex) => (
+                                <div key={featureIndex} className="bg-white dark:bg-gray-800 px-3 py-2 rounded-lg text-center">
+                                  <span className="text-xs font-medium text-orange-700 dark:text-orange-300">{feature}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </motion.div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="space-y-8">
+                      <motion.div
+                        className="bg-gradient-to-br from-orange-100 to-red-100 dark:from-orange-950 dark:to-red-950 p-8 rounded-3xl border-2 border-orange-200 dark:border-orange-800"
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        whileInView={{ opacity: 1, scale: 1 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.8 }}
+                      >
+                        <div className="text-center mb-6">
+                          <BarChart3 className="w-16 h-16 text-orange-600 mx-auto mb-4" />
+                          <h4 className="text-2xl font-bold text-orange-800 dark:text-orange-200">Compliance Impact</h4>
+                        </div>
+                        
+                        <div className="space-y-4">
+                          {[
+                            { framework: "NAAC Grade", current: "A++", improvement: "+2 Grades", score: "3.8/4.0" },
+                            { framework: "NIRF Ranking", current: "Top 50", improvement: "+45 Positions", score: "85.2/100" },
+                            { framework: "AICTE Approval", current: "Granted", improvement: "Zero Issues", score: "100%" },
+                            { framework: "Accreditation Time", current: "2 Months", improvement: "-85% Time", score: "Fast Track" }
+                          ].map((item, index) => (
+                            <motion.div
+                              key={index}
+                              className="p-4 bg-white dark:bg-gray-800 rounded-xl"
+                              initial={{ opacity: 0, x: 30 }}
+                              whileInView={{ opacity: 1, x: 0 }}
+                              viewport={{ once: true }}
+                              transition={{ duration: 0.5, delay: index * 0.1 }}
+                            >
+                              <div className="flex justify-between items-center mb-2">
+                                <span className="font-medium text-sm">{item.framework}</span>
+                                <Badge variant="secondary" className="bg-orange-600 text-white">{item.improvement}</Badge>
+                              </div>
+                              <div className="flex justify-between items-center">
+                                <div className="text-lg font-bold text-orange-600">{item.current}</div>
+                                <div className="text-sm text-muted-foreground">{item.score}</div>
+                              </div>
+                            </motion.div>
+                          ))}
+                        </div>
+                      </motion.div>
+
+                      <motion.div
+                        className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-xl"
+                        initial={{ opacity: 0, y: 30 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.8, delay: 0.3 }}
+                      >
+                        <h4 className="text-xl font-bold mb-4 text-center">Report Generation</h4>
+                        <div className="space-y-3">
+                          {[
+                            { report: "NAAC Self-Study Report", time: "Auto-generated", format: "PDF/DOC" },
+                            { report: "NIRF Data Collection", time: "Real-time sync", format: "Excel/API" },
+                            { report: "AICTE Annual Report", time: "Scheduled", format: "PDF/XML" },
+                            { report: "Institutional Analytics", time: "Live dashboard", format: "Interactive" },
+                            { report: "Student Activity Summary", time: "On-demand", format: "Multi-format" },
+                            { report: "Faculty Performance", time: "Monthly", format: "Dashboard" }
+                          ].map((report, index) => (
+                            <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                              <div>
+                                <div className="font-medium text-sm">{report.report}</div>
+                                <div className="text-xs text-muted-foreground">{report.format}</div>
+                              </div>
+                              <Badge variant="outline">{report.time}</Badge>
+                            </div>
+                          ))}
+                        </div>
+                      </motion.div>
+                    </div>
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="integration" className="mt-8">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                    <div>
+                      <h3 className="text-3xl font-bold mb-6 text-pink-700 dark:text-pink-300">Enterprise Integration Suite</h3>
+                      <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
+                        Seamless integration with existing institutional systems including ERP, LMS, HR systems, 
+                        and external platforms with robust API ecosystem and single sign-on capabilities for unified operations.
+                      </p>
+                      
+                      <div className="space-y-6">
+                        {[
+                          {
+                            category: "Academic Systems Integration",
+                            description: "Connect with popular Learning Management Systems and Student Information Systems for unified data flow",
+                            systems: ["Moodle", "Canvas", "Blackboard", "Custom LMS", "Student ERP", "Examination Systems"],
+                            benefits: "Eliminates 90% manual data entry",
+                            icon: BookOpen
+                          },
+                          {
+                            category: "Enterprise Resource Planning",
+                            description: "Deep integration with institutional ERP systems for complete student lifecycle management",
+                            systems: ["SAP", "Oracle", "Microsoft Dynamics", "Tally ERP", "Custom ERP", "HR Systems"],
+                            benefits: "100% data synchronization",
+                            icon: Building
+                          },
+                          {
+                            category: "Communication Platforms",
+                            description: "Integrate with email, messaging, and collaboration tools for seamless communication workflows",
+                            systems: ["Microsoft Teams", "Google Workspace", "Slack", "WhatsApp Business", "SMS Gateway", "Email Systems"],
+                            benefits: "Unified communication hub",
+                            icon: MessageSquare
+                          },
+                          {
+                            category: "External Service Integrations",
+                            description: "Connect with external platforms for enhanced functionality and broader ecosystem access",
+                            systems: ["LinkedIn Learning", "Coursera", "Government Portals", "Industry Partners", "Job Portals", "Social Platforms"],
+                            benefits: "Expanded ecosystem access",
+                            icon: Globe
+                          }
+                        ].map((item, index) => (
+                          <motion.div
+                            key={index}
+                            className="p-6 bg-pink-50 dark:bg-pink-950/20 rounded-xl border border-pink-200 dark:border-pink-800"
+                            initial={{ opacity: 0, y: 20 }}
+                            whileInView={{ opacity: 1, y: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.6, delay: index * 0.1 }}
+                          >
+                            <div className="flex items-start space-x-4 mb-4">
+                              <div className="w-12 h-12 bg-gradient-to-br from-pink-500 to-purple-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                                <item.icon className="w-6 h-6 text-white" />
+                              </div>
+                              <div className="flex-1">
+                                <h4 className="font-semibold text-lg mb-2 text-pink-800 dark:text-pink-200">{item.category}</h4>
+                                <p className="text-muted-foreground text-sm mb-3">{item.description}</p>
+                                <div className="bg-blue-100 dark:bg-blue-900/30 px-3 py-1 rounded-lg inline-block mb-3">
+                                  <span className="text-xs font-medium text-blue-700 dark:text-blue-300">⚡ {item.benefits}</span>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="grid grid-cols-3 gap-2">
+                              {item.systems.map((system, systemIndex) => (
+                                <div key={systemIndex} className="bg-white dark:bg-gray-800 px-2 py-2 rounded-lg text-center">
+                                  <span className="text-xs font-medium text-pink-700 dark:text-pink-300">{system}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </motion.div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="space-y-8">
+                      <motion.div
+                        className="bg-gradient-to-br from-pink-100 to-purple-100 dark:from-pink-950 dark:to-purple-950 p-8 rounded-3xl border-2 border-pink-200 dark:border-pink-800"
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        whileInView={{ opacity: 1, scale: 1 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.8 }}
+                      >
+                        <div className="text-center mb-6">
+                          <Code className="w-16 h-16 text-pink-600 mx-auto mb-4" />
+                          <h4 className="text-2xl font-bold text-pink-800 dark:text-pink-200">Integration Statistics</h4>
+                        </div>
+                        
+                        <div className="space-y-4">
+                          {[
+                            { metric: "Systems Connected", value: "50+", description: "Popular platforms" },
+                            { metric: "API Endpoints", value: "200+", description: "Available integrations" },
+                            { metric: "Data Sync Speed", value: "Real-time", description: "Instant updates" },
+                            { metric: "Uptime Guarantee", value: "99.9%", description: "Enterprise reliability" },
+                            { metric: "Implementation Time", value: "2-5 days", description: "Rapid deployment" },
+                            { metric: "Custom Integrations", value: "Unlimited", description: "Tailored solutions" }
+                          ].map((item, index) => (
+                            <motion.div
+                              key={index}
+                              className="flex items-center justify-between p-4 bg-white dark:bg-gray-800 rounded-xl"
+                              initial={{ opacity: 0, x: 30 }}
+                              whileInView={{ opacity: 1, x: 0 }}
+                              viewport={{ once: true }}
+                              transition={{ duration: 0.5, delay: index * 0.1 }}
+                            >
+                              <div>
+                                <div className="font-medium text-sm">{item.metric}</div>
+                                <div className="text-xs text-muted-foreground">{item.description}</div>
+                              </div>
+                              <div className="text-lg font-bold text-pink-600">{item.value}</div>
+                            </motion.div>
+                          ))}
+                        </div>
+                      </motion.div>
+
+                      <motion.div
+                        className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-xl"
+                        initial={{ opacity: 0, y: 30 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.8, delay: 0.3 }}
+                      >
+                        <h4 className="text-xl font-bold mb-4 text-center">Integration Features</h4>
+                        <div className="space-y-3">
+                          {[
+                            { feature: "Single Sign-On (SSO)", status: "Available", security: "Enterprise Grade" },
+                            { feature: "Real-time Data Sync", status: "Active", security: "Encrypted" },
+                            { feature: "Webhook Support", status: "Enabled", security: "Secure" },
+                            { feature: "REST API Access", status: "Full Access", security: "Authenticated" },
+                            { feature: "Custom Connectors", status: "On Demand", security: "Validated" },
+                            { feature: "Batch Processing", status: "Optimized", security: "Monitored" }
+                          ].map((feature, index) => (
+                            <div key={index} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                              <div className="flex items-center space-x-3">
+                                <CheckCircle className="w-5 h-5 text-green-500" />
+                                <div>
+                                  <div className="font-medium text-sm">{feature.feature}</div>
+                                  <div className="text-xs text-muted-foreground">{feature.security}</div>
+                                </div>
+                              </div>
+                              <Badge variant="secondary">{feature.status}</Badge>
+                            </div>
+                          ))}
+                        </div>
+                      </motion.div>
+                    </div>
+                  </div>
+                </TabsContent>
+              </Tabs>
+            </motion.div>
+
+            {/* Government of Jammu and Kashmir Context */}
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8 }}
+              className="bg-gradient-to-r from-orange-50 via-white to-green-50 dark:from-orange-950/20 dark:via-gray-800 dark:to-green-950/20 p-8 lg:p-12 rounded-3xl border-2 border-orange-200 dark:border-orange-800"
+            >
+              <div className="text-center mb-8">
+                <div className="flex items-center justify-center space-x-4 mb-6">
+                  <div className="w-16 h-16 bg-orange-500 rounded-xl flex items-center justify-center">
+                    <Building className="w-8 h-8 text-white" />
+                  </div>
+                  <div className="w-16 h-16 bg-white rounded-xl flex items-center justify-center border-2 border-orange-500">
+                    <GraduationCap className="w-8 h-8 text-orange-500" />
+                  </div>
+                  <div className="w-16 h-16 bg-green-500 rounded-xl flex items-center justify-center">
+                    <Flag className="w-8 h-8 text-white" />
+                  </div>
+                </div>
+                <h3 className="text-3xl font-bold mb-4">Government of Jammu and Kashmir Higher Education Department</h3>
+                <p className="text-lg text-muted-foreground max-w-4xl mx-auto leading-relaxed">
+                  <strong className="text-orange-600">Smart Student Hub</strong> is specifically designed to support the 
+                  <strong className="text-green-600"> Government of Jammu and Kashmir's vision</strong> for transforming higher education 
+                  through digital innovation, ensuring all institutions achieve excellence in NAAC accreditation, NIRF rankings, 
+                  and overall academic quality.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {[
+                  {
+                    initiative: "Digital J&K Mission",
+                    description: "Aligning with J&K's digital transformation goals for educational excellence",
+                    goals: ["Digital Infrastructure", "E-Governance", "Technology Adoption", "Data-Driven Decisions"],
+                    icon: Zap
+                  },
+                  {
+                    initiative: "Higher Education Excellence",
+                    description: "Supporting 50+ institutions across J&K in achieving world-class educational standards",
+                    goals: ["NAAC A++ Grades", "NIRF Top Rankings", "Industry Partnerships", "Research Excellence"],
+                    icon: Award
+                  },
+                  {
+                    initiative: "Student Success Initiative",
+                    description: "Empowering 1,00,000+ students in J&K with verified credentials and career opportunities",
+                    goals: ["Enhanced Employability", "Skill Development", "Industry Readiness", "Global Recognition"],
+                    icon: Users
+                  }
+                ].map((initiative, index) => (
+                  <motion.div
+                    key={index}
+                    className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg"
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6, delay: index * 0.2 }}
+                  >
+                    <div className="text-center mb-4">
+                      <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-green-500 rounded-xl flex items-center justify-center mx-auto mb-3">
+                        <initiative.icon className="w-6 h-6 text-white" />
+                      </div>
+                      <h4 className="text-xl font-bold mb-2">{initiative.initiative}</h4>
+                      <p className="text-sm text-muted-foreground mb-4">{initiative.description}</p>
+                    </div>
+                    <div className="space-y-2">
+                      {initiative.goals.map((goal, goalIndex) => (
+                        <div key={goalIndex} className="flex items-center space-x-2">
+                          <CheckCircle className="w-4 h-4 text-green-500 flex-shrink-0" />
+                          <span className="text-sm">{goal}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          </motion.div>
+        </section>
+
+        {/* 4. DETAILED IMPLEMENTATION PROCESS SECTION */}
         <section id="implementation" className="py-16 sm:py-20 lg:py-24 px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 bg-white dark:bg-gray-900">
           <motion.div 
             className="max-w-7xl mx-auto"
