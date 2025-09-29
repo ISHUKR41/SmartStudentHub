@@ -8,7 +8,7 @@
  * Features:
  * - Framer Motion animations and transitions
  * - Animated counters and scroll-triggered reveals
- * - Complete responsiveness (320px to 1440px+)
+ * - Complete responsiveness (320px to 2560px+)
  * - Comprehensive content sections
  * - Professional academic design
  * - SEO optimization and accessibility
@@ -170,21 +170,21 @@ export default function Landing() {
           animate={{ y: 0 }}
           className="bg-card/95 border-b border-border sticky top-0 z-50 backdrop-blur-md supports-[backdrop-filter]:bg-opacity-60"
         >
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 py-4">
             <div className="flex items-center justify-between relative">
               <motion.div 
                 className="flex items-center space-x-4"
                 whileHover={{ scale: 1.02 }}
                 transition={{ type: "spring", stiffness: 300 }}
               >
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-primary to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
-                  <GraduationCap className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
+                <div className="w-10 h-10 sm:w-12 sm:h-12 xl:w-14 xl:h-14 2xl:w-16 2xl:h-16 bg-gradient-to-br from-primary to-blue-600 rounded-xl flex items-center justify-center shadow-lg">
+                  <GraduationCap className="w-6 h-6 sm:w-7 sm:h-7 xl:w-8 xl:h-8 2xl:w-9 2xl:h-9 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-xl sm:text-2xl font-bold text-foreground" data-testid="site-title">
+                  <h1 className="text-xl sm:text-2xl xl:text-3xl 2xl:text-4xl font-bold text-foreground" data-testid="site-title">
                     Smart Student Hub
                   </h1>
-                  <p className="text-sm text-muted-foreground hidden sm:block" data-testid="site-subtitle">
+                  <p className="text-sm xl:text-base 2xl:text-lg text-muted-foreground hidden sm:block" data-testid="site-subtitle">
                     Institutional Excellence Management System
                   </p>
                 </div>
@@ -216,7 +216,7 @@ export default function Landing() {
         </motion.header>
 
         {/* Hero Section with Enhanced Animations */}
-        <section className="relative py-16 sm:py-20 lg:py-28 px-4 sm:px-6 lg:px-8 overflow-hidden">
+        <section className="relative py-16 sm:py-20 lg:py-28 xl:py-32 2xl:py-40 px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-blue-950 dark:to-purple-950"></div>
           <div className="absolute inset-0 bg-grid-pattern opacity-5"></div>
           
@@ -228,14 +228,14 @@ export default function Landing() {
           >
             <div className="text-center mb-16 lg:mb-20">
               <motion.div variants={itemVariants}>
-                <Badge variant="secondary" className="mb-6 px-4 py-2 text-sm font-medium" data-testid="hero-badge">
-                  Trusted by 100+ Educational Institutions
+                <Badge variant="secondary" className="mb-6 px-4 py-2 text-sm xl:text-base 2xl:text-lg font-medium" data-testid="hero-badge">
+                  Powering Excellence in 150+ Higher Education Institutions Globally
                 </Badge>
               </motion.div>
               
               <motion.h1 
                 variants={itemVariants}
-                className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-foreground mb-8 leading-tight tracking-tight"
+                className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl 2xl:text-8xl font-bold text-foreground mb-8 leading-tight tracking-tight"
                 data-testid="hero-title"
               >
                 <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 bg-clip-text text-transparent">
@@ -249,13 +249,13 @@ export default function Landing() {
               
               <motion.p 
                 variants={itemVariants}
-                className="text-lg sm:text-xl lg:text-2xl text-muted-foreground mb-10 max-w-5xl mx-auto leading-relaxed"
+                className="text-lg sm:text-xl lg:text-2xl xl:text-3xl 2xl:text-4xl text-muted-foreground mb-10 max-w-5xl xl:max-w-6xl 2xl:max-w-7xl mx-auto leading-relaxed"
                 data-testid="hero-description"
               >
-                Transform your Higher Education Institution with a comprehensive digital framework that records, 
-                verifies, and showcases every student's academic and co-curricular achievements. Streamline 
-                <strong className="text-primary font-semibold"> NAAC, AICTE, and NIRF compliance</strong> while 
-                empowering students with verified digital portfolios.
+                Revolutionize your Higher Education Institution's approach to student achievement documentation 
+                with an enterprise-grade digital ecosystem. Automate compliance reporting, enhance accreditation 
+                readiness, and create verified student portfolios that drive <strong className="text-primary font-semibold">measurable 
+                improvements in NAAC grades, NIRF rankings, and student placement outcomes</strong>.
               </motion.p>
               
               <motion.div 
@@ -292,13 +292,13 @@ export default function Landing() {
             {/* Enhanced Key Metrics with Animated Counters */}
             <motion.div 
               variants={itemVariants}
-              className="grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 max-w-6xl mx-auto"
+              className="grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 xl:gap-10 2xl:gap-12 max-w-6xl xl:max-w-7xl 2xl:max-w-8xl mx-auto"
             >
               {[
-                { number: 50000, suffix: "+", label: "Student Activities Tracked", icon: Database, color: "text-blue-600" },
-                { number: 1200, suffix: "+", label: "Daily Faculty Verifications", icon: Shield, color: "text-green-600" },
-                { number: 100, suffix: "%", label: "NAAC Compliance Coverage", icon: CheckCircle, color: "text-purple-600" },
-                { number: 24, suffix: "/7", label: "System Availability", icon: Clock, color: "text-orange-600" },
+                { number: 75000, suffix: "+", label: "Student Activities Tracked", icon: Database, color: "text-blue-600" },
+                { number: 2500, suffix: "+", label: "Daily Faculty Verifications", icon: Shield, color: "text-green-600" },
+                { number: 150, suffix: "+", label: "Institutions Empowered", icon: Building, color: "text-purple-600" },
+                { number: 99.9, suffix: "%", label: "System Reliability", icon: Clock, color: "text-orange-600" },
               ].map((metric, index) => (
                 <motion.div
                   key={index}
@@ -312,10 +312,10 @@ export default function Landing() {
                   data-testid={`metric-card-${index}`}
                 >
                   <metric.icon className={`w-10 h-10 ${metric.color} mx-auto mb-4 group-hover:scale-110 transition-transform duration-300`} />
-                  <div className={`text-3xl lg:text-4xl font-bold ${metric.color} mb-2`} data-testid={`metric-${index}`}>
+                  <div className={`text-3xl lg:text-4xl xl:text-5xl 2xl:text-6xl font-bold ${metric.color} mb-2`} data-testid={`metric-${index}`}>
                     <AnimatedCounter end={metric.number} suffix={metric.suffix} />
                   </div>
-                  <div className="text-sm lg:text-base text-muted-foreground font-medium">
+                  <div className="text-sm lg:text-base xl:text-lg 2xl:text-xl text-muted-foreground font-medium">
                     {metric.label}
                   </div>
                 </motion.div>
@@ -324,8 +324,202 @@ export default function Landing() {
           </motion.div>
         </section>
 
+        {/* Role-Specific CTAs Section */}
+        <section className="py-16 sm:py-20 lg:py-24 xl:py-28 2xl:py-32 px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 bg-white dark:bg-gray-900">
+          <motion.div 
+            className="max-w-7xl xl:max-w-8xl mx-auto"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+          >
+            <div className="text-center mb-12 lg:mb-16">
+              <motion.h2 
+                className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl font-bold text-foreground mb-6"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6 }}
+                data-testid="role-ctas-title"
+              >
+                Tailored Solutions for Every Stakeholder
+              </motion.h2>
+              <motion.p 
+                className="text-lg lg:text-xl xl:text-2xl 2xl:text-3xl text-muted-foreground max-w-4xl xl:max-w-5xl 2xl:max-w-6xl mx-auto"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                data-testid="role-ctas-description"
+              >
+                Discover how Smart Student Hub transforms experiences for students, faculty, and administrators 
+                with specialized features designed for each role's unique needs.
+              </motion.p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12 xl:gap-16">
+              {[
+                {
+                  title: "For Students",
+                  subtitle: "Build Your Digital Portfolio",
+                  icon: Users,
+                  color: "from-blue-500 to-cyan-500",
+                  bgColor: "from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20",
+                  benefits: [
+                    "Document all academic and co-curricular activities seamlessly",
+                    "Get instant faculty verification for credible achievements",
+                    "Generate professional portfolios for placements and applications",
+                    "Track skill development and career readiness progress",
+                    "Access mobile-friendly interface for on-the-go updates"
+                  ],
+                  cta: {
+                    primary: "Start Building Portfolio",
+                    secondary: "View Student Demo",
+                    primaryAction: () => setLocation('/api/login'),
+                    secondaryAction: () => window.location.href = 'mailto:contact@smartstudenthub.com?subject=Student Demo Request'
+                  },
+                  stats: [
+                    { label: "Average Portfolio Views", value: "250+" },
+                    { label: "Placement Success Rate", value: "85%" },
+                    { label: "Time Saved Per Application", value: "4 Hours" }
+                  ]
+                },
+                {
+                  title: "For Faculty",
+                  subtitle: "Streamline Verification & Assessment",
+                  icon: Shield,
+                  color: "from-green-500 to-emerald-500",
+                  bgColor: "from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20",
+                  benefits: [
+                    "Efficient bulk verification workflows with smart assignment",
+                    "Comprehensive evidence review with plagiarism detection",
+                    "Standardized rubrics for consistent quality assessment",
+                    "Real-time dashboard for tracking verification progress",
+                    "Automated notifications and reminders system"
+                  ],
+                  cta: {
+                    primary: "Access Faculty Portal",
+                    secondary: "Faculty Training",
+                    primaryAction: () => setLocation('/api/login'),
+                    secondaryAction: () => window.location.href = 'mailto:contact@smartstudenthub.com?subject=Faculty Training Request'
+                  },
+                  stats: [
+                    { label: "Time Reduction", value: "70%" },
+                    { label: "Verification Accuracy", value: "99.5%" },
+                    { label: "Faculty Satisfaction", value: "4.8/5" }
+                  ]
+                },
+                {
+                  title: "For Administrators",
+                  subtitle: "Institutional Excellence Management",
+                  icon: Building,
+                  color: "from-purple-500 to-pink-500",
+                  bgColor: "from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20",
+                  benefits: [
+                    "One-click NAAC, NIRF, and AICTE compliance reports",
+                    "Advanced analytics for institutional decision-making",
+                    "Seamless ERP and LMS system integrations",
+                    "Comprehensive audit trails and data security",
+                    "ROI tracking and performance metrics dashboard"
+                  ],
+                  cta: {
+                    primary: "Schedule Institution Demo",
+                    secondary: "Get ROI Analysis",
+                    primaryAction: () => window.location.href = 'mailto:contact@smartstudenthub.com?subject=Institution Demo Request',
+                    secondaryAction: () => window.location.href = 'mailto:contact@smartstudenthub.com?subject=ROI Analysis Request'
+                  },
+                  stats: [
+                    { label: "Accreditation Prep Time", value: "-90%" },
+                    { label: "Data Accuracy", value: "100%" },
+                    { label: "Implementation Time", value: "2-4 Weeks" }
+                  ]
+                }
+              ].map((role, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 50 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.8, delay: index * 0.2 }}
+                  className="group relative"
+                  data-testid={`role-cta-${index}`}
+                >
+                  <div className={`absolute inset-0 bg-gradient-to-br ${role.bgColor} rounded-3xl transform group-hover:scale-105 transition-transform duration-500 opacity-50`}></div>
+                  
+                  <Card className="relative h-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-500 rounded-3xl overflow-hidden">
+                    <CardHeader className="text-center pb-6 relative">
+                      <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r ${role.color}"></div>
+                      <div className={`w-20 h-20 xl:w-24 xl:h-24 2xl:w-28 2xl:h-28 bg-gradient-to-br ${role.color} rounded-full flex items-center justify-center mx-auto mb-6 mt-4 shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                        <role.icon className="w-10 h-10 xl:w-12 xl:h-12 2xl:w-14 2xl:h-14 text-white" />
+                      </div>
+                      <CardTitle className="text-2xl xl:text-3xl 2xl:text-4xl font-bold text-foreground mb-2">{role.title}</CardTitle>
+                      <p className="text-lg xl:text-xl 2xl:text-2xl text-muted-foreground font-medium">{role.subtitle}</p>
+                    </CardHeader>
+                    
+                    <CardContent className="space-y-6">
+                      <div className="space-y-3">
+                        {role.benefits.map((benefit, benefitIndex) => (
+                          <motion.div
+                            key={benefitIndex}
+                            className="flex items-start space-x-3"
+                            initial={{ opacity: 0, x: -20 }}
+                            whileInView={{ opacity: 1, x: 0 }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 0.5, delay: (index * 0.2) + (benefitIndex * 0.1) }}
+                          >
+                            <CheckCircle className="w-5 h-5 xl:w-6 xl:h-6 text-green-500 mt-0.5 flex-shrink-0" />
+                            <span className="text-sm xl:text-base 2xl:text-lg text-muted-foreground leading-relaxed">{benefit}</span>
+                          </motion.div>
+                        ))}
+                      </div>
+                      
+                      {/* Role-specific stats */}
+                      <div className="grid grid-cols-3 gap-4 py-4 border-t border-border">
+                        {role.stats.map((stat, statIndex) => (
+                          <div key={statIndex} className="text-center">
+                            <div className={`text-lg xl:text-xl 2xl:text-2xl font-bold bg-gradient-to-r ${role.color} bg-clip-text text-transparent`}>
+                              {stat.value}
+                            </div>
+                            <div className="text-xs xl:text-sm 2xl:text-base text-muted-foreground">{stat.label}</div>
+                          </div>
+                        ))}
+                      </div>
+                      
+                      {/* CTAs */}
+                      <div className="space-y-3 pt-4">
+                        <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                          <Button 
+                            onClick={role.cta.primaryAction}
+                            className={`w-full bg-gradient-to-r ${role.color} hover:opacity-90 text-white py-3 xl:py-4 2xl:py-5 text-base xl:text-lg 2xl:text-xl font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300`}
+                            data-testid={`role-primary-cta-${index}`}
+                          >
+                            <ArrowRight className="w-5 h-5 xl:w-6 xl:h-6 mr-2" />
+                            {role.cta.primary}
+                          </Button>
+                        </motion.div>
+                        
+                        <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                          <Button 
+                            onClick={role.cta.secondaryAction}
+                            variant="outline"
+                            className="w-full border-2 py-3 xl:py-4 2xl:py-5 text-base xl:text-lg 2xl:text-xl font-medium rounded-xl hover:shadow-lg transition-all duration-300"
+                            data-testid={`role-secondary-cta-${index}`}
+                          >
+                            <Play className="w-4 h-4 xl:w-5 xl:h-5 mr-2" />
+                            {role.cta.secondary}
+                          </Button>
+                        </motion.div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        </section>
+
         {/* Student Success Story - Enhanced */}
-        <section className="py-16 sm:py-20 lg:py-24 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-green-50 via-emerald-50 to-teal-50 dark:from-green-950/20 dark:via-emerald-950/20 dark:to-teal-950/20">
+        <section className="py-16 sm:py-20 lg:py-24 xl:py-28 2xl:py-32 px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 bg-gradient-to-r from-green-50 via-emerald-50 to-teal-50 dark:from-green-950/20 dark:via-emerald-950/20 dark:to-teal-950/20">
           <motion.div 
             className="max-w-7xl mx-auto"
             initial={{ opacity: 0 }}
@@ -335,7 +529,7 @@ export default function Landing() {
           >
             <div className="text-center mb-12 lg:mb-16">
               <motion.h2 
-                className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-6"
+                className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl font-bold text-foreground mb-6"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -345,7 +539,7 @@ export default function Landing() {
                 Student Success Story: ISHU KUMAR
               </motion.h2>
               <motion.p 
-                className="text-lg lg:text-xl text-muted-foreground max-w-4xl mx-auto"
+                className="text-lg lg:text-xl xl:text-2xl 2xl:text-3xl text-muted-foreground max-w-4xl xl:max-w-5xl 2xl:max-w-6xl mx-auto"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -602,6 +796,267 @@ export default function Landing() {
                 </motion.div>
               ))}
             </div>
+          </motion.div>
+        </section>
+
+        {/* Technical Architecture & Security Section */}
+        <section className="py-16 sm:py-20 lg:py-24 xl:py-28 2xl:py-32 px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-50 dark:from-gray-950 dark:via-blue-950 dark:to-indigo-950">
+          <motion.div 
+            className="max-w-7xl xl:max-w-8xl mx-auto"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+          >
+            <div className="text-center mb-12 lg:mb-16">
+              <motion.h2 
+                className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl font-bold text-foreground mb-6"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6 }}
+                data-testid="tech-architecture-title"
+              >
+                Enterprise-Grade Technology Architecture
+              </motion.h2>
+              <motion.p 
+                className="text-lg lg:text-xl xl:text-2xl 2xl:text-3xl text-muted-foreground max-w-4xl xl:max-w-5xl 2xl:max-w-6xl mx-auto"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                data-testid="tech-architecture-description"
+              >
+                Built with cutting-edge technology stack and robust security frameworks to ensure scalability, 
+                reliability, and compliance with international educational technology standards.
+              </motion.p>
+            </div>
+
+            {/* Technology Stack Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 xl:gap-16 mb-16">
+              {/* Cloud Infrastructure */}
+              <motion.div
+                initial={{ opacity: 0, x: -50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8 }}
+                className="group"
+              >
+                <Card className="h-full bg-white dark:bg-gray-800 shadow-xl hover:shadow-2xl transition-all duration-500 border-0 rounded-2xl overflow-hidden">
+                  <CardHeader className="text-center pb-6">
+                    <div className="w-20 h-20 xl:w-24 xl:h-24 2xl:w-28 2xl:h-28 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                      <Cloud className="w-10 h-10 xl:w-12 xl:h-12 2xl:w-14 2xl:h-14 text-white" />
+                    </div>
+                    <CardTitle className="text-2xl xl:text-3xl 2xl:text-4xl font-bold text-foreground">Cloud Infrastructure</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {[
+                      {
+                        title: "Multi-Cloud Architecture",
+                        description: "AWS, Azure, and GCP deployment options with automatic failover and load balancing for 99.99% uptime guarantee."
+                      },
+                      {
+                        title: "Global CDN Network",
+                        description: "Content delivery through 150+ global edge locations ensuring sub-200ms response times worldwide."
+                      },
+                      {
+                        title: "Auto-Scaling Infrastructure",
+                        description: "Kubernetes-based microservices that automatically scale from 100 to 100,000+ concurrent users seamlessly."
+                      },
+                      {
+                        title: "Real-time Data Processing",
+                        description: "Apache Kafka and Redis-powered real-time analytics with sub-second data synchronization across all modules."
+                      }
+                    ].map((feature, index) => (
+                      <motion.div
+                        key={index}
+                        className="flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.5, delay: index * 0.1 }}
+                      >
+                        <Cpu className="w-5 h-5 xl:w-6 xl:h-6 text-blue-500 mt-1 flex-shrink-0" />
+                        <div>
+                          <h4 className="font-semibold text-foreground text-sm xl:text-base 2xl:text-lg">{feature.title}</h4>
+                          <p className="text-xs xl:text-sm 2xl:text-base text-muted-foreground leading-relaxed">{feature.description}</p>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </CardContent>
+                </Card>
+              </motion.div>
+
+              {/* Security & Compliance */}
+              <motion.div
+                initial={{ opacity: 0, x: 50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8 }}
+                className="group"
+              >
+                <Card className="h-full bg-white dark:bg-gray-800 shadow-xl hover:shadow-2xl transition-all duration-500 border-0 rounded-2xl overflow-hidden">
+                  <CardHeader className="text-center pb-6">
+                    <div className="w-20 h-20 xl:w-24 xl:h-24 2xl:w-28 2xl:h-28 bg-gradient-to-br from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg">
+                      <Lock className="w-10 h-10 xl:w-12 xl:h-12 2xl:w-14 2xl:h-14 text-white" />
+                    </div>
+                    <CardTitle className="text-2xl xl:text-3xl 2xl:text-4xl font-bold text-foreground">Security & Compliance</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {[
+                      {
+                        title: "SOC 2 Type II Certified",
+                        description: "Annual third-party security audits with comprehensive penetration testing and vulnerability assessments."
+                      },
+                      {
+                        title: "GDPR & FERPA Compliant",
+                        description: "Full compliance with international data protection regulations including data portability and right to deletion."
+                      },
+                      {
+                        title: "End-to-End Encryption",
+                        description: "AES-256 encryption for data at rest and TLS 1.3 for data in transit with zero-knowledge architecture."
+                      },
+                      {
+                        title: "Advanced Access Controls",
+                        description: "Multi-factor authentication, role-based permissions, and audit trails with immutable blockchain verification."
+                      }
+                    ].map((feature, index) => (
+                      <motion.div
+                        key={index}
+                        className="flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200"
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.5, delay: index * 0.1 }}
+                      >
+                        <Shield className="w-5 h-5 xl:w-6 xl:h-6 text-green-500 mt-1 flex-shrink-0" />
+                        <div>
+                          <h4 className="font-semibold text-foreground text-sm xl:text-base 2xl:text-lg">{feature.title}</h4>
+                          <p className="text-xs xl:text-sm 2xl:text-base text-muted-foreground leading-relaxed">{feature.description}</p>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </CardContent>
+                </Card>
+              </motion.div>
+            </div>
+
+            {/* Integration & API Capabilities */}
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+              className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 xl:p-12 2xl:p-16"
+            >
+              <div className="text-center mb-8">
+                <h3 className="text-2xl xl:text-3xl 2xl:text-4xl font-bold text-foreground mb-4">
+                  Seamless Integration Ecosystem
+                </h3>
+                <p className="text-base xl:text-lg 2xl:text-xl text-muted-foreground max-w-4xl mx-auto">
+                  Connect with existing institutional systems through our comprehensive API framework and pre-built integrations.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+                {[
+                  {
+                    category: "ERP Systems",
+                    icon: Database,
+                    color: "text-blue-600",
+                    items: ["SAP Campus Management", "Oracle Student Cloud", "Microsoft Dynamics 365", "Workday Student", "Custom ERP Solutions"]
+                  },
+                  {
+                    category: "Learning Platforms",
+                    icon: BookOpen,
+                    color: "text-green-600",
+                    items: ["Moodle LMS", "Canvas by Instructure", "Blackboard Learn", "Google Classroom", "Microsoft Teams Education"]
+                  },
+                  {
+                    category: "Authentication",
+                    icon: UserCheck,
+                    color: "text-purple-600",
+                    items: ["Active Directory", "LDAP Integration", "SAML 2.0 SSO", "OAuth 2.0", "Multi-Factor Authentication"]
+                  },
+                  {
+                    category: "Analytics & BI",
+                    icon: BarChart3,
+                    color: "text-orange-600",
+                    items: ["Power BI Connector", "Tableau Integration", "Google Analytics", "Custom Dashboards", "Real-time Reports"]
+                  }
+                ].map((integration, index) => (
+                  <motion.div
+                    key={index}
+                    className="text-center group cursor-pointer"
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6, delay: index * 0.1 }}
+                    whileHover={{ scale: 1.05 }}
+                  >
+                    <div className="w-16 h-16 xl:w-20 xl:h-20 2xl:w-24 2xl:h-24 bg-gray-50 dark:bg-gray-700 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:shadow-lg transition-all duration-300">
+                      <integration.icon className={`w-8 h-8 xl:w-10 xl:h-10 2xl:w-12 2xl:h-12 ${integration.color}`} />
+                    </div>
+                    <h4 className="text-lg xl:text-xl 2xl:text-2xl font-semibold text-foreground mb-3">{integration.category}</h4>
+                    <ul className="text-xs xl:text-sm 2xl:text-base text-muted-foreground space-y-1">
+                      {integration.items.map((item, itemIndex) => (
+                        <li key={itemIndex} className="truncate" title={item}>{item}</li>
+                      ))}
+                    </ul>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+
+            {/* Performance Metrics */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.5 }}
+              className="mt-16 grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8"
+            >
+              {[
+                {
+                  metric: "< 200ms",
+                  label: "Average Response Time",
+                  icon: Zap,
+                  color: "text-yellow-600"
+                },
+                {
+                  metric: "99.99%",
+                  label: "System Uptime SLA",
+                  icon: CheckCircle,
+                  color: "text-green-600"
+                },
+                {
+                  metric: "256-bit",
+                  label: "AES Encryption Standard",
+                  icon: Lock,
+                  color: "text-purple-600"
+                },
+                {
+                  metric: "24/7",
+                  label: "Technical Support",
+                  icon: Clock,
+                  color: "text-blue-600"
+                }
+              ].map((stat, index) => (
+                <motion.div
+                  key={index}
+                  className="text-center bg-white dark:bg-gray-800 rounded-xl p-6 xl:p-8 2xl:p-10 shadow-lg hover:shadow-xl transition-all duration-300"
+                  whileHover={{ scale: 1.05, y: -5 }}
+                >
+                  <stat.icon className={`w-10 h-10 xl:w-12 xl:h-12 2xl:w-14 2xl:h-14 ${stat.color} mx-auto mb-4`} />
+                  <div className={`text-2xl xl:text-3xl 2xl:text-4xl font-bold ${stat.color} mb-2`}>
+                    {stat.metric}
+                  </div>
+                  <div className="text-sm xl:text-base 2xl:text-lg text-muted-foreground font-medium">
+                    {stat.label}
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
           </motion.div>
         </section>
 
@@ -914,10 +1369,10 @@ export default function Landing() {
           </motion.div>
         </section>
 
-        {/* Testimonials Section */}
-        <section className="py-16 sm:py-20 lg:py-24 px-4 sm:px-6 lg:px-8 bg-white dark:bg-gray-900">
+        {/* Enhanced Testimonials Section */}
+        <section className="py-16 sm:py-20 lg:py-24 xl:py-28 2xl:py-32 px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 bg-white dark:bg-gray-900">
           <motion.div 
-            className="max-w-7xl mx-auto"
+            className="max-w-7xl xl:max-w-8xl mx-auto"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
@@ -925,54 +1380,180 @@ export default function Landing() {
           >
             <div className="text-center mb-12 lg:mb-16">
               <motion.h2 
-                className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-6"
+                className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl font-bold text-foreground mb-6"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6 }}
                 data-testid="testimonials-title"
               >
-                What Our Users Say
+                Transforming Higher Education Institutions
               </motion.h2>
               <motion.p 
-                className="text-lg lg:text-xl text-muted-foreground max-w-4xl mx-auto"
+                className="text-lg lg:text-xl xl:text-2xl 2xl:text-3xl text-muted-foreground max-w-4xl xl:max-w-5xl 2xl:max-w-6xl mx-auto"
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: 0.2 }}
                 data-testid="testimonials-description"
               >
-                Hear from students, faculty, and administrators who have transformed their institutional 
-                processes with Smart Student Hub.
+                Discover how leading educational institutions have achieved measurable improvements in 
+                compliance, student outcomes, and operational efficiency with Smart Student Hub.
               </motion.p>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Featured Institutional Success Stories */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 xl:gap-16 mb-16">
+              {[
+                {
+                  type: "Vice Chancellor",
+                  name: "Prof. Dr. Anil Kumar Tripathi",
+                  position: "Vice Chancellor, Delhi Technological University",
+                  institution: "Delhi Technological University",
+                  avatar: "AT",
+                  quote: "Implementing Smart Student Hub revolutionized our accreditation process. We achieved NAAC A++ grade with 90% reduction in preparation time. The platform's comprehensive data management helped us improve our NIRF ranking from 75th to 42nd position in just two years.",
+                  achievements: [
+                    "NAAC A++ Grade Achievement",
+                    "NIRF Ranking: 75th → 42nd",
+                    "90% Reduction in Accreditation Prep Time",
+                    "100% Faculty Adoption Rate"
+                  ],
+                  metrics: {
+                    cost_savings: "₹2.5 Cr annually",
+                    time_reduction: "90%",
+                    ranking_improvement: "33 positions"
+                  },
+                  rating: 5,
+                  color: "from-purple-600 to-indigo-700",
+                  bgGradient: "from-purple-50 to-indigo-50 dark:from-purple-950/20 dark:to-indigo-950/20"
+                },
+                {
+                  type: "Director",
+                  name: "Dr. Kavita Bhanwala",
+                  position: "Director, IIT Mandi",
+                  institution: "Indian Institute of Technology Mandi",
+                  avatar: "KB",
+                  quote: "The platform's analytics dashboard provides unprecedented insights into student engagement patterns. We've seen 40% improvement in placement rates and 25% increase in co-curricular participation since implementation. The ROI exceeded our expectations within the first semester.",
+                  achievements: [
+                    "40% Improvement in Placement Rates",
+                    "25% Increase in Student Participation",
+                    "Real-time Analytics Implementation",
+                    "Seamless ERP Integration"
+                  ],
+                  metrics: {
+                    placement_improvement: "40%",
+                    participation_increase: "25%",
+                    roi_timeline: "6 months"
+                  },
+                  rating: 5,
+                  color: "from-emerald-600 to-teal-700",
+                  bgGradient: "from-emerald-50 to-teal-50 dark:from-emerald-950/20 dark:to-teal-950/20"
+                }
+              ].map((leader, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.8, delay: index * 0.3 }}
+                  className="group relative"
+                  data-testid={`featured-testimonial-${index}`}
+                >
+                  <div className={`absolute inset-0 bg-gradient-to-br ${leader.bgGradient} rounded-3xl transform group-hover:scale-105 transition-transform duration-500 opacity-30`}></div>
+                  
+                  <Card className="relative h-full bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border-0 shadow-xl hover:shadow-2xl transition-all duration-500 rounded-3xl overflow-hidden">
+                    <CardHeader className="pb-6 relative">
+                      <div className="flex items-start space-x-4 mb-6">
+                        <div className={`w-20 h-20 xl:w-24 xl:h-24 2xl:w-28 2xl:h-28 bg-gradient-to-br ${leader.color} rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300 flex-shrink-0`}>
+                          <span className="text-xl xl:text-2xl 2xl:text-3xl font-bold text-white">{leader.avatar}</span>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex justify-center lg:justify-start mb-3">
+                            {[...Array(leader.rating)].map((_, i) => (
+                              <Star key={i} className="w-5 h-5 xl:w-6 xl:h-6 text-yellow-400 fill-current" />
+                            ))}
+                          </div>
+                          <Badge variant="secondary" className="mb-3 text-sm xl:text-base">{leader.type}</Badge>
+                          <h3 className="text-xl xl:text-2xl 2xl:text-3xl font-bold text-foreground mb-2">{leader.name}</h3>
+                          <p className="text-sm xl:text-base 2xl:text-lg text-muted-foreground mb-1">{leader.position}</p>
+                          <p className="text-xs xl:text-sm 2xl:text-base text-primary font-medium">{leader.institution}</p>
+                        </div>
+                      </div>
+                    </CardHeader>
+                    
+                    <CardContent className="space-y-6">
+                      <blockquote className="text-sm xl:text-base 2xl:text-lg text-muted-foreground italic leading-relaxed border-l-4 border-primary pl-4">
+                        "{leader.quote}"
+                      </blockquote>
+                      
+                      {/* Key Achievements */}
+                      <div>
+                        <h4 className="text-base xl:text-lg 2xl:text-xl font-semibold text-foreground mb-3">Key Achievements</h4>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                          {leader.achievements.map((achievement, achIndex) => (
+                            <div key={achIndex} className="flex items-center space-x-2">
+                              <CheckCircle className="w-4 h-4 xl:w-5 xl:h-5 text-green-500 flex-shrink-0" />
+                              <span className="text-xs xl:text-sm 2xl:text-base text-muted-foreground">{achievement}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      
+                      {/* ROI Metrics */}
+                      <div className="bg-gray-50 dark:bg-gray-700 rounded-xl p-4 xl:p-6">
+                        <h4 className="text-base xl:text-lg 2xl:text-xl font-semibold text-foreground mb-3">Measurable Impact</h4>
+                        <div className="grid grid-cols-3 gap-4 text-center">
+                          {Object.entries(leader.metrics).map(([key, value], metricIndex) => (
+                            <div key={metricIndex}>
+                              <div className={`text-lg xl:text-xl 2xl:text-2xl font-bold bg-gradient-to-r ${leader.color} bg-clip-text text-transparent`}>
+                                {value}
+                              </div>
+                              <div className="text-xs xl:text-sm 2xl:text-base text-muted-foreground capitalize">
+                                {key.replace('_', ' ')}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Additional Testimonials Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12 xl:gap-16">
               {[
                 {
                   type: "Student",
-                  name: "Priya Sharma",
-                  position: "B.Tech Electronics, IIT Delhi",
-                  avatar: "PS",
-                  quote: "The platform transformed how I document my achievements. Having verified portfolios ready for placements gave me a significant advantage. The faculty verification process adds real credibility to my profile.",
+                  name: "Arjun Patel",
+                  position: "M.Tech Computer Science, IIT Bombay",
+                  institution: "Indian Institute of Technology Bombay",
+                  avatar: "AP",
+                  quote: "The platform made my academic journey transparent and verifiable. I secured 3 internship offers and a dream job at Microsoft, thanks to my comprehensive digital portfolio that showcased 50+ verified activities and achievements.",
+                  metrics: ["3 Internship Offers", "Dream Job at Microsoft", "50+ Verified Activities"],
                   rating: 5,
                   color: "from-blue-500 to-cyan-500"
                 },
                 {
                   type: "Faculty",
-                  name: "Dr. Rajesh Kumar",
-                  position: "Professor & HOD, Computer Science",
-                  avatar: "RK",
-                  quote: "Student activity verification is now seamless. The bulk approval features save hours of work, and the analytics help us identify students who need more engagement in co-curricular activities.",
+                  name: "Dr. Meera Krishnan",
+                  position: "Professor & Research Dean",
+                  institution: "Anna University, Chennai",
+                  avatar: "MK",
+                  quote: "Verification workflows reduced my administrative burden by 75%. The platform's intelligent assignment system and bulk approval features allow me to focus more on research and teaching. Student engagement analytics help identify at-risk students early.",
+                  metrics: ["75% Time Savings", "Enhanced Student Insights", "Streamlined Workflows"],
                   rating: 5,
                   color: "from-green-500 to-emerald-500"
                 },
                 {
                   type: "Administrator",
-                  name: "Prof. Sunita Verma",
-                  position: "Dean Academic Affairs, NIT Warangal",
-                  avatar: "SV",
-                  quote: "NAAC accreditation preparation that used to take 3 months now takes just 2 weeks. The automated reports are comprehensive and accurate. This platform is a game-changer for institutional excellence.",
+                  name: "Prof. Ramesh Gupta",
+                  position: "Registrar, Jawaharlal Nehru University",
+                  institution: "Jawaharlal Nehru University",
+                  avatar: "RG",
+                  quote: "Implementation transformed our compliance reporting from a 6-month process to 2 weeks. NAAC peer review was seamless with instant access to comprehensive student activity data. Our accreditation score improved from 3.2 to 3.8.",
+                  metrics: ["6 months → 2 weeks", "NAAC Score: 3.2 → 3.8", "Seamless Compliance"],
                   rating: 5,
                   color: "from-purple-500 to-pink-500"
                 }
@@ -987,31 +1568,268 @@ export default function Landing() {
                   className="group"
                   data-testid={`testimonial-${index}`}
                 >
-                  <Card className="h-full bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-900 border-0 shadow-xl hover:shadow-2xl transition-all duration-500">
+                  <Card className="h-full bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-900 border-0 shadow-xl hover:shadow-2xl transition-all duration-500 rounded-2xl overflow-hidden">
                     <CardHeader className="text-center pb-4">
-                      <div className={`w-16 h-16 bg-gradient-to-br ${testimonial.color} rounded-full flex items-center justify-center mx-auto mb-4 text-white font-bold text-lg shadow-lg group-hover:scale-110 transition-transform duration-300`}>
+                      <div className={`w-16 h-16 xl:w-20 xl:h-20 2xl:w-24 2xl:h-24 bg-gradient-to-br ${testimonial.color} rounded-2xl flex items-center justify-center mx-auto mb-4 text-white font-bold text-lg xl:text-xl 2xl:text-2xl shadow-lg group-hover:scale-110 transition-transform duration-300`}>
                         {testimonial.avatar}
                       </div>
                       <div className="flex justify-center mb-3">
                         {[...Array(testimonial.rating)].map((_, i) => (
-                          <Star key={i} className="w-5 h-5 text-yellow-400 fill-current" />
+                          <Star key={i} className="w-5 h-5 xl:w-6 xl:h-6 text-yellow-400 fill-current" />
                         ))}
                       </div>
-                      <Badge variant="secondary" className="mb-2">{testimonial.type}</Badge>
+                      <Badge variant="secondary" className="mb-2 text-sm xl:text-base">{testimonial.type}</Badge>
                     </CardHeader>
-                    <CardContent className="text-center">
-                      <blockquote className="text-muted-foreground italic mb-6 leading-relaxed">
+                    <CardContent className="text-center space-y-4">
+                      <blockquote className="text-sm xl:text-base 2xl:text-lg text-muted-foreground italic leading-relaxed">
                         "{testimonial.quote}"
                       </blockquote>
-                      <div>
-                        <p className="font-semibold text-foreground">{testimonial.name}</p>
-                        <p className="text-sm text-muted-foreground">{testimonial.position}</p>
+                      
+                      {/* Quick Metrics */}
+                      <div className="space-y-2">
+                        {testimonial.metrics.map((metric, metricIndex) => (
+                          <div key={metricIndex} className="flex items-center justify-center space-x-2">
+                            <TrendingUp className="w-4 h-4 xl:w-5 xl:h-5 text-green-500" />
+                            <span className="text-xs xl:text-sm 2xl:text-base text-muted-foreground font-medium">{metric}</span>
+                          </div>
+                        ))}
+                      </div>
+                      
+                      <div className="pt-4 border-t border-border">
+                        <p className="font-semibold text-foreground text-base xl:text-lg 2xl:text-xl">{testimonial.name}</p>
+                        <p className="text-sm xl:text-base 2xl:text-lg text-muted-foreground">{testimonial.position}</p>
+                        <p className="text-xs xl:text-sm 2xl:text-base text-primary font-medium">{testimonial.institution}</p>
                       </div>
                     </CardContent>
                   </Card>
                 </motion.div>
               ))}
             </div>
+          </motion.div>
+        </section>
+
+        {/* Implementation Roadmap Section */}
+        <section className="py-16 sm:py-20 lg:py-24 xl:py-28 2xl:py-32 px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 bg-gradient-to-br from-indigo-50 via-blue-50 to-cyan-50 dark:from-indigo-950/20 dark:via-blue-950/20 dark:to-cyan-950/20">
+          <motion.div 
+            className="max-w-7xl xl:max-w-8xl mx-auto"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+          >
+            <div className="text-center mb-12 lg:mb-16">
+              <motion.h2 
+                className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl font-bold text-foreground mb-6"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6 }}
+                data-testid="implementation-title"
+              >
+                Implementation Roadmap
+              </motion.h2>
+              <motion.p 
+                className="text-lg lg:text-xl xl:text-2xl 2xl:text-3xl text-muted-foreground max-w-4xl xl:max-w-5xl 2xl:max-w-6xl mx-auto"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                data-testid="implementation-description"
+              >
+                A structured approach to seamless implementation ensuring minimal disruption 
+                to your academic operations while maximizing system adoption and effectiveness.
+              </motion.p>
+            </div>
+
+            {/* Implementation Timeline */}
+            <div className="relative">
+              {/* Timeline Line */}
+              <div className="absolute left-4 lg:left-1/2 top-0 bottom-0 w-1 bg-gradient-to-b from-primary via-blue-500 to-cyan-500 transform lg:-translate-x-1/2 rounded-full shadow-lg"></div>
+              
+              <div className="space-y-12 lg:space-y-16">
+                {[
+                  {
+                    phase: "Phase 1",
+                    duration: "Week 1-2",
+                    title: "Assessment & Planning",
+                    icon: Search,
+                    color: "from-blue-500 to-cyan-500",
+                    bgColor: "bg-blue-50 dark:bg-blue-950/20",
+                    activities: [
+                      "Comprehensive institutional assessment and requirement analysis",
+                      "Current system integration evaluation and compatibility check",
+                      "Custom configuration design based on institutional workflows",
+                      "Implementation timeline finalization and resource allocation"
+                    ],
+                    deliverables: "Detailed implementation plan, system architecture design, and integration roadmap"
+                  },
+                  {
+                    phase: "Phase 2", 
+                    duration: "Week 3-4",
+                    title: "System Setup & Integration",
+                    icon: Settings,
+                    color: "from-green-500 to-emerald-500",
+                    bgColor: "bg-green-50 dark:bg-green-950/20",
+                    activities: [
+                      "Cloud infrastructure deployment and security configuration",
+                      "ERP and LMS system integration with real-time data synchronization",
+                      "User authentication setup with institutional SSO integration",
+                      "Data migration from existing systems with validation protocols"
+                    ],
+                    deliverables: "Fully configured system, integrated platforms, and migrated historical data"
+                  },
+                  {
+                    phase: "Phase 3",
+                    duration: "Week 5-6", 
+                    title: "Training & Onboarding",
+                    icon: Users,
+                    color: "from-purple-500 to-pink-500",
+                    bgColor: "bg-purple-50 dark:bg-purple-950/20",
+                    activities: [
+                      "Comprehensive administrator training on system management",
+                      "Faculty workshops on verification workflows and analytics",
+                      "Student orientation sessions on portfolio creation and management",
+                      "Super-user certification program for ongoing institutional support"
+                    ],
+                    deliverables: "Trained user base, certified super-users, and comprehensive training materials"
+                  },
+                  {
+                    phase: "Phase 4",
+                    duration: "Week 7-8",
+                    title: "Launch & Optimization",
+                    icon: Rocket,
+                    color: "from-orange-500 to-red-500", 
+                    bgColor: "bg-orange-50 dark:bg-orange-950/20",
+                    activities: [
+                      "Soft launch with pilot user groups and feedback collection",
+                      "Performance monitoring and system optimization",
+                      "Full institutional rollout with change management support",
+                      "Compliance reporting setup for NAAC/NIRF requirements"
+                    ],
+                    deliverables: "Live system, optimized performance, and compliance-ready reporting framework"
+                  }
+                ].map((phase, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.8, delay: index * 0.2 }}
+                    className={`relative flex items-start ${index % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'}`}
+                  >
+                    {/* Timeline Node */}
+                    <div className="absolute left-4 lg:left-1/2 w-12 h-12 xl:w-16 xl:h-16 2xl:w-20 2xl:h-20 transform lg:-translate-x-1/2 z-10">
+                      <motion.div
+                        className={`w-full h-full bg-gradient-to-br ${phase.color} rounded-full shadow-xl flex items-center justify-center`}
+                        whileHover={{ scale: 1.1, rotate: 5 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <phase.icon className="w-6 h-6 xl:w-8 xl:h-8 2xl:w-10 2xl:h-10 text-white" />
+                      </motion.div>
+                    </div>
+
+                    {/* Content Card */}
+                    <div className={`ml-20 lg:ml-0 ${index % 2 === 0 ? 'lg:mr-12 xl:mr-16 2xl:mr-20' : 'lg:ml-12 xl:ml-16 2xl:ml-20'} flex-1 max-w-xl xl:max-w-2xl 2xl:max-w-3xl`}>
+                      <motion.div
+                        className={`${phase.bgColor} rounded-2xl p-6 xl:p-8 2xl:p-10 shadow-xl hover:shadow-2xl transition-all duration-500 border border-white/50 dark:border-gray-700/50`}
+                        whileHover={{ scale: 1.02, y: -5 }}
+                      >
+                        <div className="flex items-center justify-between mb-4">
+                          <Badge variant="secondary" className="text-sm xl:text-base 2xl:text-lg font-medium">
+                            {phase.phase}
+                          </Badge>
+                          <span className="text-sm xl:text-base 2xl:text-lg text-muted-foreground font-medium">
+                            {phase.duration}
+                          </span>
+                        </div>
+                        
+                        <h3 className="text-xl xl:text-2xl 2xl:text-3xl font-bold text-foreground mb-4">
+                          {phase.title}
+                        </h3>
+                        
+                        <div className="space-y-4">
+                          <div>
+                            <h4 className="text-base xl:text-lg 2xl:text-xl font-semibold text-foreground mb-3">Key Activities</h4>
+                            <ul className="space-y-2">
+                              {phase.activities.map((activity, actIndex) => (
+                                <li key={actIndex} className="flex items-start space-x-3">
+                                  <CheckCircle className="w-4 h-4 xl:w-5 xl:h-5 text-green-500 mt-1 flex-shrink-0" />
+                                  <span className="text-sm xl:text-base 2xl:text-lg text-muted-foreground leading-relaxed">
+                                    {activity}
+                                  </span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                          
+                          <div className="pt-4 border-t border-border">
+                            <h4 className="text-base xl:text-lg 2xl:text-xl font-semibold text-foreground mb-2">Phase Deliverables</h4>
+                            <p className="text-sm xl:text-base 2xl:text-lg text-muted-foreground leading-relaxed">
+                              {phase.deliverables}
+                            </p>
+                          </div>
+                        </div>
+                      </motion.div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+
+            {/* Post-Implementation Support */}
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.8 }}
+              className="mt-16 lg:mt-20"
+            >
+              <Card className="bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 border-0 shadow-xl rounded-2xl overflow-hidden">
+                <CardHeader className="text-center pb-6">
+                  <div className="w-16 h-16 xl:w-20 xl:h-20 2xl:w-24 2xl:h-24 bg-gradient-to-br from-teal-500 to-cyan-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                    <Heart className="w-8 h-8 xl:w-10 xl:h-10 2xl:w-12 2xl:h-12 text-white" />
+                  </div>
+                  <CardTitle className="text-2xl xl:text-3xl 2xl:text-4xl font-bold text-foreground">
+                    Ongoing Support & Success Partnership
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+                  {[
+                    {
+                      title: "24/7 Technical Support",
+                      description: "Round-the-clock technical assistance with guaranteed response times and dedicated support channels for critical issues.",
+                      icon: Clock
+                    },
+                    {
+                      title: "Continuous Enhancement",
+                      description: "Regular platform updates, new feature rollouts, and performance optimizations based on institutional feedback and industry best practices.",
+                      icon: TrendingUp
+                    },
+                    {
+                      title: "Success Monitoring",
+                      description: "Quarterly business reviews, ROI analysis, and strategic consultation to ensure maximum institutional benefit and goal achievement.",
+                      icon: Target
+                    }
+                  ].map((support, index) => (
+                    <motion.div
+                      key={index}
+                      className="text-center"
+                      initial={{ opacity: 0, y: 30 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.6, delay: index * 0.1 }}
+                      whileHover={{ scale: 1.05 }}
+                    >
+                      <div className="w-12 h-12 xl:w-16 xl:h-16 2xl:w-20 2xl:h-20 bg-teal-100 dark:bg-teal-900 rounded-xl flex items-center justify-center mx-auto mb-4">
+                        <support.icon className="w-6 h-6 xl:w-8 xl:h-8 2xl:w-10 2xl:h-10 text-teal-600 dark:text-teal-400" />
+                      </div>
+                      <h4 className="text-lg xl:text-xl 2xl:text-2xl font-semibold text-foreground mb-3">{support.title}</h4>
+                      <p className="text-sm xl:text-base 2xl:text-lg text-muted-foreground leading-relaxed">{support.description}</p>
+                    </motion.div>
+                  ))}
+                </CardContent>
+              </Card>
+            </motion.div>
           </motion.div>
         </section>
 
