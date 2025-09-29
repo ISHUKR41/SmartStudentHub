@@ -219,7 +219,7 @@ export function useSmartNotifications() {
       toast(
         `Portfolio ${completionPercentage}% Complete!`,
         {
-          icon: reachedMilestone === 100 ? <GraduationCap className="w-5 h-5" /> : <Target className="w-5 h-5" />,
+          icon: reachedMilestone === 100 ? createElement(GraduationCap, { className: "w-5 h-5" }) : createElement(Target, { className: "w-5 h-5" }),
           duration: 7000,
           style: {
             background: reachedMilestone === 100 
@@ -240,7 +240,7 @@ export function useSmartNotifications() {
           toast(
             'Ready for faculty review and academic portfolio generation',
             {
-              icon: <CheckCircle className="w-4 h-4" />,
+              icon: createElement(CheckCircle, { className: "w-4 h-4" }),
               duration: 6000,
               style: {
                 background: 'hsl(var(--success))',
@@ -280,10 +280,10 @@ export function useSmartNotifications() {
     toast(
       `${activityTitle}: ${statusMessages[status]}`,
       {
-        icon: status === 'approved' ? <CheckCircle className="w-5 h-5" /> : 
-              status === 'rejected' ? <XCircle className="w-5 h-5" /> :
-              status === 'under_review' ? <Clock className="w-5 h-5" /> :
-              <Info className="w-5 h-5" />,
+        icon: status === 'approved' ? createElement(CheckCircle, { className: "w-5 h-5" }) : 
+              status === 'rejected' ? createElement(XCircle, { className: "w-5 h-5" }) :
+              status === 'under_review' ? createElement(Clock, { className: "w-5 h-5" }) :
+              createElement(Info, { className: "w-5 h-5" }),
         duration: status === 'approved' || status === 'rejected' ? 8000 : 5000,
         style: {
           background: currentStyle.bg,
@@ -306,7 +306,7 @@ export function useSmartNotifications() {
     toast(
       `System Notice: ${message}${timeInfo}`,
       {
-        icon: <Info className="w-5 h-5" />,
+        icon: createElement(Info, { className: "w-5 h-5" }),
         duration: 10000,
         style: {
           background: 'hsl(var(--muted))',
