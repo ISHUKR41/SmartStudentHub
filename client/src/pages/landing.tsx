@@ -113,6 +113,12 @@ const InteractiveChart = ({ data, type = "area", color = "#3B82F6" }: {
     triggerOnce: true,
   });
 
+  // Create a safe gradient ID by removing special characters
+  const gradientId = useMemo(() => 
+    `grad-${color.replace(/[^a-zA-Z0-9_-]/g, "")}`, 
+    [color]
+  );
+
   const chartProps = {
     data,
     margin: { top: 5, right: 30, left: 20, bottom: 5 },
@@ -129,7 +135,7 @@ const InteractiveChart = ({ data, type = "area", color = "#3B82F6" }: {
     chartElement = (
       <AreaChart {...chartProps}>
         <defs>
-          <linearGradient id={`gradient-${color}`} x1="0" y1="0" x2="0" y2="1">
+          <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
             <stop offset="5%" stopColor={color} stopOpacity={0.8}/>
             <stop offset="95%" stopColor={color} stopOpacity={0.1}/>
           </linearGradient>
@@ -150,7 +156,7 @@ const InteractiveChart = ({ data, type = "area", color = "#3B82F6" }: {
           dataKey="value" 
           stroke={color} 
           fillOpacity={1} 
-          fill={`url(#gradient-${color})`}
+          fill={`url(#${gradientId})`}
           strokeWidth={3}
         />
       </AreaChart>
@@ -2835,6 +2841,541 @@ export default function Landing() {
               </div>
             </motion.div>
           </motion.div>
+        </section>
+
+        {/* Interactive Platform Demo Section */}
+        <section className="py-16 lg:py-20 xl:py-24 2xl:py-28 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-blue-950 dark:to-indigo-950 px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16">
+          <div className="max-w-7xl xl:max-w-8xl 2xl:max-w-9xl mx-auto">
+            <motion.div
+              className="text-center mb-16 xl:mb-20 2xl:mb-24"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+            >
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl font-bold text-foreground mb-6" data-testid="demo-title">
+                Experience the Platform Live
+              </h2>
+              <p className="text-lg lg:text-xl xl:text-2xl 2xl:text-3xl text-muted-foreground max-w-4xl xl:max-w-5xl 2xl:max-w-6xl mx-auto" data-testid="demo-description">
+                Interactive demonstrations showcasing real-world institutional workflows and student portfolio management
+              </p>
+            </motion.div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 gap-8 lg:gap-12 xl:gap-16 2xl:gap-20">
+              {/* Student Journey Demo */}
+              <motion.div
+                className="group"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6 }}
+              >
+                <Card className="h-full border-2 border-transparent group-hover:border-blue-200 dark:group-hover:border-blue-800 transition-all duration-300 overflow-hidden">
+                  <CardHeader className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white">
+                    <CardTitle className="flex items-center text-xl xl:text-2xl 2xl:text-3xl">
+                      <Users className="w-6 h-6 xl:w-8 xl:h-8 2xl:w-10 2xl:h-10 mr-3" />
+                      Student Portfolio Builder
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-6 xl:p-8 2xl:p-10">
+                    <div className="space-y-6">
+                      <div className="relative bg-gray-100 dark:bg-gray-800 rounded-lg p-4 xl:p-6 2xl:p-8">
+                        <Tabs defaultValue="activities" className="w-full">
+                          <TabsList className="grid w-full grid-cols-3 mb-4">
+                            <TabsTrigger value="activities" className="text-xs xl:text-sm 2xl:text-base">Activities</TabsTrigger>
+                            <TabsTrigger value="achievements" className="text-xs xl:text-sm 2xl:text-base">Achievements</TabsTrigger>
+                            <TabsTrigger value="portfolio" className="text-xs xl:text-sm 2xl:text-base">Portfolio</TabsTrigger>
+                          </TabsList>
+                          <TabsContent value="activities" className="space-y-3">
+                            <div className="flex items-center justify-between p-3 bg-white dark:bg-gray-900 rounded">
+                              <span className="text-sm xl:text-base 2xl:text-lg">Technical Workshop</span>
+                              <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100">Verified</Badge>
+                            </div>
+                            <div className="flex items-center justify-between p-3 bg-white dark:bg-gray-900 rounded">
+                              <span className="text-sm xl:text-base 2xl:text-lg">Research Paper</span>
+                              <Badge className="bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-100">Pending</Badge>
+                            </div>
+                          </TabsContent>
+                          <TabsContent value="achievements">
+                            <div className="space-y-3">
+                              <div className="flex items-center space-x-3 p-3 bg-white dark:bg-gray-900 rounded">
+                                <Trophy className="w-5 h-5 text-yellow-500" />
+                                <span className="text-sm xl:text-base 2xl:text-lg">Best Project Award</span>
+                              </div>
+                              <div className="flex items-center space-x-3 p-3 bg-white dark:bg-gray-900 rounded">
+                                <Award className="w-5 h-5 text-blue-500" />
+                                <span className="text-sm xl:text-base 2xl:text-lg">Academic Excellence</span>
+                              </div>
+                            </div>
+                          </TabsContent>
+                          <TabsContent value="portfolio">
+                            <div className="space-y-4">
+                              <Progress value={75} className="w-full" />
+                              <p className="text-sm xl:text-base 2xl:text-lg text-muted-foreground">Portfolio Completion: 75%</p>
+                              <Button size="sm" className="w-full">Generate PDF Portfolio</Button>
+                            </div>
+                          </TabsContent>
+                        </Tabs>
+                      </div>
+                      <Button className="w-full group-hover:scale-105 transition-transform" data-testid="demo-student-cta">
+                        Try Student Demo
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+
+              {/* Faculty Verification Demo */}
+              <motion.div
+                className="group"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+              >
+                <Card className="h-full border-2 border-transparent group-hover:border-purple-200 dark:group-hover:border-purple-800 transition-all duration-300">
+                  <CardHeader className="bg-gradient-to-br from-purple-500 to-pink-600 text-white">
+                    <CardTitle className="flex items-center text-xl xl:text-2xl 2xl:text-3xl">
+                      <UserCheck className="w-6 h-6 xl:w-8 xl:h-8 2xl:w-10 2xl:h-10 mr-3" />
+                      Faculty Verification Hub
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-6 xl:p-8 2xl:p-10">
+                    <div className="space-y-6">
+                      <div className="relative bg-gray-100 dark:bg-gray-800 rounded-lg p-4 xl:p-6 2xl:p-8">
+                        <div className="space-y-4">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm xl:text-base 2xl:text-lg font-medium">Pending Verifications</span>
+                            <Badge variant="destructive" className="animate-pulse">12 New</Badge>
+                          </div>
+                          <div className="space-y-3">
+                            {[
+                              { student: "Rahul Sharma", activity: "IEEE Conference Paper", urgency: "high" },
+                              { student: "Priya Patel", activity: "Hackathon Winner", urgency: "medium" },
+                              { student: "Arjun Kumar", activity: "Industry Internship", urgency: "low" }
+                            ].map((item, index) => (
+                              <div key={index} className="flex items-center justify-between p-3 bg-white dark:bg-gray-900 rounded border-l-4 border-l-blue-500">
+                                <div>
+                                  <p className="text-sm xl:text-base 2xl:text-lg font-medium">{item.student}</p>
+                                  <p className="text-xs xl:text-sm 2xl:text-base text-muted-foreground">{item.activity}</p>
+                                </div>
+                                <div className="flex space-x-2">
+                                  <Button size="sm" variant="outline" className="text-xs xl:text-sm 2xl:text-base">
+                                    <CheckCircle className="w-3 h-3 xl:w-4 xl:h-4 mr-1" />
+                                    Approve
+                                  </Button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                      <Button className="w-full group-hover:scale-105 transition-transform" data-testid="demo-faculty-cta">
+                        Try Faculty Demo
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+
+              {/* Analytics Dashboard Demo */}
+              <motion.div
+                className="group lg:col-span-2 2xl:col-span-1"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: 0.4 }}
+              >
+                <Card className="h-full border-2 border-transparent group-hover:border-green-200 dark:group-hover:border-green-800 transition-all duration-300">
+                  <CardHeader className="bg-gradient-to-br from-green-500 to-emerald-600 text-white">
+                    <CardTitle className="flex items-center text-xl xl:text-2xl 2xl:text-3xl">
+                      <BarChart3 className="w-6 h-6 xl:w-8 xl:h-8 2xl:w-10 2xl:h-10 mr-3" />
+                      Institutional Analytics
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-6 xl:p-8 2xl:p-10">
+                    <div className="space-y-6">
+                      <div className="relative bg-gray-100 dark:bg-gray-800 rounded-lg p-4 xl:p-6 2xl:p-8">
+                        <div className="grid grid-cols-2 gap-4 mb-6">
+                          <div className="text-center p-3 bg-white dark:bg-gray-900 rounded">
+                            <div className="text-2xl xl:text-3xl 2xl:text-4xl font-bold text-blue-600">
+                              <AnimatedCounter end={1247} />
+                            </div>
+                            <p className="text-xs xl:text-sm 2xl:text-base text-muted-foreground">Active Students</p>
+                          </div>
+                          <div className="text-center p-3 bg-white dark:bg-gray-900 rounded">
+                            <div className="text-2xl xl:text-3xl 2xl:text-4xl font-bold text-green-600">
+                              <AnimatedCounter end={89} suffix="%" />
+                            </div>
+                            <p className="text-xs xl:text-sm 2xl:text-base text-muted-foreground">Verification Rate</p>
+                          </div>
+                        </div>
+                        <div className="h-32 xl:h-40 2xl:h-48">
+                          <InteractiveChart 
+                            data={[
+                              { name: 'Jan', value: 400 },
+                              { name: 'Feb', value: 600 },
+                              { name: 'Mar', value: 800 },
+                              { name: 'Apr', value: 1200 },
+                              { name: 'May', value: 1000 },
+                              { name: 'Jun', value: 1400 }
+                            ]}
+                            type="area"
+                            color="#10b981"
+                          />
+                        </div>
+                      </div>
+                      <Button className="w-full group-hover:scale-105 transition-transform" data-testid="demo-analytics-cta">
+                        Try Analytics Demo
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            </div>
+          </div>
+        </section>
+
+        {/* Advanced Technology Stack Showcase */}
+        <section className="py-16 lg:py-20 xl:py-24 2xl:py-28 bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16">
+          <div className="max-w-7xl xl:max-w-8xl 2xl:max-w-9xl mx-auto">
+            <motion.div
+              className="text-center mb-16 xl:mb-20 2xl:mb-24"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+            >
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl font-bold text-white mb-6" data-testid="tech-stack-title">
+                Built with Enterprise-Grade Technology
+              </h2>
+              <p className="text-lg lg:text-xl xl:text-2xl 2xl:text-3xl text-blue-100 max-w-4xl xl:max-w-5xl 2xl:max-w-6xl mx-auto" data-testid="tech-stack-description">
+                Leveraging cutting-edge technologies to deliver scalable, secure, and performant educational solutions
+              </p>
+            </motion.div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12 xl:gap-16 2xl:gap-20">
+              {/* Frontend Technologies */}
+              <motion.div
+                initial={{ opacity: 0, x: -30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6 }}
+              >
+                <Card className="bg-gray-800/50 border-gray-700 h-full">
+                  <CardHeader>
+                    <CardTitle className="text-white flex items-center text-xl xl:text-2xl 2xl:text-3xl">
+                      <Monitor className="w-6 h-6 xl:w-8 xl:h-8 2xl:w-10 2xl:h-10 mr-3 text-blue-400" />
+                      Frontend Excellence
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-3 gap-4 xl:gap-6 2xl:gap-8">
+                      {[
+                        { icon: FaReact, name: "React 18", color: "#61DAFB" },
+                        { icon: SiTypescript, name: "TypeScript", color: "#3178C6" },
+                        { icon: SiTailwindcss, name: "Tailwind CSS", color: "#06B6D4" },
+                        { icon: SiFramer, name: "Framer Motion", color: "#0055FF" },
+                        { icon: FileText, name: "Recharts", color: "#8884d8" },
+                        { icon: Layers, name: "Shadcn/ui", color: "#000000" }
+                      ].map((tech, index) => (
+                        <motion.div
+                          key={index}
+                          className="text-center p-3 xl:p-4 2xl:p-6 bg-gray-700/50 rounded-lg hover:bg-gray-700 transition-colors"
+                          whileHover={{ scale: 1.05, y: -5 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          <tech.icon 
+                            className="w-8 h-8 xl:w-10 xl:h-10 2xl:w-12 2xl:h-12 mx-auto mb-2" 
+                            style={{ color: tech.color }}
+                          />
+                          <p className="text-xs xl:text-sm 2xl:text-base text-gray-300 font-medium">{tech.name}</p>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+
+              {/* Backend & Infrastructure */}
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+              >
+                <Card className="bg-gray-800/50 border-gray-700 h-full">
+                  <CardHeader>
+                    <CardTitle className="text-white flex items-center text-xl xl:text-2xl 2xl:text-3xl">
+                      <Database className="w-6 h-6 xl:w-8 xl:h-8 2xl:w-10 2xl:h-10 mr-3 text-green-400" />
+                      Backend Infrastructure
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-3 gap-4 xl:gap-6 2xl:gap-8">
+                      {[
+                        { icon: FaNodeJs, name: "Node.js", color: "#339933" },
+                        { icon: SiPostgresql, name: "PostgreSQL", color: "#336791" },
+                        { icon: FaDocker, name: "Docker", color: "#2496ED" },
+                        { icon: SiKubernetes, name: "Kubernetes", color: "#326CE5" },
+                        { icon: SiRedis, name: "Redis", color: "#DC382D" },
+                        { icon: SiGraphql, name: "GraphQL", color: "#E10098" }
+                      ].map((tech, index) => (
+                        <motion.div
+                          key={index}
+                          className="text-center p-3 xl:p-4 2xl:p-6 bg-gray-700/50 rounded-lg hover:bg-gray-700 transition-colors"
+                          whileHover={{ scale: 1.05, y: -5 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          <tech.icon 
+                            className="w-8 h-8 xl:w-10 xl:h-10 2xl:w-12 2xl:h-12 mx-auto mb-2" 
+                            style={{ color: tech.color }}
+                          />
+                          <p className="text-xs xl:text-sm 2xl:text-base text-gray-300 font-medium">{tech.name}</p>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+
+              {/* Cloud & Security */}
+              <motion.div
+                initial={{ opacity: 0, x: 30 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: 0.4 }}
+              >
+                <Card className="bg-gray-800/50 border-gray-700 h-full">
+                  <CardHeader>
+                    <CardTitle className="text-white flex items-center text-xl xl:text-2xl 2xl:text-3xl">
+                      <Shield className="w-6 h-6 xl:w-8 xl:h-8 2xl:w-10 2xl:h-10 mr-3 text-yellow-400" />
+                      Cloud & Security
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-3 gap-4 xl:gap-6 2xl:gap-8">
+                      {[
+                        { icon: FaAws, name: "AWS Cloud", color: "#FF9900" },
+                        { icon: FaGoogle, name: "Google Cloud", color: "#4285F4" },
+                        { icon: FaMicrosoft, name: "Azure", color: "#0078D4" },
+                        { icon: FaShieldAlt, name: "Security", color: "#28A745" },
+                        { icon: FaCertificate, name: "SSL/TLS", color: "#17A2B8" },
+                        { icon: Lock, name: "OAuth 2.0", color: "#6C757D" }
+                      ].map((tech, index) => (
+                        <motion.div
+                          key={index}
+                          className="text-center p-3 xl:p-4 2xl:p-6 bg-gray-700/50 rounded-lg hover:bg-gray-700 transition-colors"
+                          whileHover={{ scale: 1.05, y: -5 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          <tech.icon 
+                            className="w-8 h-8 xl:w-10 xl:h-10 2xl:w-12 2xl:h-12 mx-auto mb-2" 
+                            style={{ color: tech.color }}
+                          />
+                          <p className="text-xs xl:text-sm 2xl:text-base text-gray-300 font-medium">{tech.name}</p>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            </div>
+
+            {/* Performance Metrics */}
+            <motion.div
+              className="mt-16 xl:mt-20 2xl:mt-24"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.6 }}
+            >
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 xl:gap-16 2xl:gap-20">
+                {[
+                  { metric: "99.9%", label: "Uptime Guarantee", icon: Clock, color: "text-green-400" },
+                  { metric: "<100ms", label: "Response Time", icon: Zap, color: "text-yellow-400" },
+                  { metric: "256-bit", label: "Encryption", icon: Shield, color: "text-blue-400" },
+                  { metric: "24/7", label: "Support", icon: Headphones, color: "text-purple-400" }
+                ].map((item, index) => (
+                  <div key={index} className="text-center">
+                    <div className={`inline-flex items-center justify-center w-16 h-16 xl:w-20 xl:h-20 2xl:w-24 2xl:h-24 ${item.color} bg-gray-800 rounded-full mb-4`}>
+                      <item.icon className="w-8 h-8 xl:w-10 xl:h-10 2xl:w-12 2xl:h-12" />
+                    </div>
+                    <div className="text-2xl xl:text-3xl 2xl:text-4xl font-bold text-white mb-2">
+                      <AnimatedCounter end={item.metric.includes('%') ? parseInt(item.metric) : 100} suffix={item.metric.includes('%') ? '%' : ''} />
+                      {!item.metric.includes('%') && <span>{item.metric.replace(/[0-9]/g, '')}</span>}
+                    </div>
+                    <p className="text-sm xl:text-base 2xl:text-lg text-gray-300">{item.label}</p>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Interactive FAQ Section with Search */}
+        <section className="py-16 lg:py-20 xl:py-24 2xl:py-28 bg-background px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16">
+          <div className="max-w-4xl xl:max-w-5xl 2xl:max-w-6xl mx-auto">
+            <motion.div
+              className="text-center mb-12 xl:mb-16 2xl:mb-20"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+            >
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl font-bold text-foreground mb-6" data-testid="faq-title">
+                Frequently Asked Questions
+              </h2>
+              <p className="text-lg lg:text-xl xl:text-2xl 2xl:text-3xl text-muted-foreground mb-8" data-testid="faq-description">
+                Find answers to common questions about our institutional platform
+              </p>
+              
+              {/* FAQ Search */}
+              <div className="relative max-w-md mx-auto mb-8">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4 xl:w-5 xl:h-5 2xl:w-6 2xl:h-6" />
+                <Input 
+                  type="text" 
+                  placeholder="Search FAQs..."
+                  className="pl-10 xl:pl-12 2xl:pl-14 text-sm xl:text-base 2xl:text-lg h-10 xl:h-12 2xl:h-14"
+                  data-testid="faq-search"
+                />
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+            >
+              <Accordion type="single" collapsible className="space-y-4">
+                {[
+                  {
+                    id: "faq-1",
+                    question: "How does the verification process work for student activities?",
+                    answer: "Our platform uses a multi-tier verification system where students submit their activities with supporting documents. Faculty members receive notifications and can verify activities through our streamlined interface. The system maintains an audit trail for complete transparency and NAAC/NIRF compliance."
+                  },
+                  {
+                    id: "faq-2", 
+                    question: "Is the platform compliant with educational standards like NAAC and NIRF?",
+                    answer: "Yes, Smart Student Hub is designed specifically to meet NAAC and NIRF requirements. Our platform automatically categorizes activities according to these standards, generates compliant reports, and maintains the documentation necessary for institutional accreditation and ranking processes."
+                  },
+                  {
+                    id: "faq-3",
+                    question: "Can the platform integrate with existing institutional systems?",
+                    answer: "Absolutely. Our platform offers robust API integrations and supports standard protocols like LDAP, SAML, and OAuth for seamless integration with existing Learning Management Systems, Student Information Systems, and institutional databases."
+                  },
+                  {
+                    id: "faq-4",
+                    question: "What security measures are in place to protect student data?",
+                    answer: "We implement enterprise-grade security including 256-bit encryption, secure cloud infrastructure, regular security audits, GDPR compliance, and role-based access controls. All data is stored in certified cloud environments with backup and disaster recovery systems."
+                  },
+                  {
+                    id: "faq-5",
+                    question: "How scalable is the platform for large institutions?",
+                    answer: "Our platform is built on cloud-native architecture that can scale from small colleges to large universities with 50,000+ students. We use auto-scaling infrastructure, CDN delivery, and optimized databases to ensure consistent performance regardless of institution size."
+                  },
+                  {
+                    id: "faq-6",
+                    question: "What kind of support and training do you provide?",
+                    answer: "We offer comprehensive onboarding, video tutorials, live training sessions, dedicated support representatives, and extensive documentation. Our support team is available 24/7 during implementation and provides ongoing assistance for all user levels."
+                  }
+                ].map((faq, index) => (
+                  <AccordionItem key={faq.id} value={faq.id} className="border border-border rounded-lg px-6">
+                    <AccordionTrigger className="text-left text-base xl:text-lg 2xl:text-xl font-semibold hover:text-primary transition-colors">
+                      {faq.question}
+                    </AccordionTrigger>
+                    <AccordionContent className="text-sm xl:text-base 2xl:text-lg text-muted-foreground leading-relaxed">
+                      {faq.answer}
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
+            </motion.div>
+
+            <motion.div
+              className="text-center mt-12 xl:mt-16 2xl:mt-20"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+            >
+              <p className="text-lg xl:text-xl 2xl:text-2xl text-muted-foreground mb-6">
+                Still have questions? We're here to help!
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button 
+                  variant="outline" 
+                  className="hover:scale-105 transition-transform"
+                  onClick={() => window.location.href = 'mailto:support@smartstudenthub.com?subject=Platform Inquiry'}
+                  data-testid="faq-contact-email"
+                >
+                  <Mail className="w-4 h-4 xl:w-5 xl:h-5 2xl:w-6 2xl:h-6 mr-2" />
+                  Email Support
+                </Button>
+                <Button 
+                  className="hover:scale-105 transition-transform"
+                  onClick={() => window.location.href = 'tel:+919876543210'}
+                  data-testid="faq-contact-phone"
+                >
+                  <Phone className="w-4 h-4 xl:w-5 xl:h-5 2xl:w-6 2xl:h-6 mr-2" />
+                  Call Us
+                </Button>
+              </div>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Newsletter Subscription Section */}
+        <section className="py-16 lg:py-20 xl:py-24 2xl:py-28 bg-gradient-to-r from-blue-600 via-purple-600 to-blue-800 px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16">
+          <div className="max-w-4xl xl:max-w-5xl 2xl:max-w-6xl mx-auto text-center">
+            <motion.h2 
+              className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl font-bold text-white mb-6"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              data-testid="newsletter-title"
+            >
+              Stay Updated with Educational Innovation
+            </motion.h2>
+            <motion.p 
+              className="text-lg lg:text-xl xl:text-2xl 2xl:text-3xl text-blue-100 mb-12"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              data-testid="newsletter-description"
+            >
+              Get the latest insights on educational technology, platform updates, and institutional best practices
+            </motion.p>
+            
+            <motion.div 
+              className="max-w-md mx-auto"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+            >
+              <div className="flex flex-col sm:flex-row gap-4" data-testid="newsletter-form">
+                <Input 
+                  type="email" 
+                  placeholder="Enter your institutional email"
+                  className="flex-1 bg-white/90 border-0 text-gray-900 placeholder-gray-600 h-10 xl:h-12 2xl:h-14 text-sm xl:text-base 2xl:text-lg"
+                  data-testid="newsletter-email-input"
+                />
+                <Button 
+                  className="bg-white text-blue-600 hover:bg-blue-50 font-semibold shadow-lg hover:shadow-xl transition-all duration-200 h-10 xl:h-12 2xl:h-14 px-6 xl:px-8 2xl:px-10 text-sm xl:text-base 2xl:text-lg"
+                  data-testid="newsletter-subscribe-button"
+                >
+                  Subscribe Now
+                </Button>
+              </div>
+              <p className="text-xs xl:text-sm 2xl:text-base text-blue-200 mt-4" data-testid="newsletter-privacy">
+                We respect your privacy. Unsubscribe at any time.
+              </p>
+            </motion.div>
+          </div>
         </section>
 
         {/* Professional Footer */}
