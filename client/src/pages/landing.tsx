@@ -14,10 +14,13 @@
  * - SEO optimization and accessibility
  */
 
-import { useState, useEffect } from "react";
-import { motion, useInView } from "framer-motion";
+import { useState, useEffect, useMemo } from "react";
+import { motion, useInView, useAnimation, AnimatePresence } from "framer-motion";
 import { useRef } from "react";
 import { useLocation } from "wouter";
+import { useInView as useIntersectionObserver } from "react-intersection-observer";
+import CountUp from "react-countup";
+import { useSpring, animated, config } from "react-spring";
 import { 
   GraduationCap, Shield, Users, BarChart3, FileCheck, Award, TrendingUp, 
   Database, CheckCircle, Building, Clock, Search, BookOpen, Briefcase, 
@@ -25,50 +28,255 @@ import {
   Workflow, Target, Calendar, Smartphone, ChevronDown, Menu, X,
   Facebook, Twitter, Linkedin, Instagram, Mail, Phone, MapPin,
   Plus, Minus, ArrowRight, Play, CheckSquare, AlertCircle,
-  Lightbulb, Layers, Rocket, Heart, Monitor, TabletSmartphone, FileText
+  Lightbulb, Layers, Rocket, Heart, Monitor, TabletSmartphone, FileText,
+  Filter, SortAsc, SortDesc, Sparkles, MousePointer, Gamepad2,
+  Headphones, Video, MessageSquare, ThumbsUp, Eye, Download,
+  Activity, TrendingDown,
+  ChevronRight, ChevronLeft, CircleDot, Mic, Camera, Share,
+  Bell, Bookmark, Flag, HelpCircle, MessageCircle, Send,
+  Quote, MapPinned, PhoneCall, ExternalLink, Copy, Check
 } from "lucide-react";
+import { 
+  FaReact, FaNodeJs, FaAws, FaDocker, FaMicrosoft, FaGoogle,
+  FaApple, FaAndroid, FaLinux, FaWindows, FaDatabase, FaCloud,
+  FaShieldAlt, FaCertificate, FaChartLine, FaRocket
+} from "react-icons/fa";
+import { 
+  SiKubernetes, SiRedis, SiPostgresql, SiMongodb, SiElasticsearch,
+  SiGraphql, SiTypescript, SiTailwindcss, SiFramer
+} from "react-icons/si";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Progress } from "@/components/ui/progress";
+import { Switch } from "@/components/ui/switch";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Slider } from "@/components/ui/slider";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { 
+  AreaChart, Area, BarChart as RechartsBarChart, Bar, LineChart as RechartsLineChart, Line, PieChart as RechartsPieChart, Pie, Cell,
+  XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
+  RadialBarChart, RadialBar, ComposedChart, ScatterChart, Scatter
+} from "recharts";
 
-// Animated Counter Component
-const AnimatedCounter = ({ end, duration = 2, suffix = "", prefix = "" }: { 
+// Enhanced Animated Counter Component with react-countup
+const AnimatedCounter = ({ end, duration = 2, suffix = "", prefix = "", decimals = 0 }: { 
   end: number; 
   duration?: number; 
   suffix?: string; 
-  prefix?: string; 
+  prefix?: string;
+  decimals?: number;
 }) => {
-  const [count, setCount] = useState(0);
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true });
-
-  useEffect(() => {
-    if (inView) {
-      let startTime = 0;
-      const startCount = 0;
-      
-      const updateCount = (timestamp: number) => {
-        if (!startTime) startTime = timestamp;
-        const progress = Math.min((timestamp - startTime) / (duration * 1000), 1);
-        
-        setCount(Math.floor(progress * (end - startCount) + startCount));
-        
-        if (progress < 1) {
-          requestAnimationFrame(updateCount);
-        }
-      };
-      
-      requestAnimationFrame(updateCount);
-    }
-  }, [inView, end, duration]);
+  const { ref, inView } = useIntersectionObserver({
+    threshold: 0.3,
+    triggerOnce: true,
+  });
 
   return (
     <span ref={ref} data-testid={`animated-counter-${end}`}>
-      {prefix}{count.toLocaleString()}{suffix}
+      {inView ? (
+        <CountUp
+          start={0}
+          end={end}
+          duration={duration}
+          decimals={decimals}
+          prefix={prefix}
+          suffix={suffix}
+          separator=","
+          preserveValue
+        />
+      ) : (
+        `${prefix}0${suffix}`
+      )}
     </span>
   );
 };
+
+// Advanced Interactive Chart Component
+const InteractiveChart = ({ data, type = "area", color = "#3B82F6" }: {
+  data: any[];
+  type?: "area" | "bar" | "line" | "pie";
+  color?: string;
+}) => {
+  const { ref, inView } = useIntersectionObserver({
+    threshold: 0.3,
+    triggerOnce: true,
+  });
+
+  const chartProps = {
+    data,
+    margin: { top: 5, right: 30, left: 20, bottom: 5 },
+  };
+
+  return (
+    <div ref={ref} className="w-full h-80">
+      <ResponsiveContainer width="100%" height="100%">
+        {inView && (
+          <>
+          {type === "area" ? (
+              <AreaChart {...chartProps}>
+                <defs>
+                  <linearGradient id={`gradient-${color}`} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor={color} stopOpacity={0.8}/>
+                    <stop offset="95%" stopColor={color} stopOpacity={0.1}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <XAxis dataKey="name" stroke="#666" />
+                <YAxis stroke="#666" />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: 'rgba(255, 255, 255, 0.95)', 
+                    border: 'none', 
+                    borderRadius: '8px',
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
+                  }} 
+                />
+                <Area 
+                  type="monotone" 
+                  dataKey="value" 
+                  stroke={color} 
+                  fillOpacity={1} 
+                  fill={`url(#gradient-${color})`}
+                  strokeWidth={3}
+                />
+              </AreaChart>
+            ) : null}
+          {type === "bar" ? (
+              <RechartsBarChart {...chartProps}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <XAxis dataKey="name" stroke="#666" />
+                <YAxis stroke="#666" />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: 'rgba(255, 255, 255, 0.95)', 
+                    border: 'none', 
+                    borderRadius: '8px',
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
+                  }} 
+                />
+                <Bar dataKey="value" fill={color} radius={[4, 4, 0, 0]} />
+              </RechartsBarChart>
+            ) : null}
+          {type === "line" ? (
+              <RechartsLineChart {...chartProps}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                <XAxis dataKey="name" stroke="#666" />
+                <YAxis stroke="#666" />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: 'rgba(255, 255, 255, 0.95)', 
+                    border: 'none', 
+                    borderRadius: '8px',
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
+                  }} 
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="value" 
+                  stroke={color} 
+                  strokeWidth={3}
+                  dot={{ fill: color, strokeWidth: 2, r: 4 }}
+                  activeDot={{ r: 6, stroke: color, strokeWidth: 2 }}
+                />
+              </RechartsLineChart>
+            ) : null}
+          {type === "pie" ? (
+              <RechartsPieChart width={300} height={300}>
+                <Pie
+                  data={data}
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={80}
+                  fill={color}
+                  dataKey="value"
+                  label
+                >
+                  {data.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={`hsl(${index * 45}, 70%, 60%)`} />
+                  ))}
+                </Pie>
+                <Tooltip />
+              </RechartsPieChart>
+            ) : null}
+          </>
+        )}
+      </ResponsiveContainer>
+    </div>
+  );
+};
+
+// Professional Avatar Component with ratings
+const TestimonialAvatar = ({ src, name, role, rating, company }: {
+  src: string;
+  name: string;
+  role: string;
+  rating: number;
+  company: string;
+}) => {
+  return (
+    <motion.div 
+      className="flex items-center space-x-4 p-4 bg-white dark:bg-gray-800 rounded-2xl shadow-lg"
+      whileHover={{ scale: 1.02, y: -2 }}
+      transition={{ duration: 0.2 }}
+    >
+      <motion.div 
+        className="relative w-16 h-16 rounded-full overflow-hidden border-4 border-primary/20"
+        whileHover={{ scale: 1.1 }}
+      >
+        <div className="w-full h-full bg-gradient-to-br from-primary to-blue-600 flex items-center justify-center">
+          <span className="text-white font-bold text-lg">{name.charAt(0)}</span>
+        </div>
+        <motion.div 
+          className="absolute inset-0 bg-primary/20 rounded-full"
+          initial={{ scale: 0 }}
+          whileHover={{ scale: 1 }}
+          transition={{ duration: 0.3 }}
+        />
+      </motion.div>
+      <div className="flex-1">
+        <h4 className="font-semibold text-foreground text-sm">{name}</h4>
+        <p className="text-muted-foreground text-xs">{role}</p>
+        <p className="text-muted-foreground text-xs font-medium">{company}</p>
+        <div className="flex items-center mt-1">
+          {[...Array(5)].map((_, i) => (
+            <Star 
+              key={i}
+              className={`w-3 h-3 ${
+                i < rating ? "text-yellow-400 fill-yellow-400" : "text-gray-300"
+              }`}
+            />
+          ))}
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
+// Contact Form Schema
+const contactFormSchema = z.object({
+  firstName: z.string().min(2, "First name must be at least 2 characters"),
+  lastName: z.string().min(2, "Last name must be at least 2 characters"),
+  email: z.string().email("Please enter a valid email address"),
+  phone: z.string().min(10, "Please enter a valid phone number"),
+  institution: z.string().min(2, "Institution name is required"),
+  role: z.string().min(1, "Please select your role"),
+  studentCount: z.string().min(1, "Please select student count range"),
+  message: z.string().min(10, "Message must be at least 10 characters"),
+  consent: z.boolean().refine(val => val === true, "You must agree to be contacted")
+});
+
+type ContactFormData = z.infer<typeof contactFormSchema>;
 
 // Mobile Menu Component
 const MobileMenu = ({ isOpen, onToggle, setLocation }: { isOpen: boolean; onToggle: () => void; setLocation: (path: string) => void }) => {
@@ -732,6 +940,398 @@ export default function Landing() {
                 ))}
               </motion.div>
             </div>
+          </motion.div>
+        </section>
+
+        {/* Live Data Visualization Dashboard Section */}
+        <section className="py-16 sm:py-20 lg:py-24 xl:py-28 2xl:py-32 px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-slate-950 dark:via-blue-950 dark:to-indigo-950">
+          <motion.div 
+            className="max-w-8xl mx-auto"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+          >
+            <div className="text-center mb-12 lg:mb-16">
+              <motion.h2 
+                className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl font-bold text-foreground mb-6"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6 }}
+                data-testid="data-viz-title"
+              >
+                Real-Time Analytics & Insights Dashboard
+              </motion.h2>
+              <motion.p 
+                className="text-lg lg:text-xl xl:text-2xl 2xl:text-3xl text-muted-foreground max-w-5xl xl:max-w-6xl 2xl:max-w-7xl mx-auto"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                data-testid="data-viz-description"
+              >
+                Interactive data visualization powered by advanced analytics provides institutional leaders 
+                with real-time insights into student engagement, faculty efficiency, and institutional performance metrics.
+              </motion.p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8 lg:gap-12 xl:gap-16">
+              {/* Student Activity Trends */}
+              <motion.div
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8, delay: 0.1 }}
+                className="lg:col-span-2 xl:col-span-2"
+              >
+                <Card className="h-full bg-white dark:bg-gray-800 shadow-xl hover:shadow-2xl transition-all duration-500 border-0 rounded-2xl overflow-hidden">
+                  <CardHeader className="pb-4">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-xl xl:text-2xl 2xl:text-3xl font-bold text-foreground flex items-center">
+                        <TrendingUp className="w-6 h-6 xl:w-8 xl:h-8 text-blue-600 mr-3" />
+                        Student Activity Trends
+                      </CardTitle>
+                      <Badge variant="secondary" className="text-sm xl:text-base">Live Data</Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <InteractiveChart 
+                      data={[
+                        { name: 'Jan', value: 1200 },
+                        { name: 'Feb', value: 1800 },
+                        { name: 'Mar', value: 2200 },
+                        { name: 'Apr', value: 2800 },
+                        { name: 'May', value: 3200 },
+                        { name: 'Jun', value: 3800 },
+                        { name: 'Jul', value: 4200 },
+                        { name: 'Aug', value: 4800 },
+                      ]}
+                      type="area"
+                      color="#3B82F6"
+                    />
+                    <div className="grid grid-cols-3 gap-4 mt-6 pt-6 border-t border-border">
+                      <div className="text-center">
+                        <div className="text-2xl xl:text-3xl 2xl:text-4xl font-bold text-blue-600">
+                          <AnimatedCounter end={4800} suffix="+" />
+                        </div>
+                        <p className="text-sm xl:text-base text-muted-foreground">Activities This Month</p>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-2xl xl:text-3xl 2xl:text-4xl font-bold text-green-600">
+                          +35%
+                        </div>
+                        <p className="text-sm xl:text-base text-muted-foreground">Growth Rate</p>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-2xl xl:text-3xl 2xl:text-4xl font-bold text-purple-600">
+                          <AnimatedCounter end={92} suffix="%" />
+                        </div>
+                        <p className="text-sm xl:text-base text-muted-foreground">Verification Rate</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+
+              {/* Institutional Performance Metrics */}
+              <motion.div
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8, delay: 0.2 }}
+                className="xl:col-span-1"
+              >
+                <Card className="h-full bg-white dark:bg-gray-800 shadow-xl hover:shadow-2xl transition-all duration-500 border-0 rounded-2xl overflow-hidden">
+                  <CardHeader className="pb-4">
+                    <CardTitle className="text-xl xl:text-2xl 2xl:text-3xl font-bold text-foreground flex items-center">
+                      <Award className="w-6 h-6 xl:w-8 xl:h-8 text-yellow-600 mr-3" />
+                      NAAC Readiness
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    {[
+                      { label: "Criterion I: Curricular Aspects", value: 98, color: "bg-green-500" },
+                      { label: "Criterion II: Teaching-Learning", value: 95, color: "bg-blue-500" },
+                      { label: "Criterion III: Research", value: 88, color: "bg-purple-500" },
+                      { label: "Criterion IV: Infrastructure", value: 92, color: "bg-orange-500" },
+                      { label: "Criterion V: Student Support", value: 96, color: "bg-teal-500" },
+                    ].map((criterion, index) => (
+                      <motion.div
+                        key={index}
+                        className="space-y-2"
+                        initial={{ opacity: 0, x: -20 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.5, delay: index * 0.1 }}
+                      >
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm xl:text-base font-medium text-foreground">{criterion.label}</span>
+                          <span className="text-sm xl:text-base font-bold text-foreground">{criterion.value}%</span>
+                        </div>
+                        <Progress value={criterion.value} className="h-3" />
+                      </motion.div>
+                    ))}
+                    <div className="pt-4 border-t border-border text-center">
+                      <div className="text-3xl xl:text-4xl 2xl:text-5xl font-bold text-green-600 mb-2">
+                        A+
+                      </div>
+                      <p className="text-sm xl:text-base text-muted-foreground">Projected NAAC Grade</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+
+              {/* Department-wise Analytics */}
+              <motion.div
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8, delay: 0.3 }}
+                className="lg:col-span-2 xl:col-span-2"
+              >
+                <Card className="h-full bg-white dark:bg-gray-800 shadow-xl hover:shadow-2xl transition-all duration-500 border-0 rounded-2xl overflow-hidden">
+                  <CardHeader className="pb-4">
+                    <CardTitle className="text-xl xl:text-2xl 2xl:text-3xl font-bold text-foreground flex items-center">
+                      <BarChart3 className="w-6 h-6 xl:w-8 xl:h-8 text-purple-600 mr-3" />
+                      Department Performance Analytics
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <InteractiveChart 
+                      data={[
+                        { name: 'Computer Science', value: 450 },
+                        { name: 'Mechanical', value: 380 },
+                        { name: 'Electronics', value: 320 },
+                        { name: 'Civil', value: 290 },
+                        { name: 'Business', value: 410 },
+                        { name: 'Arts & Science', value: 350 },
+                      ]}
+                      type="bar"
+                      color="#8B5CF6"
+                    />
+                  </CardContent>
+                </Card>
+              </motion.div>
+
+              {/* Placement Success Metrics */}
+              <motion.div
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8, delay: 0.4 }}
+                className="xl:col-span-1"
+              >
+                <Card className="h-full bg-white dark:bg-gray-800 shadow-xl hover:shadow-2xl transition-all duration-500 border-0 rounded-2xl overflow-hidden">
+                  <CardHeader className="pb-4">
+                    <CardTitle className="text-xl xl:text-2xl 2xl:text-3xl font-bold text-foreground flex items-center">
+                      <Briefcase className="w-6 h-6 xl:w-8 xl:h-8 text-green-600 mr-3" />
+                      Placement Impact
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <InteractiveChart 
+                      data={[
+                        { name: 'With Platform', value: 85 },
+                        { name: 'Traditional', value: 62 },
+                      ]}
+                      type="pie"
+                      color="#10B981"
+                    />
+                    <div className="mt-6 space-y-4">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm xl:text-base text-muted-foreground">Success Rate Increase</span>
+                        <span className="text-xl xl:text-2xl font-bold text-green-600">+37%</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm xl:text-base text-muted-foreground">Time Reduction</span>
+                        <span className="text-xl xl:text-2xl font-bold text-blue-600">-60%</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm xl:text-base text-muted-foreground">Portfolio Quality</span>
+                        <span className="text-xl xl:text-2xl font-bold text-purple-600">+95%</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            </div>
+          </motion.div>
+        </section>
+
+        {/* Comprehensive Testimonials Section with Animated Avatars and Ratings */}
+        <section className="py-16 sm:py-20 lg:py-24 xl:py-28 2xl:py-32 px-4 sm:px-6 lg:px-8 xl:px-12 2xl:px-16 bg-white dark:bg-gray-900">
+          <motion.div 
+            className="max-w-8xl mx-auto"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+          >
+            <div className="text-center mb-12 lg:mb-16">
+              <motion.h2 
+                className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl 2xl:text-7xl font-bold text-foreground mb-6"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6 }}
+                data-testid="testimonials-title"
+              >
+                Trusted by 150+ Leading Institutions Worldwide
+              </motion.h2>
+              <motion.p 
+                className="text-lg lg:text-xl xl:text-2xl 2xl:text-3xl text-muted-foreground max-w-5xl xl:max-w-6xl 2xl:max-w-7xl mx-auto"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                data-testid="testimonials-description"
+              >
+                Hear from Vice-Chancellors, Deans, and academic leaders who have transformed their institutions 
+                with Smart Student Hub's comprehensive student achievement management platform.
+              </motion.p>
+            </div>
+
+            {/* Testimonial Grid */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8 lg:gap-12 xl:gap-16">
+              {[
+                {
+                  name: "Dr. Rajesh Kumar",
+                  role: "Vice-Chancellor",
+                  company: "University of Delhi",
+                  rating: 5,
+                  quote: "Smart Student Hub revolutionized our accreditation process. We achieved NAAC A++ grade with 90% less preparation time. The automated compliance reporting and real-time analytics have been game-changing for our institution's excellence journey.",
+                  impact: "NAAC A++ Grade Achieved",
+                  metrics: { time: "90%", accuracy: "100%", satisfaction: "98%" }
+                },
+                {
+                  name: "Prof. Priya Sharma",
+                  role: "Dean of Academic Affairs",
+                  company: "IIT Bombay",
+                  rating: 5,
+                  quote: "The platform's integration with our existing ERP system was seamless. Faculty verification workflows have reduced administrative burden by 75%, allowing our professors to focus more on teaching and research excellence.",
+                  impact: "75% Reduction in Admin Work",
+                  metrics: { efficiency: "85%", adoption: "96%", timeToValue: "2 weeks" }
+                },
+                {
+                  name: "Dr. Suresh Patel",
+                  role: "Registrar",
+                  company: "Anna University",
+                  rating: 5,
+                  quote: "Student portfolio generation for placements has improved dramatically. Our placement success rate increased by 40% within the first semester of implementation. Companies now prefer our students' verified portfolios.",
+                  impact: "40% Increase in Placements",
+                  metrics: { placements: "40%", quality: "95%", recruiterSatisfaction: "92%" }
+                },
+                {
+                  name: "Dr. Meera Nair",
+                  role: "Director of Student Affairs",
+                  company: "Manipal Academy",
+                  rating: 5,
+                  quote: "The real-time analytics dashboard provides unprecedented insights into student engagement and institutional performance. Our NIRF ranking improved by 15 positions within two years of implementation.",
+                  impact: "NIRF Ranking +15 Positions",
+                  metrics: { ranking: "+15", dataAccuracy: "99.9%", insights: "24/7" }
+                },
+                {
+                  name: "Prof. Anil Gupta",
+                  role: "Head of IT Services",
+                  company: "Jawaharlal Nehru University",
+                  rating: 5,
+                  quote: "Security and compliance were our top concerns. The platform's SOC 2 certification, end-to-end encryption, and GDPR compliance gave us complete confidence in protecting our students' sensitive data.",
+                  impact: "100% Security Compliance",
+                  metrics: { security: "SOC 2", uptime: "99.99%", compliance: "100%" }
+                },
+                {
+                  name: "Dr. Kavita Singh",
+                  role: "Pro-Vice-Chancellor",
+                  company: "Banaras Hindu University",
+                  rating: 5,
+                  quote: "Implementation was surprisingly smooth with their dedicated support team. The comprehensive training programs ensured 100% faculty adoption within 3 weeks. ROI was visible from month one itself.",
+                  impact: "100% Faculty Adoption",
+                  metrics: { implementation: "3 weeks", training: "100%", roi: "Month 1" }
+                }
+              ].map((testimonial, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 50 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.8, delay: index * 0.1 }}
+                  className="group"
+                  data-testid={`testimonial-${index}`}
+                >
+                  <Card className="h-full bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 shadow-xl hover:shadow-2xl transition-all duration-500 border-0 rounded-2xl overflow-hidden group-hover:-translate-y-2">
+                    <CardHeader className="pb-4">
+                      <div className="flex items-start justify-between mb-4">
+                        <TestimonialAvatar 
+                          src=""
+                          name={testimonial.name}
+                          role={testimonial.role}
+                          rating={testimonial.rating}
+                          company={testimonial.company}
+                        />
+                        <Quote className="w-8 h-8 xl:w-10 xl:h-10 text-primary/20 group-hover:text-primary/40 transition-colors duration-300" />
+                      </div>
+                      <Badge variant="secondary" className="w-fit text-sm xl:text-base font-medium">
+                        {testimonial.impact}
+                      </Badge>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                      <blockquote className="text-sm xl:text-base 2xl:text-lg text-muted-foreground leading-relaxed italic">
+                        "{testimonial.quote}"
+                      </blockquote>
+                      
+                      <div className="grid grid-cols-3 gap-4 pt-4 border-t border-border">
+                        {Object.entries(testimonial.metrics).map(([key, value], metricIndex) => (
+                          <div key={metricIndex} className="text-center">
+                            <div className="text-lg xl:text-xl 2xl:text-2xl font-bold text-primary">
+                              {value}
+                            </div>
+                            <div className="text-xs xl:text-sm text-muted-foreground capitalize">
+                              {key.replace(/([A-Z])/g, ' $1').trim()}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Trust Indicators */}
+            <motion.div 
+              className="mt-16 lg:mt-20 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-8 lg:gap-12"
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.5 }}
+            >
+              {[
+                { metric: "150+", label: "Partner Institutions", icon: Building },
+                { metric: "4.9/5", label: "Customer Rating", icon: Star },
+                { metric: "99.9%", label: "Platform Uptime", icon: Shield },
+                { metric: "24/7", label: "Expert Support", icon: Headphones },
+                { metric: "SOC 2", label: "Security Certified", icon: Lock },
+                { metric: "GDPR", label: "Compliant", icon: CheckCircle },
+              ].map((indicator, index) => (
+                <motion.div
+                  key={index}
+                  className="text-center group"
+                  whileHover={{ scale: 1.05, y: -5 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <div className="w-16 h-16 xl:w-20 xl:h-20 2xl:w-24 2xl:h-24 bg-primary/10 dark:bg-primary/20 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/20 dark:group-hover:bg-primary/30 transition-colors duration-300">
+                    <indicator.icon className="w-8 h-8 xl:w-10 xl:h-10 2xl:w-12 2xl:h-12 text-primary" />
+                  </div>
+                  <div className="text-2xl xl:text-3xl 2xl:text-4xl font-bold text-foreground mb-2 group-hover:text-primary transition-colors duration-300">
+                    {indicator.metric}
+                  </div>
+                  <div className="text-sm xl:text-base 2xl:text-lg text-muted-foreground font-medium">
+                    {indicator.label}
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
           </motion.div>
         </section>
 
