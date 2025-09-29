@@ -44,7 +44,7 @@ import { cn } from "@/lib/utils";
  */
 interface StatCardProps {
   title: string;                // Metric title/label (e.g., "Total Students")
-  value: string;                // Primary metric value (e.g., "1,247")
+  value: string | React.ReactNode; // Primary metric value (e.g., "1,247") or JSX element
   icon: React.ReactNode;        // Icon component for visual context
   color: 'primary' | 'success' | 'warning' | 'info'; // Theme color variant
   subtitle?: string;            // Optional subtitle for trends or context

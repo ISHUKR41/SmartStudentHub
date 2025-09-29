@@ -54,14 +54,15 @@ import ActivityList from "@/components/custom/activity-list";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Download, Plus, GraduationCap, ClipboardList, Star, Clock, Award, TrendingUp, Target, BookOpen, Briefcase, Users, Calendar, MapPin, Trophy, Globe, CheckCircle, BarChart3, ChevronRight, AlertCircle, Zap, Flame, Brain, Heart, Shield, Medal, User, Lightbulb, Rocket, FileText, Code, Timer, Calculator, Coffee, Bookmark, Bell, Settings, Filter, RefreshCw, Info, ArrowUp, ArrowDown, TrendingDown, Activity as ActivityIcon, Compass, PieChart, LineChart, BarChart2, Calendar as CalendarIcon, Mail, Phone, MessageSquare, Send } from "lucide-react";
+import { Download, Plus, GraduationCap, ClipboardList, Star, Clock, Award, TrendingUp, Target, BookOpen, Briefcase, Users, Calendar, MapPin, Trophy, Globe, CheckCircle, BarChart3, ChevronRight, AlertCircle, Zap, Flame, Brain, Heart, Shield, Medal, User, Lightbulb, Rocket, FileText, Code, Timer, Calculator, Coffee, Bookmark, Bell, Settings, Filter, RefreshCw, Info, ArrowUp, ArrowDown, TrendingDown, Activity as ActivityIcon, Compass, PieChart, LineChart, BarChart2, Calendar as CalendarIcon, Mail, Phone, MessageSquare, Send, Crown } from "lucide-react";
 import { useLocation } from "wouter";
 import { Activity } from "@shared/schema";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
-import { AreaChart, Area, BarChart, Bar, LineChart as RechartsLineChart, Line, PieChart as RechartsPieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Legend, RadialBarChart, RadialBar, ComposedChart } from "recharts";
+import { AreaChart, Area, BarChart, Bar, LineChart as RechartsLineChart, Line, PieChart as RechartsPieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Legend, RadialBarChart, RadialBar, ComposedChart, Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Treemap, Funnel, FunnelChart, ScatterChart, Scatter, Brush } from "recharts";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion, AnimatePresence } from "framer-motion";
+import CountUp from "react-countup";
 import { useInView } from "react-intersection-observer";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
@@ -431,6 +432,9 @@ export default function StudentDashboard() {
     enabled: isAuthenticated && !!user, // Gate query on authentication
   });
 
+  // State for active tab - moved up to fix LSP error
+  const [activeTab, setActiveTab] = useState('overview');
+
   // Attendance Data Queries - Conditionally fetched based on active tab for performance
   const isAttendanceTabActive = activeTab === 'attendance';
   
@@ -464,7 +468,6 @@ export default function StudentDashboard() {
   const [goals, setGoals] = useState<Goal[]>([]);
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
-  const [activeTab, setActiveTab] = useState('overview');
   const notificationRef = useRef<HTMLDivElement>(null);
 
   // Intersection Observer for animations
@@ -954,6 +957,64 @@ export default function StudentDashboard() {
             </CardContent>
           </Card>
 
+          {/* Advanced Search and Filter Controls */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="mb-6"
+          >
+            <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-blue-200 dark:border-blue-800">
+              <CardContent className="p-4">
+                <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
+                  <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="relative">
+                      <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input
+                        placeholder="Search activities, achievements..."
+                        className="pl-10 bg-white dark:bg-gray-800"
+                        data-testid="input-search"
+                      />
+                    </div>
+                    <Select defaultValue="all">
+                      <SelectTrigger className="bg-white dark:bg-gray-800" data-testid="select-category">
+                        <SelectValue placeholder="Category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Categories</SelectItem>
+                        <SelectItem value="academic">Academic</SelectItem>
+                        <SelectItem value="technical">Technical</SelectItem>
+                        <SelectItem value="leadership">Leadership</SelectItem>
+                        <SelectItem value="community">Community</SelectItem>
+                        <SelectItem value="research">Research</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Select defaultValue="semester">
+                      <SelectTrigger className="bg-white dark:bg-gray-800" data-testid="select-timeframe">
+                        <SelectValue placeholder="Time Period" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="semester">Current Semester</SelectItem>
+                        <SelectItem value="year">Academic Year</SelectItem>
+                        <SelectItem value="all">All Time</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" className="flex items-center space-x-2" data-testid="button-export">
+                      <Download className="w-4 h-4" />
+                      <span>Export</span>
+                    </Button>
+                    <Button variant="outline" size="sm" className="flex items-center space-x-2" data-testid="button-refresh">
+                      <RefreshCw className="w-4 h-4" />
+                      <span>Refresh</span>
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+
           {/* Enhanced Responsive Statistics Cards with Animations */}
           <motion.div 
             ref={statsRef}
@@ -974,7 +1035,7 @@ export default function StudentDashboard() {
 
             <StatCard
               title="Total Activities"
-              value={dashboardData.personalInfo.totalActivities.toString()}
+              value={<CountUp end={dashboardData.personalInfo.totalActivities} duration={2.5} />}
               icon={<ClipboardList className="w-6 h-6" />}
               color="primary"
               subtitle="Academic Year 2024-25"
@@ -983,7 +1044,7 @@ export default function StudentDashboard() {
 
             <StatCard
               title="Skill Credits"
-              value={dashboardData.personalInfo.totalCredits.toString()}
+              value={<CountUp end={dashboardData.personalInfo.totalCredits} duration={2.5} />}
               icon={<Star className="w-6 h-6" />}
               color="info"
               subtitle={`Target: 250 | Progress: ${((dashboardData.personalInfo.totalCredits / 250) * 100).toFixed(1)}%`}
@@ -993,7 +1054,7 @@ export default function StudentDashboard() {
 
             <StatCard
               title="Pending Approvals"
-              value={dashboardData.personalInfo.pendingApprovals.toString()}
+              value={<CountUp end={dashboardData.personalInfo.pendingApprovals} duration={2} />}
               icon={<Clock className="w-6 h-6" />}
               color="warning"
               subtitle="Awaiting faculty review"
@@ -1602,22 +1663,47 @@ export default function StudentDashboard() {
                         className="h-[200px] md:h-[300px]"
                         data-testid="chart-activity-distribution"
                       >
-                        <RechartsPieChart>
-                          <Pie
-                            data={dashboardData.categoryDistribution}
-                            cx="50%"
-                            cy="50%"
-                            outerRadius={60}
-                            fill="#8884d8"
-                            dataKey="value"
-                          >
-                            {dashboardData.categoryDistribution.map((entry, index) => (
-                              <Cell key={`cell-${index}`} fill={entry.color} data-testid={`pie-slice-${index}`} />
-                            ))}
-                          </Pie>
-                          <ChartTooltip content={<ChartTooltipContent />} />
-                          <Legend wrapperStyle={{ fontSize: '12px' }} />
-                        </RechartsPieChart>
+                        <Tabs defaultValue="pie" className="w-full">
+                          <TabsList className="grid w-full grid-cols-2 mb-4">
+                            <TabsTrigger value="pie" className="text-xs">Pie Chart</TabsTrigger>
+                            <TabsTrigger value="treemap" className="text-xs">Treemap</TabsTrigger>
+                          </TabsList>
+                          
+                          <TabsContent value="pie" className="mt-0">
+                            <RechartsPieChart>
+                              <Pie
+                                data={dashboardData.categoryDistribution}
+                                cx="50%"
+                                cy="50%"
+                                outerRadius={60}
+                                fill="#8884d8"
+                                dataKey="value"
+                              >
+                                {dashboardData.categoryDistribution.map((entry, index) => (
+                                  <Cell key={`cell-${index}`} fill={entry.color} data-testid={`pie-slice-${index}`} />
+                                ))}
+                              </Pie>
+                              <ChartTooltip content={<ChartTooltipContent />} />
+                              <Legend wrapperStyle={{ fontSize: '12px' }} />
+                            </RechartsPieChart>
+                          </TabsContent>
+                          
+                          <TabsContent value="treemap" className="mt-0">
+                            <Treemap
+                              data={dashboardData.categoryDistribution.map(item => ({
+                                name: item.category,
+                                size: item.value,
+                                fill: item.color
+                              }))}
+                              dataKey="size"
+                              aspectRatio={4/3}
+                              stroke="#fff"
+                              fill="#8884d8"
+                            >
+                              <ChartTooltip content={<ChartTooltipContent />} />
+                            </Treemap>
+                          </TabsContent>
+                        </Tabs>
                       </ChartContainer>
                     )}
                   </CardContent>
@@ -2139,67 +2225,70 @@ export default function StudentDashboard() {
                   </CardContent>
                 </Card>
 
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center space-x-2">
-                      <Rocket className="w-5 h-5 text-teal-600" />
-                      <span>Professional Development Journey</span>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div className="relative">
-                        <div className="absolute left-4 top-8 bottom-0 w-0.5 bg-gradient-to-b from-primary to-transparent"></div>
-                        
-                        <div className="space-y-6">
-                          <div className="relative flex items-start space-x-4">
-                            <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
-                              <CheckCircle className="w-4 h-4 text-white" />
-                            </div>
-                            <div className="flex-1">
-                              <div className="font-medium text-foreground">Industry Internship</div>
-                              <div className="text-sm text-muted-foreground">Microsoft India Development Center</div>
-                              <div className="text-xs text-blue-600 font-medium">Summer 2024 • Completed</div>
-                            </div>
-                          </div>
-
-                          <div className="relative flex items-start space-x-4">
-                            <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
-                              <CheckCircle className="w-4 h-4 text-white" />
-                            </div>
-                            <div className="flex-1">
-                              <div className="font-medium text-foreground">Professional Certification</div>
-                              <div className="text-sm text-muted-foreground">Deep Learning Specialization</div>
-                              <div className="text-xs text-green-600 font-medium">Stanford/Coursera • Completed</div>
-                            </div>
-                          </div>
-
-                          <div className="relative flex items-start space-x-4">
-                            <div className="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center flex-shrink-0">
-                              <Clock className="w-4 h-4 text-white" />
-                            </div>
-                            <div className="flex-1">
-                              <div className="font-medium text-foreground">Leadership Role</div>
-                              <div className="text-sm text-muted-foreground">Technical Head, Computer Society</div>
-                              <div className="text-xs text-yellow-600 font-medium">Current Position • Active</div>
-                            </div>
-                          </div>
-
-                          <div className="relative flex items-start space-x-4">
-                            <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
-                              <Star className="w-4 h-4 text-white" />
-                            </div>
-                            <div className="flex-1">
-                              <div className="font-medium text-foreground">Career Target</div>
-                              <div className="text-sm text-muted-foreground">Software Engineer at FAANG</div>
-                              <div className="text-xs text-blue-600 font-medium">Graduation 2025 • Planned</div>
-                            </div>
-                          </div>
-                        </div>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.5, delay: 0.2 }}
+                >
+                  <Card className="relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5" />
+                    <CardHeader>
+                      <CardTitle className="flex items-center space-x-2">
+                        <Compass className="w-5 h-5 text-blue-600" />
+                        <span>Skills Radar Analysis</span>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <ChartContainer
+                        config={{
+                          skill: { label: "Skill Level", color: "hsl(221, 83%, 53%)" }
+                        }}
+                        className="h-[300px]"
+                        data-testid="chart-skills-radar"
+                      >
+                        <RadarChart data={dashboardData.skillMatrix.map(skill => ({
+                          skill: skill.skill,
+                          level: skill.level,
+                          fullMark: 100
+                        }))}>
+                          <PolarGrid className="stroke-muted" />
+                          <PolarAngleAxis dataKey="skill" className="text-xs text-muted-foreground" />
+                          <PolarRadiusAxis 
+                            angle={90} 
+                            domain={[0, 100]} 
+                            tick={false}
+                            axisLine={false}
+                          />
+                          <Radar
+                            name="Skills"
+                            dataKey="level"
+                            stroke="hsl(221, 83%, 53%)"
+                            fill="hsl(221, 83%, 53%)"
+                            fillOpacity={0.1}
+                            strokeWidth={2}
+                          />
+                          <ChartTooltip content={<ChartTooltipContent />} />
+                        </RadarChart>
+                      </ChartContainer>
+                      
+                      <div className="mt-4 grid grid-cols-2 gap-2 text-xs">
+                        {dashboardData.skillMatrix.map((skill, index) => (
+                          <motion.div
+                            key={index}
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ duration: 0.3, delay: index * 0.1 }}
+                            className="flex items-center space-x-2"
+                          >
+                            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                            <span className="text-muted-foreground">{skill.skill}</span>
+                            <span className="text-blue-600 font-medium">{skill.level}%</span>
+                          </motion.div>
+                        ))}
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                    </CardContent>
+                  </Card>
+                </motion.div>
               </div>
             </TabsContent>
 
@@ -2944,153 +3033,202 @@ export default function StudentDashboard() {
             </Card>
           </div>
 
-          {/* Digital Footprint & Engagement Metrics */}
+          {/* NAAC/NIRF Compliance & Academic Excellence */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Globe className="w-5 h-5 text-emerald-600" />
-                  <span>Digital Footprint</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between p-3 bg-gradient-to-r from-emerald-50 to-green-50 dark:from-emerald-900/20 dark:to-green-900/20 rounded-lg">
-                    <div className="flex items-center space-x-3">
-                      <Globe className="w-8 h-8 text-emerald-600" />
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+            >
+              <Card className="relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5" />
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <Shield className="w-5 h-5 text-blue-600" />
+                    <span>NAAC Compliance</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between p-3 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-lg">
+                      <div className="flex items-center space-x-3">
+                        <CheckCircle className="w-8 h-8 text-blue-600" />
+                        <div>
+                          <div className="font-medium">Compliance Score</div>
+                          <div className="text-sm text-muted-foreground">Grade A+ Standard</div>
+                        </div>
+                      </div>
+                      <div className="text-blue-600 font-bold text-xl">92%</div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm flex items-center space-x-2">
+                          <BookOpen className="w-4 h-4 text-blue-500" />
+                          <span>Academic Activities</span>
+                        </span>
+                        <span className="text-sm font-medium text-blue-600">45 verified</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm flex items-center space-x-2">
+                          <Trophy className="w-4 h-4 text-amber-500" />
+                          <span>Co-curricular</span>
+                        </span>
+                        <span className="text-sm font-medium text-amber-600">32 verified</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm flex items-center space-x-2">
+                          <Heart className="w-4 h-4 text-red-500" />
+                          <span>Community Service</span>
+                        </span>
+                        <span className="text-sm font-medium text-red-600">18 hours</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm flex items-center space-x-2">
+                          <Crown className="w-4 h-4 text-purple-500" />
+                          <span>Leadership Roles</span>
+                        </span>
+                        <span className="text-sm font-medium text-purple-600">8 positions</span>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
+              <Card className="relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-emerald-500/5" />
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <Target className="w-5 h-5 text-green-600" />
+                    <span>Faculty Approval Workflow</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="text-center">
+                      <div className="text-2xl font-bold text-green-600">89.3%</div>
+                      <div className="text-sm text-muted-foreground">Approval Rate</div>
+                    </div>
+
+                    <div className="space-y-3">
                       <div>
-                        <div className="font-medium">Online Portfolio</div>
-                        <div className="text-sm text-muted-foreground">Professional presence</div>
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-xs font-medium flex items-center space-x-1">
+                            <Clock className="w-3 h-3" />
+                            <span>Pending Review</span>
+                          </span>
+                          <span className="text-xs text-amber-600">7 items</span>
+                        </div>
+                        <Progress value={15} className="h-2" />
                       </div>
-                    </div>
-                    <div className="text-emerald-600 font-bold">95%</div>
-                  </div>
 
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">GitHub Contributions</span>
-                      <span className="text-sm font-medium text-green-600">654 commits</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">LinkedIn Engagement</span>
-                      <span className="text-sm font-medium text-blue-600">892 connections</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">Research Gate Score</span>
-                      <span className="text-sm font-medium text-purple-600">4.2/5.0</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm">Stack Overflow Rep</span>
-                      <span className="text-sm font-medium text-orange-600">1,247 points</span>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Coffee className="w-5 h-5 text-amber-600" />
-                  <span>Engagement Analytics</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-primary">94.5%</div>
-                    <div className="text-sm text-muted-foreground">Overall Engagement</div>
-                  </div>
-
-                  <div className="space-y-3">
-                    <div>
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs font-medium">Platform Usage</span>
-                        <span className="text-xs text-muted-foreground">98%</span>
+                      <div>
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-xs font-medium flex items-center space-x-1">
+                            <CheckCircle className="w-3 h-3" />
+                            <span>Approved</span>
+                          </span>
+                          <span className="text-xs text-green-600">42 items</span>
+                        </div>
+                        <Progress value={85} className="h-2" />
                       </div>
-                      <Progress value={98} className="h-2" />
-                    </div>
 
-                    <div>
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs font-medium">Activity Submissions</span>
-                        <span className="text-xs text-muted-foreground">92%</span>
+                      <div>
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-xs font-medium flex items-center space-x-1">
+                            <AlertCircle className="w-3 h-3" />
+                            <span>Needs Revision</span>
+                          </span>
+                          <span className="text-xs text-orange-600">3 items</span>
+                        </div>
+                        <Progress value={6} className="h-2" />
                       </div>
-                      <Progress value={92} className="h-2" />
-                    </div>
 
-                    <div>
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs font-medium">Faculty Interactions</span>
-                        <span className="text-xs text-muted-foreground">89%</span>
-                      </div>
-                      <Progress value={89} className="h-2" />
-                    </div>
-
-                    <div>
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs font-medium">Peer Collaboration</span>
-                        <span className="text-xs text-muted-foreground">95%</span>
-                      </div>
-                      <Progress value={95} className="h-2" />
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Bookmark className="w-5 h-5 text-indigo-600" />
-                  <span>Learning Pathway</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="p-3 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 rounded-lg">
-                    <div className="font-medium text-indigo-800 dark:text-indigo-200 mb-2">Current Focus</div>
-                    <div className="text-sm text-indigo-600 dark:text-indigo-300">
-                      Advanced Machine Learning & System Design
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                      <div className="flex-1">
-                        <div className="text-sm font-medium">Data Structures & Algorithms</div>
-                        <div className="text-xs text-green-600">Mastered • 95%</div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center space-x-3">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                      <div className="flex-1">
-                        <div className="text-sm font-medium">Machine Learning</div>
-                        <div className="text-xs text-blue-600">Advanced • 88%</div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center space-x-3">
-                      <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-                      <div className="flex-1">
-                        <div className="text-sm font-medium">System Design</div>
-                        <div className="text-xs text-yellow-600">In Progress • 72%</div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center space-x-3">
-                      <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
-                      <div className="flex-1">
-                        <div className="text-sm font-medium">Distributed Systems</div>
-                        <div className="text-xs text-gray-600">Planned • 0%</div>
+                      <div>
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-xs font-medium flex items-center space-x-1">
+                            <Zap className="w-3 h-3" />
+                            <span>Quick Approval</span>
+                          </span>
+                          <span className="text-xs text-blue-600">avg 2.3 days</span>
+                        </div>
+                        <Progress value={92} className="h-2" />
                       </div>
                     </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+            >
+              <Card className="relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-pink-500/5" />
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <Medal className="w-5 h-5 text-purple-600" />
+                    <span>Skill Credit Tracking</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div className="p-3 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-lg">
+                      <div className="font-medium text-purple-800 dark:text-purple-200 mb-2">Progress to Target</div>
+                      <div className="flex items-center justify-between">
+                        <div className="text-sm text-purple-600 dark:text-purple-300">
+                          78 / 100 Credits
+                        </div>
+                        <div className="text-lg font-bold text-purple-600">78%</div>
+                      </div>
+                      <Progress value={78} className="h-2 mt-2" />
+                    </div>
+
+                    <div className="space-y-3">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                        <div className="flex-1">
+                          <div className="text-sm font-medium">Technical Skills</div>
+                          <div className="text-xs text-green-600">32 credits • Excellent</div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center space-x-3">
+                        <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                        <div className="flex-1">
+                          <div className="text-sm font-medium">Communication</div>
+                          <div className="text-xs text-blue-600">24 credits • Good</div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center space-x-3">
+                        <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
+                        <div className="flex-1">
+                          <div className="text-sm font-medium">Leadership</div>
+                          <div className="text-xs text-amber-600">15 credits • Developing</div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center space-x-3">
+                        <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                        <div className="flex-1">
+                          <div className="text-sm font-medium">Research</div>
+                          <div className="text-xs text-purple-600">7 credits • Emerging</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
           </div>
 
           {/* Recent Activity Timeline and Upcoming Events */}
