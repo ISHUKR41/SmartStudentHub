@@ -218,6 +218,15 @@ export default function DigitalPortfolio() {
    * and official verification for external documentation and applications.
    */
   const handleDownloadPDF = async () => {
+    // Temporary implementation - guard against unimplemented endpoint
+    toast({
+      title: "PDF Generation Coming Soon",
+      description: "Professional portfolio PDF generation feature is being implemented. Use the share functionality for now.",
+      variant: "default",
+    });
+    
+    // TODO: Implement when backend PDF generation endpoint is ready
+    /*
     try {
       toast({
         title: "Generating Professional Portfolio PDF",
@@ -256,6 +265,7 @@ export default function DigitalPortfolio() {
         variant: "destructive",
       });
     }
+    */
   };
 
   /**
@@ -514,12 +524,13 @@ export default function DigitalPortfolio() {
 
             {/* Comprehensive Tabbed Portfolio Interface */}
             <Tabs defaultValue="overview" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 lg:grid-cols-5">
-                <TabsTrigger value="overview">Portfolio Overview</TabsTrigger>
-                <TabsTrigger value="achievements">Achievements</TabsTrigger>
-                <TabsTrigger value="skills">Skills & Competencies</TabsTrigger>
-                <TabsTrigger value="timeline">Growth Timeline</TabsTrigger>
-                <TabsTrigger value="verification">Verification Details</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-1">
+                <TabsTrigger value="overview" className="text-xs sm:text-sm" data-testid="tab-overview">Portfolio Overview</TabsTrigger>
+                <TabsTrigger value="projects" className="text-xs sm:text-sm" data-testid="tab-projects">Projects Portfolio</TabsTrigger>
+                <TabsTrigger value="achievements" className="text-xs sm:text-sm" data-testid="tab-achievements">Achievements</TabsTrigger>
+                <TabsTrigger value="skills" className="text-xs sm:text-sm" data-testid="tab-skills">Skills & Competencies</TabsTrigger>
+                <TabsTrigger value="timeline" className="text-xs sm:text-sm" data-testid="tab-timeline">Growth Timeline</TabsTrigger>
+                <TabsTrigger value="verification" className="text-xs sm:text-sm" data-testid="tab-verification">Verification Details</TabsTrigger>
               </TabsList>
 
               {/* Portfolio Overview Tab - Comprehensive Student Profile */}
@@ -673,6 +684,333 @@ export default function DigitalPortfolio() {
                       </div>
                     </div>
 
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              {/* Projects Portfolio Tab */}
+              <TabsContent value="projects" className="space-y-6">
+                
+                {/* Project Statistics Overview */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                  <Card className="p-4 text-center bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20">
+                    <Code className="w-8 h-8 mx-auto mb-2 text-blue-600" />
+                    <div className="text-2xl font-bold text-blue-600">18</div>
+                    <div className="text-sm text-muted-foreground">Total Projects</div>
+                  </Card>
+                  <Card className="p-4 text-center bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20">
+                    <Globe className="w-8 h-8 mx-auto mb-2 text-green-600" />
+                    <div className="text-2xl font-bold text-green-600">12</div>
+                    <div className="text-sm text-muted-foreground">Live Projects</div>
+                  </Card>
+                  <Card className="p-4 text-center bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20">
+                    <Users className="w-8 h-8 mx-auto mb-2 text-purple-600" />
+                    <div className="text-2xl font-bold text-purple-600">5</div>
+                    <div className="text-sm text-muted-foreground">Team Projects</div>
+                  </Card>
+                  <Card className="p-4 text-center bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-950/20 dark:to-red-950/20">
+                    <Trophy className="w-8 h-8 mx-auto mb-2 text-orange-600" />
+                    <div className="text-2xl font-bold text-orange-600">3</div>
+                    <div className="text-sm text-muted-foreground">Award Winners</div>
+                  </Card>
+                </div>
+
+                {/* Featured Projects */}
+                <Card data-testid="card-featured-projects">
+                  <CardHeader>
+                    <CardTitle className="flex items-center justify-between text-base md:text-lg">
+                      <div className="flex items-center space-x-2">
+                        <Star className="w-4 h-4 md:w-5 md:h-5 text-primary" />
+                        <span>Featured Projects & Technical Innovations</span>
+                      </div>
+                      <Badge variant="secondary" className="text-xs">18 Projects</Badge>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                      
+                      {/* Project 1: AI-Powered Healthcare System */}
+                      <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300" data-testid="project-card-1">
+                        <div className="h-32 bg-gradient-to-br from-blue-100 to-indigo-200 dark:from-blue-900/20 dark:to-indigo-900/40 flex items-center justify-center">
+                          <div className="text-center">
+                            <Monitor className="w-12 h-12 mx-auto mb-2 text-blue-600" />
+                            <div className="text-sm font-medium text-blue-800 dark:text-blue-200">AI Healthcare Platform</div>
+                          </div>
+                        </div>
+                        <CardContent className="p-4">
+                          <div className="flex items-center justify-between mb-2">
+                            <h4 className="font-semibold text-foreground">SmartHealth AI Platform</h4>
+                            <Badge className="bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-200">Live</Badge>
+                          </div>
+                          <p className="text-sm text-muted-foreground mb-3">
+                            AI-powered healthcare management system with predictive analytics for patient care optimization.
+                            Serves 10,000+ patients with 94% accuracy in diagnosis prediction.
+                          </p>
+                          <div className="flex flex-wrap gap-1 mb-3">
+                            <Badge variant="outline" className="text-xs">Python</Badge>
+                            <Badge variant="outline" className="text-xs">TensorFlow</Badge>
+                            <Badge variant="outline" className="text-xs">React</Badge>
+                            <Badge variant="outline" className="text-xs">PostgreSQL</Badge>
+                            <Badge variant="outline" className="text-xs">AWS</Badge>
+                          </div>
+                          <div className="flex items-center justify-between text-xs text-muted-foreground">
+                            <span className="flex items-center space-x-1">
+                              <Calendar className="w-3 h-3" />
+                              <span>Jan 2024 - Present</span>
+                            </span>
+                            <span className="flex items-center space-x-1">
+                              <Trophy className="w-3 h-3" />
+                              <span>Best Innovation Award</span>
+                            </span>
+                          </div>
+                          <div className="flex space-x-2 mt-3">
+                            <Button variant="outline" size="sm" className="flex-1 text-xs" data-testid="button-project-1-live">
+                              <ExternalLink className="w-3 h-3 mr-1" />
+                              View Live
+                            </Button>
+                            <Button variant="outline" size="sm" className="flex-1 text-xs" data-testid="button-project-1-source">
+                              <Github className="w-3 h-3 mr-1" />
+                              Source Code
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      {/* Project 2: E-Commerce Platform */}
+                      <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300" data-testid="project-card-2">
+                        <div className="h-32 bg-gradient-to-br from-green-100 to-emerald-200 dark:from-green-900/20 dark:to-emerald-900/40 flex items-center justify-center">
+                          <div className="text-center">
+                            <Globe className="w-12 h-12 mx-auto mb-2 text-green-600" />
+                            <div className="text-sm font-medium text-green-800 dark:text-green-200">E-Commerce Platform</div>
+                          </div>
+                        </div>
+                        <CardContent className="p-4">
+                          <div className="flex items-center justify-between mb-2">
+                            <h4 className="font-semibold text-foreground">EcoMart Marketplace</h4>
+                            <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-200">Production</Badge>
+                          </div>
+                          <p className="text-sm text-muted-foreground mb-3">
+                            Full-stack e-commerce platform with real-time inventory management, payment integration,
+                            and advanced analytics. Processing $50K+ monthly transactions.
+                          </p>
+                          <div className="flex flex-wrap gap-1 mb-3">
+                            <Badge variant="outline" className="text-xs">Next.js</Badge>
+                            <Badge variant="outline" className="text-xs">Node.js</Badge>
+                            <Badge variant="outline" className="text-xs">MongoDB</Badge>
+                            <Badge variant="outline" className="text-xs">Stripe</Badge>
+                            <Badge variant="outline" className="text-xs">Docker</Badge>
+                          </div>
+                          <div className="flex items-center justify-between text-xs text-muted-foreground">
+                            <span className="flex items-center space-x-1">
+                              <Calendar className="w-3 h-3" />
+                              <span>Sep 2023 - Dec 2023</span>
+                            </span>
+                            <span className="flex items-center space-x-1">
+                              <Users className="w-3 h-3" />
+                              <span>Team Lead (4 members)</span>
+                            </span>
+                          </div>
+                          <div className="flex space-x-2 mt-3">
+                            <Button variant="outline" size="sm" className="flex-1 text-xs" data-testid="button-project-2-demo">
+                              <ExternalLink className="w-3 h-3 mr-1" />
+                              View Demo
+                            </Button>
+                            <Button variant="outline" size="sm" className="flex-1 text-xs" data-testid="button-project-2-case">
+                              <FileText className="w-3 h-3 mr-1" />
+                              Case Study
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      {/* Project 3: Smart City IoT Network */}
+                      <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300" data-testid="project-card-3">
+                        <div className="h-32 bg-gradient-to-br from-purple-100 to-pink-200 dark:from-purple-900/20 dark:to-pink-900/40 flex items-center justify-center">
+                          <div className="text-center">
+                            <Zap className="w-12 h-12 mx-auto mb-2 text-purple-600" />
+                            <div className="text-sm font-medium text-purple-800 dark:text-purple-200">Smart City IoT</div>
+                          </div>
+                        </div>
+                        <CardContent className="p-4">
+                          <div className="flex items-center justify-between mb-2">
+                            <h4 className="font-semibold text-foreground">SmartCity IoT Network</h4>
+                            <Badge className="bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-200">Research</Badge>
+                          </div>
+                          <p className="text-sm text-muted-foreground mb-3">
+                            IoT-based smart city infrastructure with environmental monitoring, traffic optimization,
+                            and energy management. Published in IEEE IoT Journal.
+                          </p>
+                          <div className="flex flex-wrap gap-1 mb-3">
+                            <Badge variant="outline" className="text-xs">Arduino</Badge>
+                            <Badge variant="outline" className="text-xs">Raspberry Pi</Badge>
+                            <Badge variant="outline" className="text-xs">MQTT</Badge>
+                            <Badge variant="outline" className="text-xs">InfluxDB</Badge>
+                            <Badge variant="outline" className="text-xs">Grafana</Badge>
+                          </div>
+                          <div className="flex items-center justify-between text-xs text-muted-foreground">
+                            <span className="flex items-center space-x-1">
+                              <Calendar className="w-3 h-3" />
+                              <span>Mar 2023 - Aug 2023</span>
+                            </span>
+                            <span className="flex items-center space-x-1">
+                              <BookOpen className="w-3 h-3" />
+                              <span>IEEE Published</span>
+                            </span>
+                          </div>
+                          <div className="flex space-x-2 mt-3">
+                            <Button variant="outline" size="sm" className="flex-1 text-xs" data-testid="button-project-3-paper">
+                              <ExternalLink className="w-3 h-3 mr-1" />
+                              Research Paper
+                            </Button>
+                            <Button variant="outline" size="sm" className="flex-1 text-xs" data-testid="button-project-3-dashboard">
+                              <Monitor className="w-3 h-3 mr-1" />
+                              Live Dashboard
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      {/* Project 4: Educational Platform */}
+                      <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300" data-testid="project-card-4">
+                        <div className="h-32 bg-gradient-to-br from-orange-100 to-red-200 dark:from-orange-900/20 dark:to-red-900/40 flex items-center justify-center">
+                          <div className="text-center">
+                            <BookOpen className="w-12 h-12 mx-auto mb-2 text-orange-600" />
+                            <div className="text-sm font-medium text-orange-800 dark:text-orange-200">Learning Platform</div>
+                          </div>
+                        </div>
+                        <CardContent className="p-4">
+                          <div className="flex items-center justify-between mb-2">
+                            <h4 className="font-semibold text-foreground">EduTech Learning Hub</h4>
+                            <Badge className="bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-200">Beta</Badge>
+                          </div>
+                          <p className="text-sm text-muted-foreground mb-3">
+                            Interactive learning platform with AI-powered personalized curriculum, real-time collaboration,
+                            and comprehensive progress tracking. Serving 2,500+ students.
+                          </p>
+                          <div className="flex flex-wrap gap-1 mb-3">
+                            <Badge variant="outline" className="text-xs">Vue.js</Badge>
+                            <Badge variant="outline" className="text-xs">Laravel</Badge>
+                            <Badge variant="outline" className="text-xs">MySQL</Badge>
+                            <Badge variant="outline" className="text-xs">WebRTC</Badge>
+                            <Badge variant="outline" className="text-xs">Redis</Badge>
+                          </div>
+                          <div className="flex items-center justify-between text-xs text-muted-foreground">
+                            <span className="flex items-center space-x-1">
+                              <Calendar className="w-3 h-3" />
+                              <span>Nov 2023 - Present</span>
+                            </span>
+                            <span className="flex items-center space-x-1">
+                              <Users className="w-3 h-3" />
+                              <span>Co-Founder</span>
+                            </span>
+                          </div>
+                          <div className="flex space-x-2 mt-3">
+                            <Button variant="outline" size="sm" className="flex-1 text-xs" data-testid="button-project-4-beta">
+                              <ExternalLink className="w-3 h-3 mr-1" />
+                              Try Beta
+                            </Button>
+                            <Button variant="outline" size="sm" className="flex-1 text-xs" data-testid="button-project-4-pitch">
+                              <Trophy className="w-3 h-3 mr-1" />
+                              Startup Pitch
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+
+                    {/* Additional Projects Summary */}
+                    <div className="mt-8 p-6 bg-gradient-to-r from-gray-50 to-blue-50 dark:from-gray-900/20 dark:to-blue-900/20 rounded-lg">
+                      <h4 className="font-semibold text-foreground mb-4 flex items-center">
+                        <BarChart3 className="w-5 h-5 mr-2 text-blue-600" />
+                        Additional Projects & Technical Contributions
+                      </h4>
+                      
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                        <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-lg">
+                          <div className="text-lg font-bold text-blue-600">6</div>
+                          <div className="text-sm text-muted-foreground">Open Source Contributions</div>
+                          <div className="text-xs text-green-600 mt-1">500+ GitHub Stars</div>
+                        </div>
+                        <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-lg">
+                          <div className="text-lg font-bold text-green-600">4</div>
+                          <div className="text-sm text-muted-foreground">Mobile Applications</div>
+                          <div className="text-xs text-blue-600 mt-1">React Native & Flutter</div>
+                        </div>
+                        <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-lg">
+                          <div className="text-lg font-bold text-purple-600">8</div>
+                          <div className="text-sm text-muted-foreground">API Integrations</div>
+                          <div className="text-xs text-orange-600 mt-1">RESTful & GraphQL</div>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div>
+                          <h5 className="font-medium text-foreground mb-3 flex items-center">
+                            <Code className="w-4 h-4 mr-2 text-blue-600" />
+                            Technologies & Frameworks Mastered
+                          </h5>
+                          <div className="grid grid-cols-2 gap-2 text-xs">
+                            <div className="flex items-center space-x-2 p-2 bg-white dark:bg-gray-800 rounded">
+                              <CheckCircle className="w-3 h-3 text-green-600" />
+                              <span>React.js / Next.js</span>
+                            </div>
+                            <div className="flex items-center space-x-2 p-2 bg-white dark:bg-gray-800 rounded">
+                              <CheckCircle className="w-3 h-3 text-green-600" />
+                              <span>Node.js / Express</span>
+                            </div>
+                            <div className="flex items-center space-x-2 p-2 bg-white dark:bg-gray-800 rounded">
+                              <CheckCircle className="w-3 h-3 text-green-600" />
+                              <span>Python / Django</span>
+                            </div>
+                            <div className="flex items-center space-x-2 p-2 bg-white dark:bg-gray-800 rounded">
+                              <CheckCircle className="w-3 h-3 text-green-600" />
+                              <span>AWS / Docker</span>
+                            </div>
+                            <div className="flex items-center space-x-2 p-2 bg-white dark:bg-gray-800 rounded">
+                              <CheckCircle className="w-3 h-3 text-green-600" />
+                              <span>PostgreSQL / MongoDB</span>
+                            </div>
+                            <div className="flex items-center space-x-2 p-2 bg-white dark:bg-gray-800 rounded">
+                              <CheckCircle className="w-3 h-3 text-green-600" />
+                              <span>TensorFlow / ML</span>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div>
+                          <h5 className="font-medium text-foreground mb-3 flex items-center">
+                            <Trophy className="w-4 h-4 mr-2 text-orange-600" />
+                            Project Impact & Recognition
+                          </h5>
+                          <div className="space-y-2 text-sm">
+                            <div className="flex items-start space-x-2">
+                              <Star className="w-4 h-4 text-yellow-500 mt-0.5" />
+                              <span className="text-muted-foreground">
+                                <strong>Best Innovation Award</strong> at National Student Project Competition 2024
+                              </span>
+                            </div>
+                            <div className="flex items-start space-x-2">
+                              <Globe className="w-4 h-4 text-blue-500 mt-0.5" />
+                              <span className="text-muted-foreground">
+                                <strong>10,000+ Users</strong> across live platforms with 98% uptime
+                              </span>
+                            </div>
+                            <div className="flex items-start space-x-2">
+                              <BookOpen className="w-4 h-4 text-green-500 mt-0.5" />
+                              <span className="text-muted-foreground">
+                                <strong>3 Research Publications</strong> in IEEE and ACM conferences
+                              </span>
+                            </div>
+                            <div className="flex items-start space-x-2">
+                              <Heart className="w-4 h-4 text-red-500 mt-0.5" />
+                              <span className="text-muted-foreground">
+                                <strong>Open Source Contributor</strong> to 12+ repositories with 500+ GitHub stars
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </CardContent>
                 </Card>
               </TabsContent>
@@ -893,51 +1231,239 @@ export default function DigitalPortfolio() {
                 </div>
               </TabsContent>
 
-              {/* Skills & Competencies Tab */}
+              {/* Enhanced Skills & Competencies Tab */}
               <TabsContent value="skills" className="space-y-6">
-                <Card>
+                
+                {/* Skills Overview Cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                  <Card className="p-4 text-center bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20">
+                    <Target className="w-8 h-8 mx-auto mb-2 text-blue-600" />
+                    <div className="text-2xl font-bold text-blue-600">8.2</div>
+                    <div className="text-sm text-muted-foreground">Avg Skill Level</div>
+                  </Card>
+                  <Card className="p-4 text-center bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20">
+                    <Code className="w-8 h-8 mx-auto mb-2 text-green-600" />
+                    <div className="text-2xl font-bold text-green-600">46</div>
+                    <div className="text-sm text-muted-foreground">Projects Completed</div>
+                  </Card>
+                  <Card className="p-4 text-center bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-950/20 dark:to-pink-950/20">
+                    <Award className="w-8 h-8 mx-auto mb-2 text-purple-600" />
+                    <div className="text-2xl font-bold text-purple-600">5</div>
+                    <div className="text-sm text-muted-foreground">Certifications</div>
+                  </Card>
+                  <Card className="p-4 text-center bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-950/20 dark:to-red-950/20">
+                    <TrendingUp className="w-8 h-8 mx-auto mb-2 text-orange-600" />
+                    <div className="text-2xl font-bold text-orange-600">94%</div>
+                    <div className="text-sm text-muted-foreground">Growth Rate</div>
+                  </Card>
+                </div>
+
+                {/* Enhanced Skills Matrix */}
+                <Card data-testid="card-skills-matrix">
                   <CardHeader>
-                    <CardTitle className="flex items-center space-x-2">
-                      <Target className="w-5 h-5 text-primary" />
-                      <span>Professional Skills Matrix & Competency Tracking</span>
+                    <CardTitle className="flex items-center justify-between text-base md:text-lg">
+                      <div className="flex items-center space-x-2">
+                        <Target className="w-4 h-4 md:w-5 md:h-5 text-primary" />
+                        <span>Professional Skills Matrix & Competency Tracking</span>
+                      </div>
+                      <Badge variant="secondary" className="text-xs">8 Skills</Badge>
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-6">
-                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                      
+                      {/* Interactive Skills Grid */}
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         {portfolioDisplayData.skillsMatrix.map((skill, index) => (
-                          <div key={index} className="space-y-3">
-                            <div className="flex items-center justify-between">
-                              <span className="font-medium text-foreground">{skill.name}</span>
-                              <span className="text-sm text-muted-foreground">{skill.level}%</span>
+                          <div key={index} className="p-4 border rounded-lg hover:bg-accent/50 transition-colors duration-200" data-testid={`skill-item-${index}`}>
+                            <div className="flex items-center justify-between mb-3">
+                              <div className="flex items-center space-x-2">
+                                <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
+                                  {skill.name.includes('Programming') && <Code className="w-4 h-4 text-primary" />}
+                                  {skill.name.includes('Web') && <Globe className="w-4 h-4 text-primary" />}
+                                  {skill.name.includes('Database') && <Monitor className="w-4 h-4 text-primary" />}
+                                  {skill.name.includes('Software') && <Briefcase className="w-4 h-4 text-primary" />}
+                                  {skill.name.includes('Problem') && <Lightbulb className="w-4 h-4 text-primary" />}
+                                  {skill.name.includes('Leadership') && <Crown className="w-4 h-4 text-primary" />}
+                                  {skill.name.includes('Project') && <Target className="w-4 h-4 text-primary" />}
+                                  {skill.name.includes('Communication') && <Users className="w-4 h-4 text-primary" />}
+                                </div>
+                                <span className="font-medium text-foreground text-sm md:text-base">{skill.name}</span>
+                              </div>
+                              <div className="text-right">
+                                <div className="text-lg font-bold text-primary">{skill.level}%</div>
+                                <div className="text-xs text-muted-foreground">
+                                  {skill.level >= 85 ? 'Expert' : skill.level >= 75 ? 'Advanced' : skill.level >= 60 ? 'Intermediate' : 'Beginner'}
+                                </div>
+                              </div>
                             </div>
-                            <Progress value={skill.level} className="h-2" />
-                            <div className="flex items-center justify-between text-xs text-muted-foreground">
-                              <span>{skill.verifiedProjects} verified projects</span>
-                              <span>{skill.certifications} certifications</span>
+                            
+                            <Progress 
+                              value={skill.level} 
+                              className={`h-3 mb-3 ${skill.level >= 85 ? 'progress-expert' : skill.level >= 75 ? 'progress-advanced' : ''}`}
+                            />
+                            
+                            <div className="flex items-center justify-between text-xs">
+                              <div className="flex items-center space-x-3">
+                                <span className="flex items-center space-x-1 text-muted-foreground">
+                                  <Briefcase className="w-3 h-3" />
+                                  <span>{skill.verifiedProjects} projects</span>
+                                </span>
+                                <span className="flex items-center space-x-1 text-muted-foreground">
+                                  <Award className="w-3 h-3" />
+                                  <span>{skill.certifications} certs</span>
+                                </span>
+                              </div>
+                              <Badge 
+                                variant={skill.level >= 85 ? "default" : skill.level >= 75 ? "secondary" : "outline"}
+                                className="text-xs"
+                              >
+                                {skill.level >= 85 ? 'Expert' : skill.level >= 75 ? 'Advanced' : 'Developing'}
+                              </Badge>
                             </div>
                           </div>
                         ))}
                       </div>
-                      
-                      {/* Skill Development Insights */}
-                      <div className="mt-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 rounded-lg">
-                        <h4 className="font-semibold text-foreground mb-3 flex items-center">
+
+                      {/* Skill Categories Breakdown */}
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <Card className="p-4">
+                          <h4 className="font-semibold text-foreground mb-3 flex items-center">
+                            <Code className="w-4 h-4 mr-2 text-blue-600" />
+                            Technical Skills
+                          </h4>
+                          <div className="space-y-2 text-sm">
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">Programming Languages</span>
+                              <span className="font-medium">85%</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">Web Development</span>
+                              <span className="font-medium">80%</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">Database Management</span>
+                              <span className="font-medium">75%</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">Software Engineering</span>
+                              <span className="font-medium">82%</span>
+                            </div>
+                          </div>
+                        </Card>
+
+                        <Card className="p-4">
+                          <h4 className="font-semibold text-foreground mb-3 flex items-center">
+                            <Users className="w-4 h-4 mr-2 text-green-600" />
+                            Soft Skills
+                          </h4>
+                          <div className="space-y-2 text-sm">
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">Problem Solving</span>
+                              <span className="font-medium">88%</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">Team Leadership</span>
+                              <span className="font-medium">78%</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">Communication</span>
+                              <span className="font-medium">85%</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">Project Management</span>
+                              <span className="font-medium">75%</span>
+                            </div>
+                          </div>
+                        </Card>
+
+                        <Card className="p-4">
+                          <h4 className="font-semibold text-foreground mb-3 flex items-center">
+                            <TrendingUp className="w-4 h-4 mr-2 text-purple-600" />
+                            Industry Recognition
+                          </h4>
+                          <div className="space-y-3 text-sm">
+                            <div className="flex items-center space-x-2">
+                              <CheckCircle className="w-4 h-4 text-green-600" />
+                              <span className="text-muted-foreground">AWS Certified</span>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <CheckCircle className="w-4 h-4 text-green-600" />
+                              <span className="text-muted-foreground">Google Cloud Associate</span>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <CheckCircle className="w-4 h-4 text-green-600" />
+                              <span className="text-muted-foreground">Microsoft Azure Fundamentals</span>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <CheckCircle className="w-4 h-4 text-green-600" />
+                              <span className="text-muted-foreground">Oracle Java Certified</span>
+                            </div>
+                          </div>
+                        </Card>
+                      </div>
+
+                      {/* Enhanced Skill Development Insights */}
+                      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 rounded-lg p-6">
+                        <h4 className="font-semibold text-foreground mb-4 flex items-center">
                           <BarChart3 className="w-5 h-5 mr-2 text-blue-600" />
-                          Professional Competency Analysis
+                          Professional Competency Analysis & Growth Recommendations
                         </h4>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                          <div className="text-center p-3 bg-white dark:bg-gray-800 rounded-lg">
-                            <div className="text-lg font-bold text-blue-600">92%</div>
-                            <div className="text-muted-foreground">Average Proficiency</div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                          <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-lg">
+                            <div className="text-xl font-bold text-blue-600">82.1%</div>
+                            <div className="text-sm text-muted-foreground">Average Proficiency</div>
+                            <div className="text-xs text-green-600 mt-1">↑ 12% from last year</div>
                           </div>
-                          <div className="text-center p-3 bg-white dark:bg-gray-800 rounded-lg">
-                            <div className="text-lg font-bold text-green-600">62</div>
-                            <div className="text-muted-foreground">Total Projects</div>
+                          <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-lg">
+                            <div className="text-xl font-bold text-green-600">46</div>
+                            <div className="text-sm text-muted-foreground">Total Projects</div>
+                            <div className="text-xs text-blue-600 mt-1">8 industries covered</div>
                           </div>
-                          <div className="text-center p-3 bg-white dark:bg-gray-800 rounded-lg">
-                            <div className="text-lg font-bold text-purple-600">23</div>
-                            <div className="text-muted-foreground">Certifications</div>
+                          <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-lg">
+                            <div className="text-xl font-bold text-purple-600">5</div>
+                            <div className="text-sm text-muted-foreground">Professional Certifications</div>
+                            <div className="text-xs text-orange-600 mt-1">3 more planned</div>
+                          </div>
+                          <div className="text-center p-4 bg-white dark:bg-gray-800 rounded-lg">
+                            <div className="text-xl font-bold text-orange-600">94%</div>
+                            <div className="text-sm text-muted-foreground">Industry Readiness</div>
+                            <div className="text-xs text-green-600 mt-1">Above avg (78%)</div>
+                          </div>
+                        </div>
+
+                        {/* Skill Recommendations */}
+                        <div className="bg-white dark:bg-gray-800 rounded-lg p-4">
+                          <h5 className="font-medium text-foreground mb-3 flex items-center">
+                            <Lightbulb className="w-4 h-4 mr-2 text-amber-500" />
+                            Personalized Skill Development Recommendations
+                          </h5>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                            <div>
+                              <div className="font-medium text-foreground mb-2 flex items-center">
+                                <Target className="w-4 h-4 mr-1 text-blue-600" />
+                                Focus Areas (Next 6 months)
+                              </div>
+                              <ul className="space-y-1 text-muted-foreground">
+                                <li>• <strong>DevOps & CI/CD:</strong> Docker, Kubernetes, Jenkins</li>
+                                <li>• <strong>Cloud Architecture:</strong> Advanced AWS/Azure patterns</li>
+                                <li>• <strong>System Design:</strong> Microservices, scalability</li>
+                                <li>• <strong>Machine Learning:</strong> PyTorch, model deployment</li>
+                              </ul>
+                            </div>
+                            <div>
+                              <div className="font-medium text-foreground mb-2 flex items-center">
+                                <Trophy className="w-4 h-4 mr-1 text-green-600" />
+                                Strengths to Leverage
+                              </div>
+                              <ul className="space-y-1 text-muted-foreground">
+                                <li>• <strong>Problem Solving:</strong> Complex algorithm design</li>
+                                <li>• <strong>Full-Stack Development:</strong> End-to-end solutions</li>
+                                <li>• <strong>Leadership:</strong> Technical team management</li>
+                                <li>• <strong>Communication:</strong> Technical documentation</li>
+                              </ul>
+                            </div>
                           </div>
                         </div>
                       </div>
