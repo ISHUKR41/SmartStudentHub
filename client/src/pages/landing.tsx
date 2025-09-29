@@ -122,95 +122,105 @@ const InteractiveChart = ({ data, type = "area", color = "#3B82F6" }: {
     return <div ref={ref} className="w-full h-80 flex items-center justify-center text-muted-foreground">Loading chart...</div>;
   }
 
+  // Render the appropriate chart type as a single child
+  let chartElement;
+  
+  if (type === "area") {
+    chartElement = (
+      <AreaChart {...chartProps}>
+        <defs>
+          <linearGradient id={`gradient-${color}`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="5%" stopColor={color} stopOpacity={0.8}/>
+            <stop offset="95%" stopColor={color} stopOpacity={0.1}/>
+          </linearGradient>
+        </defs>
+        <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+        <XAxis dataKey="name" stroke="#666" />
+        <YAxis stroke="#666" />
+        <Tooltip 
+          contentStyle={{ 
+            backgroundColor: 'rgba(255, 255, 255, 0.95)', 
+            border: 'none', 
+            borderRadius: '8px',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
+          }} 
+        />
+        <Area 
+          type="monotone" 
+          dataKey="value" 
+          stroke={color} 
+          fillOpacity={1} 
+          fill={`url(#gradient-${color})`}
+          strokeWidth={3}
+        />
+      </AreaChart>
+    );
+  } else if (type === "bar") {
+    chartElement = (
+      <RechartsBarChart {...chartProps}>
+        <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+        <XAxis dataKey="name" stroke="#666" />
+        <YAxis stroke="#666" />
+        <Tooltip 
+          contentStyle={{ 
+            backgroundColor: 'rgba(255, 255, 255, 0.95)', 
+            border: 'none', 
+            borderRadius: '8px',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
+          }} 
+        />
+        <Bar dataKey="value" fill={color} radius={[4, 4, 0, 0]} />
+      </RechartsBarChart>
+    );
+  } else if (type === "line") {
+    chartElement = (
+      <RechartsLineChart {...chartProps}>
+        <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+        <XAxis dataKey="name" stroke="#666" />
+        <YAxis stroke="#666" />
+        <Tooltip 
+          contentStyle={{ 
+            backgroundColor: 'rgba(255, 255, 255, 0.95)', 
+            border: 'none', 
+            borderRadius: '8px',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
+          }} 
+        />
+        <Line 
+          type="monotone" 
+          dataKey="value" 
+          stroke={color} 
+          strokeWidth={3}
+          dot={{ fill: color, strokeWidth: 2, r: 4 }}
+          activeDot={{ r: 6, stroke: color, strokeWidth: 2 }}
+        />
+      </RechartsLineChart>
+    );
+  } else if (type === "pie") {
+    chartElement = (
+      <RechartsPieChart width={300} height={300}>
+        <Pie
+          data={data}
+          cx="50%"
+          cy="50%"
+          outerRadius={80}
+          fill={color}
+          dataKey="value"
+          label
+        >
+          {data.map((entry, index) => (
+            <Cell key={`cell-${index}`} fill={`hsl(${index * 45}, 70%, 60%)`} />
+          ))}
+        </Pie>
+        <Tooltip />
+      </RechartsPieChart>
+    );
+  }
+
   return (
     <div ref={ref} className="w-full h-80">
       <ResponsiveContainer width="100%" height="100%">
-        {type === "area" && (
-          <AreaChart {...chartProps}>
-            <defs>
-              <linearGradient id={`gradient-${color}`} x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor={color} stopOpacity={0.8}/>
-                <stop offset="95%" stopColor={color} stopOpacity={0.1}/>
-              </linearGradient>
-            </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-            <XAxis dataKey="name" stroke="#666" />
-            <YAxis stroke="#666" />
-            <Tooltip 
-              contentStyle={{ 
-                backgroundColor: 'rgba(255, 255, 255, 0.95)', 
-                border: 'none', 
-                borderRadius: '8px',
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
-              }} 
-            />
-            <Area 
-              type="monotone" 
-              dataKey="value" 
-              stroke={color} 
-              fillOpacity={1} 
-              fill={`url(#gradient-${color})`}
-              strokeWidth={3}
-            />
-          </AreaChart>
-        )}
-        {type === "bar" && (
-          <RechartsBarChart {...chartProps}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-            <XAxis dataKey="name" stroke="#666" />
-            <YAxis stroke="#666" />
-            <Tooltip 
-              contentStyle={{ 
-                backgroundColor: 'rgba(255, 255, 255, 0.95)', 
-                border: 'none', 
-                borderRadius: '8px',
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
-              }} 
-            />
-            <Bar dataKey="value" fill={color} radius={[4, 4, 0, 0]} />
-          </RechartsBarChart>
-        )}
-        {type === "line" && (
-          <RechartsLineChart {...chartProps}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-            <XAxis dataKey="name" stroke="#666" />
-            <YAxis stroke="#666" />
-            <Tooltip 
-              contentStyle={{ 
-                backgroundColor: 'rgba(255, 255, 255, 0.95)', 
-                border: 'none', 
-                borderRadius: '8px',
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)'
-              }} 
-            />
-            <Line 
-              type="monotone" 
-              dataKey="value" 
-              stroke={color} 
-              strokeWidth={3}
-              dot={{ fill: color, strokeWidth: 2, r: 4 }}
-              activeDot={{ r: 6, stroke: color, strokeWidth: 2 }}
-            />
-          </RechartsLineChart>
-        )}
-        {type === "pie" && (
-          <RechartsPieChart width={300} height={300}>
-            <Pie
-              data={data}
-              cx="50%"
-              cy="50%"
-              outerRadius={80}
-              fill={color}
-              dataKey="value"
-              label
-            >
-              {data.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={`hsl(${index * 45}, 70%, 60%)`} />
-              ))}
-            </Pie>
-            <Tooltip />
-          </RechartsPieChart>
-        )}
+        {chartElement}
       </ResponsiveContainer>
     </div>
   );
