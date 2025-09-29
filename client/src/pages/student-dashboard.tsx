@@ -630,17 +630,17 @@ export default function StudentDashboard() {
       <div className="min-h-screen bg-background">
         <Navigation />
         
-        <div className="flex">
+        <div className="flex min-h-[calc(100vh-72px)]">
           <Sidebar />
           
-          <main className="flex-1 p-3 md:p-6 space-y-4 md:space-y-6" data-testid="main-dashboard">
+          <main className="flex-1 min-w-0 p-4 lg:p-6 space-y-4 lg:space-y-6 overflow-x-auto" data-testid="main-dashboard">
             {/* Enhanced Mobile-First Page Header with Notifications */}
             <motion.div 
               ref={headerRef}
               initial={prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: -20 }}
               animate={headerInView ? { opacity: 1, y: 0 } : (prefersReducedMotion ? { opacity: 1, y: 0 } : { opacity: 0, y: -20 })}
               transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.6, ease: "easeOut" }}
-              className="flex flex-col space-y-4 lg:flex-row lg:items-center lg:justify-between lg:space-y-0"
+              className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between"
             >
               <div className="flex-1">
                 <div>

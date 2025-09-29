@@ -12,152 +12,15 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Enhanced Navigation Responsive Classes */
+/* Responsive Component Classes */
 @layer components {
-  /* Mobile Phone Navigation (320px - 767px) */
-  .nav-mobile-phone {
-    @apply px-3 sm:px-4;
+  
+  /* Touch and Mobile Optimization - Simplified */
+  .touch-friendly {
+    @apply min-w-[44px] min-h-[44px] transition-all duration-200;
   }
   
-  .nav-logo-mobile {
-    @apply w-10 h-10 sm:w-12 sm:h-12;
-  }
-  
-  .nav-title-mobile {
-    @apply text-base sm:text-lg;
-  }
-  
-  .nav-button-mobile {
-    @apply h-10 w-10 sm:h-11 sm:w-11;
-  }
-  
-  .nav-search-mobile {
-    @apply w-32 sm:w-40;
-  }
-  
-  /* Tablet Navigation (768px - 1023px) */
-  .nav-tablet {
-    @apply md:px-6;
-  }
-  
-  .nav-logo-tablet {
-    @apply md:w-14 md:h-14;
-  }
-  
-  .nav-title-tablet {
-    @apply md:text-xl;
-  }
-  
-  .nav-button-tablet {
-    @apply md:h-12 md:w-12;
-  }
-  
-  .nav-search-tablet {
-    @apply md:w-48;
-  }
-  
-  .nav-menu-tablet {
-    @apply md:space-x-2;
-  }
-  
-  /* Desktop Navigation (1024px - 1535px) */
-  .nav-desktop {
-    @apply lg:px-8 xl:px-10;
-  }
-  
-  .nav-logo-desktop {
-    @apply lg:w-16 lg:h-16 xl:w-20 xl:h-20;
-  }
-  
-  .nav-title-desktop {
-    @apply lg:text-2xl xl:text-3xl;
-  }
-  
-  .nav-button-desktop {
-    @apply lg:h-12 lg:w-12 xl:h-14 xl:w-14;
-  }
-  
-  .nav-search-desktop {
-    @apply lg:w-56 xl:w-64;
-  }
-  
-  .nav-menu-desktop {
-    @apply lg:space-x-3 xl:space-x-4;
-  }
-  
-  .nav-user-info-desktop {
-    @apply lg:max-w-36 xl:max-w-44;
-  }
-  
-  /* Ultra-wide Navigation (1536px+) */
-  .nav-ultra-wide {
-    @apply 2xl:px-12;
-  }
-  
-  .nav-logo-ultra {
-    @apply 2xl:w-20 2xl:h-20;
-  }
-  
-  .nav-title-ultra {
-    @apply 2xl:text-4xl;
-  }
-  
-  .nav-subtitle-ultra {
-    @apply 2xl:block;
-  }
-  
-  .nav-button-ultra {
-    @apply 2xl:h-16 2xl:w-16;
-  }
-  
-  .nav-search-ultra {
-    @apply 2xl:w-72;
-  }
-  
-  .nav-menu-ultra {
-    @apply 2xl:space-x-6;
-  }
-  
-  .nav-user-info-ultra {
-    @apply 2xl:max-w-52;
-  }
-  
-  /* Touch and Mobile Optimization */
-  .touch-button {
-    @apply min-w-[44px] min-h-[44px] active:scale-95 transition-transform duration-150;
-  }
-  
-  .enhanced-focus {
-    @apply focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2;
-  }
-  
-  .mobile-nav-item {
-    @apply min-h-[56px] font-medium transition-all duration-200 hover:bg-accent active:bg-accent;
-  }
-  
-  .touch-dropdown-item {
-    @apply min-h-[48px] text-base cursor-pointer transition-colors duration-200;
-  }
-  
-  .mobile-search {
-    @apply focus:w-44 sm:focus:w-52 transition-all duration-300;
-  }
-  
-  .active-touch {
-    @apply active:bg-primary active:scale-95;
-  }
-  
-  /* Animations for Mobile Menu */
-  .mobile-menu-enter {
-    animation: slide-in-right 0.3s ease-out;
-  }
-  
-  .fade-in {
-    animation: fade-in-up 0.4s ease-out forwards;
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  
+  /* Mobile animations */
   @keyframes slide-in-right {
     from {
       transform: translateX(100%);
@@ -166,13 +29,6 @@
     to {
       transform: translateX(0);
       opacity: 1;
-    }
-  }
-  
-  @keyframes fade-in-up {
-    to {
-      opacity: 1;
-      transform: translateY(0);
     }
   }
 }

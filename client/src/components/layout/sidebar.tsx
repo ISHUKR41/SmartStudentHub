@@ -192,29 +192,29 @@ export default function Sidebar() {
   })) || [];
 
   return (
-    <aside className="hidden lg:block w-80 bg-background border-r border-border" data-testid="sidebar">
-      <div className="p-4 space-y-6">
+    <aside className="hidden md:block w-64 lg:w-72 xl:w-80 bg-background border-r border-border overflow-y-auto" data-testid="sidebar">
+      <div className="p-3 lg:p-4 space-y-4 lg:space-y-6">
         
         {/* User Profile Section */}
         <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-3">
-              <Avatar className="w-12 h-12" data-testid="avatar-profile">
+          <CardContent className="p-3 lg:p-4">
+            <div className="flex items-center gap-3">
+              <Avatar className="w-10 h-10 lg:w-12 lg:h-12" data-testid="avatar-profile">
                 <AvatarImage src={user.profileImageUrl || ""} />
                 <AvatarFallback className="bg-primary text-primary-foreground">
                   {user.firstName?.[0]}{user.lastName?.[0]}
                 </AvatarFallback>
               </Avatar>
-              <div className="flex-1">
-                <h3 className="font-semibold text-sm" data-testid="text-username">
+              <div className="flex-1 min-w-0">
+                <h3 className="font-semibold text-sm lg:text-base truncate" data-testid="text-username">
                   {user.firstName} {user.lastName}
                 </h3>
-                <p className="text-xs text-muted-foreground capitalize" data-testid="text-user-role">
-                  {user.role} • Computer Science
+                <p className="text-xs text-muted-foreground capitalize truncate" data-testid="text-user-role">
+                  {user.role}
                 </p>
                 <div className="flex items-center mt-1 text-xs text-muted-foreground" data-testid="text-academic-info">
                   <BookOpen className="w-3 h-3 mr-1" />
-                  Semester 6 • GPA {defaultStats.currentGPA}
+                  GPA {defaultStats.currentGPA}
                 </div>
               </div>
             </div>
@@ -224,15 +224,15 @@ export default function Sidebar() {
         {/* Academic Statistics */}
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm flex items-center">
+            <CardTitle className="text-sm lg:text-base flex items-center">
               <TrendingUp className="w-4 h-4 mr-2" />
-              Academic Overview
+              Overview
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             {isLoadingStats ? (
               <div className="space-y-3" data-testid="loading-stats">
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-2 gap-2">
                   <div className="text-center p-2 bg-muted rounded-lg animate-pulse">
                     <div className="h-6 bg-muted-foreground/20 rounded mb-1"></div>
                     <div className="h-3 bg-muted-foreground/20 rounded"></div>
@@ -244,14 +244,14 @@ export default function Sidebar() {
                 </div>
               </div>
             ) : (
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-2">
                 <div className="text-center p-2 bg-muted rounded-lg" data-testid="stat-activities">
-                  <div className="text-lg font-bold text-primary">{defaultStats.totalActivities}</div>
+                  <div className="text-base lg:text-lg font-bold text-primary">{defaultStats.totalActivities}</div>
                   <div className="text-xs text-muted-foreground">Activities</div>
                 </div>
                 <div className="text-center p-2 bg-muted rounded-lg" data-testid="stat-credits">
-                  <div className="text-lg font-bold text-green-600">{defaultStats.skillCredits}</div>
-                  <div className="text-xs text-muted-foreground">Skill Credits</div>
+                  <div className="text-base lg:text-lg font-bold text-green-600">{defaultStats.skillCredits}</div>
+                  <div className="text-xs text-muted-foreground">Credits</div>
                 </div>
               </div>
             )}
@@ -285,9 +285,9 @@ export default function Sidebar() {
         {/* Recent Activities */}
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm flex items-center">
+            <CardTitle className="text-sm lg:text-base flex items-center">
               <Award className="w-4 h-4 mr-2" />
-              Recent Activities
+              Recent
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
@@ -305,7 +305,7 @@ export default function Sidebar() {
               </div>
             ) : displayActivities.length > 0 ? (
               displayActivities.map((activity, index) => (
-                <div key={activity.id} className="flex items-start space-x-2 p-2 rounded-lg hover:bg-muted/50 transition-colors" data-testid={`activity-item-${activity.id}`}>
+                <div key={activity.id} className="flex items-start gap-2 p-2 rounded-lg hover:bg-muted/50 transition-colors" data-testid={`activity-item-${activity.id}`}>
                   <div className="mt-1">
                     {activity.status === 'approved' ? (
                       <CheckCircle2 className="w-3 h-3 text-green-600" />
@@ -334,25 +334,25 @@ export default function Sidebar() {
         {/* Quick Actions */}
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm flex items-center">
+            <CardTitle className="text-sm lg:text-base flex items-center">
               <Zap className="w-4 h-4 mr-2" />
-              Quick Actions
+              Actions
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
             <QuickAction
               icon={<Calendar className="w-4 h-4" />}
-              label="Check Deadlines"
+              label="Deadlines"
               onClick={() => {}}
             />
             <QuickAction
               icon={<Bell className="w-4 h-4" />}
-              label="View Notifications"
+              label="Notifications"
               onClick={() => {}}
             />
             <QuickAction
               icon={<Target className="w-4 h-4" />}
-              label="Set Goals"
+              label="Goals"
               onClick={() => {}}
             />
           </CardContent>
@@ -361,35 +361,35 @@ export default function Sidebar() {
         {/* Notifications/Alerts */}
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm flex items-center">
+            <CardTitle className="text-sm lg:text-base flex items-center">
               <Bell className="w-4 h-4 mr-2" />
-              Important Alerts
+              Alerts
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
             <div className="p-2 bg-blue-50 dark:bg-blue-950 rounded-lg" data-testid="alert-deadline">
-              <div className="flex items-start space-x-2">
+              <div className="flex items-start gap-2">
                 <Target className="w-3 h-3 mt-1 text-blue-600" />
                 <div>
                   <p className="text-xs font-medium text-blue-900 dark:text-blue-100">
-                    Portfolio Review Due
+                    Portfolio Due
                   </p>
                   <p className="text-xs text-blue-700 dark:text-blue-300">
-                    Submit by Jan 30, 2024
+                    Jan 30, 2024
                   </p>
                 </div>
               </div>
             </div>
             
             <div className="p-2 bg-green-50 dark:bg-green-950 rounded-lg" data-testid="alert-achievement">
-              <div className="flex items-start space-x-2">
+              <div className="flex items-start gap-2">
                 <CheckCircle2 className="w-3 h-3 mt-1 text-green-600" />
                 <div>
                   <p className="text-xs font-medium text-green-900 dark:text-green-100">
                     Achievement Approved
                   </p>
                   <p className="text-xs text-green-700 dark:text-green-300">
-                    ML Workshop certification verified
+                    ML Workshop verified
                   </p>
                 </div>
               </div>

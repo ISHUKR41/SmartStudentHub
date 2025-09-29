@@ -142,17 +142,17 @@ function NavLink({ href, label, icon: Icon, testId, className, onClick }: NavLin
     <Button
       variant={isActive ? "default" : "ghost"}
       className={cn(
-        "flex items-center space-x-1.5 justify-start touch-button enhanced-focus active-touch transition-all duration-200",
-        "h-8 px-2 md:h-9 md:px-3 lg:h-9 lg:px-3 xl:h-10 xl:px-4 2xl:h-10 2xl:px-4",
-        "text-xs md:text-xs lg:text-xs xl:text-xs 2xl:text-sm",
-        "min-w-[40px] min-h-[40px] md:min-w-[42px] md:min-h-[42px] lg:min-w-[42px] lg:min-h-[42px] xl:min-w-[44px] xl:min-h-[44px] 2xl:min-w-[46px] 2xl:min-h-[46px]",
+        "flex items-center gap-2 justify-start transition-all duration-200",
+        "h-10 px-3 text-sm",
+        "min-h-[44px] min-w-[44px]", // Touch-friendly minimum size
+        "hover:scale-105 active:scale-95",
         className
       )}
       data-testid={testId}
       asChild
     >
       <Link href={href} onClick={onClick}>
-        <Icon className="w-3 h-3 md:w-3 md:h-3 lg:w-4 lg:h-4 xl:w-4 xl:h-4 2xl:w-4 2xl:h-4 flex-shrink-0" />
+        <Icon className="w-4 h-4 flex-shrink-0" />
         <span className="font-medium truncate">{label}</span>
       </Link>
     </Button>
@@ -212,31 +212,31 @@ export default function Navigation() {
 
   return (
     <header className="bg-card border-b border-border sticky top-0 z-50 shadow-sm" data-testid="navigation-header">
-      <div className="nav-mobile-phone nav-tablet nav-desktop nav-ultra-wide">
-        <div className="flex items-center justify-between min-h-[56px] sm:min-h-[64px] md:min-h-[68px] lg:min-h-[72px] xl:min-h-[76px] 2xl:min-h-[80px]">
+      <div className="container max-w-none px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between min-h-[64px] lg:min-h-[72px]">
         
           {/* Institutional Logo and Branding Section */}
-          <div className="flex items-center space-x-2 sm:space-x-3 md:space-x-4 lg:space-x-4 xl:space-x-5 2xl:space-x-6">
-            {/* Professional Institution Logo with enhanced responsive sizing */}
-            <Link href="/" className="touch-button enhanced-focus">
-              <div className="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 lg:w-14 lg:h-14 xl:w-16 xl:h-16 2xl:w-20 2xl:h-20 bg-primary rounded-lg flex items-center justify-center cursor-pointer transition-all duration-200 hover:scale-105" data-testid="logo-institution">
-                <GraduationCap className="w-6 h-6 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 xl:w-9 xl:h-9 2xl:w-10 2xl:h-10 text-primary-foreground" />
+          <div className="flex items-center gap-3 lg:gap-4">
+            {/* Professional Institution Logo with simplified responsive sizing */}
+            <Link href="/" className="focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg">
+              <div className="w-12 h-12 lg:w-14 lg:h-14 bg-primary rounded-lg flex items-center justify-center cursor-pointer transition-all duration-200 hover:scale-105" data-testid="logo-institution">
+                <GraduationCap className="w-7 h-7 lg:w-8 lg:h-8 text-primary-foreground" />
               </div>
             </Link>
             
-            {/* Institutional Name and System Designation - Optimized compact sizing */}
+            {/* Institutional Name and System Designation - Simplified sizing */}
             <div className="hidden sm:block">
-              <h1 className="text-xs sm:text-sm md:text-sm lg:text-sm xl:text-sm 2xl:text-base font-semibold text-foreground leading-tight transition-all duration-200" data-testid="text-app-title">
+              <h1 className="text-lg lg:text-xl font-semibold text-foreground leading-tight" data-testid="text-app-title">
                 Smart Student Hub
               </h1>
-              <p className="text-xs sm:text-xs md:text-xs lg:text-xs xl:text-xs 2xl:text-xs text-muted-foreground hidden sm:block transition-all duration-200" data-testid="text-app-subtitle">
+              <p className="text-sm text-muted-foreground" data-testid="text-app-subtitle">
                 Excellence Management System
               </p>
             </div>
           </div>
 
-          {/* Desktop Navigation Menu - Enhanced responsive breakpoints */}
-          <nav className="hidden md:flex items-center space-x-1 md:space-x-2 lg:space-x-3 xl:space-x-4 2xl:space-x-6" data-testid="nav-desktop-menu">
+          {/* Desktop Navigation Menu - Simplified responsive breakpoints */}
+          <nav className="hidden lg:flex items-center gap-2" data-testid="nav-desktop-menu">
             {navigationItems.map((item) => (
               <NavLink
                 key={item.href}
@@ -250,9 +250,9 @@ export default function Navigation() {
           </nav>
 
           {/* Navigation Actions and User Interface Section */}
-          <div className="flex items-center space-x-1 sm:space-x-2 md:space-x-3 lg:space-x-4 xl:space-x-5 2xl:space-x-6">
+          <div className="flex items-center gap-3">
             
-            {/* Advanced Search Bar for Institutional Records (Authenticated Users Only) - Enhanced responsiveness */}
+            {/* Advanced Search Bar for Institutional Records (Authenticated Users Only) */}
             {user && (
               <div className="relative hidden sm:block">
                 <Input
@@ -260,45 +260,43 @@ export default function Navigation() {
                   placeholder="Search..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-28 sm:w-36 md:w-40 lg:w-48 xl:w-52 2xl:w-56 pl-8 sm:pl-9 h-8 sm:h-9 md:h-10 lg:h-10 xl:h-10 2xl:h-11 text-xs md:text-xs lg:text-sm xl:text-sm 2xl:text-sm mobile-search enhanced-focus transition-all duration-200"
+                  className="w-40 lg:w-64 pl-9 h-10 text-sm transition-all duration-200"
                   data-testid="input-search"
                 />
                 {/* Search Icon with Professional Styling */}
-                <Search className="absolute left-2.5 sm:left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 xl:w-6 xl:h-6 2xl:w-7 2xl:h-7 text-muted-foreground" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               </div>
             )}
 
-            {/* Real-time Notification System (Authenticated Users Only) - Enhanced touch optimization */}
+            {/* Real-time Notification System (Authenticated Users Only) */}
             {user && (
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="relative h-10 w-10 sm:h-11 sm:w-11 md:h-12 md:w-12 lg:h-12 lg:w-12 xl:h-12 xl:w-12 2xl:h-14 2xl:w-14 touch-button enhanced-focus transition-all duration-200 hover:bg-accent"
+                className="relative h-10 w-10 transition-all duration-200 hover:bg-accent"
                 data-testid="button-notifications"
               >
-                <Bell className="w-5 h-5 md:w-5 md:h-5 lg:w-6 lg:h-6 xl:w-7 xl:h-7 2xl:w-8 2xl:h-8" />
+                <Bell className="w-5 h-5" />
                 {/* Notification Badge for Real-time Alerts */}
                 <Badge 
                   variant="destructive" 
-                  className="absolute -top-1 -right-1 w-2 h-2 md:w-2.5 md:h-2.5 lg:w-3 lg:h-3 xl:w-3.5 xl:h-3.5 2xl:w-4 2xl:h-4 p-0 rounded-full animate-pulse"
+                  className="absolute -top-1 -right-1 w-2.5 h-2.5 p-0 rounded-full animate-pulse"
                   data-testid="badge-notification-count"
                 />
               </Button>
             )}
 
-            {/* Authentication Buttons for Unauthenticated Users - Enhanced responsive design */}
+            {/* Authentication Buttons for Unauthenticated Users */}
             {!user && (
-              <div className="hidden sm:flex items-center space-x-1 sm:space-x-2 md:space-x-3">
-                <Button variant="ghost" size="sm" className="h-8 w-auto px-2 sm:h-9 sm:px-3 md:h-10 md:px-4 lg:h-10 lg:px-4 xl:h-10 xl:px-5 2xl:h-11 2xl:px-6 text-xs md:text-xs lg:text-sm xl:text-sm 2xl:text-sm touch-button enhanced-focus" data-testid="button-login" asChild>
+              <div className="hidden sm:flex items-center gap-2">
+                <Button variant="ghost" size="sm" className="h-10 px-4 text-sm" data-testid="button-login" asChild>
                   <Link href="/login">
-                    <span className="hidden sm:inline">Login</span>
-                    <span className="sm:hidden">In</span>
+                    Login
                   </Link>
                 </Button>
-                <Button size="sm" className="h-8 w-auto px-2 sm:h-9 sm:px-3 md:h-10 md:px-4 lg:h-10 lg:px-4 xl:h-10 xl:px-5 2xl:h-11 2xl:px-6 text-xs md:text-xs lg:text-sm xl:text-sm 2xl:text-sm touch-button enhanced-focus" data-testid="button-signup" asChild>
+                <Button size="sm" className="h-10 px-4 text-sm" data-testid="button-signup" asChild>
                   <Link href="/signup">
-                    <span className="hidden sm:inline">Sign Up</span>
-                    <span className="sm:hidden">Up</span>
+                    Sign Up
                   </Link>
                 </Button>
               </div>
@@ -310,52 +308,52 @@ export default function Navigation() {
                 <DropdownMenuTrigger asChild>
                   <Button 
                     variant="ghost" 
-                    className="group flex items-center space-x-1 sm:space-x-2 md:space-x-3 lg:space-x-4 xl:space-x-5 2xl:space-x-6 p-2 sm:p-2.5 md:p-3 lg:p-3.5 xl:p-4 2xl:p-5 touch-button enhanced-focus transition-all duration-200"
+                    className="group flex items-center gap-2 p-2 transition-all duration-200"
                     data-testid="button-user-menu"
                   >
-                    {/* Professional User Avatar with Enhanced Responsive Sizing */}
-                    <Avatar className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 lg:w-11 lg:h-11 xl:w-12 xl:h-12 2xl:w-14 2xl:h-14 ring-2 ring-transparent hover:ring-primary/20 transition-all duration-200">
+                    {/* Professional User Avatar */}
+                    <Avatar className="w-8 h-8 ring-2 ring-transparent hover:ring-primary/20 transition-all duration-200">
                       <AvatarImage src={user.profileImageUrl || ""} />
-                      <AvatarFallback className="text-sm md:text-base lg:text-lg xl:text-xl 2xl:text-2xl font-semibold">
+                      <AvatarFallback className="text-sm font-semibold">
                         {user.firstName?.[0]}{user.lastName?.[0]}
                       </AvatarFallback>
                     </Avatar>
                     
-                    {/* User Information Display - Optimized compact sizing */}
+                    {/* User Information Display */}
                     <div className="hidden lg:block text-left">
-                      <div className="text-xs lg:text-xs xl:text-xs 2xl:text-xs font-medium text-foreground truncate max-w-28 xl:max-w-32 2xl:max-w-36" data-testid="text-user-name">
+                      <div className="text-sm font-medium text-foreground truncate max-w-32" data-testid="text-user-name">
                         {user.firstName} {user.lastName}
                       </div>
-                      <div className="text-xs lg:text-xs xl:text-xs 2xl:text-xs text-muted-foreground capitalize truncate" data-testid="text-user-role">
+                      <div className="text-xs text-muted-foreground capitalize truncate" data-testid="text-user-role">
                         {user.role}
                       </div>
                     </div>
                     
                     {/* Dropdown Indicator Icon */}
-                    <ChevronDown className="hidden sm:block w-4 h-4 md:w-4 md:h-4 lg:w-5 lg:h-5 xl:w-6 xl:h-6 2xl:w-7 2xl:h-7 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                    <ChevronDown className="hidden sm:block w-4 h-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                   </Button>
                 </DropdownMenuTrigger>
                 
-                {/* User Account Management Menu - Enhanced touch experience */}
-                <DropdownMenuContent align="end" className="w-56 md:w-64 lg:w-72 xl:w-80 2xl:w-96 touch-manipulation shadow-lg">
+                {/* User Account Management Menu */}
+                <DropdownMenuContent align="end" className="w-56 shadow-lg">
                   {/* Account Profile Management */}
-                  <DropdownMenuItem className="touch-dropdown-item enhanced-focus" data-testid="menu-item-profile" asChild>
+                  <DropdownMenuItem className="min-h-[44px]" data-testid="menu-item-profile" asChild>
                     <Link href="/profile">
-                      <User className="mr-3 h-4 w-4 md:h-5 md:w-5 lg:h-6 lg:w-6 xl:h-7 xl:w-7 2xl:h-8 2xl:w-8" />
-                      <span className="text-xs md:text-xs lg:text-xs xl:text-xs 2xl:text-xs">Account Profile</span>
+                      <User className="mr-3 h-4 w-4" />
+                      <span className="text-sm">Account Profile</span>
                     </Link>
                   </DropdownMenuItem>
                   
                   {/* System Preferences and Settings */}
-                  <DropdownMenuItem className="touch-dropdown-item enhanced-focus" data-testid="menu-item-settings">
-                    <Settings className="mr-3 h-4 w-4 md:h-5 md:w-5 lg:h-6 lg:w-6 xl:h-7 xl:w-7 2xl:h-8 2xl:w-8" />
-                    <span className="text-xs md:text-xs lg:text-xs xl:text-xs 2xl:text-xs">System Preferences</span>
+                  <DropdownMenuItem className="min-h-[44px]" data-testid="menu-item-settings">
+                    <Settings className="mr-3 h-4 w-4" />
+                    <span className="text-sm">System Preferences</span>
                   </DropdownMenuItem>
                   
                   {/* Secure Logout Functionality */}
-                  <DropdownMenuItem onClick={handleLogout} className="touch-dropdown-item enhanced-focus text-destructive hover:text-destructive" data-testid="menu-item-logout">
-                    <LogOut className="mr-3 h-4 w-4 md:h-5 md:w-5 lg:h-6 lg:w-6 xl:h-7 xl:w-7 2xl:h-8 2xl:w-8" />
-                    <span className="text-xs md:text-xs lg:text-xs xl:text-xs 2xl:text-xs">Sign Out</span>
+                  <DropdownMenuItem onClick={handleLogout} className="min-h-[44px] text-destructive hover:text-destructive" data-testid="menu-item-logout">
+                    <LogOut className="mr-3 h-4 w-4" />
+                    <span className="text-sm">Sign Out</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -367,59 +365,54 @@ export default function Navigation() {
                 <Button 
                   variant="ghost" 
                   size="icon" 
-                  className="md:hidden h-10 w-10 sm:h-11 sm:w-11 touch-button enhanced-focus transition-all duration-200 hover:bg-accent active:scale-95"
+                  className="lg:hidden h-10 w-10 transition-all duration-200 hover:bg-accent active:scale-95"
                   data-testid="button-mobile-menu"
                   aria-label="Open mobile navigation menu"
                 >
-                  <Menu className="w-6 h-6 sm:w-7 sm:h-7 transition-transform duration-200 hover:scale-110" />
+                  <Menu className="w-6 h-6" />
                 </Button>
               </SheetTrigger>
             
-              {/* Mobile Navigation Menu Content - Enhanced responsive design with animations */}
-              <SheetContent side="right" className="w-[85vw] max-w-sm sm:max-w-md md:max-w-lg mobile-menu-enter" data-testid="sheet-mobile-menu">
+              {/* Mobile Navigation Menu Content */}
+              <SheetContent side="right" className="w-[85vw] max-w-sm" data-testid="sheet-mobile-menu">
                 <div className="flex flex-col h-full">
                   
-                  {/* Mobile Menu Header - Enhanced design */}
-                  <div className="flex items-center space-x-4 pb-6 border-b border-border/50">
-                    <div className="w-14 h-14 sm:w-16 sm:h-16 bg-primary rounded-xl flex items-center justify-center shadow-lg transition-transform duration-200 hover:scale-105">
-                      <GraduationCap className="w-8 h-8 sm:w-9 sm:h-9 text-primary-foreground" />
+                  {/* Mobile Menu Header */}
+                  <div className="flex items-center gap-4 pb-6 border-b border-border/50">
+                    <div className="w-14 h-14 bg-primary rounded-xl flex items-center justify-center shadow-lg">
+                      <GraduationCap className="w-8 h-8 text-primary-foreground" />
                     </div>
                     <div>
-                      <h2 className="text-base sm:text-lg font-bold text-foreground leading-tight">Smart Student Hub</h2>
-                      <p className="text-xs sm:text-sm text-muted-foreground leading-snug">Institutional Excellence Management</p>
+                      <h2 className="text-lg font-bold text-foreground leading-tight">Smart Student Hub</h2>
+                      <p className="text-sm text-muted-foreground leading-snug">Excellence Management</p>
                     </div>
                   </div>
                 
-                  {/* Mobile Navigation Menu Items - Enhanced touch optimization */}
-                  <nav className="flex flex-col space-y-2 py-6" data-testid="nav-mobile-menu">
-                    {navigationItems.map((item, index) => (
-                      <div
+                  {/* Mobile Navigation Menu Items */}
+                  <nav className="flex flex-col gap-2 py-6" data-testid="nav-mobile-menu">
+                    {navigationItems.map((item) => (
+                      <NavLink
                         key={item.href}
-                        className="fade-in"
-                        style={{ animationDelay: `${index * 50}ms` }}
-                      >
-                        <NavLink
-                          href={item.href}
-                          label={item.label}
-                          icon={item.icon}
-                          testId={`mobile-${item.testId}`}
-                          className="mobile-nav-item w-full justify-start text-sm sm:text-base rounded-xl"
-                          onClick={closeMobileMenu}
-                        />
-                      </div>
+                        href={item.href}
+                        label={item.label}
+                        icon={item.icon}
+                        testId={`mobile-${item.testId}`}
+                        className="w-full justify-start text-base rounded-xl"
+                        onClick={closeMobileMenu}
+                      />
                     ))}
                   </nav>
                 
-                  {/* Mobile Authentication Section - Enhanced touch optimization */}
+                  {/* Mobile Authentication Section */}
                   {!user && (
-                    <div className="flex flex-col space-y-4 pt-6 border-t border-border/50 mt-auto">
-                      <Button variant="ghost" className="mobile-nav-item w-full justify-start text-sm sm:text-base rounded-xl border border-border/30 hover:border-primary/30" data-testid="mobile-button-login" asChild>
+                    <div className="flex flex-col gap-4 pt-6 border-t border-border/50 mt-auto">
+                      <Button variant="ghost" className="w-full justify-start text-base rounded-xl border border-border/30 hover:border-primary/30 min-h-[44px]" data-testid="mobile-button-login" asChild>
                         <Link href="/login" onClick={closeMobileMenu}>
                           <User className="w-5 h-5 mr-4" />
                           Login to Account
                         </Link>
                       </Button>
-                      <Button className="mobile-nav-item w-full justify-start text-sm sm:text-base rounded-xl shadow-md" data-testid="mobile-button-signup" asChild>
+                      <Button className="w-full justify-start text-base rounded-xl shadow-md min-h-[44px]" data-testid="mobile-button-signup" asChild>
                         <Link href="/signup" onClick={closeMobileMenu}>
                           <User className="w-5 h-5 mr-4" />
                           Create Account
@@ -428,11 +421,11 @@ export default function Navigation() {
                     </div>
                   )}
                 
-                  {/* Mobile User Section (Authenticated Users) - Enhanced touch experience */}
+                  {/* Mobile User Section (Authenticated Users) */}
                   {user && (
-                    <div className="flex flex-col space-y-4 pt-6 border-t border-border/50 mt-auto">
-                      {/* User Profile Display - Enhanced design */}
-                      <div className="flex items-center space-x-4 p-5 bg-muted/50 rounded-xl border border-border/30">
+                    <div className="flex flex-col gap-4 pt-6 border-t border-border/50 mt-auto">
+                      {/* User Profile Display */}
+                      <div className="flex items-center gap-4 p-5 bg-muted/50 rounded-xl border border-border/30">
                         <Avatar className="w-14 h-14 ring-2 ring-primary/20">
                           <AvatarImage src={user.profileImageUrl || ""} />
                           <AvatarFallback className="text-lg font-semibold">
@@ -449,20 +442,20 @@ export default function Navigation() {
                         </div>
                       </div>
                       
-                      {/* Mobile User Menu Actions - Enhanced touch optimization */}
-                      <Button variant="ghost" className="mobile-nav-item w-full justify-start text-base rounded-xl border border-border/30 hover:border-primary/30" data-testid="mobile-menu-item-profile" asChild>
+                      {/* Mobile User Menu Actions */}
+                      <Button variant="ghost" className="w-full justify-start text-base rounded-xl border border-border/30 hover:border-primary/30 min-h-[44px]" data-testid="mobile-menu-item-profile" asChild>
                         <Link href="/profile">
                           <User className="w-5 h-5 mr-4" />
                           Account Profile
                         </Link>
                       </Button>
-                      <Button variant="ghost" className="mobile-nav-item w-full justify-start text-base rounded-xl border border-border/30 hover:border-primary/30" data-testid="mobile-menu-item-settings">
+                      <Button variant="ghost" className="w-full justify-start text-base rounded-xl border border-border/30 hover:border-primary/30 min-h-[44px]" data-testid="mobile-menu-item-settings">
                         <Settings className="w-5 h-5 mr-4" />
                         System Preferences
                       </Button>
                       <Button 
                         variant="ghost" 
-                        className="mobile-nav-item w-full justify-start text-base text-destructive hover:text-destructive rounded-xl border border-destructive/30 hover:border-destructive/50" 
+                        className="w-full justify-start text-base text-destructive hover:text-destructive rounded-xl border border-destructive/30 hover:border-destructive/50 min-h-[44px]" 
                         onClick={handleLogout}
                         data-testid="mobile-menu-item-logout"
                       >
