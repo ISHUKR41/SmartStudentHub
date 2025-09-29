@@ -39,6 +39,9 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
+import { motion, AnimatePresence, useInView } from "framer-motion";
+import { useRef } from "react";
+import CountUp from "react-countup";
 import Navigation from "@/components/layout/navigation";
 import Sidebar from "@/components/layout/sidebar";
 import { Button } from "@/components/ui/button";
@@ -127,10 +130,19 @@ export default function AccountProfile() {
   if (isLoading) {
     return (
       <div className="min-h-screen w-full flex items-center justify-center bg-background">
-        <div className="flex items-center space-x-3">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          <span className="text-lg font-medium text-foreground">Loading Profile...</span>
-        </div>
+        <motion.div 
+          className="flex items-center space-x-3 sm:space-x-4 md:space-x-5 lg:space-x-6 xl:space-x-7 2xl:space-x-8"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <motion.div 
+            className="animate-spin rounded-full h-8 w-8 sm:h-10 sm:w-10 md:h-12 md:w-12 lg:h-14 lg:w-14 xl:h-16 xl:w-16 2xl:h-20 2xl:w-20 border-b-2 border-primary"
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          />
+          <span className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl 2xl:text-5xl font-medium text-foreground">Loading Profile...</span>
+        </motion.div>
       </div>
     );
   }
@@ -153,33 +165,54 @@ export default function AccountProfile() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <motion.div 
+      className="min-h-screen bg-background"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.6, ease: "easeOut" }}
+    >
       <Navigation />
       
       <div className="flex">
         <Sidebar />
         
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 xl:p-10 2xl:p-12">
-          <div className="max-w-7xl mx-auto space-y-6 lg:space-y-8">
+        <main className="flex-1 p-4 sm:p-6 md:p-7 lg:p-8 xl:p-10 2xl:p-12 3xl:p-16">
+          <div className="max-w-7xl mx-auto space-y-6 lg:space-y-8 xl:space-y-10 2xl:space-y-12 3xl:space-y-16">
             
             {/* Profile Header Section */}
-            <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent rounded-2xl p-6 lg:p-8 xl:p-10">
-              <div className="flex flex-col lg:flex-row items-start lg:items-center gap-6 lg:gap-8">
+            <motion.div 
+              className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent rounded-2xl p-6 lg:p-8 xl:p-10 2xl:p-12 3xl:p-16"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease: "easeOut" }}
+            >
+              <div className="flex flex-col lg:flex-row items-start lg:items-center gap-6 lg:gap-8 xl:gap-10 2xl:gap-12 3xl:gap-16">
                 
                 {/* Profile Avatar and Upload */}
-                <div className="relative group">
-                  <Avatar className="w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 lg:w-36 lg:h-36 xl:w-40 xl:h-40 ring-4 ring-primary/20 shadow-xl">
+                <motion.div 
+                  className="relative group"
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ duration: 0.5, delay: 0.2 }}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Avatar className="w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 lg:w-36 lg:h-36 xl:w-40 xl:h-40 2xl:w-44 2xl:h-44 3xl:w-48 3xl:h-48 ring-4 ring-primary/20 shadow-xl transition-all duration-300 hover:ring-primary/40">
                     <AvatarImage src={user.profileImageUrl || ""} />
-                    <AvatarFallback className="text-2xl lg:text-3xl xl:text-4xl font-bold bg-gradient-to-br from-primary to-primary/80 text-primary-foreground">
+                    <AvatarFallback className="text-2xl lg:text-3xl xl:text-4xl 2xl:text-5xl 3xl:text-6xl font-bold bg-gradient-to-br from-primary to-primary/80 text-primary-foreground">
                       {user.firstName?.[0]}{user.lastName?.[0]}
                     </AvatarFallback>
                   </Avatar>
                   
                   {/* Upload Button Overlay */}
-                  <div className="absolute inset-0 bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center cursor-pointer">
+                  <motion.div 
+                    className="absolute inset-0 bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center cursor-pointer"
+                    whileHover={{ scale: 1.1 }}
+                    data-testid="avatar-upload-overlay"
+                  >
                     <Camera className="w-8 h-8 lg:w-10 lg:h-10 text-white" />
-                  </div>
-                </div>
+                  </motion.div>
+                </motion.div>
                 
                 {/* User Information */}
                 <div className="flex-1 space-y-4">
@@ -205,26 +238,51 @@ export default function AccountProfile() {
                   </div>
                   
                   {/* Quick Stats */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 lg:gap-5 xl:gap-6 2xl:gap-8">
                     {user.role === 'student' && (
                       <>
-                        <div className="text-center p-3 bg-white/50 dark:bg-gray-800/50 rounded-xl">
-                          <div className="text-xl lg:text-2xl font-bold text-primary">{user.cgpa || "8.5"}</div>
-                          <div className="text-xs lg:text-sm text-muted-foreground">CGPA</div>
+                        <div className="text-center p-3 lg:p-4 xl:p-5 2xl:p-6 bg-white/50 dark:bg-gray-800/50 rounded-xl transition-all duration-300 hover:bg-white/70 dark:hover:bg-gray-800/70 hover:shadow-lg hover:scale-105" data-testid="stat-cgpa">
+                          <div className="text-xl lg:text-2xl xl:text-3xl 2xl:text-4xl font-bold text-primary">
+                            <CountUp 
+                              end={parseFloat(user.cgpa || "8.5")} 
+                              decimals={2} 
+                              duration={2.5} 
+                              preserveValue
+                            />
+                          </div>
+                          <div className="text-xs lg:text-sm xl:text-base 2xl:text-lg text-muted-foreground font-medium">CGPA</div>
                         </div>
-                        <div className="text-center p-3 bg-white/50 dark:bg-gray-800/50 rounded-xl">
-                          <div className="text-xl lg:text-2xl font-bold text-primary">{user.currentSemester || "6"}</div>
-                          <div className="text-xs lg:text-sm text-muted-foreground">Semester</div>
+                        <div className="text-center p-3 lg:p-4 xl:p-5 2xl:p-6 bg-white/50 dark:bg-gray-800/50 rounded-xl transition-all duration-300 hover:bg-white/70 dark:hover:bg-gray-800/70 hover:shadow-lg hover:scale-105" data-testid="stat-semester">
+                          <div className="text-xl lg:text-2xl xl:text-3xl 2xl:text-4xl font-bold text-primary">
+                            <CountUp 
+                              end={Number(user.currentSemester ?? 6)} 
+                              duration={2} 
+                              preserveValue
+                            />
+                          </div>
+                          <div className="text-xs lg:text-sm xl:text-base 2xl:text-lg text-muted-foreground font-medium">Semester</div>
                         </div>
                       </>
                     )}
-                    <div className="text-center p-3 bg-white/50 dark:bg-gray-800/50 rounded-xl">
-                      <div className="text-xl lg:text-2xl font-bold text-primary">24</div>
-                      <div className="text-xs lg:text-sm text-muted-foreground">Activities</div>
+                    <div className="text-center p-3 lg:p-4 xl:p-5 2xl:p-6 bg-white/50 dark:bg-gray-800/50 rounded-xl transition-all duration-300 hover:bg-white/70 dark:hover:bg-gray-800/70 hover:shadow-lg hover:scale-105" data-testid="stat-activities">
+                      <div className="text-xl lg:text-2xl xl:text-3xl 2xl:text-4xl font-bold text-primary">
+                        <CountUp 
+                          end={24} 
+                          duration={2.5} 
+                          preserveValue
+                        />
+                      </div>
+                      <div className="text-xs lg:text-sm xl:text-base 2xl:text-lg text-muted-foreground font-medium">Activities</div>
                     </div>
-                    <div className="text-center p-3 bg-white/50 dark:bg-gray-800/50 rounded-xl">
-                      <div className="text-xl lg:text-2xl font-bold text-primary">156</div>
-                      <div className="text-xs lg:text-sm text-muted-foreground">Credits</div>
+                    <div className="text-center p-3 lg:p-4 xl:p-5 2xl:p-6 bg-white/50 dark:bg-gray-800/50 rounded-xl transition-all duration-300 hover:bg-white/70 dark:hover:bg-gray-800/70 hover:shadow-lg hover:scale-105" data-testid="stat-credits">
+                      <div className="text-xl lg:text-2xl xl:text-3xl 2xl:text-4xl font-bold text-primary">
+                        <CountUp 
+                          end={156} 
+                          duration={3} 
+                          preserveValue
+                        />
+                      </div>
+                      <div className="text-xs lg:text-sm xl:text-base 2xl:text-lg text-muted-foreground font-medium">Credits</div>
                     </div>
                   </div>
                 </div>
@@ -263,16 +321,16 @@ export default function AccountProfile() {
                   )}
                 </div>
               </div>
-            </div>
+            </motion.div>
 
             {/* Profile Content Tabs */}
             <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
               <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-1 p-1 bg-muted/50">
-                <TabsTrigger value="overview" className="text-sm lg:text-base font-medium">Overview</TabsTrigger>
-                <TabsTrigger value="personal" className="text-sm lg:text-base font-medium">Personal</TabsTrigger>
-                <TabsTrigger value="academic" className="text-sm lg:text-base font-medium">Academic</TabsTrigger>
-                <TabsTrigger value="security" className="text-sm lg:text-base font-medium">Security</TabsTrigger>
-                <TabsTrigger value="preferences" className="text-sm lg:text-base font-medium">Preferences</TabsTrigger>
+                <TabsTrigger value="overview" className="text-sm lg:text-base font-medium" data-testid="tab-overview">Overview</TabsTrigger>
+                <TabsTrigger value="personal" className="text-sm lg:text-base font-medium" data-testid="tab-personal">Personal</TabsTrigger>
+                <TabsTrigger value="academic" className="text-sm lg:text-base font-medium" data-testid="tab-academic">Academic</TabsTrigger>
+                <TabsTrigger value="security" className="text-sm lg:text-base font-medium" data-testid="tab-security">Security</TabsTrigger>
+                <TabsTrigger value="preferences" className="text-sm lg:text-base font-medium" data-testid="tab-preferences">Preferences</TabsTrigger>
               </TabsList>
 
               {/* Overview Tab */}
@@ -291,7 +349,7 @@ export default function AccountProfile() {
                       <div className="space-y-3">
                         <div className="flex items-center gap-3">
                           <Mail className="w-4 h-4 text-muted-foreground" />
-                          <span className="text-sm lg:text-base">{user.email}</span>
+                          <span className="text-sm lg:text-base" data-testid="text-user-email">{user.email}</span>
                         </div>
                         <div className="flex items-center gap-3">
                           <Phone className="w-4 h-4 text-muted-foreground" />
@@ -547,6 +605,6 @@ export default function AccountProfile() {
           </div>
         </main>
       </div>
-    </div>
+    </motion.div>
   );
 }

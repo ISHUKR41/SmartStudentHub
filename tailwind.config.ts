@@ -20,7 +20,8 @@ export default {
       'md': '768px',  // Tablets
       'lg': '1024px', // Desktop
       'xl': '1280px', // Large desktop
-      '2xl': '1536px' // TV screens
+      '2xl': '1536px', // TV screens
+      '3xl': '1920px'  // Ultra-wide displays and large TVs (75"+)
     },
     extend: {
       borderRadius: {
