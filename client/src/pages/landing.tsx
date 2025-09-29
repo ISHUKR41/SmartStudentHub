@@ -71,7 +71,7 @@ const AnimatedCounter = ({ end, duration = 2, suffix = "", prefix = "" }: {
 };
 
 // Mobile Menu Component
-const MobileMenu = ({ isOpen, onToggle }: { isOpen: boolean; onToggle: () => void }) => {
+const MobileMenu = ({ isOpen, onToggle, setLocation }: { isOpen: boolean; onToggle: () => void; setLocation: (path: string) => void }) => {
   return (
     <>
       <Button
@@ -106,7 +106,7 @@ const MobileMenu = ({ isOpen, onToggle }: { isOpen: boolean; onToggle: () => voi
               Schedule Demo
             </Button>
             <Button
-              onClick={() => window.location.href = '/api/login'}
+              onClick={() => setLocation('/login')}
               size="sm"
               className="w-full"
               data-testid="mobile-login-button"
@@ -201,7 +201,7 @@ export default function Landing() {
                   Schedule Demo
                 </Button>
                 <Button 
-                  onClick={() => setLocation('/api/login')}
+                  onClick={() => setLocation('/login')}
                   size="sm"
                   className="hover:scale-105 transition-transform shadow-md"
                   data-testid="desktop-login-button"
@@ -210,7 +210,7 @@ export default function Landing() {
                 </Button>
               </div>
               
-              <MobileMenu isOpen={mobileMenuOpen} onToggle={() => setMobileMenuOpen(!mobileMenuOpen)} />
+              <MobileMenu isOpen={mobileMenuOpen} onToggle={() => setMobileMenuOpen(!mobileMenuOpen)} setLocation={setLocation} />
             </div>
           </div>
         </motion.header>
@@ -264,7 +264,7 @@ export default function Landing() {
               >
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                   <Button 
-                    onClick={() => setLocation('/api/login')}
+                    onClick={() => setLocation('/login')}
                     size="lg"
                     className="bg-gradient-to-r from-primary to-blue-600 hover:from-primary/90 hover:to-blue-600/90 text-white px-10 py-4 text-lg font-semibold rounded-full shadow-xl hover:shadow-2xl transition-all duration-300"
                     data-testid="cta-launch-platform"
@@ -375,7 +375,7 @@ export default function Landing() {
                   cta: {
                     primary: "Start Building Portfolio",
                     secondary: "View Student Demo",
-                    primaryAction: () => setLocation('/api/login'),
+                    primaryAction: () => setLocation('/login'),
                     secondaryAction: () => window.location.href = 'mailto:contact@smartstudenthub.com?subject=Student Demo Request'
                   },
                   stats: [
@@ -400,7 +400,7 @@ export default function Landing() {
                   cta: {
                     primary: "Access Faculty Portal",
                     secondary: "Faculty Training",
-                    primaryAction: () => setLocation('/api/login'),
+                    primaryAction: () => setLocation('/login'),
                     secondaryAction: () => window.location.href = 'mailto:contact@smartstudenthub.com?subject=Faculty Training Request'
                   },
                   stats: [
