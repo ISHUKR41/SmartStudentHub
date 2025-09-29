@@ -23,6 +23,8 @@ import {
   activities,
   activityFiles,
   departments,
+  subjects,
+  attendance,
   type User,
   type UpsertUser,
   type Activity,
@@ -30,7 +32,11 @@ import {
   type UpdateActivityStatus,
   type ActivityFile,
   type Department,
-  type InsertDepartment
+  type InsertDepartment,
+  type Subject,
+  type InsertSubject,
+  type Attendance,
+  type InsertAttendance
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, desc, and, count, sql } from "drizzle-orm";
@@ -121,6 +127,33 @@ export interface IStorage {
     departmentParticipation: { department: string; participation: number; coCurrentRatio: number; extraCurrentRatio: number }[];
     facultyInvolvement: { totalFaculty: number; involvedFaculty: number; avgActivitiesSupervised: number };
     qualityMetrics: { approvalRate: number; avgCreditsPerActivity: number; diversityIndex: number };
+  }>;
+
+  /**
+   * Attendance Management Operations
+   * 
+   * Comprehensive attendance tracking for subjects and students.
+   * Supports detailed analytics and reporting.
+   */
+  getSubjects(): Promise<Subject[]>;
+  getSubjectsByStudent(studentId: string): Promise<Subject[]>;
+  createSubject(subject: InsertSubject): Promise<Subject>;
+  
+  getStudentAttendance(studentId: string): Promise<Attendance[]>;
+  getStudentAttendanceBySubject(studentId: string, subjectId: string): Promise<Attendance[]>;
+  recordAttendance(attendance: InsertAttendance): Promise<Attendance>;
+  
+  getAttendanceStats(studentId: string): Promise<{
+    overallPercentage: number;
+    totalClasses: number;
+    attendedClasses: number;
+    missedClasses: number;
+    subjectWise: { subject: Subject; percentage: number; attended: number; total: number }[];
+  }>;
+  
+  getAttendanceTrends(studentId: string, weeks: number): Promise<{
+    weeklyTrends: { week: string; attendance: number; target: number }[];
+    monthlyTrends: { month: string; attendance: number }[];
   }>;
   
   getNIRFMetrics(): Promise<{
@@ -860,6 +893,162 @@ export class DatabaseStorage implements IStorage {
       default:
         return [];
     }
+  }
+
+  // Attendance Management Methods
+  async getSubjects(): Promise<Subject[]> {
+    return await db.select().from(subjects).orderBy(subjects.name);
+  }
+
+  async getSubjectsByStudent(studentId: string): Promise<Subject[]> {
+    const user = await this.getUser(studentId);
+    if (!user) return [];
+    
+    return await db
+      .select()
+      .from(subjects)
+      .where(eq(subjects.semester, user.currentSemester || 6))
+      .orderBy(subjects.name);
+  }
+
+  async createSubject(subject: InsertSubject): Promise<Subject> {
+    const [newSubject] = await db.insert(subjects).values(subject).returning();
+    return newSubject;
+  }
+
+  async getStudentAttendance(studentId: string): Promise<Attendance[]> {
+    return await db
+      .select()
+      .from(attendance)
+      .where(eq(attendance.studentId, studentId))
+      .orderBy(desc(attendance.attendanceDate));
+  }
+
+  async getStudentAttendanceBySubject(studentId: string, subjectId: string): Promise<Attendance[]> {
+    return await db
+      .select()
+      .from(attendance)
+      .where(and(eq(attendance.studentId, studentId), eq(attendance.subjectId, subjectId)))
+      .orderBy(desc(attendance.attendanceDate));
+  }
+
+  async recordAttendance(attendanceData: InsertAttendance): Promise<Attendance> {
+    const [newAttendance] = await db.insert(attendance).values(attendanceData).returning();
+    return newAttendance;
+  }
+
+  async getAttendanceStats(studentId: string): Promise<{
+    overallPercentage: number;
+    totalClasses: number;
+    attendedClasses: number;
+    missedClasses: number;
+    subjectWise: { subject: Subject; percentage: number; attended: number; total: number }[];
+  }> {
+    // Get all attendance records for the student
+    const attendanceRecords = await db
+      .select({
+        attendance: attendance,
+        subject: subjects
+      })
+      .from(attendance)
+      .leftJoin(subjects, eq(attendance.subjectId, subjects.id))
+      .where(eq(attendance.studentId, studentId));
+
+    // Calculate overall stats
+    const totalClasses = attendanceRecords.length;
+    const attendedClasses = attendanceRecords.filter(record => 
+      record.attendance.status === 'present' || record.attendance.status === 'late'
+    ).length;
+    const missedClasses = totalClasses - attendedClasses;
+    const overallPercentage = totalClasses > 0 ? (attendedClasses / totalClasses) * 100 : 0;
+
+    // Calculate subject-wise stats
+    const subjectMap = new Map<string, { subject: Subject; attended: number; total: number }>();
+    
+    attendanceRecords.forEach(record => {
+      if (!record.subject) return;
+      
+      const subjectId = record.subject.id;
+      if (!subjectMap.has(subjectId)) {
+        subjectMap.set(subjectId, {
+          subject: record.subject,
+          attended: 0,
+          total: 0
+        });
+      }
+      
+      const subjectData = subjectMap.get(subjectId)!;
+      subjectData.total += 1;
+      if (record.attendance.status === 'present' || record.attendance.status === 'late') {
+        subjectData.attended += 1;
+      }
+    });
+
+    const subjectWise = Array.from(subjectMap.values()).map(data => ({
+      subject: data.subject,
+      percentage: data.total > 0 ? (data.attended / data.total) * 100 : 0,
+      attended: data.attended,
+      total: data.total
+    }));
+
+    return {
+      overallPercentage,
+      totalClasses,
+      attendedClasses,
+      missedClasses,
+      subjectWise
+    };
+  }
+
+  async getAttendanceTrends(studentId: string, weeks: number = 8): Promise<{
+    weeklyTrends: { week: string; attendance: number; target: number }[];
+    monthlyTrends: { month: string; attendance: number }[];
+  }> {
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setDate(endDate.getDate() - (weeks * 7));
+
+    // Get weekly attendance data
+    const weeklyData = await db
+      .select({
+        week: sql<string>`TO_CHAR(DATE_TRUNC('week', ${attendance.attendanceDate}), 'YYYY-MM-DD')`,
+        total: count(),
+        attended: count(sql`CASE WHEN ${attendance.status} IN ('present', 'late') THEN 1 END`)
+      })
+      .from(attendance)
+      .where(and(
+        eq(attendance.studentId, studentId),
+        sql`${attendance.attendanceDate} >= ${startDate} AND ${attendance.attendanceDate} <= ${endDate}`
+      ))
+      .groupBy(sql`DATE_TRUNC('week', ${attendance.attendanceDate})`)
+      .orderBy(sql`DATE_TRUNC('week', ${attendance.attendanceDate})`);
+
+    // Get monthly attendance data (last 5 months)
+    const monthlyData = await db
+      .select({
+        month: sql<string>`TO_CHAR(${attendance.attendanceDate}, 'Mon')`,
+        total: count(),
+        attended: count(sql`CASE WHEN ${attendance.status} IN ('present', 'late') THEN 1 END`)
+      })
+      .from(attendance)
+      .where(and(
+        eq(attendance.studentId, studentId),
+        sql`${attendance.attendanceDate} >= CURRENT_DATE - INTERVAL '5 months'`
+      ))
+      .groupBy(sql`TO_CHAR(${attendance.attendanceDate}, 'Mon')`);
+
+    const weeklyTrends = weeklyData.map((week, index) => ({
+      week: `Week ${index + 1}`,
+      attendance: week.total > 0 ? Math.round((Number(week.attended) / week.total) * 100) : 0,
+      target: 95
+    }));
+
+    const monthlyTrends = monthlyData.map(month => ({
+      month: month.month,
+      attendance: month.total > 0 ? Math.round((Number(month.attended) / month.total) * 100) : 0
+    }));
+
+    return { weeklyTrends, monthlyTrends };
   }
 }
 

@@ -455,6 +455,52 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Student Attendance Routes
+  app.get('/api/students/attendance/stats', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const userId = (req.user as AuthenticatedUser).claims.sub;
+      const stats = await storage.getAttendanceStats(userId);
+      res.json(stats);
+    } catch (error) {
+      console.error("Error fetching attendance stats:", error);
+      res.status(500).json({ message: "Failed to fetch attendance statistics" });
+    }
+  });
+
+  app.get('/api/students/attendance/trends', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const userId = (req.user as AuthenticatedUser).claims.sub;
+      const weeks = parseInt(req.query.weeks as string) || 8;
+      const trends = await storage.getAttendanceTrends(userId, weeks);
+      res.json(trends);
+    } catch (error) {
+      console.error("Error fetching attendance trends:", error);
+      res.status(500).json({ message: "Failed to fetch attendance trends" });
+    }
+  });
+
+  app.get('/api/students/subjects', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const userId = (req.user as AuthenticatedUser).claims.sub;
+      const subjects = await storage.getSubjectsByStudent(userId);
+      res.json(subjects);
+    } catch (error) {
+      console.error("Error fetching subjects:", error);
+      res.status(500).json({ message: "Failed to fetch subjects" });
+    }
+  });
+
+  app.get('/api/students/attendance', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const userId = (req.user as AuthenticatedUser).claims.sub;
+      const attendance = await storage.getStudentAttendance(userId);
+      res.json(attendance);
+    } catch (error) {
+      console.error("Error fetching attendance:", error);
+      res.status(500).json({ message: "Failed to fetch attendance records" });
+    }
+  });
+
   // Activity routes
   app.post('/api/activities', isAuthenticated, upload.array('files', 5), async (req: Request, res: Response) => {
     try {

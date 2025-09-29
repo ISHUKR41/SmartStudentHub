@@ -92,6 +92,17 @@ export const activityCategoryEnum = pgEnum('activity_category', [
 ]);
 
 /**
+ * Attendance Status Enumeration
+ * 
+ * Tracks student attendance status for each class:
+ * - present: Student attended the class
+ * - absent: Student was absent from the class
+ * - late: Student attended but was late
+ * - excused: Absence was excused (medical/official)
+ */
+export const attendanceStatusEnum = pgEnum('attendance_status', ['present', 'absent', 'late', 'excused']);
+
+/**
  * Users Table
  * 
  * Central user management table supporting Replit Authentication.
@@ -189,6 +200,54 @@ export const departments = pgTable("departments", {
 });
 
 /**
+ * Subjects Table
+ * 
+ * Academic subjects/courses offered by the institution.
+ * Links to departments and tracks course information for attendance monitoring.
+ * 
+ * Features:
+ * - Subject codes for easy reference
+ * - Department association
+ * - Credit hours tracking
+ * - Semester and year mapping
+ */
+export const subjects = pgTable("subjects", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: varchar("name").notNull(),
+  code: varchar("code").notNull().unique(),
+  departmentId: varchar("department_id").references(() => departments.id),
+  credits: integer("credits").default(3),
+  semester: integer("semester").notNull(),
+  academicYear: varchar("academic_year").notNull(),
+  facultyId: varchar("faculty_id").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+/**
+ * Attendance Table
+ * 
+ * Student attendance tracking for all subjects.
+ * Records daily attendance with status and timestamp.
+ * 
+ * Features:
+ * - Student and subject association
+ * - Date and time tracking
+ * - Status enumeration (present/absent/late/excused)
+ * - Remarks for special cases
+ */
+export const attendance = pgTable("attendance", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  studentId: varchar("student_id").references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  subjectId: varchar("subject_id").references(() => subjects.id, { onDelete: 'cascade' }).notNull(),
+  attendanceDate: timestamp("attendance_date").notNull(),
+  status: attendanceStatusEnum("status").notNull(),
+  remarks: text("remarks"),
+  markedBy: varchar("marked_by").references(() => users.id),
+  markedAt: timestamp("marked_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+/**
  * Database Relations
  * 
  * Defines the relationships between tables using Drizzle ORM relations.
@@ -226,8 +285,36 @@ export const activityFilesRelations = relations(activityFiles, ({ one }) => ({
 
 export const departmentsRelations = relations(departments, ({ many, one }) => ({
   users: many(users),
+  subjects: many(subjects),
   headOfDepartment: one(users, {
     fields: [departments.headOfDepartment],
+    references: [users.id],
+  }),
+}));
+
+export const subjectsRelations = relations(subjects, ({ one, many }) => ({
+  department: one(departments, {
+    fields: [subjects.departmentId],
+    references: [departments.id],
+  }),
+  faculty: one(users, {
+    fields: [subjects.facultyId],
+    references: [users.id],
+  }),
+  attendance: many(attendance),
+}));
+
+export const attendanceRelations = relations(attendance, ({ one }) => ({
+  student: one(users, {
+    fields: [attendance.studentId],
+    references: [users.id],
+  }),
+  subject: one(subjects, {
+    fields: [attendance.subjectId],
+    references: [subjects.id],
+  }),
+  markedBy: one(users, {
+    fields: [attendance.markedBy],
     references: [users.id],
   }),
 }));
@@ -273,6 +360,17 @@ export const updateActivityStatusSchema = z.object({
 
 export const insertDepartmentSchema = createInsertSchema(departments).omit({
   id: true,
+  createdAt: true,
+});
+
+export const insertSubjectSchema = createInsertSchema(subjects).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertAttendanceSchema = createInsertSchema(attendance).omit({
+  id: true,
+  markedAt: true,
   createdAt: true,
 });
 
@@ -411,6 +509,10 @@ export type UpdateActivityStatus = z.infer<typeof updateActivityStatusSchema>;
 export type ActivityFile = typeof activityFiles.$inferSelect;
 export type Department = typeof departments.$inferSelect;
 export type InsertDepartment = z.infer<typeof insertDepartmentSchema>;
+export type Subject = typeof subjects.$inferSelect;
+export type InsertSubject = z.infer<typeof insertSubjectSchema>;
+export type Attendance = typeof attendance.$inferSelect;
+export type InsertAttendance = z.infer<typeof insertAttendanceSchema>;
 
 /**
  * Authentication Form Type Definitions
