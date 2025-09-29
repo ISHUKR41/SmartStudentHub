@@ -571,7 +571,7 @@
   /* Enhanced Mobile Navigation */
   .mobile-nav-item {
     @apply flex items-center w-full min-h-[52px] px-4 py-3 text-base font-medium touch-manipulation transition-all duration-200;
-    @apply hover:bg-accent active:bg-accent/80 focus:bg-accent focus:outline-none;
+    @apply hover:bg-accent active:bg-muted focus:bg-accent focus:outline-none;
     -webkit-tap-highlight-color: transparent;
   }
 
@@ -639,10 +639,121 @@
     transform: scale(0.98);
   }
 
-  /* Mobile-Specific Utilities */
-  @media (max-width: 768px) {
+  /* Device-Specific Responsive Breakpoints */
+  
+  /* Mobile Phones: 320px-640px */
+  @media (min-width: 320px) and (max-width: 640px) {
     .mobile-optimized {
       font-size: 16px; /* Prevents zoom on iOS */
+    }
+    
+    .nav-mobile-phone {
+      @apply px-2 py-2;
+    }
+    
+    .nav-logo-mobile {
+      @apply w-10 h-10;
+    }
+    
+    .nav-title-mobile {
+      @apply text-sm;
+    }
+    
+    .nav-search-mobile {
+      @apply w-20;
+    }
+    
+    .nav-button-mobile {
+      @apply min-w-[48px] min-h-[48px] px-2;
+    }
+  }
+  
+  /* Tablets: 641px-1024px */
+  @media (min-width: 641px) and (max-width: 1024px) {
+    .nav-tablet {
+      @apply px-4 py-3;
+    }
+    
+    .nav-logo-tablet {
+      @apply w-11 h-11;
+    }
+    
+    .nav-title-tablet {
+      @apply text-base;
+    }
+    
+    .nav-search-tablet {
+      @apply w-32;
+    }
+    
+    .nav-menu-tablet {
+      @apply space-x-1;
+    }
+    
+    .nav-button-tablet {
+      @apply min-w-[44px] min-h-[44px] px-3;
+    }
+  }
+  
+  /* Desktop/Laptops: 1025px-1920px */
+  @media (min-width: 1025px) and (max-width: 1920px) {
+    .nav-desktop {
+      @apply px-6 py-4;
+    }
+    
+    .nav-logo-desktop {
+      @apply w-12 h-12;
+    }
+    
+    .nav-title-desktop {
+      @apply text-lg;
+    }
+    
+    .nav-search-desktop {
+      @apply w-56;
+    }
+    
+    .nav-menu-desktop {
+      @apply space-x-3;
+    }
+    
+    .nav-button-desktop {
+      @apply min-w-[44px] min-h-[44px] px-4;
+    }
+  }
+  
+  /* Large Displays/TVs: 1921px+ */
+  @media (min-width: 1921px) {
+    .nav-ultra-wide {
+      @apply max-w-screen-2xl mx-auto px-8 py-5;
+    }
+    
+    .nav-logo-ultra {
+      @apply w-14 h-14;
+    }
+    
+    .nav-title-ultra {
+      @apply text-xl;
+    }
+    
+    .nav-subtitle-ultra {
+      @apply text-base;
+    }
+    
+    .nav-search-ultra {
+      @apply w-80;
+    }
+    
+    .nav-menu-ultra {
+      @apply space-x-4;
+    }
+    
+    .nav-button-ultra {
+      @apply min-w-[48px] min-h-[48px] px-6 text-base;
+    }
+    
+    .nav-user-info-ultra {
+      @apply text-base;
     }
   }
 

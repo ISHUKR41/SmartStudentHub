@@ -142,15 +142,18 @@ function NavLink({ href, label, icon: Icon, testId, className, onClick }: NavLin
     <Button
       variant={isActive ? "default" : "ghost"}
       className={cn(
-        "flex items-center space-x-2 h-10 px-4 justify-start touch-manipulation transition-all duration-200",
+        "flex items-center space-x-2 justify-start touch-button enhanced-focus active-touch transition-all duration-200",
+        "h-10 px-3 md:h-11 md:px-4 lg:h-12 lg:px-5 xl:h-12 xl:px-6",
+        "text-sm md:text-sm lg:text-base xl:text-base",
+        "min-w-[44px] min-h-[44px] md:min-w-[48px] md:min-h-[48px]",
         className
       )}
       data-testid={testId}
       asChild
     >
       <Link href={href} onClick={onClick}>
-        <Icon className="w-4 h-4 sm:w-4 sm:h-4" />
-        <span className="font-medium text-sm sm:text-base">{label}</span>
+        <Icon className="w-4 h-4 md:w-4 md:h-4 lg:w-5 lg:h-5 xl:w-5 xl:h-5 flex-shrink-0" />
+        <span className="font-medium truncate">{label}</span>
       </Link>
     </Button>
   );
@@ -208,259 +211,266 @@ export default function Navigation() {
   };
 
   return (
-    <header className="bg-card border-b border-border sticky top-0 z-50" data-testid="navigation-header">
-      <div className="flex items-center justify-between px-3 sm:px-4 lg:px-6 py-3 sm:py-4 min-h-[56px] sm:min-h-[64px]">
+    <header className="bg-card border-b border-border sticky top-0 z-50 shadow-sm" data-testid="navigation-header">
+      <div className="nav-mobile-phone nav-tablet nav-desktop nav-ultra-wide">
+        <div className="flex items-center justify-between min-h-[56px] sm:min-h-[64px] md:min-h-[68px] lg:min-h-[72px] xl:min-h-[76px]">
         
-        {/* Institutional Logo and Branding Section */}
-        <div className="flex items-center space-x-2 sm:space-x-3">
-          {/* Professional Institution Logo with proper touch target */}
-          <Link href="/">
-            <div className="w-11 h-11 sm:w-10 sm:h-10 bg-primary rounded-lg flex items-center justify-center cursor-pointer touch-manipulation" data-testid="logo-institution">
-              <GraduationCap className="w-6 h-6 text-primary-foreground" />
+          {/* Institutional Logo and Branding Section */}
+          <div className="flex items-center space-x-2 sm:space-x-3 md:space-x-4 lg:space-x-4 xl:space-x-5">
+            {/* Professional Institution Logo with enhanced responsive sizing */}
+            <Link href="/" className="touch-button enhanced-focus">
+              <div className="nav-logo-mobile nav-logo-tablet nav-logo-desktop nav-logo-ultra bg-primary rounded-lg flex items-center justify-center cursor-pointer transition-all duration-200 hover:scale-105" data-testid="logo-institution">
+                <GraduationCap className="w-6 h-6 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-8 lg:h-8 xl:w-8 xl:h-8 text-primary-foreground" />
+              </div>
+            </Link>
+            
+            {/* Institutional Name and System Designation - Enhanced responsive visibility */}
+            <div className="hidden xs:block">
+              <h1 className="nav-title-mobile nav-title-tablet nav-title-desktop nav-title-ultra font-semibold text-foreground leading-tight transition-all duration-200" data-testid="text-app-title">
+                Smart Student Hub
+              </h1>
+              <p className="nav-subtitle-ultra text-xs sm:text-xs md:text-sm lg:text-sm xl:text-base text-muted-foreground hidden sm:block transition-all duration-200" data-testid="text-app-subtitle">
+                Institutional Excellence Management System
+              </p>
             </div>
-          </Link>
-          
-          {/* Institutional Name and System Designation - Responsive visibility */}
-          <div className="hidden xs:block sm:block">
-            <h1 className="text-base sm:text-lg font-semibold text-foreground leading-tight" data-testid="text-app-title">
-              Smart Student Hub
-            </h1>
-            <p className="text-xs text-muted-foreground hidden sm:block" data-testid="text-app-subtitle">
-              Institutional Excellence Management System
-            </p>
           </div>
-        </div>
 
-        {/* Desktop Navigation Menu - Enhanced responsive breakpoints */}
-        <nav className="hidden md:flex items-center space-x-1 lg:space-x-2" data-testid="nav-desktop-menu">
-          {navigationItems.map((item) => (
-            <NavLink
-              key={item.href}
-              href={item.href}
-              label={item.label}
-              icon={item.icon}
-              testId={item.testId}
-              className="w-auto text-sm lg:text-base px-2 lg:px-4 min-h-[44px] touch-manipulation"
-            />
-          ))}
-        </nav>
-
-        {/* Navigation Actions and User Interface Section */}
-        <div className="flex items-center space-x-1 sm:space-x-2 lg:space-x-4">
-          
-          {/* Advanced Search Bar for Institutional Records (Authenticated Users Only) - Enhanced responsiveness */}
-          {user && (
-            <div className="relative hidden xs:block">
-              <Input
-                type="text"
-                placeholder="Search..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-24 xs:w-32 sm:w-40 md:w-48 lg:w-64 xl:w-72 pl-9 sm:pl-10 h-10 sm:h-11 text-sm touch-manipulation"
-                data-testid="input-search"
+          {/* Desktop Navigation Menu - Enhanced responsive breakpoints */}
+          <nav className="hidden md:flex items-center nav-menu-tablet nav-menu-desktop nav-menu-ultra" data-testid="nav-desktop-menu">
+            {navigationItems.map((item) => (
+              <NavLink
+                key={item.href}
+                href={item.href}
+                label={item.label}
+                icon={item.icon}
+                testId={item.testId}
+                className="w-auto"
               />
-              {/* Search Icon with Professional Styling */}
-              <Search className="absolute left-2.5 sm:left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            </div>
-          )}
+            ))}
+          </nav>
 
-          {/* Real-time Notification System (Authenticated Users Only) - Touch optimized */}
-          {user && (
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="relative min-w-[44px] min-h-[44px] touch-manipulation"
-              data-testid="button-notifications"
-            >
-              <Bell className="w-5 h-5" />
-              {/* Notification Badge for Real-time Alerts */}
-              <Badge 
-                variant="destructive" 
-                className="absolute -top-1 -right-1 w-2 h-2 p-0 rounded-full"
-                data-testid="badge-notification-count"
-              />
-            </Button>
-          )}
+          {/* Navigation Actions and User Interface Section */}
+          <div className="flex items-center space-x-1 sm:space-x-2 md:space-x-3 lg:space-x-4 xl:space-x-5">
+            
+            {/* Advanced Search Bar for Institutional Records (Authenticated Users Only) - Enhanced responsiveness */}
+            {user && (
+              <div className="relative hidden xs:block">
+                <Input
+                  type="text"
+                  placeholder="Search..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="nav-search-mobile nav-search-tablet nav-search-desktop nav-search-ultra pl-9 sm:pl-10 h-10 sm:h-11 md:h-12 lg:h-12 xl:h-13 text-sm md:text-base mobile-search enhanced-focus transition-all duration-200"
+                  data-testid="input-search"
+                />
+                {/* Search Icon with Professional Styling */}
+                <Search className="absolute left-2.5 sm:left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-muted-foreground" />
+              </div>
+            )}
 
-          {/* Authentication Buttons for Unauthenticated Users - Enhanced responsive design */}
-          {!user && (
-            <div className="hidden xs:flex items-center space-x-1 sm:space-x-2">
-              <Button variant="ghost" size="sm" className="min-h-[44px] px-2 sm:px-3 text-sm touch-manipulation" data-testid="button-login" asChild>
-                <Link href="/login">
-                  <span className="hidden sm:inline">Login</span>
-                  <span className="sm:hidden">In</span>
-                </Link>
-              </Button>
-              <Button size="sm" className="min-h-[44px] px-2 sm:px-3 text-sm touch-manipulation" data-testid="button-signup" asChild>
-                <Link href="/signup">
-                  <span className="hidden sm:inline">Sign Up</span>
-                  <span className="sm:hidden">Up</span>
-                </Link>
-              </Button>
-            </div>
-          )}
-
-          {/* User Profile and Account Management Dropdown (Authenticated Users Only) - Touch optimized */}
-          {user && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button 
-                  variant="ghost" 
-                  className="flex items-center space-x-1 sm:space-x-2 p-2 min-h-[44px] touch-manipulation"
-                  data-testid="button-user-menu"
-                >
-                  {/* Professional User Avatar with Fallback Initials */}
-                  <Avatar className="w-8 h-8 sm:w-9 sm:h-9">
-                    <AvatarImage src={user.profileImageUrl || ""} />
-                    <AvatarFallback>
-                      {user.firstName?.[0]}{user.lastName?.[0]}
-                    </AvatarFallback>
-                  </Avatar>
-                  
-                  {/* User Information Display - Enhanced responsive visibility */}
-                  <div className="hidden lg:block xl:block text-left">
-                    <div className="text-sm font-medium text-foreground" data-testid="text-user-name">
-                      {user.firstName} {user.lastName}
-                    </div>
-                    <div className="text-xs text-muted-foreground capitalize" data-testid="text-user-role">
-                      {user.role}
-                    </div>
-                  </div>
-                  
-                  {/* Dropdown Indicator Icon */}
-                  <ChevronDown className="hidden sm:block w-4 h-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              
-              {/* User Account Management Menu - Touch friendly */}
-              <DropdownMenuContent align="end" className="w-56 touch-manipulation">
-                {/* Account Profile Management */}
-                <DropdownMenuItem className="min-h-[44px] text-base sm:text-sm" data-testid="menu-item-profile">
-                  <User className="mr-2 h-4 w-4" />
-                  <span>Account Profile</span>
-                </DropdownMenuItem>
-                
-                {/* System Preferences and Settings */}
-                <DropdownMenuItem className="min-h-[44px] text-base sm:text-sm" data-testid="menu-item-settings">
-                  <Settings className="mr-2 h-4 w-4" />
-                  <span>System Preferences</span>
-                </DropdownMenuItem>
-                
-                {/* Secure Logout Functionality */}
-                <DropdownMenuItem onClick={handleLogout} className="min-h-[44px] text-base sm:text-sm" data-testid="menu-item-logout">
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>Sign Out</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
-
-          {/* Mobile Menu Trigger (Hamburger Button) - Enhanced touch target */}
-          <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-            <SheetTrigger asChild>
+            {/* Real-time Notification System (Authenticated Users Only) - Enhanced touch optimization */}
+            {user && (
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="md:hidden min-w-[44px] min-h-[44px] touch-manipulation"
-                data-testid="button-mobile-menu"
-                aria-label="Open mobile navigation menu"
+                className="relative nav-button-mobile nav-button-tablet nav-button-desktop nav-button-ultra touch-button enhanced-focus transition-all duration-200 hover:bg-accent"
+                data-testid="button-notifications"
               >
-                <Menu className="w-6 h-6" />
+                <Bell className="w-5 h-5 md:w-5 md:h-5 lg:w-6 lg:h-6 xl:w-6 xl:h-6" />
+                {/* Notification Badge for Real-time Alerts */}
+                <Badge 
+                  variant="destructive" 
+                  className="absolute -top-1 -right-1 w-2 h-2 md:w-2.5 md:h-2.5 lg:w-3 lg:h-3 p-0 rounded-full animate-pulse"
+                  data-testid="badge-notification-count"
+                />
               </Button>
-            </SheetTrigger>
-            
-            {/* Mobile Navigation Menu Content - Enhanced responsive design */}
-            <SheetContent side="right" className="w-[85vw] max-w-sm sm:max-w-md" data-testid="sheet-mobile-menu">
-              <div className="flex flex-col h-full">
-                
-                {/* Mobile Menu Header */}
-                <div className="flex items-center space-x-3 pb-6 border-b border-border">
-                  <div className="w-12 h-12 bg-primary rounded-lg flex items-center justify-center">
-                    <GraduationCap className="w-7 h-7 text-primary-foreground" />
-                  </div>
-                  <div>
-                    <h2 className="text-lg font-semibold text-foreground">Smart Student Hub</h2>
-                    <p className="text-sm text-muted-foreground">Institutional Excellence Management</p>
-                  </div>
-                </div>
-                
-                {/* Mobile Navigation Menu Items - Touch optimized */}
-                <nav className="flex flex-col space-y-1 py-6" data-testid="nav-mobile-menu">
-                  {navigationItems.map((item) => (
-                    <NavLink
-                      key={item.href}
-                      href={item.href}
-                      label={item.label}
-                      icon={item.icon}
-                      testId={`mobile-${item.testId}`}
-                      className="w-full justify-start min-h-[52px] text-base px-4 py-3 touch-manipulation"
-                      onClick={closeMobileMenu}
-                    />
-                  ))}
-                </nav>
-                
-                {/* Mobile Authentication Section - Touch optimized */}
-                {!user && (
-                  <div className="flex flex-col space-y-3 pt-6 border-t border-border mt-auto">
-                    <Button variant="ghost" className="w-full justify-start min-h-[52px] text-base px-4 py-3 touch-manipulation" data-testid="mobile-button-login" asChild>
-                      <Link href="/login" onClick={closeMobileMenu}>
-                        <User className="w-5 h-5 mr-3" />
-                        Login to Account
-                      </Link>
-                    </Button>
-                    <Button className="w-full justify-start min-h-[52px] text-base px-4 py-3 touch-manipulation" data-testid="mobile-button-signup" asChild>
-                      <Link href="/signup" onClick={closeMobileMenu}>
-                        <User className="w-5 h-5 mr-3" />
-                        Create Account
-                      </Link>
-                    </Button>
-                  </div>
-                )}
-                
-                {/* Mobile User Section (Authenticated Users) - Enhanced touch experience */}
-                {user && (
-                  <div className="flex flex-col space-y-3 pt-6 border-t border-border mt-auto">
-                    {/* User Profile Display */}
-                    <div className="flex items-center space-x-3 p-4 bg-muted rounded-lg">
-                      <Avatar className="w-12 h-12">
-                        <AvatarImage src={user.profileImageUrl || ""} />
-                        <AvatarFallback className="text-base">
-                          {user.firstName?.[0]}{user.lastName?.[0]}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <div className="text-base font-medium text-foreground">
-                          {user.firstName} {user.lastName}
-                        </div>
-                        <div className="text-sm text-muted-foreground capitalize">
-                          {user.role}
-                        </div>
+            )}
+
+            {/* Authentication Buttons for Unauthenticated Users - Enhanced responsive design */}
+            {!user && (
+              <div className="hidden xs:flex items-center space-x-1 sm:space-x-2 md:space-x-3">
+                <Button variant="ghost" size="sm" className="nav-button-mobile nav-button-tablet nav-button-desktop nav-button-ultra text-sm md:text-base touch-button enhanced-focus" data-testid="button-login" asChild>
+                  <Link href="/login">
+                    <span className="hidden sm:inline">Login</span>
+                    <span className="sm:hidden">In</span>
+                  </Link>
+                </Button>
+                <Button size="sm" className="nav-button-mobile nav-button-tablet nav-button-desktop nav-button-ultra text-sm md:text-base touch-button enhanced-focus" data-testid="button-signup" asChild>
+                  <Link href="/signup">
+                    <span className="hidden sm:inline">Sign Up</span>
+                    <span className="sm:hidden">Up</span>
+                  </Link>
+                </Button>
+              </div>
+            )}
+
+            {/* User Profile and Account Management Dropdown (Authenticated Users Only) - Enhanced touch optimization */}
+            {user && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    className="flex items-center space-x-1 sm:space-x-2 md:space-x-3 p-2 nav-button-mobile nav-button-tablet nav-button-desktop nav-button-ultra touch-button enhanced-focus transition-all duration-200"
+                    data-testid="button-user-menu"
+                  >
+                    {/* Professional User Avatar with Enhanced Responsive Sizing */}
+                    <Avatar className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 lg:w-11 lg:h-11 xl:w-12 xl:h-12 ring-2 ring-transparent hover:ring-primary/20 transition-all duration-200">
+                      <AvatarImage src={user.profileImageUrl || ""} />
+                      <AvatarFallback className="text-sm md:text-base font-semibold">
+                        {user.firstName?.[0]}{user.lastName?.[0]}
+                      </AvatarFallback>
+                    </Avatar>
+                    
+                    {/* User Information Display - Enhanced responsive visibility */}
+                    <div className="hidden lg:block text-left">
+                      <div className="nav-user-info-ultra text-sm md:text-base font-medium text-foreground truncate max-w-32 xl:max-w-40" data-testid="text-user-name">
+                        {user.firstName} {user.lastName}
+                      </div>
+                      <div className="text-xs md:text-sm text-muted-foreground capitalize truncate" data-testid="text-user-role">
+                        {user.role}
                       </div>
                     </div>
                     
-                    {/* Mobile User Menu Actions - Touch optimized */}
-                    <Button variant="ghost" className="w-full justify-start min-h-[52px] text-base px-4 py-3 touch-manipulation" data-testid="mobile-menu-item-profile">
-                      <User className="w-5 h-5 mr-3" />
-                      Account Profile
-                    </Button>
-                    <Button variant="ghost" className="w-full justify-start min-h-[52px] text-base px-4 py-3 touch-manipulation" data-testid="mobile-menu-item-settings">
-                      <Settings className="w-5 h-5 mr-3" />
-                      System Preferences
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      className="w-full justify-start min-h-[52px] text-base px-4 py-3 text-destructive hover:text-destructive touch-manipulation" 
-                      onClick={handleLogout}
-                      data-testid="mobile-menu-item-logout"
-                    >
-                      <LogOut className="w-5 h-5 mr-3" />
-                      Sign Out
-                    </Button>
+                    {/* Dropdown Indicator Icon */}
+                    <ChevronDown className="hidden sm:block w-4 h-4 md:w-4 md:h-4 lg:w-5 lg:h-5 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                  </Button>
+                </DropdownMenuTrigger>
+                
+                {/* User Account Management Menu - Enhanced touch experience */}
+                <DropdownMenuContent align="end" className="w-56 md:w-64 lg:w-72 xl:w-80 touch-manipulation shadow-lg">
+                  {/* Account Profile Management */}
+                  <DropdownMenuItem className="touch-dropdown-item enhanced-focus" data-testid="menu-item-profile">
+                    <User className="mr-3 h-4 w-4 md:h-5 md:w-5" />
+                    <span className="text-sm md:text-base">Account Profile</span>
+                  </DropdownMenuItem>
+                  
+                  {/* System Preferences and Settings */}
+                  <DropdownMenuItem className="touch-dropdown-item enhanced-focus" data-testid="menu-item-settings">
+                    <Settings className="mr-3 h-4 w-4 md:h-5 md:w-5" />
+                    <span className="text-sm md:text-base">System Preferences</span>
+                  </DropdownMenuItem>
+                  
+                  {/* Secure Logout Functionality */}
+                  <DropdownMenuItem onClick={handleLogout} className="touch-dropdown-item enhanced-focus text-destructive hover:text-destructive" data-testid="menu-item-logout">
+                    <LogOut className="mr-3 h-4 w-4 md:h-5 md:w-5" />
+                    <span className="text-sm md:text-base">Sign Out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+
+            {/* Mobile Menu Trigger (Hamburger Button) - Enhanced touch target */}
+            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+              <SheetTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="md:hidden nav-button-mobile nav-button-tablet touch-button enhanced-focus transition-all duration-200 hover:bg-accent active:scale-95"
+                  data-testid="button-mobile-menu"
+                  aria-label="Open mobile navigation menu"
+                >
+                  <Menu className="w-6 h-6 transition-transform duration-200 hover:scale-110" />
+                </Button>
+              </SheetTrigger>
+            
+              {/* Mobile Navigation Menu Content - Enhanced responsive design with animations */}
+              <SheetContent side="right" className="w-[85vw] max-w-sm sm:max-w-md mobile-menu-enter" data-testid="sheet-mobile-menu">
+                <div className="flex flex-col h-full">
+                  
+                  {/* Mobile Menu Header - Enhanced design */}
+                  <div className="flex items-center space-x-4 pb-6 border-b border-border/50">
+                    <div className="w-14 h-14 bg-primary rounded-xl flex items-center justify-center shadow-lg transition-transform duration-200 hover:scale-105">
+                      <GraduationCap className="w-8 h-8 text-primary-foreground" />
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-bold text-foreground leading-tight">Smart Student Hub</h2>
+                      <p className="text-sm text-muted-foreground leading-snug">Institutional Excellence Management</p>
+                    </div>
                   </div>
-                )}
-              </div>
-            </SheetContent>
-          </Sheet>
+                
+                  {/* Mobile Navigation Menu Items - Enhanced touch optimization */}
+                  <nav className="flex flex-col space-y-2 py-6" data-testid="nav-mobile-menu">
+                    {navigationItems.map((item, index) => (
+                      <div
+                        key={item.href}
+                        className="fade-in"
+                        style={{ animationDelay: `${index * 50}ms` }}
+                      >
+                        <NavLink
+                          href={item.href}
+                          label={item.label}
+                          icon={item.icon}
+                          testId={`mobile-${item.testId}`}
+                          className="mobile-nav-item w-full justify-start text-base rounded-xl"
+                          onClick={closeMobileMenu}
+                        />
+                      </div>
+                    ))}
+                  </nav>
+                
+                  {/* Mobile Authentication Section - Enhanced touch optimization */}
+                  {!user && (
+                    <div className="flex flex-col space-y-4 pt-6 border-t border-border/50 mt-auto">
+                      <Button variant="ghost" className="mobile-nav-item w-full justify-start text-base rounded-xl border border-border/30 hover:border-primary/30" data-testid="mobile-button-login" asChild>
+                        <Link href="/login" onClick={closeMobileMenu}>
+                          <User className="w-5 h-5 mr-4" />
+                          Login to Account
+                        </Link>
+                      </Button>
+                      <Button className="mobile-nav-item w-full justify-start text-base rounded-xl shadow-md" data-testid="mobile-button-signup" asChild>
+                        <Link href="/signup" onClick={closeMobileMenu}>
+                          <User className="w-5 h-5 mr-4" />
+                          Create Account
+                        </Link>
+                      </Button>
+                    </div>
+                  )}
+                
+                  {/* Mobile User Section (Authenticated Users) - Enhanced touch experience */}
+                  {user && (
+                    <div className="flex flex-col space-y-4 pt-6 border-t border-border/50 mt-auto">
+                      {/* User Profile Display - Enhanced design */}
+                      <div className="flex items-center space-x-4 p-5 bg-muted/50 rounded-xl border border-border/30">
+                        <Avatar className="w-14 h-14 ring-2 ring-primary/20">
+                          <AvatarImage src={user.profileImageUrl || ""} />
+                          <AvatarFallback className="text-lg font-semibold">
+                            {user.firstName?.[0]}{user.lastName?.[0]}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-lg font-semibold text-foreground truncate">
+                            {user.firstName} {user.lastName}
+                          </div>
+                          <div className="text-sm text-muted-foreground capitalize truncate">
+                            {user.role}
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Mobile User Menu Actions - Enhanced touch optimization */}
+                      <Button variant="ghost" className="mobile-nav-item w-full justify-start text-base rounded-xl border border-border/30 hover:border-primary/30" data-testid="mobile-menu-item-profile">
+                        <User className="w-5 h-5 mr-4" />
+                        Account Profile
+                      </Button>
+                      <Button variant="ghost" className="mobile-nav-item w-full justify-start text-base rounded-xl border border-border/30 hover:border-primary/30" data-testid="mobile-menu-item-settings">
+                        <Settings className="w-5 h-5 mr-4" />
+                        System Preferences
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        className="mobile-nav-item w-full justify-start text-base text-destructive hover:text-destructive rounded-xl border border-destructive/30 hover:border-destructive/50" 
+                        onClick={handleLogout}
+                        data-testid="mobile-menu-item-logout"
+                      >
+                        <LogOut className="w-5 h-5 mr-4" />
+                        Sign Out
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
         </div>
       </div>
     </header>
