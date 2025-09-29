@@ -339,9 +339,11 @@ export default function Navigation() {
                 {/* User Account Management Menu - Enhanced touch experience */}
                 <DropdownMenuContent align="end" className="w-56 md:w-64 lg:w-72 xl:w-80 touch-manipulation shadow-lg">
                   {/* Account Profile Management */}
-                  <DropdownMenuItem className="touch-dropdown-item enhanced-focus" data-testid="menu-item-profile">
-                    <User className="mr-3 h-4 w-4 md:h-5 md:w-5" />
-                    <span className="text-sm md:text-base">Account Profile</span>
+                  <DropdownMenuItem className="touch-dropdown-item enhanced-focus" data-testid="menu-item-profile" asChild>
+                    <Link href="/profile">
+                      <User className="mr-3 h-4 w-4 md:h-5 md:w-5" />
+                      <span className="text-sm md:text-base">Account Profile</span>
+                    </Link>
                   </DropdownMenuItem>
                   
                   {/* System Preferences and Settings */}
@@ -448,9 +450,11 @@ export default function Navigation() {
                       </div>
                       
                       {/* Mobile User Menu Actions - Enhanced touch optimization */}
-                      <Button variant="ghost" className="mobile-nav-item w-full justify-start text-base rounded-xl border border-border/30 hover:border-primary/30" data-testid="mobile-menu-item-profile">
-                        <User className="w-5 h-5 mr-4" />
-                        Account Profile
+                      <Button variant="ghost" className="mobile-nav-item w-full justify-start text-base rounded-xl border border-border/30 hover:border-primary/30" data-testid="mobile-menu-item-profile" asChild>
+                        <Link href="/profile">
+                          <User className="w-5 h-5 mr-4" />
+                          Account Profile
+                        </Link>
                       </Button>
                       <Button variant="ghost" className="mobile-nav-item w-full justify-start text-base rounded-xl border border-border/30 hover:border-primary/30" data-testid="mobile-menu-item-settings">
                         <Settings className="w-5 h-5 mr-4" />

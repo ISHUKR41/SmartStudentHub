@@ -34,6 +34,7 @@ import ActivityUpload from "@/pages/activity-upload";
 import FacultyApprovals from "@/pages/faculty-approvals";
 import AdminAnalytics from "@/pages/admin-analytics";
 import DigitalPortfolio from "@/pages/digital-portfolio";
+import AccountProfile from "@/pages/account-profile";
 import { useAuth } from "@/hooks/useAuth";
 import { SignupDataHandler } from "@/components/SignupDataHandler";
 
@@ -80,6 +81,7 @@ function Router() {
           <Route path="/activities" component={Activities} />
           <Route path="/upload" component={ActivityUpload} />
           <Route path="/portfolio" component={DigitalPortfolio} />
+          <Route path="/profile" component={AccountProfile} />
           {(user?.role === 'faculty' || user?.role === 'admin') && (
             <Route path="/approvals" component={FacultyApprovals} />
           )}
