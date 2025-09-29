@@ -32,12 +32,12 @@
  * - Progressive enhancement for broader browser support
  */
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocation } from "wouter";
 import { useMutation } from "@tanstack/react-query";
-import { GraduationCap, Mail, AlertCircle } from "lucide-react";
+import { GraduationCap, Mail, AlertCircle, Shield, CheckCircle, Eye, EyeOff } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -59,6 +59,13 @@ export default function Login() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+  const [emailTouched, setEmailTouched] = useState(false);
+
+  // Enhanced entrance animation
+  useEffect(() => {
+    setIsVisible(true);
+  }, []);
 
   // Initialize form with validation schema
   const form = useForm<LoginFormData>({
@@ -143,13 +150,21 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background flex items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-6">
-        {/* Header Section */}
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted/10 to-background flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute top-1/4 left-1/4 w-32 h-32 bg-primary rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-1/4 right-1/4 w-24 h-24 bg-secondary rounded-full blur-2xl animate-pulse delay-1000" />
+      </div>
+      
+      <div className={`w-full max-w-md space-y-6 transition-all duration-1000 transform ${
+        isVisible ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
+      }`}>
+        {/* Enhanced Header Section */}
         <div className="text-center space-y-4">
           <div className="flex justify-center">
-            <div className="w-16 h-16 bg-primary rounded-xl flex items-center justify-center shadow-lg">
-              <GraduationCap className="w-8 h-8 text-primary-foreground" />
+            <div className="w-16 h-16 bg-primary rounded-xl flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group">
+              <GraduationCap className="w-8 h-8 text-primary-foreground group-hover:scale-110 transition-transform duration-300" />
             </div>
           </div>
           <div className="space-y-2">
@@ -160,10 +175,17 @@ export default function Login() {
           </div>
         </div>
 
-        {/* Login Form Card */}
-        <Card className="shadow-lg border-0 bg-card/95 backdrop-blur-sm">
+        {/* Enhanced Security Indicator */}
+        <div className="flex items-center justify-center space-x-2 text-xs text-muted-foreground bg-muted/50 rounded-full px-4 py-2 backdrop-blur-sm">
+          <Shield className="w-3 h-3 text-green-500" />
+          <span>Secured by Institutional Authentication</span>
+          <CheckCircle className="w-3 h-3 text-green-500" />
+        </div>
+
+        {/* Enhanced Login Form Card */}
+        <Card className="shadow-xl border-0 bg-card/95 backdrop-blur-sm hover:shadow-2xl transition-all duration-300 group">
           <CardHeader className="space-y-2 pb-6">
-            <CardTitle className="text-xl font-semibold text-center">Faculty & Student Login</CardTitle>
+            <CardTitle className="text-xl font-semibold text-center group-hover:scale-105 transition-transform duration-300">Faculty & Student Login</CardTitle>
             <CardDescription className="text-center text-sm">
               Authenticate using your institutional email address to access the Student Achievement Management System
             </CardDescription>
@@ -181,31 +203,48 @@ export default function Login() {
                   </Alert>
                 )}
 
-                {/* Email Field */}
+                {/* Enhanced Email Field */}
                 <FormField
                   control={form.control}
                   name="email"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-sm font-medium">Institutional Email Address</FormLabel>
+                      <FormLabel className="text-sm font-medium flex items-center space-x-2">
+                        <span>Institutional Email Address</span>
+                        {field.value && field.value.includes('@') && (
+                          <CheckCircle className="w-3 h-3 text-green-500 animate-in fade-in duration-300" />
+                        )}
+                      </FormLabel>
                       <FormControl>
-                        <div className="relative">
-                          <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                        <div className="relative group">
+                          <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 group-focus-within:text-primary transition-colors duration-200" />
                           <Input
                             {...field}
                             type="email"
                             placeholder="Enter your official academic email address"
-                            className="pl-10 h-11"
+                            className="pl-10 h-11 transition-all duration-200 focus:ring-2 focus:ring-primary/20 hover:border-primary/50"
                             disabled={loginMutation.isPending}
                             data-testid="input-email"
                             aria-describedby="email-description"
                             aria-label="Institutional email address for authentication"
                             autoComplete="email"
+                            onBlur={() => setEmailTouched(true)}
                             required
                           />
+                          {emailTouched && field.value && !field.value.includes('@') && (
+                            <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                              <AlertCircle className="w-4 h-4 text-amber-500 animate-pulse" />
+                            </div>
+                          )}
                         </div>
                       </FormControl>
                       <FormMessage />
+                      {emailTouched && field.value && field.value.includes('@') && (
+                        <div className="text-xs text-green-600 flex items-center space-x-1 animate-in slide-in-from-left duration-300">
+                          <CheckCircle className="w-3 h-3" />
+                          <span>Valid email format detected</span>
+                        </div>
+                      )}
                     </FormItem>
                   )}
                 />

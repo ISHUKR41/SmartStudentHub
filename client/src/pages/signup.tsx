@@ -36,7 +36,7 @@
  * - TypeScript for type safety and development efficiency
  */
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocation } from "wouter";
@@ -49,7 +49,11 @@ import {
   Building, 
   Hash,
   AlertCircle, 
-  UserPlus
+  UserPlus,
+  Shield,
+  CheckCircle,
+  Star,
+  Clock
 } from "lucide-react";
 import { apiRequest } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
@@ -74,6 +78,13 @@ export default function Signup() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+  const [completedSteps, setCompletedSteps] = useState<string[]>([]);
+
+  // Enhanced entrance animation
+  useEffect(() => {
+    setIsVisible(true);
+  }, []);
 
   // Initialize form with comprehensive validation
   const form = useForm<SignupFormData>({
@@ -89,13 +100,25 @@ export default function Signup() {
     mode: "onChange",
   });
 
-  // Calculate form completion progress
+  // Enhanced form completion progress with step tracking
   const watchedFields = form.watch();
   const totalFields = 6; // Total number of form fields (no password fields)
   const filledFields = Object.values(watchedFields).filter(value => 
     value !== undefined && value !== null && value !== ""
   ).length;
   const progressPercentage = Math.round((filledFields / totalFields) * 100);
+
+  // Track completed sections
+  useEffect(() => {
+    const steps = [];
+    if (watchedFields.firstName && watchedFields.lastName && watchedFields.email) {
+      steps.push('personal');
+    }
+    if (watchedFields.rollNumber && watchedFields.department && watchedFields.currentSemester) {
+      steps.push('academic');
+    }
+    setCompletedSteps(steps);
+  }, [watchedFields]);
 
 
   // Signup mutation for backend integration
@@ -162,13 +185,22 @@ export default function Signup() {
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background flex items-center justify-center p-4">
-      <div className="w-full max-w-lg space-y-6">
-        {/* Header Section */}
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted/10 to-background flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Enhanced Animated Background Elements */}
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute top-1/3 left-1/3 w-40 h-40 bg-primary rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-1/3 right-1/3 w-32 h-32 bg-secondary rounded-full blur-2xl animate-pulse delay-1000" />
+        <div className="absolute top-1/2 left-1/4 w-24 h-24 bg-accent rounded-full blur-xl animate-pulse delay-2000" />
+      </div>
+      
+      <div className={`w-full max-w-lg space-y-6 transition-all duration-1000 transform ${
+        isVisible ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
+      }`}>
+        {/* Enhanced Header Section */}
         <div className="text-center space-y-4">
           <div className="flex justify-center">
-            <div className="w-16 h-16 bg-primary rounded-xl flex items-center justify-center shadow-lg">
-              <UserPlus className="w-8 h-8 text-primary-foreground" />
+            <div className="w-16 h-16 bg-primary rounded-xl flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group">
+              <UserPlus className="w-8 h-8 text-primary-foreground group-hover:scale-110 transition-transform duration-300" />
             </div>
           </div>
           <div className="space-y-2">
@@ -179,19 +211,58 @@ export default function Signup() {
           </div>
         </div>
 
-        {/* Progress Indicator */}
-        <div className="space-y-2">
-          <div className="flex justify-between text-xs text-muted-foreground">
-            <span>Registration Progress</span>
-            <span>{progressPercentage}% Complete</span>
+        {/* Enhanced Progress Indicator with Steps */}
+        <div className="space-y-3">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center space-x-2">
+              <Clock className="w-3 h-3 text-muted-foreground" />
+              <span className="text-xs text-muted-foreground">Registration Progress</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <span className="text-xs font-medium text-primary">{progressPercentage}% Complete</span>
+              {progressPercentage === 100 && (
+                <Star className="w-3 h-3 text-yellow-500 animate-pulse" />
+              )}
+            </div>
           </div>
-          <Progress value={progressPercentage} className="h-2" />
+          <Progress value={progressPercentage} className="h-3 transition-all duration-500" />
+          
+          {/* Step Indicators */}
+          <div className="flex items-center space-x-4 text-xs">
+            <div className={`flex items-center space-x-1 transition-colors duration-300 ${
+              completedSteps.includes('personal') ? 'text-green-600' : 'text-muted-foreground'
+            }`}>
+              {completedSteps.includes('personal') ? (
+                <CheckCircle className="w-3 h-3" />
+              ) : (
+                <div className="w-3 h-3 rounded-full border-2 border-current" />
+              )}
+              <span>Personal Info</span>
+            </div>
+            <div className={`flex items-center space-x-1 transition-colors duration-300 ${
+              completedSteps.includes('academic') ? 'text-green-600' : 'text-muted-foreground'
+            }`}>
+              {completedSteps.includes('academic') ? (
+                <CheckCircle className="w-3 h-3" />
+              ) : (
+                <div className="w-3 h-3 rounded-full border-2 border-current" />
+              )}
+              <span>Academic Details</span>
+            </div>
+          </div>
         </div>
 
-        {/* Signup Form Card */}
-        <Card className="shadow-lg border-0 bg-card/95 backdrop-blur-sm">
+        {/* Enhanced Security Indicator */}
+        <div className="flex items-center justify-center space-x-2 text-xs text-muted-foreground bg-muted/50 rounded-full px-4 py-2 backdrop-blur-sm">
+          <Shield className="w-3 h-3 text-green-500" />
+          <span>Institutional-Grade Security & Verification</span>
+          <CheckCircle className="w-3 h-3 text-green-500" />
+        </div>
+
+        {/* Enhanced Signup Form Card */}
+        <Card className="shadow-xl border-0 bg-card/95 backdrop-blur-sm hover:shadow-2xl transition-all duration-300 group">
           <CardHeader className="space-y-2 pb-6">
-            <CardTitle className="text-xl font-semibold text-center">Student Registration</CardTitle>
+            <CardTitle className="text-xl font-semibold text-center group-hover:scale-105 transition-transform duration-300">Student Registration</CardTitle>
             <CardDescription className="text-center text-sm">
               Complete your academic profile to access institutional achievement tracking and portfolio generation services
             </CardDescription>
@@ -209,11 +280,16 @@ export default function Signup() {
                   </Alert>
                 )}
 
-                {/* Personal Information Section */}
-                <div className="space-y-4">
-                  <div className="flex items-center space-x-2 text-sm font-medium text-foreground">
-                    <User className="h-4 w-4" />
-                    <span>Personal & Contact Information</span>
+                {/* Enhanced Personal Information Section */}
+                <div className="space-y-4 p-4 rounded-lg bg-muted/20 border border-muted transition-all duration-300 hover:bg-muted/30">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2 text-sm font-medium text-foreground">
+                      <User className="h-4 w-4" />
+                      <span>Personal & Contact Information</span>
+                    </div>
+                    {completedSteps.includes('personal') && (
+                      <CheckCircle className="w-4 h-4 text-green-500 animate-in fade-in duration-300" />
+                    )}
                   </div>
                   
                   <div className="grid grid-cols-2 gap-4">
@@ -228,7 +304,7 @@ export default function Signup() {
                             <Input
                               {...field}
                               placeholder="Enter first name"
-                              className="h-11"
+                              className="h-11 transition-all duration-200 focus:ring-2 focus:ring-primary/20 hover:border-primary/50"
                               disabled={signupMutation.isPending}
                               data-testid="input-first-name"
                               aria-label="First name as per institutional records"
@@ -252,7 +328,7 @@ export default function Signup() {
                             <Input
                               {...field}
                               placeholder="Enter last name"
-                              className="h-11"
+                              className="h-11 transition-all duration-200 focus:ring-2 focus:ring-primary/20 hover:border-primary/50"
                               disabled={signupMutation.isPending}
                               data-testid="input-last-name"
                               aria-label="Last name as per institutional records"
@@ -274,13 +350,13 @@ export default function Signup() {
                       <FormItem>
                         <FormLabel className="text-sm font-medium">Institutional Email Address</FormLabel>
                         <FormControl>
-                          <div className="relative">
-                            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                          <div className="relative group">
+                            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 group-focus-within:text-primary transition-colors duration-200" />
                             <Input
                               {...field}
                               type="email"
                               placeholder="Enter your official academic email address"
-                              className="pl-10 h-11"
+                              className="pl-10 h-11 transition-all duration-200 focus:ring-2 focus:ring-primary/20 hover:border-primary/50"
                               disabled={signupMutation.isPending}
                               data-testid="input-email"
                               aria-describedby="email-description"
@@ -288,6 +364,11 @@ export default function Signup() {
                               autoComplete="email"
                               required
                             />
+                            {field.value && field.value.includes('@') && (
+                              <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                                <CheckCircle className="w-4 h-4 text-green-500 animate-in fade-in duration-300" />
+                              </div>
+                            )}
                           </div>
                         </FormControl>
                         <FormDescription className="text-xs">
@@ -300,11 +381,16 @@ export default function Signup() {
                 </div>
 
 
-                {/* Academic Information Section */}
-                <div className="space-y-4">
-                  <div className="flex items-center space-x-2 text-sm font-medium text-foreground">
-                    <BookOpen className="h-4 w-4" />
-                    <span>Academic Credentials & Enrollment Details</span>
+                {/* Enhanced Academic Information Section */}
+                <div className="space-y-4 p-4 rounded-lg bg-muted/20 border border-muted transition-all duration-300 hover:bg-muted/30">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2 text-sm font-medium text-foreground">
+                      <BookOpen className="h-4 w-4" />
+                      <span>Academic Credentials & Enrollment Details</span>
+                    </div>
+                    {completedSteps.includes('academic') && (
+                      <CheckCircle className="w-4 h-4 text-green-500 animate-in fade-in duration-300" />
+                    )}
                   </div>
 
                   {/* Roll Number */}
@@ -315,12 +401,12 @@ export default function Signup() {
                       <FormItem>
                         <FormLabel className="text-sm font-medium">Roll Number</FormLabel>
                         <FormControl>
-                          <div className="relative">
-                            <Hash className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                          <div className="relative group">
+                            <Hash className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 group-focus-within:text-primary transition-colors duration-200" />
                             <Input
                               {...field}
                               placeholder="Enter your roll number"
-                              className="pl-10 h-11 uppercase"
+                              className="pl-10 h-11 uppercase transition-all duration-200 focus:ring-2 focus:ring-primary/20 hover:border-primary/50"
                               disabled={signupMutation.isPending}
                               data-testid="input-roll-number"
                               onChange={(e) => field.onChange(e.target.value.toUpperCase())}
@@ -329,6 +415,11 @@ export default function Signup() {
                               autoComplete="off"
                               required
                             />
+                            {field.value && field.value.length >= 6 && (
+                              <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                                <CheckCircle className="w-4 h-4 text-green-500 animate-in fade-in duration-300" />
+                              </div>
+                            )}
                           </div>
                         </FormControl>
                         <FormDescription className="text-xs">
@@ -349,7 +440,7 @@ export default function Signup() {
                           <FormLabel className="text-sm font-medium">Department</FormLabel>
                           <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isSubmitting}>
                             <FormControl>
-                              <SelectTrigger className="h-11" data-testid="select-department">
+                              <SelectTrigger className="h-11 transition-all duration-200 focus:ring-2 focus:ring-primary/20 hover:border-primary/50" data-testid="select-department">
                                 <Building className="h-4 w-4 mr-2 text-muted-foreground" />
                                 <SelectValue placeholder="Select department" />
                               </SelectTrigger>
@@ -380,7 +471,7 @@ export default function Signup() {
                             disabled={signupMutation.isPending}
                           >
                             <FormControl>
-                              <SelectTrigger className="h-11" data-testid="select-semester">
+                              <SelectTrigger className="h-11 transition-all duration-200 focus:ring-2 focus:ring-primary/20 hover:border-primary/50" data-testid="select-semester">
                                 <GraduationCap className="h-4 w-4 mr-2 text-muted-foreground" />
                                 <SelectValue placeholder="Select semester" />
                               </SelectTrigger>
@@ -400,26 +491,45 @@ export default function Signup() {
                   </div>
                 </div>
 
-                {/* Submit Button */}
-                <Button
-                  type="submit"
-                  className="w-full h-11 text-sm font-medium"
-                  disabled={isSubmitting || !form.formState.isValid}
-                  data-testid="button-signup"
-                  aria-label="Submit academic registration form for institutional verification"
-                >
-                  {signupMutation.isPending ? (
-                    <div className="flex items-center space-x-2">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-foreground"></div>
-                      <span>Redirecting...</span>
-                    </div>
-                  ) : (
-                    <div className="flex items-center space-x-2">
-                      <GraduationCap className="h-4 w-4" />
-                      <span>Complete Academic Registration</span>
+                {/* Enhanced Submit Button */}
+                <div className="space-y-3">
+                  {progressPercentage === 100 && (
+                    <div className="text-center">
+                      <div className="inline-flex items-center space-x-2 text-xs text-green-600 bg-green-50 dark:bg-green-900/20 rounded-full px-3 py-1 animate-in fade-in duration-500">
+                        <CheckCircle className="w-3 h-3" />
+                        <span>All information completed - ready to register!</span>
+                      </div>
                     </div>
                   )}
-                </Button>
+                  
+                  <Button
+                    type="submit"
+                    className="w-full h-11 text-sm font-medium relative overflow-hidden group hover:shadow-lg transition-all duration-300"
+                    disabled={isSubmitting || !form.formState.isValid}
+                    data-testid="button-signup"
+                    aria-label="Submit academic registration form for institutional verification"
+                  >
+                    {/* Enhanced Button Background Effect */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-primary to-primary/80 transition-all duration-300 group-hover:from-primary/90 group-hover:to-primary" />
+                    
+                    <div className="relative z-10">
+                      {signupMutation.isPending ? (
+                        <div className="flex items-center space-x-2">
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-foreground"></div>
+                          <span>Creating Your Account...</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center space-x-2 group-hover:scale-105 transition-transform duration-200">
+                          <GraduationCap className="h-4 w-4" />
+                          <span>Complete Academic Registration</span>
+                          {progressPercentage === 100 && (
+                            <Star className="h-4 w-4 text-yellow-300 animate-pulse" />
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </Button>
+                </div>
               </form>
             </Form>
           </CardContent>
