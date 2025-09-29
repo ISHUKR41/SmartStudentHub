@@ -694,13 +694,13 @@ export default function StudentDashboard() {
                     data-testid="button-notifications"
                   >
                     <Bell className="w-4 h-4" />
-                    {notifications?.filter(n => !n.read).length > 0 && (
+                    {(notifications && notifications.filter(n => !n.read).length > 0) && (
                       <motion.span 
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center"
                       >
-                        {notifications?.filter(n => !n.read).length || 0}
+                        {notifications ? notifications.filter(n => !n.read).length : 0}
                       </motion.span>
                     )}
                   </Button>
@@ -717,7 +717,7 @@ export default function StudentDashboard() {
                         <div className="p-4 border-b">
                           <h3 className="font-semibold text-foreground">Notifications</h3>
                           <p className="text-xs text-muted-foreground">
-                            {notifications?.filter(n => !n.read).length || 0} unread
+                            {notifications ? notifications.filter(n => !n.read).length : 0} unread
                           </p>
                         </div>
                         <div className="max-h-80 overflow-y-auto">

@@ -23,22 +23,33 @@ import * as schema from "@shared/schema";
 // Configure Neon for serverless environment
 neonConfig.webSocketConstructor = ws;
 
-// Validate DATABASE_URL exists
-if (!process.env.DATABASE_URL) {
+// Validate DATABASE_URL exists with better error handling
+const databaseUrl = process.env.DATABASE_URL?.trim();
+console.log('DATABASE_URL debug info:');
+console.log('- Raw value:', JSON.stringify(process.env.DATABASE_URL));
+console.log('- Trimmed value:', JSON.stringify(databaseUrl));
+console.log('- Type:', typeof process.env.DATABASE_URL);
+console.log('- Length:', process.env.DATABASE_URL?.length);
+
+if (!databaseUrl) {
+  console.error('DATABASE_URL environment variable is not set or is empty');
+  console.log('Available environment variables:', Object.keys(process.env).filter(key => key.includes('DATABASE')));
+  
+  // Try to throw a more descriptive error
   throw new Error(
-    "DATABASE_URL must be set. Did you forget to provision a database?",
+    "DATABASE_URL must be set and not empty. Check if Replit secrets are properly configured.",
   );
 }
 
 // Log database configuration (masking sensitive info for security)
-const maskedUrl = process.env.DATABASE_URL.replace(/:(\/\/[^:]+:)[^@]+(@)/, ':$1***$2');
+const maskedUrl = databaseUrl.replace(/:(\/\/[^:]+:)[^@]+(@)/, ':$1***$2');
 console.log(`Database URL configured: ${maskedUrl}`);
 console.log(`Using Neon Serverless driver with WebSocket pooling`);
 
 // Create optimized connection pool for serverless environment
 // Pool manages connections efficiently with timeout handling
 export const pool = new Pool({ 
-  connectionString: process.env.DATABASE_URL,
+  connectionString: databaseUrl,
   // Optimized settings for serverless environment
   max: 1, // Single connection for serverless
   idleTimeoutMillis: 10000, // Close idle connections quickly
