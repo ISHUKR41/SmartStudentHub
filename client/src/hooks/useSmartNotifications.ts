@@ -327,7 +327,7 @@ export function useSmartNotifications() {
     toast(
       `NAAC Requirement: ${requirement}`,
       {
-        icon: <GraduationCap className="w-5 h-5" />,
+        icon: createElement(GraduationCap, { className: "w-5 h-5" }),
         duration: 12000,
         style: {
           background: 'hsl(var(--primary) / 0.05)',
