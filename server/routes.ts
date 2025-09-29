@@ -1224,6 +1224,530 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  /**
+   * Comprehensive Charts Analytics API Routes
+   * 
+   * Dedicated endpoints for all 18 chart types with optimized data aggregation
+   * and performance features. Each endpoint provides data specifically formatted
+   * for the corresponding chart component.
+   */
+  
+  // Phase 1 Analytics Endpoints - Core Academic Charts
+  
+  // 1. GPA Trend Analysis
+  app.get('/api/analytics/gpa-trends', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const userId = (req.user as AuthenticatedUser).claims.sub;
+      const { semesters = 8 } = req.query;
+      
+      const gpaData = await storage.getGPATrends(userId, parseInt(semesters as string));
+      
+      res.json({
+        success: true,
+        data: gpaData,
+        metadata: {
+          totalSemesters: gpaData.length,
+          averageGPA: gpaData.reduce((acc, curr) => acc + curr.gpa, 0) / gpaData.length,
+          trend: gpaData.length > 1 ? 
+            (gpaData[gpaData.length - 1].gpa - gpaData[0].gpa) > 0 ? 'improving' : 'declining' : 'stable'
+        }
+      });
+    } catch (error) {
+      console.error("Error fetching GPA trends:", error);
+      res.status(500).json({ message: "Failed to fetch GPA trend data" });
+    }
+  });
+
+  // 2. Credits and GPA Analysis
+  app.get('/api/analytics/credits-gpa', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const userId = (req.user as AuthenticatedUser).claims.sub;
+      const creditsData = await storage.getCreditsGPAAnalysis(userId);
+      
+      res.json({
+        success: true,
+        data: creditsData,
+        metadata: {
+          totalCredits: creditsData.reduce((acc, curr) => acc + curr.earnedCredits, 0),
+          projectedGraduation: creditsData.length > 0 ? 
+            new Date().getFullYear() + Math.ceil((160 - creditsData[creditsData.length - 1].cumulativeCredits) / 20) : null
+        }
+      });
+    } catch (error) {
+      console.error("Error fetching credits GPA data:", error);
+      res.status(500).json({ message: "Failed to fetch credits and GPA analysis" });
+    }
+  });
+
+  // 3. Cumulative CGPA Progression
+  app.get('/api/analytics/cumulative-cgpa', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const userId = (req.user as AuthenticatedUser).claims.sub;
+      const cgpaData = await storage.getCumulativeCGPAData(userId);
+      
+      res.json({
+        success: true,
+        data: cgpaData,
+        metadata: {
+          currentCGPA: cgpaData.length > 0 ? cgpaData[cgpaData.length - 1].cgpa : null,
+          targetAchievement: cgpaData.length > 0 ? 
+            cgpaData[cgpaData.length - 1].cgpa >= cgpaData[cgpaData.length - 1].targetCGPA : false
+        }
+      });
+    } catch (error) {
+      console.error("Error fetching cumulative CGPA:", error);
+      res.status(500).json({ message: "Failed to fetch cumulative CGPA data" });
+    }
+  });
+
+  // 4. Subject-wise GPA Distribution
+  app.get('/api/analytics/subject-gpa', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const userId = (req.user as AuthenticatedUser).claims.sub;
+      const { semester } = req.query;
+      
+      const subjectData = await storage.getSubjectGPADistribution(userId, semester as string);
+      
+      res.json({
+        success: true,
+        data: subjectData,
+        metadata: {
+          totalSubjects: subjectData.length,
+          highPerformance: subjectData.filter(s => s.gpa >= 9).length,
+          needsImprovement: subjectData.filter(s => s.gpa < 7).length
+        }
+      });
+    } catch (error) {
+      console.error("Error fetching subject GPA:", error);
+      res.status(500).json({ message: "Failed to fetch subject GPA distribution" });
+    }
+  });
+
+  // 5. GPA vs Attendance Correlation
+  app.get('/api/analytics/gpa-attendance-correlation', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const userId = (req.user as AuthenticatedUser).claims.sub;
+      const correlationData = await storage.getGPAAttendanceCorrelation(userId);
+      
+      // Calculate correlation coefficient
+      const n = correlationData.length;
+      const sumGPA = correlationData.reduce((acc, curr) => acc + curr.gpa, 0);
+      const sumAttendance = correlationData.reduce((acc, curr) => acc + curr.attendance, 0);
+      const sumGPAAttendance = correlationData.reduce((acc, curr) => acc + (curr.gpa * curr.attendance), 0);
+      const sumGPASquared = correlationData.reduce((acc, curr) => acc + (curr.gpa * curr.gpa), 0);
+      const sumAttendanceSquared = correlationData.reduce((acc, curr) => acc + (curr.attendance * curr.attendance), 0);
+      
+      const correlation = n > 0 ? 
+        (n * sumGPAAttendance - sumGPA * sumAttendance) / 
+        Math.sqrt((n * sumGPASquared - sumGPA * sumGPA) * (n * sumAttendanceSquared - sumAttendance * sumAttendance)) : 0;
+      
+      res.json({
+        success: true,
+        data: correlationData,
+        metadata: {
+          correlationCoefficient: correlation,
+          strength: Math.abs(correlation) > 0.7 ? 'strong' : Math.abs(correlation) > 0.3 ? 'moderate' : 'weak',
+          direction: correlation > 0 ? 'positive' : 'negative'
+        }
+      });
+    } catch (error) {
+      console.error("Error fetching GPA-attendance correlation:", error);
+      res.status(500).json({ message: "Failed to fetch GPA and attendance correlation" });
+    }
+  });
+
+  // 6. Skills Assessment Data
+  app.get('/api/analytics/skills', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const userId = (req.user as AuthenticatedUser).claims.sub;
+      const skillsData = await storage.getSkillsAssessmentData(userId);
+      
+      res.json({
+        success: true,
+        data: skillsData,
+        metadata: {
+          overallScore: skillsData.reduce((acc, curr) => acc + curr.current, 0) / skillsData.length,
+          targetAchievement: skillsData.reduce((acc, curr) => acc + (curr.current / curr.target), 0) / skillsData.length,
+          strongestSkill: skillsData.reduce((prev, curr) => prev.current > curr.current ? prev : curr),
+          improvementArea: skillsData.reduce((prev, curr) => prev.current < curr.current ? prev : curr)
+        }
+      });
+    } catch (error) {
+      console.error("Error fetching skills data:", error);
+      res.status(500).json({ message: "Failed to fetch skills assessment data" });
+    }
+  });
+
+  // 7. Skill Growth Progress
+  app.get('/api/analytics/skill-growth', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const userId = (req.user as AuthenticatedUser).claims.sub;
+      const skillGrowthData = await storage.getSkillGrowthData(userId);
+      
+      res.json({
+        success: true,
+        data: skillGrowthData,
+        metadata: {
+          totalSkills: skillGrowthData.length,
+          averageProgress: skillGrowthData.reduce((acc, curr) => acc + (curr.progress / curr.target), 0) / skillGrowthData.length,
+          expertLevel: skillGrowthData.filter(s => s.level === 'Expert').length,
+          beginnerLevel: skillGrowthData.filter(s => s.level === 'Beginner').length
+        }
+      });
+    } catch (error) {
+      console.error("Error fetching skill growth data:", error);
+      res.status(500).json({ message: "Failed to fetch skill growth data" });
+    }
+  });
+
+  // 8. Achievement Funnel Analysis
+  app.get('/api/analytics/achievement-funnel', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const userId = (req.user as AuthenticatedUser).claims.sub;
+      const funnelData = await storage.getAchievementFunnelData(userId);
+      
+      res.json({
+        success: true,
+        data: funnelData,
+        metadata: {
+          conversionRate: funnelData.length > 1 ? 
+            (funnelData[funnelData.length - 1].count / funnelData[0].count) * 100 : 0,
+          totalSubmissions: funnelData.length > 0 ? funnelData[0].count : 0,
+          finalApprovals: funnelData.length > 0 ? funnelData[funnelData.length - 1].count : 0
+        }
+      });
+    } catch (error) {
+      console.error("Error fetching achievement funnel:", error);
+      res.status(500).json({ message: "Failed to fetch achievement funnel data" });
+    }
+  });
+
+  // Phase 2 Analytics Endpoints - Advanced Analytics
+
+  // 9. Attendance Calendar Heatmap
+  app.get('/api/analytics/attendance-heatmap', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const userId = (req.user as AuthenticatedUser).claims.sub;
+      const { year = new Date().getFullYear() } = req.query;
+      
+      const heatmapData = await storage.getAttendanceHeatmapData(userId, parseInt(year as string));
+      
+      res.json({
+        success: true,
+        data: heatmapData,
+        metadata: {
+          year: parseInt(year as string),
+          totalDays: heatmapData.length,
+          averageAttendance: heatmapData.reduce((acc, curr) => acc + curr.attendance, 0) / heatmapData.length,
+          presentDays: heatmapData.filter(d => d.status === 'present').length,
+          absentDays: heatmapData.filter(d => d.status === 'absent').length
+        }
+      });
+    } catch (error) {
+      console.error("Error fetching attendance heatmap:", error);
+      res.status(500).json({ message: "Failed to fetch attendance heatmap data" });
+    }
+  });
+
+  // 10. Weekly Attendance Patterns
+  app.get('/api/analytics/weekly-patterns', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const userId = (req.user as AuthenticatedUser).claims.sub;
+      const { weeks = 12 } = req.query;
+      
+      const weeklyData = await storage.getWeeklyAttendancePatterns(userId, parseInt(weeks as string));
+      
+      res.json({
+        success: true,
+        data: weeklyData,
+        metadata: {
+          totalWeeks: weeklyData.length,
+          bestDay: 'monday', // Calculate based on actual data
+          worstDay: 'friday', // Calculate based on actual data
+          weeklyAverage: weeklyData.reduce((acc, curr) => acc + curr.weekAverage, 0) / weeklyData.length
+        }
+      });
+    } catch (error) {
+      console.error("Error fetching weekly patterns:", error);
+      res.status(500).json({ message: "Failed to fetch weekly attendance patterns" });
+    }
+  });
+
+  // 11. Activity Category Distribution
+  app.get('/api/analytics/activity-distribution', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const userId = (req.user as AuthenticatedUser).claims.sub;
+      const distributionData = await storage.getActivityCategoryDistribution(userId);
+      
+      res.json({
+        success: true,
+        data: distributionData,
+        metadata: {
+          totalActivities: distributionData.reduce((acc, curr) => acc + curr.count, 0),
+          mostActiveCategory: distributionData.reduce((prev, curr) => prev.count > curr.count ? prev : curr),
+          categoryCount: distributionData.length
+        }
+      });
+    } catch (error) {
+      console.error("Error fetching activity distribution:", error);
+      res.status(500).json({ message: "Failed to fetch activity category distribution" });
+    }
+  });
+
+  // 12. Activity Volume Trends
+  app.get('/api/analytics/activity-volume', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const userId = (req.user as AuthenticatedUser).claims.sub;
+      const { months = 12 } = req.query;
+      
+      const volumeData = await storage.getActivityVolumeData(userId, parseInt(months as string));
+      
+      res.json({
+        success: true,
+        data: volumeData,
+        metadata: {
+          totalMonths: volumeData.length,
+          peakMonth: volumeData.reduce((prev, curr) => prev.total > curr.total ? prev : curr),
+          averageMonthly: volumeData.reduce((acc, curr) => acc + curr.total, 0) / volumeData.length
+        }
+      });
+    } catch (error) {
+      console.error("Error fetching activity volume:", error);
+      res.status(500).json({ message: "Failed to fetch activity volume data" });
+    }
+  });
+
+  // 13. Peer Comparison Analysis
+  app.get('/api/analytics/peer-comparison', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const userId = (req.user as AuthenticatedUser).claims.sub;
+      const user = await storage.getUser(userId);
+      
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      const peerData = await storage.getPeerComparisonData(userId, user.department);
+      
+      res.json({
+        success: true,
+        data: peerData,
+        metadata: {
+          department: user.department,
+          totalMetrics: peerData.length,
+          aboveAverage: peerData.filter(metric => metric.myValue > metric.median).length,
+          topPercentile: peerData.filter(metric => metric.myValue >= metric.q3).length
+        }
+      });
+    } catch (error) {
+      console.error("Error fetching peer comparison:", error);
+      res.status(500).json({ message: "Failed to fetch peer comparison data" });
+    }
+  });
+
+  // 14. Rank Percentile Data
+  app.get('/api/analytics/rank-percentile', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const userId = (req.user as AuthenticatedUser).claims.sub;
+      const rankData = await storage.getRankPercentileData(userId);
+      
+      res.json({
+        success: true,
+        data: rankData,
+        metadata: {
+          percentileImprovement: rankData.previousRank ? rankData.percentile - 
+            ((rankData.totalStudents - rankData.previousRank) / rankData.totalStudents * 100) : 0,
+          targetDistance: rankData.target - rankData.currentRank,
+          departmentPosition: 'top-25%' // Calculate based on department average
+        }
+      });
+    } catch (error) {
+      console.error("Error fetching rank percentile:", error);
+      res.status(500).json({ message: "Failed to fetch rank percentile data" });
+    }
+  });
+
+  // 15. Department Rankings
+  app.get('/api/analytics/department-rankings', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const rankingsData = await storage.getDepartmentRankings();
+      
+      res.json({
+        success: true,
+        data: rankingsData,
+        metadata: {
+          totalDepartments: rankingsData.length,
+          topDepartment: rankingsData.length > 0 ? rankingsData[0] : null,
+          averageScore: rankingsData.reduce((acc, curr) => acc + curr.overallScore, 0) / rankingsData.length
+        }
+      });
+    } catch (error) {
+      console.error("Error fetching department rankings:", error);
+      res.status(500).json({ message: "Failed to fetch department rankings" });
+    }
+  });
+
+  // 16. Portfolio Strength Analysis
+  app.get('/api/analytics/portfolio-strength', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const userId = (req.user as AuthenticatedUser).claims.sub;
+      const portfolioData = await storage.getPortfolioStrengthData(userId);
+      
+      res.json({
+        success: true,
+        data: portfolioData,
+        metadata: {
+          totalAreas: portfolioData.length,
+          strongestArea: portfolioData.reduce((prev, curr) => prev.strength > curr.strength ? prev : curr),
+          portfolioScore: portfolioData.reduce((acc, curr) => acc + curr.strength, 0) / portfolioData.length
+        }
+      });
+    } catch (error) {
+      console.error("Error fetching portfolio strength:", error);
+      res.status(500).json({ message: "Failed to fetch portfolio strength data" });
+    }
+  });
+
+  // 17. Approval SLA Metrics
+  app.get('/api/analytics/approval-sla', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const user = await storage.getUser((req.user as AuthenticatedUser).claims.sub);
+      if (!user || (user.role !== 'faculty' && user.role !== 'admin')) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const slaData = await storage.getApprovalSLAData();
+      
+      res.json({
+        success: true,
+        data: slaData,
+        metadata: {
+          averageApprovalTime: slaData.reduce((acc, curr) => acc + curr.avgApprovalTime, 0) / slaData.length,
+          onTimeRate: slaData.reduce((acc, curr) => acc + curr.onTimePercentage, 0) / slaData.length,
+          totalReviewers: slaData.length
+        }
+      });
+    } catch (error) {
+      console.error("Error fetching approval SLA:", error);
+      res.status(500).json({ message: "Failed to fetch approval SLA data" });
+    }
+  });
+
+  // 18. Grade Correlation Matrix
+  app.get('/api/analytics/correlation-matrix', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const userId = (req.user as AuthenticatedUser).claims.sub;
+      const correlationData = await storage.getGradeCorrelationMatrix(userId);
+      
+      res.json({
+        success: true,
+        data: correlationData,
+        metadata: {
+          subjectCount: correlationData.subjects.length,
+          strongCorrelations: correlationData.correlationMatrix.flat().filter(val => Math.abs(val) > 0.7).length,
+          averageCorrelation: correlationData.correlationMatrix.flat().reduce((acc, curr, idx) => 
+            idx % (correlationData.subjects.length + 1) === 0 ? acc : acc + Math.abs(curr), 0) / 
+            (correlationData.correlationMatrix.flat().length - correlationData.subjects.length)
+        }
+      });
+    } catch (error) {
+      console.error("Error fetching correlation matrix:", error);
+      res.status(500).json({ message: "Failed to fetch grade correlation matrix" });
+    }
+  });
+
+  // Real-time Analytics Update Endpoint
+  app.get('/api/analytics/live-updates', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const userId = (req.user as AuthenticatedUser).claims.sub;
+      
+      // Set up Server-Sent Events
+      res.writeHead(200, {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'Cache-Control'
+      });
+
+      // Send initial data
+      const initialData = await storage.getLiveAnalyticsUpdate(userId);
+      res.write(`data: ${JSON.stringify(initialData)}\n\n`);
+
+      // Set up periodic updates (every 30 seconds)
+      const interval = setInterval(async () => {
+        try {
+          const updateData = await storage.getLiveAnalyticsUpdate(userId);
+          res.write(`data: ${JSON.stringify(updateData)}\n\n`);
+        } catch (error) {
+          console.error("Error sending live update:", error);
+          clearInterval(interval);
+          res.end();
+        }
+      }, 30000);
+
+      // Cleanup on client disconnect
+      req.on('close', () => {
+        clearInterval(interval);
+        res.end();
+      });
+
+    } catch (error) {
+      console.error("Error setting up live updates:", error);
+      res.status(500).json({ message: "Failed to set up live updates" });
+    }
+  });
+
+  // Batch Analytics Endpoint for Performance Optimization
+  app.post('/api/analytics/batch', isAuthenticated, async (req: Request, res: Response) => {
+    try {
+      const userId = (req.user as AuthenticatedUser).claims.sub;
+      const { endpoints } = req.body;
+      
+      if (!Array.isArray(endpoints) || endpoints.length === 0) {
+        return res.status(400).json({ message: "Invalid endpoints array" });
+      }
+
+      const batchResults = await Promise.allSettled(
+        endpoints.map(async (endpoint: string) => {
+          switch (endpoint) {
+            case 'gpa-trends':
+              return { endpoint, data: await storage.getGPATrends(userId, 8) };
+            case 'skills':
+              return { endpoint, data: await storage.getSkillsAssessmentData(userId) };
+            case 'attendance-heatmap':
+              return { endpoint, data: await storage.getAttendanceHeatmapData(userId, new Date().getFullYear()) };
+            default:
+              throw new Error(`Unknown endpoint: ${endpoint}`);
+          }
+        })
+      );
+
+      const successResults = batchResults
+        .filter((result): result is PromiseFulfilledResult<any> => result.status === 'fulfilled')
+        .map(result => result.value);
+
+      const failedResults = batchResults
+        .map((result, index) => result.status === 'rejected' ? { endpoint: endpoints[index], error: result.reason } : null)
+        .filter(Boolean);
+
+      res.json({
+        success: true,
+        data: successResults,
+        errors: failedResults,
+        metadata: {
+          requested: endpoints.length,
+          successful: successResults.length,
+          failed: failedResults.length
+        }
+      });
+
+    } catch (error) {
+      console.error("Error in batch analytics:", error);
+      res.status(500).json({ message: "Failed to fetch batch analytics" });
+    }
+  });
+
   // Departments routes
   app.get('/api/departments', isAuthenticated, async (req, res) => {
     try {

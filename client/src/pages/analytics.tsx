@@ -36,21 +36,8 @@ import {
 } from "lucide-react";
 
 // Import comprehensive chart library
-import {
-  GPATrendChart,
-  CreditsProgressChart,
-  AttendanceCalendarHeatmap,
-  CategoryDistributionChart,
-  GoalsProgressChart,
-  AchievementsTimelineChart,
-  AttendanceWeekdayChart,
-  GradeDistributionChart,
-  AssignmentTimelineChart,
-  RankComparisonChart,
-  AlertsVolumeChart,
-  KPITilesWithSparklines,
-  AttendanceBySubjectChart
-} from '@/components/charts/comprehensive-charts';
+import ComprehensiveCharts from '@/components/charts/comprehensive-charts';
+import { AchievementsTimelineChart } from '@/components/charts/phase1-academic-charts';
 
 interface DashboardSnapshots {
   personalMetrics: {
