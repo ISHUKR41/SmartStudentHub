@@ -491,7 +491,7 @@ export default function SignupPage() {
                     <p className="text-sm text-gray-600">
                       Already have an account?{" "}
                       <Link
-                        href="/signin"
+                        href="/firebase-signin"
                         className="font-semibold text-blue-600 hover:text-blue-800 transition-colors"
                       >
                         Sign in here
