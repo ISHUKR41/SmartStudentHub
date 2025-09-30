@@ -55,7 +55,7 @@ Firebase configuration is defined in `client/src/firebase/config.ts`:
   projectId: "smart-student-hub-75",
   storageBucket: "smart-student-hub-75.firebasestorage.app",
   messagingSenderId: "77366186543",
-  appId: "1:77366186543:web:a1b2c3d4e5f6g7h8i9j0k1l2"
+  appId: "1:77366186543:web:a05fb48a11addde782acda"
 }
 ```
 
@@ -78,7 +78,12 @@ Firebase configuration is defined in `client/src/firebase/config.ts`:
 2. **Dashboard Chart Warnings**: StudentDashboard has some chart data warnings (not auth-related, does not affect functionality).
 3. **Firestore Optional**: Firestore is disabled to prevent AbortError connection issues. Authentication works perfectly with Firebase Auth only.
 
-### Recent Fixes
+### Recent Fixes (September 30, 2025)
+- ✅ **Updated Firebase Configuration**: Corrected appId to match actual Firebase project credentials
+- ✅ **Fixed Routing Issues**: Corrected signup page redirect from `/signin` to `/firebase-signin`
+- ✅ **Fixed Regex Patterns**: Fixed double backslash issues in signup validation patterns for name and password fields
+- ✅ **Verified All Routes**: Confirmed all authentication routes are working correctly
+- ✅ **Fixed signup.tsx Link**: Updated signin link from `/signin` to `/firebase-signin` for proper navigation
 - ✅ Fixed duplicate Firebase initialization
 - ✅ Corrected invalid appId format
 - ✅ Made Firestore optional to prevent connection errors
