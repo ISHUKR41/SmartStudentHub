@@ -1,15 +1,16 @@
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo, useEffect, useRef, MouseEvent } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useLocation } from 'wouter';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence, useAnimation, useInView } from 'framer-motion';
 import Particles from '@tsparticles/react';
 import { TypeAnimation } from 'react-type-animation';
 import VanillaTilt from 'vanilla-tilt';
 import { ClipLoader } from 'react-spinners';
 import Swal from 'sweetalert2';
 import zxcvbn from 'zxcvbn';
+import Confetti from 'react-confetti';
 import { 
   Eye, 
   EyeOff, 
@@ -27,7 +28,6 @@ import {
 } from 'lucide-react';
 import { signUpUser } from '@/firebase/auth';
 
-// Form validation schema
 const signupSchema = z.object({
   firstName: z.string()
     .min(2, 'First name must be at least 2 characters')
@@ -66,7 +66,16 @@ export default function FirebaseSignup() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [focusedField, setFocusedField] = useState<string | null>(null);
+  const [ripples, setRipples] = useState<Array<{ x: number; y: number; id: number }>>([]);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [windowSize, setWindowSize] = useState({ width: window.innerWidth, height: window.innerHeight });
   const tiltRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const formRef = useRef<HTMLDivElement>(null);
+  const glowControls = useAnimation();
+  const isInView = useInView(formRef, { once: false, amount: 0.3 });
 
   const {
     register,
@@ -81,7 +90,14 @@ export default function FirebaseSignup() {
   const formValues = watch();
   const passwordValue = watch('password');
 
-  // Initialize VanillaTilt effect
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowSize({ width: window.innerWidth, height: window.innerHeight });
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   useEffect(() => {
     if (tiltRef.current) {
       VanillaTilt.init(tiltRef.current, {
@@ -98,13 +114,25 @@ export default function FirebaseSignup() {
     };
   }, []);
 
-  // Password strength calculation using zxcvbn
+  useEffect(() => {
+    const animateGlow = async () => {
+      await glowControls.start({
+        x: ['0%', '200%'],
+        transition: {
+          duration: 3,
+          repeat: Infinity,
+          ease: 'linear',
+        },
+      });
+    };
+    animateGlow();
+  }, [glowControls]);
+
   const passwordStrength = useMemo(() => {
     if (!passwordValue || passwordValue.length === 0) return null;
     return zxcvbn(passwordValue);
   }, [passwordValue]);
 
-  // Password requirements
   const passwordRequirements = useMemo(() => {
     const pwd = passwordValue || '';
     return {
@@ -116,7 +144,6 @@ export default function FirebaseSignup() {
     };
   }, [passwordValue]);
 
-  // Get strength color and label
   const getStrengthInfo = () => {
     if (!passwordStrength) return { color: 'bg-gray-300', label: '', width: '0%' };
     
@@ -131,14 +158,32 @@ export default function FirebaseSignup() {
 
   const strengthInfo = getStrengthInfo();
 
-  // Form submission handler
+  const handleMouseMove = (e: MouseEvent<HTMLButtonElement>) => {
+    if (!buttonRef.current) return;
+    const rect = buttonRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    setMousePosition({ x, y });
+  };
+
+  const handleRippleClick = (e: MouseEvent<HTMLButtonElement>) => {
+    if (!buttonRef.current) return;
+    const rect = buttonRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const id = Date.now();
+    setRipples((prev) => [...prev, { x, y, id }]);
+    setTimeout(() => {
+      setRipples((prev) => prev.filter((ripple) => ripple.id !== id));
+    }, 600);
+  };
+
   const onSubmit = async (data: SignupFormData) => {
     setIsLoading(true);
     try {
       const { firstName, lastName, confirmPassword, ...rest } = data;
       const fullName = `${firstName} ${lastName}`;
       
-      // Create username from email
       const username = data.email.split('@')[0].toLowerCase();
       
       await signUpUser(
@@ -148,23 +193,27 @@ export default function FirebaseSignup() {
           email: rest.email,
           college: rest.college,
           registrationNo: rest.registrationNo,
-          age: 18, // Default age, can be made configurable
+          age: 18,
         },
         rest.password
       );
 
-      await Swal.fire({
-        icon: 'success',
-        title: 'Account Created!',
-        html: 'Please check your email to verify your account.<br/>Check your spam folder if you don\'t see it.',
-        showConfirmButton: true,
-        confirmButtonText: 'Continue to Verification',
-        confirmButtonColor: 'hsl(var(--primary))',
-        background: 'hsl(var(--card))',
-        color: 'hsl(var(--card-foreground))',
-      });
-
-      setLocation('/email-verification');
+      setShowConfetti(true);
+      
+      setTimeout(async () => {
+        setShowConfetti(false);
+        await Swal.fire({
+          icon: 'success',
+          title: 'Account Created!',
+          html: 'Please check your email to verify your account.<br/>Check your spam folder if you don\'t see it.',
+          showConfirmButton: true,
+          confirmButtonText: 'Continue to Verification',
+          confirmButtonColor: 'hsl(var(--primary))',
+          background: 'hsl(var(--card))',
+          color: 'hsl(var(--card-foreground))',
+        });
+        setLocation('/email-verification');
+      }, 3000);
     } catch (error: any) {
       await Swal.fire({
         icon: 'error',
@@ -179,9 +228,45 @@ export default function FirebaseSignup() {
     }
   };
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.08,
+        delayChildren: 0.2,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20, scale: 0.95 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: {
+        type: 'spring',
+        stiffness: 100,
+        damping: 12,
+      },
+    },
+  };
+
   return (
     <div className="min-h-screen w-full overflow-hidden relative">
-      {/* Particles Background */}
+      <AnimatePresence>
+        {showConfetti && (
+          <Confetti
+            width={windowSize.width}
+            height={windowSize.height}
+            recycle={false}
+            numberOfPieces={500}
+            gravity={0.3}
+          />
+        )}
+      </AnimatePresence>
+
       <Particles
         id="tsparticles"
         className="absolute inset-0 z-0"
@@ -254,19 +339,33 @@ export default function FirebaseSignup() {
         }}
       />
 
+      <motion.div
+        className="absolute inset-0 z-0 opacity-30"
+        animate={{
+          background: [
+            'radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.3) 0%, transparent 50%)',
+            'radial-gradient(circle at 80% 50%, rgba(139, 92, 246, 0.3) 0%, transparent 50%)',
+            'radial-gradient(circle at 50% 80%, rgba(236, 72, 153, 0.3) 0%, transparent 50%)',
+            'radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.3) 0%, transparent 50%)',
+          ],
+        }}
+        transition={{
+          duration: 10,
+          repeat: Infinity,
+          ease: 'linear',
+        }}
+      />
+
       <div className="relative z-10 flex min-h-screen">
-        {/* Left Side - Platform Information */}
         <motion.div
           initial={{ opacity: 0, x: -50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8 }}
           className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary via-primary-600 to-primary-800 p-12 flex-col justify-center items-center relative overflow-hidden"
         >
-          {/* Animated gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-tr from-purple-500/20 to-pink-500/20 animate-pulse" />
 
           <div className="relative z-10 max-w-lg space-y-8">
-            {/* Logo and Title */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -281,7 +380,6 @@ export default function FirebaseSignup() {
               <h1 className="text-4xl font-bold text-white mb-4">Smart Student Hub</h1>
             </motion.div>
 
-            {/* Typewriter Animation */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -306,7 +404,6 @@ export default function FirebaseSignup() {
               />
             </motion.div>
 
-            {/* 3D Tilt Card with Stats */}
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -314,31 +411,34 @@ export default function FirebaseSignup() {
             >
               <div ref={tiltRef} className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="text-center p-4 bg-white/5 rounded-xl">
-                    <Users className="w-8 h-8 text-white mx-auto mb-2" />
-                    <p className="text-2xl font-bold text-white">10K+</p>
-                    <p className="text-sm text-white/70">Active Students</p>
-                  </div>
-                  <div className="text-center p-4 bg-white/5 rounded-xl">
-                    <Award className="w-8 h-8 text-white mx-auto mb-2" />
-                    <p className="text-2xl font-bold text-white">50K+</p>
-                    <p className="text-sm text-white/70">Achievements</p>
-                  </div>
-                  <div className="text-center p-4 bg-white/5 rounded-xl">
-                    <TrendingUp className="w-8 h-8 text-white mx-auto mb-2" />
-                    <p className="text-2xl font-bold text-white">98%</p>
-                    <p className="text-sm text-white/70">Success Rate</p>
-                  </div>
-                  <div className="text-center p-4 bg-white/5 rounded-xl">
-                    <GraduationCap className="w-8 h-8 text-white mx-auto mb-2" />
-                    <p className="text-2xl font-bold text-white">200+</p>
-                    <p className="text-sm text-white/70">Institutions</p>
-                  </div>
+                  {[
+                    { icon: Users, value: '10K+', label: 'Active Students' },
+                    { icon: Award, value: '50K+', label: 'Achievements' },
+                    { icon: TrendingUp, value: '98%', label: 'Success Rate' },
+                    { icon: GraduationCap, value: '200+', label: 'Institutions' },
+                  ].map((stat, index) => (
+                    <motion.div
+                      key={index}
+                      className="text-center p-4 bg-white/5 rounded-xl"
+                      animate={{
+                        y: [0, -10, 0],
+                      }}
+                      transition={{
+                        duration: 3,
+                        repeat: Infinity,
+                        delay: index * 0.2,
+                        ease: 'easeInOut',
+                      }}
+                    >
+                      <stat.icon className="w-8 h-8 text-white mx-auto mb-2" />
+                      <p className="text-2xl font-bold text-white">{stat.value}</p>
+                      <p className="text-sm text-white/70">{stat.label}</p>
+                    </motion.div>
+                  ))}
                 </div>
               </div>
             </motion.div>
 
-            {/* Feature List */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -366,302 +466,693 @@ export default function FirebaseSignup() {
           </div>
         </motion.div>
 
-        {/* Right Side - Sign Up Form */}
         <motion.div
           initial={{ opacity: 0, x: 50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8 }}
           className="w-full lg:w-1/2 flex items-center justify-center p-6 lg:p-12 bg-background overflow-y-auto"
         >
-          <div className="w-full max-w-md">
-            {/* Mobile Logo */}
+          <div className="w-full max-w-md" ref={formRef}>
             <div className="lg:hidden flex justify-center mb-8">
               <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center">
                 <GraduationCap className="w-10 h-10 text-primary-foreground" />
               </div>
             </div>
 
-            {/* Glassmorphism Card */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.6 }}
-              className="bg-white/60 dark:bg-gray-900/60 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-white/20 dark:border-gray-700/20"
+              className="bg-white/60 dark:bg-gray-900/60 backdrop-blur-xl rounded-3xl p-8 shadow-2xl border border-white/20 dark:border-gray-700/20 relative overflow-hidden"
             >
-              <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold text-foreground mb-2">Create Account</h2>
-                <p className="text-muted-foreground">Join the Smart Student Hub community</p>
-              </div>
+              <motion.div
+                className="absolute inset-0 opacity-30"
+                animate={glowControls}
+                style={{
+                  background: 'linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.5), transparent)',
+                  width: '50%',
+                }}
+              />
 
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-                {/* First Name Input */}
-                <div className="relative">
-                  <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground z-10" />
-                  <input
-                    {...register('firstName')}
-                    type="text"
-                    className="peer w-full pl-12 pr-4 py-3.5 bg-white/50 dark:bg-gray-800/50 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:border-primary transition-all duration-300 placeholder-transparent"
-                    placeholder="First Name"
-                    data-testid="input-firstname"
-                  />
-                  <label
-                    className={`absolute left-12 transition-all duration-300 pointer-events-none ${
-                      formValues.firstName
-                        ? '-top-2.5 text-xs bg-background px-2 text-primary font-medium'
-                        : 'top-1/2 -translate-y-1/2 text-muted-foreground peer-focus:-top-2.5 peer-focus:text-xs peer-focus:bg-background peer-focus:px-2 peer-focus:text-primary peer-focus:font-medium'
-                    }`}
-                  >
-                    First Name
-                  </label>
-                  {errors.firstName && (
-                    <p className="mt-1 text-sm text-destructive">{errors.firstName.message}</p>
-                  )}
-                </div>
+              <motion.div
+                variants={containerVariants}
+                initial="hidden"
+                animate={isInView ? "visible" : "hidden"}
+                className="relative z-10"
+              >
+                <motion.div variants={itemVariants} className="text-center mb-8">
+                  <h2 className="text-3xl font-bold text-foreground mb-2">Create Account</h2>
+                  <p className="text-muted-foreground">Join the Smart Student Hub community</p>
+                </motion.div>
 
-                {/* Last Name Input */}
-                <div className="relative">
-                  <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground z-10" />
-                  <input
-                    {...register('lastName')}
-                    type="text"
-                    className="peer w-full pl-12 pr-4 py-3.5 bg-white/50 dark:bg-gray-800/50 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:border-primary transition-all duration-300 placeholder-transparent"
-                    placeholder="Last Name"
-                    data-testid="input-lastname"
-                  />
-                  <label
-                    className={`absolute left-12 transition-all duration-300 pointer-events-none ${
-                      formValues.lastName
-                        ? '-top-2.5 text-xs bg-background px-2 text-primary font-medium'
-                        : 'top-1/2 -translate-y-1/2 text-muted-foreground peer-focus:-top-2.5 peer-focus:text-xs peer-focus:bg-background peer-focus:px-2 peer-focus:text-primary peer-focus:font-medium'
-                    }`}
-                  >
-                    Last Name
-                  </label>
-                  {errors.lastName && (
-                    <p className="mt-1 text-sm text-destructive">{errors.lastName.message}</p>
-                  )}
-                </div>
-
-                {/* College Input */}
-                <div className="relative">
-                  <Building className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground z-10" />
-                  <input
-                    {...register('college')}
-                    type="text"
-                    className="peer w-full pl-12 pr-4 py-3.5 bg-white/50 dark:bg-gray-800/50 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:border-primary transition-all duration-300 placeholder-transparent"
-                    placeholder="College"
-                    data-testid="input-college"
-                  />
-                  <label
-                    className={`absolute left-12 transition-all duration-300 pointer-events-none ${
-                      formValues.college
-                        ? '-top-2.5 text-xs bg-background px-2 text-primary font-medium'
-                        : 'top-1/2 -translate-y-1/2 text-muted-foreground peer-focus:-top-2.5 peer-focus:text-xs peer-focus:bg-background peer-focus:px-2 peer-focus:text-primary peer-focus:font-medium'
-                    }`}
-                  >
-                    College Name
-                  </label>
-                  {errors.college && (
-                    <p className="mt-1 text-sm text-destructive">{errors.college.message}</p>
-                  )}
-                </div>
-
-                {/* Registration Number Input */}
-                <div className="relative">
-                  <Hash className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground z-10" />
-                  <input
-                    {...register('registrationNo')}
-                    type="text"
-                    className="peer w-full pl-12 pr-4 py-3.5 bg-white/50 dark:bg-gray-800/50 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:border-primary transition-all duration-300 placeholder-transparent"
-                    placeholder="Registration Number"
-                    data-testid="input-regno"
-                  />
-                  <label
-                    className={`absolute left-12 transition-all duration-300 pointer-events-none ${
-                      formValues.registrationNo
-                        ? '-top-2.5 text-xs bg-background px-2 text-primary font-medium'
-                        : 'top-1/2 -translate-y-1/2 text-muted-foreground peer-focus:-top-2.5 peer-focus:text-xs peer-focus:bg-background peer-focus:px-2 peer-focus:text-primary peer-focus:font-medium'
-                    }`}
-                  >
-                    Registration Number
-                  </label>
-                  {errors.registrationNo && (
-                    <p className="mt-1 text-sm text-destructive">{errors.registrationNo.message}</p>
-                  )}
-                </div>
-
-                {/* Email Input */}
-                <div className="relative">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground z-10" />
-                  <input
-                    {...register('email')}
-                    type="email"
-                    className="peer w-full pl-12 pr-4 py-3.5 bg-white/50 dark:bg-gray-800/50 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:border-primary transition-all duration-300 placeholder-transparent"
-                    placeholder="Email"
-                    data-testid="input-email"
-                  />
-                  <label
-                    className={`absolute left-12 transition-all duration-300 pointer-events-none ${
-                      formValues.email
-                        ? '-top-2.5 text-xs bg-background px-2 text-primary font-medium'
-                        : 'top-1/2 -translate-y-1/2 text-muted-foreground peer-focus:-top-2.5 peer-focus:text-xs peer-focus:bg-background peer-focus:px-2 peer-focus:text-primary peer-focus:font-medium'
-                    }`}
-                  >
-                    Email Address
-                  </label>
-                  {errors.email && (
-                    <p className="mt-1 text-sm text-destructive">{errors.email.message}</p>
-                  )}
-                </div>
-
-                {/* Password Input with Strength Indicator */}
-                <div className="space-y-2">
-                  <div className="relative">
-                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground z-10" />
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+                  <motion.div variants={itemVariants} className="relative">
+                    <motion.div
+                      animate={{
+                        scale: focusedField === 'firstName' ? 1.1 : 1,
+                        rotate: focusedField === 'firstName' ? [0, -10, 10, 0] : 0,
+                      }}
+                      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                      className="absolute left-4 top-1/2 -translate-y-1/2 z-10"
+                    >
+                      <User className="w-5 h-5 text-muted-foreground" />
+                    </motion.div>
                     <input
-                      {...register('password')}
-                      type={showPassword ? 'text' : 'password'}
-                      className="peer w-full pl-12 pr-12 py-3.5 bg-white/50 dark:bg-gray-800/50 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:border-primary transition-all duration-300 placeholder-transparent"
-                      placeholder="Password"
-                      data-testid="input-password"
+                      {...register('firstName')}
+                      type="text"
+                      className={`peer w-full pl-12 pr-4 py-3.5 bg-white/50 dark:bg-gray-800/50 border-2 rounded-xl focus:outline-none transition-all duration-300 placeholder-transparent ${
+                        focusedField === 'firstName'
+                          ? 'border-transparent bg-gradient-to-r from-primary/20 to-purple-500/20 shadow-lg shadow-primary/50'
+                          : 'border-gray-200 dark:border-gray-700'
+                      }`}
+                      placeholder="First Name"
+                      data-testid="input-firstname"
+                      onFocus={() => setFocusedField('firstName')}
+                      onBlur={() => setFocusedField(null)}
                     />
+                    {focusedField === 'firstName' && (
+                      <motion.div
+                        layoutId="firstName-border"
+                        className="absolute inset-0 rounded-xl pointer-events-none"
+                        style={{
+                          background: 'linear-gradient(90deg, #6366f1, #8b5cf6, #ec4899, #6366f1)',
+                          backgroundSize: '200% 100%',
+                          padding: '2px',
+                          WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                          WebkitMaskComposite: 'xor',
+                          maskComposite: 'exclude',
+                        }}
+                        animate={{
+                          backgroundPosition: ['0% 0%', '200% 0%'],
+                        }}
+                        transition={{
+                          duration: 2,
+                          repeat: Infinity,
+                          ease: 'linear',
+                        }}
+                      />
+                    )}
                     <label
                       className={`absolute left-12 transition-all duration-300 pointer-events-none ${
-                        formValues.password
+                        formValues.firstName
                           ? '-top-2.5 text-xs bg-background px-2 text-primary font-medium'
                           : 'top-1/2 -translate-y-1/2 text-muted-foreground peer-focus:-top-2.5 peer-focus:text-xs peer-focus:bg-background peer-focus:px-2 peer-focus:text-primary peer-focus:font-medium'
                       }`}
                     >
-                      Password
+                      First Name
                     </label>
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors z-10"
-                      data-testid="button-toggle-password"
-                    >
-                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                    </button>
-                  </div>
+                    <AnimatePresence>
+                      {errors.firstName && (
+                        <motion.p
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+                          className="mt-1 text-sm text-destructive"
+                        >
+                          {errors.firstName.message}
+                        </motion.p>
+                      )}
+                    </AnimatePresence>
+                  </motion.div>
 
-                  {/* Password Strength Bar */}
-                  {passwordValue && (
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-muted-foreground">Password Strength:</span>
-                        <span className={`text-xs font-semibold ${strengthInfo.color.replace('bg-', 'text-')}`}>
-                          {strengthInfo.label}
-                        </span>
-                      </div>
-                      <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                  <motion.div variants={itemVariants} className="relative">
+                    <motion.div
+                      animate={{
+                        scale: focusedField === 'lastName' ? 1.1 : 1,
+                        rotate: focusedField === 'lastName' ? [0, -10, 10, 0] : 0,
+                      }}
+                      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                      className="absolute left-4 top-1/2 -translate-y-1/2 z-10"
+                    >
+                      <User className="w-5 h-5 text-muted-foreground" />
+                    </motion.div>
+                    <input
+                      {...register('lastName')}
+                      type="text"
+                      className={`peer w-full pl-12 pr-4 py-3.5 bg-white/50 dark:bg-gray-800/50 border-2 rounded-xl focus:outline-none transition-all duration-300 placeholder-transparent ${
+                        focusedField === 'lastName'
+                          ? 'border-transparent bg-gradient-to-r from-primary/20 to-purple-500/20 shadow-lg shadow-primary/50'
+                          : 'border-gray-200 dark:border-gray-700'
+                      }`}
+                      placeholder="Last Name"
+                      data-testid="input-lastname"
+                      onFocus={() => setFocusedField('lastName')}
+                      onBlur={() => setFocusedField(null)}
+                    />
+                    {focusedField === 'lastName' && (
+                      <motion.div
+                        layoutId="lastName-border"
+                        className="absolute inset-0 rounded-xl pointer-events-none"
+                        style={{
+                          background: 'linear-gradient(90deg, #6366f1, #8b5cf6, #ec4899, #6366f1)',
+                          backgroundSize: '200% 100%',
+                          padding: '2px',
+                          WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                          WebkitMaskComposite: 'xor',
+                          maskComposite: 'exclude',
+                        }}
+                        animate={{
+                          backgroundPosition: ['0% 0%', '200% 0%'],
+                        }}
+                        transition={{
+                          duration: 2,
+                          repeat: Infinity,
+                          ease: 'linear',
+                        }}
+                      />
+                    )}
+                    <label
+                      className={`absolute left-12 transition-all duration-300 pointer-events-none ${
+                        formValues.lastName
+                          ? '-top-2.5 text-xs bg-background px-2 text-primary font-medium'
+                          : 'top-1/2 -translate-y-1/2 text-muted-foreground peer-focus:-top-2.5 peer-focus:text-xs peer-focus:bg-background peer-focus:px-2 peer-focus:text-primary peer-focus:font-medium'
+                      }`}
+                    >
+                      Last Name
+                    </label>
+                    <AnimatePresence>
+                      {errors.lastName && (
+                        <motion.p
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+                          className="mt-1 text-sm text-destructive"
+                        >
+                          {errors.lastName.message}
+                        </motion.p>
+                      )}
+                    </AnimatePresence>
+                  </motion.div>
+
+                  <motion.div variants={itemVariants} className="relative">
+                    <motion.div
+                      animate={{
+                        scale: focusedField === 'college' ? 1.1 : 1,
+                        rotate: focusedField === 'college' ? [0, -10, 10, 0] : 0,
+                      }}
+                      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                      className="absolute left-4 top-1/2 -translate-y-1/2 z-10"
+                    >
+                      <Building className="w-5 h-5 text-muted-foreground" />
+                    </motion.div>
+                    <input
+                      {...register('college')}
+                      type="text"
+                      className={`peer w-full pl-12 pr-4 py-3.5 bg-white/50 dark:bg-gray-800/50 border-2 rounded-xl focus:outline-none transition-all duration-300 placeholder-transparent ${
+                        focusedField === 'college'
+                          ? 'border-transparent bg-gradient-to-r from-primary/20 to-purple-500/20 shadow-lg shadow-primary/50'
+                          : 'border-gray-200 dark:border-gray-700'
+                      }`}
+                      placeholder="College"
+                      data-testid="input-college"
+                      onFocus={() => setFocusedField('college')}
+                      onBlur={() => setFocusedField(null)}
+                    />
+                    {focusedField === 'college' && (
+                      <motion.div
+                        layoutId="college-border"
+                        className="absolute inset-0 rounded-xl pointer-events-none"
+                        style={{
+                          background: 'linear-gradient(90deg, #6366f1, #8b5cf6, #ec4899, #6366f1)',
+                          backgroundSize: '200% 100%',
+                          padding: '2px',
+                          WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                          WebkitMaskComposite: 'xor',
+                          maskComposite: 'exclude',
+                        }}
+                        animate={{
+                          backgroundPosition: ['0% 0%', '200% 0%'],
+                        }}
+                        transition={{
+                          duration: 2,
+                          repeat: Infinity,
+                          ease: 'linear',
+                        }}
+                      />
+                    )}
+                    <label
+                      className={`absolute left-12 transition-all duration-300 pointer-events-none ${
+                        formValues.college
+                          ? '-top-2.5 text-xs bg-background px-2 text-primary font-medium'
+                          : 'top-1/2 -translate-y-1/2 text-muted-foreground peer-focus:-top-2.5 peer-focus:text-xs peer-focus:bg-background peer-focus:px-2 peer-focus:text-primary peer-focus:font-medium'
+                      }`}
+                    >
+                      College Name
+                    </label>
+                    <AnimatePresence>
+                      {errors.college && (
+                        <motion.p
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+                          className="mt-1 text-sm text-destructive"
+                        >
+                          {errors.college.message}
+                        </motion.p>
+                      )}
+                    </AnimatePresence>
+                  </motion.div>
+
+                  <motion.div variants={itemVariants} className="relative">
+                    <motion.div
+                      animate={{
+                        scale: focusedField === 'registrationNo' ? 1.1 : 1,
+                        rotate: focusedField === 'registrationNo' ? [0, -10, 10, 0] : 0,
+                      }}
+                      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                      className="absolute left-4 top-1/2 -translate-y-1/2 z-10"
+                    >
+                      <Hash className="w-5 h-5 text-muted-foreground" />
+                    </motion.div>
+                    <input
+                      {...register('registrationNo')}
+                      type="text"
+                      className={`peer w-full pl-12 pr-4 py-3.5 bg-white/50 dark:bg-gray-800/50 border-2 rounded-xl focus:outline-none transition-all duration-300 placeholder-transparent ${
+                        focusedField === 'registrationNo'
+                          ? 'border-transparent bg-gradient-to-r from-primary/20 to-purple-500/20 shadow-lg shadow-primary/50'
+                          : 'border-gray-200 dark:border-gray-700'
+                      }`}
+                      placeholder="Registration Number"
+                      data-testid="input-regno"
+                      onFocus={() => setFocusedField('registrationNo')}
+                      onBlur={() => setFocusedField(null)}
+                    />
+                    {focusedField === 'registrationNo' && (
+                      <motion.div
+                        layoutId="registrationNo-border"
+                        className="absolute inset-0 rounded-xl pointer-events-none"
+                        style={{
+                          background: 'linear-gradient(90deg, #6366f1, #8b5cf6, #ec4899, #6366f1)',
+                          backgroundSize: '200% 100%',
+                          padding: '2px',
+                          WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                          WebkitMaskComposite: 'xor',
+                          maskComposite: 'exclude',
+                        }}
+                        animate={{
+                          backgroundPosition: ['0% 0%', '200% 0%'],
+                        }}
+                        transition={{
+                          duration: 2,
+                          repeat: Infinity,
+                          ease: 'linear',
+                        }}
+                      />
+                    )}
+                    <label
+                      className={`absolute left-12 transition-all duration-300 pointer-events-none ${
+                        formValues.registrationNo
+                          ? '-top-2.5 text-xs bg-background px-2 text-primary font-medium'
+                          : 'top-1/2 -translate-y-1/2 text-muted-foreground peer-focus:-top-2.5 peer-focus:text-xs peer-focus:bg-background peer-focus:px-2 peer-focus:text-primary peer-focus:font-medium'
+                      }`}
+                    >
+                      Registration Number
+                    </label>
+                    <AnimatePresence>
+                      {errors.registrationNo && (
+                        <motion.p
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+                          className="mt-1 text-sm text-destructive"
+                        >
+                          {errors.registrationNo.message}
+                        </motion.p>
+                      )}
+                    </AnimatePresence>
+                  </motion.div>
+
+                  <motion.div variants={itemVariants} className="relative">
+                    <motion.div
+                      animate={{
+                        scale: focusedField === 'email' ? 1.1 : 1,
+                        rotate: focusedField === 'email' ? [0, -10, 10, 0] : 0,
+                      }}
+                      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                      className="absolute left-4 top-1/2 -translate-y-1/2 z-10"
+                    >
+                      <Mail className="w-5 h-5 text-muted-foreground" />
+                    </motion.div>
+                    <input
+                      {...register('email')}
+                      type="email"
+                      className={`peer w-full pl-12 pr-4 py-3.5 bg-white/50 dark:bg-gray-800/50 border-2 rounded-xl focus:outline-none transition-all duration-300 placeholder-transparent ${
+                        focusedField === 'email'
+                          ? 'border-transparent bg-gradient-to-r from-primary/20 to-purple-500/20 shadow-lg shadow-primary/50'
+                          : 'border-gray-200 dark:border-gray-700'
+                      }`}
+                      placeholder="Email"
+                      data-testid="input-email"
+                      onFocus={() => setFocusedField('email')}
+                      onBlur={() => setFocusedField(null)}
+                    />
+                    {focusedField === 'email' && (
+                      <motion.div
+                        layoutId="email-border"
+                        className="absolute inset-0 rounded-xl pointer-events-none"
+                        style={{
+                          background: 'linear-gradient(90deg, #6366f1, #8b5cf6, #ec4899, #6366f1)',
+                          backgroundSize: '200% 100%',
+                          padding: '2px',
+                          WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                          WebkitMaskComposite: 'xor',
+                          maskComposite: 'exclude',
+                        }}
+                        animate={{
+                          backgroundPosition: ['0% 0%', '200% 0%'],
+                        }}
+                        transition={{
+                          duration: 2,
+                          repeat: Infinity,
+                          ease: 'linear',
+                        }}
+                      />
+                    )}
+                    <label
+                      className={`absolute left-12 transition-all duration-300 pointer-events-none ${
+                        formValues.email
+                          ? '-top-2.5 text-xs bg-background px-2 text-primary font-medium'
+                          : 'top-1/2 -translate-y-1/2 text-muted-foreground peer-focus:-top-2.5 peer-focus:text-xs peer-focus:bg-background peer-focus:px-2 peer-focus:text-primary peer-focus:font-medium'
+                      }`}
+                    >
+                      Email Address
+                    </label>
+                    <AnimatePresence>
+                      {errors.email && (
+                        <motion.p
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+                          className="mt-1 text-sm text-destructive"
+                        >
+                          {errors.email.message}
+                        </motion.p>
+                      )}
+                    </AnimatePresence>
+                  </motion.div>
+
+                  <motion.div variants={itemVariants} className="space-y-2">
+                    <div className="relative">
+                      <motion.div
+                        animate={{
+                          scale: focusedField === 'password' ? 1.1 : 1,
+                          rotate: focusedField === 'password' ? [0, -10, 10, 0] : 0,
+                        }}
+                        transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                        className="absolute left-4 top-1/2 -translate-y-1/2 z-10"
+                      >
+                        <Lock className="w-5 h-5 text-muted-foreground" />
+                      </motion.div>
+                      <input
+                        {...register('password')}
+                        type={showPassword ? 'text' : 'password'}
+                        className={`peer w-full pl-12 pr-12 py-3.5 bg-white/50 dark:bg-gray-800/50 border-2 rounded-xl focus:outline-none transition-all duration-300 placeholder-transparent ${
+                          focusedField === 'password'
+                            ? 'border-transparent bg-gradient-to-r from-primary/20 to-purple-500/20 shadow-lg shadow-primary/50'
+                            : 'border-gray-200 dark:border-gray-700'
+                        }`}
+                        placeholder="Password"
+                        data-testid="input-password"
+                        onFocus={() => setFocusedField('password')}
+                        onBlur={() => setFocusedField(null)}
+                      />
+                      {focusedField === 'password' && (
                         <motion.div
-                          initial={{ width: '0%' }}
-                          animate={{ width: strengthInfo.width }}
-                          transition={{ duration: 0.3 }}
-                          className={`h-full ${strengthInfo.color} transition-all duration-300`}
+                          layoutId="password-border"
+                          className="absolute inset-0 rounded-xl pointer-events-none"
+                          style={{
+                            background: 'linear-gradient(90deg, #6366f1, #8b5cf6, #ec4899, #6366f1)',
+                            backgroundSize: '200% 100%',
+                            padding: '2px',
+                            WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                            WebkitMaskComposite: 'xor',
+                            maskComposite: 'exclude',
+                          }}
+                          animate={{
+                            backgroundPosition: ['0% 0%', '200% 0%'],
+                          }}
+                          transition={{
+                            duration: 2,
+                            repeat: Infinity,
+                            ease: 'linear',
+                          }}
                         />
-                      </div>
+                      )}
+                      <label
+                        className={`absolute left-12 transition-all duration-300 pointer-events-none ${
+                          formValues.password
+                            ? '-top-2.5 text-xs bg-background px-2 text-primary font-medium'
+                            : 'top-1/2 -translate-y-1/2 text-muted-foreground peer-focus:-top-2.5 peer-focus:text-xs peer-focus:bg-background peer-focus:px-2 peer-focus:text-primary peer-focus:font-medium'
+                        }`}
+                      >
+                        Password
+                      </label>
+                      <motion.button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors z-10"
+                        data-testid="button-toggle-password"
+                        whileHover={{ scale: 1.2, rotate: 180 }}
+                        whileTap={{ scale: 0.9 }}
+                      >
+                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                      </motion.button>
                     </div>
-                  )}
 
-                  {/* Password Requirements Checklist */}
-                  {passwordValue && (
-                    <div className="space-y-1 text-xs">
-                      <p className="text-muted-foreground font-medium">Password must contain:</p>
-                      <div className="grid grid-cols-2 gap-1">
-                        <div className={`flex items-center space-x-1 ${passwordRequirements.length ? 'text-green-600' : 'text-gray-400'}`}>
-                          {passwordRequirements.length ? <Check className="w-3 h-3" /> : <X className="w-3 h-3" />}
-                          <span>8+ characters</span>
-                        </div>
-                        <div className={`flex items-center space-x-1 ${passwordRequirements.uppercase ? 'text-green-600' : 'text-gray-400'}`}>
-                          {passwordRequirements.uppercase ? <Check className="w-3 h-3" /> : <X className="w-3 h-3" />}
-                          <span>Uppercase</span>
-                        </div>
-                        <div className={`flex items-center space-x-1 ${passwordRequirements.lowercase ? 'text-green-600' : 'text-gray-400'}`}>
-                          {passwordRequirements.lowercase ? <Check className="w-3 h-3" /> : <X className="w-3 h-3" />}
-                          <span>Lowercase</span>
-                        </div>
-                        <div className={`flex items-center space-x-1 ${passwordRequirements.number ? 'text-green-600' : 'text-gray-400'}`}>
-                          {passwordRequirements.number ? <Check className="w-3 h-3" /> : <X className="w-3 h-3" />}
-                          <span>Number</span>
-                        </div>
-                        <div className={`flex items-center space-x-1 ${passwordRequirements.special ? 'text-green-600' : 'text-gray-400'}`}>
-                          {passwordRequirements.special ? <Check className="w-3 h-3" /> : <X className="w-3 h-3" />}
-                          <span>Special char</span>
-                        </div>
-                      </div>
-                    </div>
-                  )}
+                    <AnimatePresence>
+                      {passwordValue && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+                          className="space-y-2"
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs text-muted-foreground">Password Strength:</span>
+                            <motion.span
+                              className="text-xs font-medium"
+                              initial={{ opacity: 0 }}
+                              animate={{ opacity: 1 }}
+                              transition={{ delay: 0.1 }}
+                            >
+                              {strengthInfo.label}
+                            </motion.span>
+                          </div>
+                          <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                            <motion.div
+                              className={`h-full ${strengthInfo.color}`}
+                              initial={{ width: '0%' }}
+                              animate={{ width: strengthInfo.width }}
+                              transition={{ type: 'spring', stiffness: 100, damping: 15 }}
+                            />
+                          </div>
+                          <div className="grid grid-cols-2 gap-1">
+                            {Object.entries(passwordRequirements).map(([key, met], index) => (
+                              <motion.div
+                                key={key}
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: index * 0.05, type: 'spring', stiffness: 200 }}
+                                className={`flex items-center space-x-1 text-xs ${
+                                  met ? 'text-green-600 dark:text-green-400' : 'text-gray-400'
+                                }`}
+                              >
+                                <motion.div
+                                  animate={{
+                                    scale: met ? [1, 1.3, 1] : 1,
+                                    rotate: met ? [0, 360] : 0,
+                                  }}
+                                  transition={{ type: 'spring', stiffness: 500, damping: 15 }}
+                                >
+                                  {met ? (
+                                    <Check className="w-4 h-4" />
+                                  ) : (
+                                    <X className="w-4 h-4" />
+                                  )}
+                                </motion.div>
+                                <span className="capitalize">
+                                  {key === 'length' ? '8+ chars' : key}
+                                </span>
+                              </motion.div>
+                            ))}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                    <AnimatePresence>
+                      {errors.password && (
+                        <motion.p
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+                          className="mt-1 text-sm text-destructive"
+                        >
+                          {errors.password.message}
+                        </motion.p>
+                      )}
+                    </AnimatePresence>
+                  </motion.div>
 
-                  {errors.password && (
-                    <p className="mt-1 text-sm text-destructive">{errors.password.message}</p>
-                  )}
-                </div>
-
-                {/* Confirm Password Input */}
-                <div className="relative">
-                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground z-10" />
-                  <input
-                    {...register('confirmPassword')}
-                    type={showConfirmPassword ? 'text' : 'password'}
-                    className="peer w-full pl-12 pr-12 py-3.5 bg-white/50 dark:bg-gray-800/50 border-2 border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:border-primary transition-all duration-300 placeholder-transparent"
-                    placeholder="Confirm Password"
-                    data-testid="input-confirm-password"
-                  />
-                  <label
-                    className={`absolute left-12 transition-all duration-300 pointer-events-none ${
-                      formValues.confirmPassword
-                        ? '-top-2.5 text-xs bg-background px-2 text-primary font-medium'
-                        : 'top-1/2 -translate-y-1/2 text-muted-foreground peer-focus:-top-2.5 peer-focus:text-xs peer-focus:bg-background peer-focus:px-2 peer-focus:text-primary peer-focus:font-medium'
-                    }`}
-                  >
-                    Confirm Password
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors z-10"
-                    data-testid="button-toggle-confirm-password"
-                  >
-                    {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                  </button>
-                  {errors.confirmPassword && (
-                    <p className="mt-1 text-sm text-destructive">{errors.confirmPassword.message}</p>
-                  )}
-                </div>
-
-                {/* Create Account Button */}
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full bg-primary hover:bg-primary-600 text-primary-foreground font-semibold py-3.5 rounded-xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center space-x-2"
-                  data-testid="button-signup"
-                >
-                  {isLoading ? (
-                    <>
-                      <ClipLoader color="white" size={20} />
-                      <span>Creating Account...</span>
-                    </>
-                  ) : (
-                    <span>Create Account</span>
-                  )}
-                </button>
-
-                {/* Sign In Link */}
-                <div className="text-center">
-                  <p className="text-muted-foreground">
-                    Already have an account?{' '}
-                    <button
-                      type="button"
-                      onClick={() => setLocation('/firebase-signin')}
-                      className="text-primary hover:text-primary-600 font-semibold transition-colors"
-                      data-testid="link-signin"
+                  <motion.div variants={itemVariants} className="relative">
+                    <motion.div
+                      animate={{
+                        scale: focusedField === 'confirmPassword' ? 1.1 : 1,
+                        rotate: focusedField === 'confirmPassword' ? [0, -10, 10, 0] : 0,
+                      }}
+                      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                      className="absolute left-4 top-1/2 -translate-y-1/2 z-10"
                     >
-                      Sign In
-                    </button>
-                  </p>
-                </div>
-              </form>
+                      <Lock className="w-5 h-5 text-muted-foreground" />
+                    </motion.div>
+                    <input
+                      {...register('confirmPassword')}
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      className={`peer w-full pl-12 pr-12 py-3.5 bg-white/50 dark:bg-gray-800/50 border-2 rounded-xl focus:outline-none transition-all duration-300 placeholder-transparent ${
+                        focusedField === 'confirmPassword'
+                          ? 'border-transparent bg-gradient-to-r from-primary/20 to-purple-500/20 shadow-lg shadow-primary/50'
+                          : 'border-gray-200 dark:border-gray-700'
+                      }`}
+                      placeholder="Confirm Password"
+                      data-testid="input-confirm-password"
+                      onFocus={() => setFocusedField('confirmPassword')}
+                      onBlur={() => setFocusedField(null)}
+                    />
+                    {focusedField === 'confirmPassword' && (
+                      <motion.div
+                        layoutId="confirmPassword-border"
+                        className="absolute inset-0 rounded-xl pointer-events-none"
+                        style={{
+                          background: 'linear-gradient(90deg, #6366f1, #8b5cf6, #ec4899, #6366f1)',
+                          backgroundSize: '200% 100%',
+                          padding: '2px',
+                          WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                          WebkitMaskComposite: 'xor',
+                          maskComposite: 'exclude',
+                        }}
+                        animate={{
+                          backgroundPosition: ['0% 0%', '200% 0%'],
+                        }}
+                        transition={{
+                          duration: 2,
+                          repeat: Infinity,
+                          ease: 'linear',
+                        }}
+                      />
+                    )}
+                    <label
+                      className={`absolute left-12 transition-all duration-300 pointer-events-none ${
+                        formValues.confirmPassword
+                          ? '-top-2.5 text-xs bg-background px-2 text-primary font-medium'
+                          : 'top-1/2 -translate-y-1/2 text-muted-foreground peer-focus:-top-2.5 peer-focus:text-xs peer-focus:bg-background peer-focus:px-2 peer-focus:text-primary peer-focus:font-medium'
+                      }`}
+                    >
+                      Confirm Password
+                    </label>
+                    <motion.button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors z-10"
+                      data-testid="button-toggle-confirm-password"
+                      whileHover={{ scale: 1.2, rotate: 180 }}
+                      whileTap={{ scale: 0.9 }}
+                    >
+                      {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </motion.button>
+                    <AnimatePresence>
+                      {errors.confirmPassword && (
+                        <motion.p
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+                          className="mt-1 text-sm text-destructive"
+                        >
+                          {errors.confirmPassword.message}
+                        </motion.p>
+                      )}
+                    </AnimatePresence>
+                  </motion.div>
+
+                  <motion.div variants={itemVariants}>
+                    <motion.button
+                      ref={buttonRef}
+                      type="submit"
+                      disabled={isLoading}
+                      className="w-full bg-primary hover:bg-primary-600 text-primary-foreground font-semibold py-3.5 rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 relative overflow-hidden"
+                      data-testid="button-signup"
+                      onMouseMove={handleMouseMove}
+                      onClick={handleRippleClick}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      style={{
+                        transform: !isLoading
+                          ? `translate(${(mousePosition.x - 150) / 50}px, ${(mousePosition.y - 25) / 50}px)`
+                          : 'none',
+                      }}
+                    >
+                      <AnimatePresence>
+                        {ripples.map((ripple) => (
+                          <motion.span
+                            key={ripple.id}
+                            className="absolute bg-white/30 rounded-full"
+                            initial={{ width: 0, height: 0, opacity: 1 }}
+                            animate={{ width: 300, height: 300, opacity: 0 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.6 }}
+                            style={{
+                              left: ripple.x,
+                              top: ripple.y,
+                              transform: 'translate(-50%, -50%)',
+                            }}
+                          />
+                        ))}
+                      </AnimatePresence>
+                      {isLoading ? (
+                        <>
+                          <motion.div
+                            className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                            animate={{
+                              x: ['-100%', '200%'],
+                            }}
+                            transition={{
+                              duration: 1.5,
+                              repeat: Infinity,
+                              ease: 'linear',
+                            }}
+                          />
+                          <ClipLoader color="white" size={20} />
+                          <span>Creating account...</span>
+                        </>
+                      ) : (
+                        <span>Create Account</span>
+                      )}
+                    </motion.button>
+                  </motion.div>
+
+                  <motion.div variants={itemVariants} className="text-center">
+                    <p className="text-muted-foreground">
+                      Already have an account?{' '}
+                      <motion.button
+                        type="button"
+                        onClick={() => setLocation('/firebase-signin')}
+                        className="text-primary hover:text-primary-600 font-semibold transition-colors"
+                        data-testid="link-signin"
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        Sign in
+                      </motion.button>
+                    </p>
+                  </motion.div>
+                </form>
+              </motion.div>
             </motion.div>
           </div>
         </motion.div>
