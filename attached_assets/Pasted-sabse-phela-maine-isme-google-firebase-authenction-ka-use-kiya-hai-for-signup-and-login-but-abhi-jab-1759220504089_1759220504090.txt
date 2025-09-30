@@ -1,0 +1,222 @@
+sabse phela maine isme google firebase authenction ka use kiya hai for signup and login but abhi jab mai Launch platform par click kar raha hu to mujhe kuch or show ho raha hai to usko sahi karna hai 
+
+like jab mai iss par click karu to ek signin page open hona chiaye and uske andar user jo hai apna mail id and password dal kar login kar sakte but uske liye user ko phela apna account create karna hoga to singin page mai hee signup ye phir create an account ka option hona chiaye and uss page signup wale page mai user apna first name last name and college ka registarion no and email id and password create karegaa and jab wo isko verify kar lega with the help of fire base uske pass ek verication ke liye mail jayegaa to uske baad wo login kar skte hai 
+
+and mera login page and signup page ke left side mai mera website ke related kuch infrmation hoga and right side mai form hoga 
+
+and login and signup wale page mai jo form hoga usko fully logic and mind ke sath cretae karna 
+
+
+and mujhe signin page and signup page bhout hee jada professional chiaye and bhout sare lirabies ka use karna isme bhout sare lirbaies ka use karna jitna jada liranes ka use karo and thoda bhout animion bhe hona chiye but professional animtion and UI Frameworks / CSS Libraries
+
+Bootstrap
+
+Tailwind CSS
+
+Material-UI (MUI)
+
+Ant Design
+
+Chakra UI
+
+Bulma
+
+Frontend Frameworks / Libraries
+
+React
+
+Vue.js
+
+Angular
+
+Form Handling & Validation
+
+Formik
+
+React Hook Form
+
+Yup
+
+Joi
+
+Validator.js
+
+Authentication / Auth Services
+
+Firebase Auth
+
+Auth0
+
+NextAuth.js
+
+Passport.js
+
+JWT (jsonwebtoken)
+
+Social Login SDKs
+
+Google Sign-In
+
+Facebook SDK
+
+Apple Sign-In
+
+Twitter OAuth
+
+HTTP / API Clients
+
+Axios
+
+Fetch API
+
+Styling / CSS-in-JS
+
+Styled-components
+
+Emotion
+
+Sass / SCSS
+
+Less
+
+Icons / Fonts
+
+Font Awesome
+
+Material Icons
+
+Heroicons
+
+Feather Icons
+
+Animations & Motion Libraries
+
+Framer Motion
+
+GSAP (GreenSock)
+
+Lottie
+
+Animate.css
+
+AOS (Animate On Scroll)
+
+ScrollReveal
+
+Particles.js / tsParticles
+
+Tilt.js / Vanilla-tilt
+
+Typewriter.js
+
+Input / UX Helpers
+
+Inputmask
+
+Cleave.js
+
+zxcvbn
+
+intl-tel-input
+
+react-phone-number-input
+
+Downshift (Autocomplete)
+
+Notifications / Alerts
+
+SweetAlert2
+
+Toastr
+
+Noty
+
+Notistack
+
+React-toastify
+
+Loading / Skeletons / Spinners
+
+React-spinners
+
+React-content-loader
+
+SpinKit
+
+Security & Backend Helpers
+
+bcrypt / bcryptjs
+
+Helmet
+
+Express-session
+
+Cookie-parser
+
+Csurf
+
+Rate-limiter-flexible
+
+Captcha & Bot Protection
+
+Google reCAPTCHA
+
+hCaptcha
+
+State Management
+
+Redux / Redux Toolkit
+
+Context API
+
+Zustand
+
+MobX
+
+Utilities / Persistence
+
+js-cookie
+
+localforage
+
+crypto-js
+
+Common Effects (Visual)
+
+Fade In / Fade Out
+
+Slide In (Left/Right/Up/Down)
+
+Scale / Zoom
+
+Bounce
+
+Ripple Effect
+
+Glassmorphism
+
+Backdrop Blur
+
+Particle Background
+
+Parallax Background
+
+3D Tilt / Card Tilt
+
+Skeleton Loading / Shimmer
+
+Password Strength Bar
+
+Floating Labels
+
+Typewriter Text
+
+Neon Glow / Hover Shadow
+
+Morphing Button
+
+Tooltips
+
+ye sare lirabes and effects ka use karna 
+
+and mera signin page and signup page bilkul bhe lag nhi karna chiaye mujhe bilkul smotth chiaye sab cheez 
