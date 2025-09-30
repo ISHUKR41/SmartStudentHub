@@ -32,19 +32,22 @@ The system uses a modern, responsive React-based web application with a professi
 The project now includes a professional Firebase Authentication system with:
 
 **Signin Page** (`/firebase-signin`):
-- Email and password authentication
+- Email and password authentication with floating labels
 - Password visibility toggle
 - Forgot password functionality
 - Link to signup page
 - Professional glassmorphism design with particle animations
 - Animated typewriter text on the left panel
+- **Advanced Animations**: Staggered entrance animations, magnetic button effect (follows cursor), ripple click effects, animated gradient borders on focus, smooth icon animations, floating stats cards, sweeping glow effects, animated gradient backgrounds, spring transitions, shimmer loading effect
 
 **Signup Page** (`/firebase-signup`):
 - All required fields: First Name, Last Name, College Name, Registration Number, Email, Password, Confirm Password
-- Password strength validation (minimum 8 characters, uppercase, lowercase, number, special character)
+- Password strength validation (minimum 8 characters, uppercase, lowercase, number, special character) with animated progress bar
+- Real-time password requirements validation with checkmark animations
 - Password confirmation validation
 - Professional glassmorphism design with particle animations
 - Animated typewriter text on the left panel
+- **Advanced Animations**: All signin page animations plus animated password strength meter, staggered validation feedback, success confetti animation, progressive form revelation with scroll animations, individual requirement checkmarks with scale effects
 
 **Configuration**:
 Firebase configuration is defined in `client/src/firebase/config.ts`:
