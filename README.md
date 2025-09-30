@@ -38,12 +38,14 @@ NODE_ENV=production
 ### 4. Deploy to Vercel
 
 #### Option 1: Through Vercel Dashboard
+
 1. Go to [Vercel Dashboard](https://vercel.com/dashboard)
 2. Import your GitHub repository
 3. Configure environment variables
 4. Deploy
 
 #### Option 2: Through Vercel CLI
+
 ```bash
 npm install -g vercel
 vercel --prod
@@ -107,6 +109,7 @@ npm run dev
 ### Support
 
 If you encounter any issues, please check:
+
 1. Vercel deployment logs
 2. Browser console for frontend errors
 3. Network tab for API call failures
