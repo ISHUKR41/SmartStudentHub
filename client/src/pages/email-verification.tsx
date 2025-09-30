@@ -28,6 +28,12 @@ export default function EmailVerification() {
 
       // Check if email is already verified
       if (user.emailVerified) {
+        // Force reload to ensure auth state updates
+        await auth.currentUser?.reload();
+        
+        // Force a token refresh to trigger onIdTokenChanged
+        await auth.currentUser?.getIdToken(true);
+        
         await Swal.fire({
           icon: 'success',
           title: 'Email Verified!',
@@ -37,7 +43,11 @@ export default function EmailVerification() {
           background: 'hsl(var(--card))',
           color: 'hsl(var(--card-foreground))',
         });
-        setLocation('/dashboard');
+        
+        // Small delay to ensure useAuth updates
+        setTimeout(() => {
+          setLocation('/dashboard');
+        }, 500);
         return;
       }
 
@@ -57,6 +67,13 @@ export default function EmailVerification() {
         
         if (user.emailVerified) {
           clearInterval(interval);
+          
+          // Force reload to ensure auth state updates
+          await auth.currentUser?.reload();
+          
+          // Force a token refresh to trigger onIdTokenChanged
+          await auth.currentUser?.getIdToken(true);
+          
           await Swal.fire({
             icon: 'success',
             title: 'Email Verified!',
@@ -66,7 +83,11 @@ export default function EmailVerification() {
             background: 'hsl(var(--card))',
             color: 'hsl(var(--card-foreground))',
           });
-          setLocation('/dashboard');
+          
+          // Small delay to ensure useAuth updates
+          setTimeout(() => {
+            setLocation('/dashboard');
+          }, 500);
         }
       }
     }, 3000);

@@ -8,7 +8,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { onAuthStateChanged } from 'firebase/auth';
+import { onIdTokenChanged } from 'firebase/auth';
 import { auth } from '@/firebase/config';
 import { getUserProfile } from '@/firebase/auth';
 
@@ -17,18 +17,26 @@ export function useAuth() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser && firebaseUser.emailVerified) {
-        // Get additional user data from Firestore
-        const userData = await getUserProfile(firebaseUser.uid);
-        setUser({
-          id: firebaseUser.uid,
-          email: firebaseUser.email,
-          firstName: userData?.name?.split(' ')[0] || firebaseUser.displayName,
-          lastName: userData?.name?.split(' ')[1] || '',
-          role: 'student', // Default role, can be fetched from Firestore
-          ...userData
-        });
+    const unsubscribe = onIdTokenChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        // Reload user to get latest emailVerified status
+        await firebaseUser.reload();
+        const currentUser = auth.currentUser;
+        
+        if (currentUser && currentUser.emailVerified) {
+          // Get additional user data from Firestore
+          const userData = await getUserProfile(currentUser.uid);
+          setUser({
+            id: currentUser.uid,
+            email: currentUser.email,
+            firstName: userData?.name?.split(' ')[0] || currentUser.displayName,
+            lastName: userData?.name?.split(' ')[1] || '',
+            role: 'student',
+            ...userData
+          });
+        } else {
+          setUser(null);
+        }
       } else {
         setUser(null);
       }

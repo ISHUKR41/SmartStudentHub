@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -6,7 +6,7 @@ import { useLocation } from 'wouter';
 import { motion } from 'framer-motion';
 import Particles from '@tsparticles/react';
 import { TypeAnimation } from 'react-type-animation';
-import { VanillaTilt } from 'vanilla-tilt-react';
+import VanillaTilt from 'vanilla-tilt';
 import { ClipLoader } from 'react-spinners';
 import Swal from 'sweetalert2';
 import { Eye, EyeOff, Mail, Lock, GraduationCap, Users, TrendingUp, Award } from 'lucide-react';
@@ -24,6 +24,7 @@ export default function FirebaseSignin() {
   const [, setLocation] = useLocation();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const tiltRef = useRef<HTMLDivElement>(null);
 
   const {
     register,
@@ -37,6 +38,23 @@ export default function FirebaseSignin() {
 
   const emailValue = watch('email');
   const passwordValue = watch('password');
+
+  // Initialize VanillaTilt effect
+  useEffect(() => {
+    if (tiltRef.current) {
+      VanillaTilt.init(tiltRef.current, {
+        max: 15,
+        speed: 400,
+        glare: true,
+        'max-glare': 0.3,
+      });
+    }
+    return () => {
+      if (tiltRef.current && (tiltRef.current as any).vanillaTilt) {
+        (tiltRef.current as any).vanillaTilt.destroy();
+      }
+    };
+  }, []);
 
   // Form submission handler
   const onSubmit = async (data: SigninFormData) => {
@@ -262,39 +280,30 @@ export default function FirebaseSignin() {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.6, duration: 0.6 }}
             >
-              <VanillaTilt
-                options={{
-                  max: 15,
-                  speed: 400,
-                  glare: true,
-                  'max-glare': 0.3,
-                }}
-              >
-                <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="text-center p-4 bg-white/5 rounded-xl">
-                      <Users className="w-8 h-8 text-white mx-auto mb-2" />
-                      <p className="text-2xl font-bold text-white">10K+</p>
-                      <p className="text-sm text-white/70">Active Students</p>
-                    </div>
-                    <div className="text-center p-4 bg-white/5 rounded-xl">
-                      <Award className="w-8 h-8 text-white mx-auto mb-2" />
-                      <p className="text-2xl font-bold text-white">50K+</p>
-                      <p className="text-sm text-white/70">Achievements</p>
-                    </div>
-                    <div className="text-center p-4 bg-white/5 rounded-xl">
-                      <TrendingUp className="w-8 h-8 text-white mx-auto mb-2" />
-                      <p className="text-2xl font-bold text-white">98%</p>
-                      <p className="text-sm text-white/70">Success Rate</p>
-                    </div>
-                    <div className="text-center p-4 bg-white/5 rounded-xl">
-                      <GraduationCap className="w-8 h-8 text-white mx-auto mb-2" />
-                      <p className="text-2xl font-bold text-white">200+</p>
-                      <p className="text-sm text-white/70">Institutions</p>
-                    </div>
+              <div ref={tiltRef} className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="text-center p-4 bg-white/5 rounded-xl">
+                    <Users className="w-8 h-8 text-white mx-auto mb-2" />
+                    <p className="text-2xl font-bold text-white">10K+</p>
+                    <p className="text-sm text-white/70">Active Students</p>
+                  </div>
+                  <div className="text-center p-4 bg-white/5 rounded-xl">
+                    <Award className="w-8 h-8 text-white mx-auto mb-2" />
+                    <p className="text-2xl font-bold text-white">50K+</p>
+                    <p className="text-sm text-white/70">Achievements</p>
+                  </div>
+                  <div className="text-center p-4 bg-white/5 rounded-xl">
+                    <TrendingUp className="w-8 h-8 text-white mx-auto mb-2" />
+                    <p className="text-2xl font-bold text-white">98%</p>
+                    <p className="text-sm text-white/70">Success Rate</p>
+                  </div>
+                  <div className="text-center p-4 bg-white/5 rounded-xl">
+                    <GraduationCap className="w-8 h-8 text-white mx-auto mb-2" />
+                    <p className="text-2xl font-bold text-white">200+</p>
+                    <p className="text-sm text-white/70">Institutions</p>
                   </div>
                 </div>
-              </VanillaTilt>
+              </div>
             </motion.div>
 
             {/* Feature List */}
