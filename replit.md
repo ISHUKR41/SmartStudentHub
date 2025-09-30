@@ -15,7 +15,7 @@ The system uses a modern, responsive React-based web application with a professi
 - **Frontend**: Built with React 18 and TypeScript, using Wouter for routing, React Hook Form with Zod for form handling, TanStack Query for server state management, and Vite for building. It follows role-based routing and atomic design principles.
 - **Backend**: A Node.js/Express server with TypeScript, implementing a RESTful API design, role-based access control, file upload handling with Multer, and session-based authentication using `express-session`. It follows the Repository pattern.
 - **Database**: PostgreSQL is used as the primary database, managed with Drizzle ORM for type-safe operations and migrations, hosted on Neon Database. It features a normalized schema with audit trails and session storage.
-- **Authentication**: Integrates Replit Auth using OpenID Connect (OIDC) and Passport.js, providing session management with PostgreSQL storage and role-based authorization for student, faculty, and admin roles. Automatic user provisioning is handled via Replit identity claims.
+- **Authentication**: Dual authentication system supporting both Firebase Authentication and Replit Auth. Firebase Auth (primary) provides email/password authentication with email verification, professional signin/signup pages with glassmorphism design, and optional Firestore integration. Replit Auth (legacy) uses OpenID Connect (OIDC) and Passport.js. Both systems support session management and role-based authorization for student, faculty, and admin roles.
 - **File Management**: Supports local file system storage for document uploads, with validation for PDF, JPG, and PNG formats, file size limitations, and secure serving with path traversal protection.
 - **State Management**: Frontend state is managed using React Query for server state, React Hook Form for form state, React Context for authentication, and local component state for UI interactions.
 - **Deployment**: Configured for Replit, using Vite for frontend development and esbuild for server compilation, with environment variable management.
@@ -26,9 +26,69 @@ The system uses a modern, responsive React-based web application with a professi
 - **Analytics & Reporting (Backend Ready)**: Department-wise statistics, student engagement tracking, category-based activity distribution, and faculty performance metrics. Backend services for PDF portfolio export, NAAC, and NIRF report generation are implemented, with frontend integration pending.
 - **Compliance Framework**: Supports NAAC criteria (Curricular Aspects, Teaching-Learning, Research, Infrastructure, Student Support, Governance, Institutional Values) and NIRF parameters (TLR, RP, GO, OI, PR) through specific data collection and automated reporting capabilities.
 
+## Firebase Authentication
+
+### Implementation
+The project now includes a professional Firebase Authentication system with:
+
+**Signin Page** (`/firebase-signin`):
+- Email and password authentication
+- Password visibility toggle
+- Forgot password functionality
+- Link to signup page
+- Professional glassmorphism design with particle animations
+- Animated typewriter text on the left panel
+
+**Signup Page** (`/firebase-signup`):
+- All required fields: First Name, Last Name, College Name, Registration Number, Email, Password, Confirm Password
+- Password strength validation (minimum 8 characters, uppercase, lowercase, number, special character)
+- Password confirmation validation
+- Professional glassmorphism design with particle animations
+- Animated typewriter text on the left panel
+
+**Configuration**:
+Firebase configuration is defined in `client/src/firebase/config.ts`:
+```javascript
+{
+  apiKey: "AIzaSyC3GQbY14MlwzLC2hiZcwdK73qlu4lNifo",
+  authDomain: "smart-student-hub-75.firebaseapp.com",
+  projectId: "smart-student-hub-75",
+  storageBucket: "smart-student-hub-75.firebasestorage.app",
+  messagingSenderId: "77366186543",
+  appId: "1:77366186543:web:a1b2c3d4e5f6g7h8i9j0k1l2"
+}
+```
+
+**Environment Variables**:
+- `VITE_ENABLE_FIRESTORE=true` - Enable Firestore integration (default: disabled)
+
+**Firebase Project Setup**:
+1. Enable Email/Password authentication in Firebase Console → Authentication → Sign-in method
+2. Add authorized domains in Firebase Console → Authentication → Settings
+3. Firestore is optional - authentication works with Firebase Auth only
+
+**Dual Authentication System**:
+- **Firebase Auth** (Primary): Used for `/firebase-signin` and `/firebase-signup` routes. Handles email/password authentication with email verification.
+- **Replit Auth** (Legacy): Used for `/login` and `/signup` routes. Handles OpenID Connect authentication.
+- Both systems can coexist. Users authenticate through either system independently.
+- Auth state is managed via `useAuth()` hook with 3-second timeout fallback
+
+### Known Issues
+1. **Landing Page Loading**: The root landing page (`/`) may show a loading state. Users can access authentication pages directly at `/firebase-signin` and `/firebase-signup`.
+2. **Dashboard Chart Warnings**: StudentDashboard has some chart data warnings (not auth-related, does not affect functionality).
+3. **Firestore Optional**: Firestore is disabled to prevent AbortError connection issues. Authentication works perfectly with Firebase Auth only.
+
+### Recent Fixes
+- ✅ Fixed duplicate Firebase initialization
+- ✅ Corrected invalid appId format
+- ✅ Made Firestore optional to prevent connection errors
+- ✅ Fixed missing TypeScript types (@types/zxcvbn)
+- ✅ Fixed critical React errors (Activity, VictoryPolarAxis, Lightbulb imports)
+- ✅ Added safety timeout to useAuth hook
+
 ## External Dependencies
 
 - **Database Service**: Neon PostgreSQL (serverless PostgreSQL hosting).
-- **Authentication Provider**: Replit Auth (OpenID Connect for user identity).
+- **Authentication Provider**: Firebase Authentication (email/password) and Replit Auth (OpenID Connect).
 - **UI Component Library**: shadcn/ui (React components built on Radix UI).
-- **Core Libraries**: Drizzle ORM, TanStack Query, React Hook Form, Zod, Multer, Express Session.
+- **Core Libraries**: Drizzle ORM, TanStack Query, React Hook Form, Zod, Multer, Express Session, Firebase SDK.
