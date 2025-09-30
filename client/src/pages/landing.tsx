@@ -399,7 +399,7 @@ const MobileMenu = ({
               Schedule Demo
             </Button>
             <Button
-              onClick={() => setLocation('/login')}
+              onClick={() => setLocation('/firebase-signin')}
               size="sm"
               className="w-full"
               data-testid="mobile-login-button"
@@ -576,7 +576,7 @@ export default function Landing() {
   // Enhanced keyboard navigation
   useHotkeys('ctrl+k, cmd+k', (e) => {
     e.preventDefault();
-    setLocation('/login');
+    setLocation('/firebase-signin');
   });
 
   useHotkeys('ctrl+d, cmd+d', (e) => {
@@ -785,7 +785,7 @@ export default function Landing() {
                   Schedule Demo
                 </Button>
                 <Button 
-                  onClick={() => setLocation('/login')}
+                  onClick={() => setLocation('/firebase-signin')}
                   size="sm"
                   className="hover:scale-105 transition-transform shadow-md"
                   data-testid="desktop-login-button"
@@ -857,7 +857,7 @@ export default function Landing() {
               >
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                   <Button 
-                    onClick={() => setLocation('/login')}
+                    onClick={() => setLocation('/firebase-signin')}
                     size="lg"
                     className="w-full sm:w-auto bg-gradient-to-r from-primary to-blue-600 hover:from-primary/90 hover:to-blue-600/90 text-white px-10 py-4 text-xl font-semibold rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300"
                     data-testid="cta-launch-platform"

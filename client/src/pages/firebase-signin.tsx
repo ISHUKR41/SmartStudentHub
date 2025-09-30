@@ -56,14 +56,28 @@ export default function FirebaseSignin() {
 
       setLocation('/dashboard');
     } catch (error: any) {
-      await Swal.fire({
-        icon: 'error',
-        title: 'Sign In Failed',
-        text: error.message || 'Failed to sign in. Please try again.',
-        confirmButtonColor: 'hsl(var(--primary))',
-        background: 'hsl(var(--card))',
-        color: 'hsl(var(--card-foreground))',
-      });
+      // Check if email is not verified
+      if (error.message === 'EMAIL_NOT_VERIFIED') {
+        await Swal.fire({
+          icon: 'warning',
+          title: 'Email Not Verified',
+          text: 'Please verify your email before signing in. Redirecting to verification page...',
+          showConfirmButton: false,
+          timer: 2000,
+          background: 'hsl(var(--card))',
+          color: 'hsl(var(--card-foreground))',
+        });
+        setLocation('/email-verification');
+      } else {
+        await Swal.fire({
+          icon: 'error',
+          title: 'Sign In Failed',
+          text: error.message || 'Failed to sign in. Please try again.',
+          confirmButtonColor: 'hsl(var(--primary))',
+          background: 'hsl(var(--card))',
+          color: 'hsl(var(--card-foreground))',
+        });
+      }
     } finally {
       setIsLoading(false);
     }

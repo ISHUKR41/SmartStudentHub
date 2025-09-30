@@ -31,6 +31,7 @@ import Signup from "@/pages/signup";
 import Help from "@/pages/help";
 import FirebaseSignin from "@/pages/firebase-signin";
 import FirebaseSignup from "@/pages/firebase-signup";
+import EmailVerification from "@/pages/email-verification";
 import StudentDashboard from "@/pages/student-dashboard";
 import Activities from "@/pages/activities";
 import ActivityUpload from "@/pages/activity-upload";
@@ -83,12 +84,14 @@ function Router() {
           <Route path="/signup" component={Signup} />
           <Route path="/firebase-signin" component={FirebaseSignin} />
           <Route path="/firebase-signup" component={FirebaseSignup} />
+          <Route path="/email-verification" component={EmailVerification} />
           <Route path="/help" component={Help} />
         </>
       ) : (
         <>
           <Route path="/" component={StudentDashboard} />
           <Route path="/dashboard" component={StudentDashboard} />
+          <Route path="/email-verification" component={EmailVerification} />
           <Route path="/activities" component={Activities} />
           <Route path="/upload" component={ActivityUpload} />
           <Route path="/attendance" component={Attendance} />

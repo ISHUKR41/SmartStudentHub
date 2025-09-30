@@ -140,13 +140,13 @@ export default function FirebaseSignup() {
         title: 'Account Created!',
         html: 'Please check your email to verify your account.<br/>Check your spam folder if you don\'t see it.',
         showConfirmButton: true,
-        confirmButtonText: 'Go to Sign In',
+        confirmButtonText: 'Continue to Verification',
         confirmButtonColor: 'hsl(var(--primary))',
         background: 'hsl(var(--card))',
         color: 'hsl(var(--card-foreground))',
       });
 
-      setLocation('/firebase-signin');
+      setLocation('/email-verification');
     } catch (error: any) {
       await Swal.fire({
         icon: 'error',

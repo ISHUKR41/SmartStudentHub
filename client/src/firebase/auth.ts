@@ -70,7 +70,7 @@ export const signUpUser = async (userData: Omit<UserData, 'createdAt' | 'emailVe
   }
 };
 
-// Sign in user (only if email is verified)
+// Sign in user (redirect to verification if email not verified)
 export const signInUser = async (email: string, password: string) => {
   try {
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
@@ -78,9 +78,8 @@ export const signInUser = async (email: string, password: string) => {
 
     // Check if email is verified
     if (!user.emailVerified) {
-      await signOut(auth);
-      toast.error('Please verify your email before signing in. Check your inbox!');
-      throw new Error('Email not verified');
+      // Don't sign out - let them access the verification page
+      throw new Error('EMAIL_NOT_VERIFIED');
     }
 
     // Update email verification status in Firestore
@@ -91,6 +90,10 @@ export const signInUser = async (email: string, password: string) => {
     return { user, success: true };
   } catch (error: any) {
     let errorMessage = 'Failed to sign in';
+    
+    if (error.message === 'EMAIL_NOT_VERIFIED') {
+      throw new Error('EMAIL_NOT_VERIFIED');
+    }
     
     switch (error.code) {
       case 'auth/user-not-found':
@@ -106,10 +109,8 @@ export const signInUser = async (email: string, password: string) => {
         errorMessage = 'Too many failed attempts. Please try again later';
         break;
       default:
-        if (error.message !== 'Email not verified') {
-          errorMessage = error.message || 'Failed to sign in';
-          toast.error(errorMessage);
-        }
+        errorMessage = error.message || 'Failed to sign in';
+        toast.error(errorMessage);
     }
     
     throw new Error(errorMessage);
