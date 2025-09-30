@@ -29,6 +29,8 @@ import Landing from "@/pages/landing";
 import Login from "@/pages/login";
 import Signup from "@/pages/signup";
 import Help from "@/pages/help";
+import FirebaseSignin from "@/pages/firebase-signin";
+import FirebaseSignup from "@/pages/firebase-signup";
 import StudentDashboard from "@/pages/student-dashboard";
 import Activities from "@/pages/activities";
 import ActivityUpload from "@/pages/activity-upload";
@@ -79,6 +81,8 @@ function Router() {
           <Route path="/" component={Landing} />
           <Route path="/login" component={Login} />
           <Route path="/signup" component={Signup} />
+          <Route path="/firebase-signin" component={FirebaseSignin} />
+          <Route path="/firebase-signup" component={FirebaseSignup} />
           <Route path="/help" component={Help} />
         </>
       ) : (
