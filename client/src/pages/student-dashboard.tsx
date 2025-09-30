@@ -29,7 +29,7 @@ import {
   Filler
 } from 'chart.js';
 import { Line as LineChartJS, Bar as BarChartJS, Pie as PieChartJS, Doughnut, Radar as RadarChartJS, PolarArea } from 'react-chartjs-2';
-import { VictoryChart, VictoryLine, VictoryArea, VictoryBar, VictoryTheme, VictoryPie, VictoryScatter } from 'victory';
+import { VictoryChart, VictoryLine, VictoryArea, VictoryBar, VictoryTheme, VictoryPie, VictoryScatter, VictoryPolarAxis } from 'victory';
 import moment from 'moment';
 import _ from 'lodash';
 
@@ -73,7 +73,7 @@ import {
   GraduationCap, ClipboardList, Star, Clock, Trophy, Download, Plus, Bell, Filter, RefreshCw,
   Users, Calendar, MapPin, Target, Award, CheckCircle, AlertCircle, TrendingUp, BarChart3,
   BookOpen, Heart, Crown, Shield, Medal, Rocket, User, Eye, Send, Zap, Activity as ActivityIcon,
-  FileText, Code, Timer, Search, Settings, Moon, Sun, Maximize, Upload, Mail, Menu
+  FileText, Code, Timer, Search, Settings, Moon, Sun, Maximize, Upload, Mail, Menu, Lightbulb
 } from "lucide-react";
 
 import { activities } from "@shared/schema";

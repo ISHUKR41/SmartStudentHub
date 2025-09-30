@@ -17,7 +17,15 @@ export function useAuth() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // Safety timeout: if Firebase doesn't respond within 3 seconds, stop loading
+    const timeoutId = setTimeout(() => {
+      console.warn('Firebase auth initialization timeout - continuing with no user');
+      setIsLoading(false);
+    }, 3000);
+
     const unsubscribe = onIdTokenChanged(auth, async (firebaseUser) => {
+      clearTimeout(timeoutId); // Clear timeout since Firebase responded
+      
       if (firebaseUser) {
         // Reload user to get latest emailVerified status
         await firebaseUser.reload();
@@ -61,7 +69,10 @@ export function useAuth() {
       setIsLoading(false);
     });
 
-    return () => unsubscribe();
+    return () => {
+      clearTimeout(timeoutId);
+      unsubscribe();
+    };
   }, []);
 
   return {
