@@ -24,16 +24,34 @@ export function useAuth() {
         const currentUser = auth.currentUser;
         
         if (currentUser && currentUser.emailVerified) {
-          // Get additional user data from Firestore
+          // Try to get additional user data from Firestore
+          // Fallback to Firebase Auth data if Firestore is unavailable
           const userData = await getUserProfile(currentUser.uid);
-          setUser({
-            id: currentUser.uid,
-            email: currentUser.email,
-            firstName: userData?.name?.split(' ')[0] || currentUser.displayName,
-            lastName: userData?.name?.split(' ')[1] || '',
-            role: 'student',
-            ...userData
-          });
+          
+          if (userData) {
+            // Full user data from Firestore
+            setUser({
+              id: currentUser.uid,
+              firstName: userData.name?.split(' ')[0] || currentUser.displayName,
+              lastName: userData.name?.split(' ')[1] || '',
+              role: 'student',
+              ...userData
+            });
+          } else {
+            // Fallback to minimal Firebase Auth data
+            console.warn('Using minimal Firebase Auth data (Firestore unavailable)');
+            const displayName = currentUser.displayName || '';
+            const nameParts = displayName.split(' ');
+            setUser({
+              id: currentUser.uid,
+              email: currentUser.email,
+              firstName: nameParts[0] || displayName,
+              lastName: nameParts[1] || '',
+              name: displayName,
+              role: 'student',
+              emailVerified: currentUser.emailVerified
+            });
+          }
         } else {
           setUser(null);
         }

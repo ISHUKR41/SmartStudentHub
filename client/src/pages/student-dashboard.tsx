@@ -1304,7 +1304,7 @@ export default function StudentDashboard() {
                     <Card className="bg-gradient-to-r from-green-50/50 to-emerald-50/50 dark:from-green-900/10 dark:to-emerald-900/10">
                       <CardHeader>
                         <CardTitle className="flex items-center gap-2">
-                          <Activity className="w-5 h-5 text-green-600" />
+                          <ActivityIcon className="w-5 h-5 text-green-600" />
                           Activity Timeline
                           <Badge variant="outline" className="ml-auto bg-green-100 text-green-700">
                             Victory

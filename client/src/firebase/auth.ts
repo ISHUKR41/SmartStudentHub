@@ -8,7 +8,7 @@ import {
   User
 } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
-import { auth, db } from './config';
+import { auth, db, firestoreAvailable } from './config';
 import toast from 'react-hot-toast';
 
 export interface UserData {
@@ -37,13 +37,22 @@ export const signUpUser = async (userData: Omit<UserData, 'createdAt' | 'emailVe
     // Send email verification
     await sendEmailVerification(user);
 
-    // Save additional user data to Firestore
-    await setDoc(doc(db, 'users', user.uid), {
-      ...userData,
-      createdAt: new Date(),
-      emailVerified: false,
-      uid: user.uid
-    });
+    // Save additional user data to Firestore (optional - graceful fallback if Firestore fails)
+    if (firestoreAvailable && db) {
+      try {
+        await setDoc(doc(db, 'users', user.uid), {
+          ...userData,
+          createdAt: new Date(),
+          emailVerified: false,
+          uid: user.uid
+        });
+        console.log('User data saved to Firestore successfully');
+      } catch (firestoreError: any) {
+        console.warn('Failed to save user data to Firestore, but authentication succeeded:', firestoreError);
+      }
+    } else {
+      console.warn('Firestore not available - user data stored in Firebase Auth only');
+    }
 
     toast.success('Account created! Please check your email to verify your account.');
     
@@ -82,9 +91,16 @@ export const signInUser = async (email: string, password: string) => {
       throw new Error('EMAIL_NOT_VERIFIED');
     }
 
-    // Update email verification status in Firestore
-    const userDoc = doc(db, 'users', user.uid);
-    await setDoc(userDoc, { emailVerified: true }, { merge: true });
+    // Update email verification status in Firestore (optional - graceful fallback if Firestore fails)
+    if (firestoreAvailable && db) {
+      try {
+        const userDoc = doc(db, 'users', user.uid);
+        await setDoc(userDoc, { emailVerified: true }, { merge: true });
+        console.log('Email verification status updated in Firestore');
+      } catch (firestoreError: any) {
+        console.warn('Failed to update Firestore, but sign-in succeeded:', firestoreError);
+      }
+    }
 
     toast.success(`Welcome back, ${user.displayName || 'User'}!`);
     return { user, success: true };
@@ -165,6 +181,12 @@ export const resendEmailVerification = async (user: User) => {
 
 // Get user profile data from Firestore
 export const getUserProfile = async (uid: string) => {
+  // If Firestore is not available, return null gracefully
+  if (!firestoreAvailable || !db) {
+    console.warn('Firestore not available - returning null profile data');
+    return null;
+  }
+
   try {
     const userDoc = await getDoc(doc(db, 'users', uid));
     if (userDoc.exists()) {
@@ -172,7 +194,7 @@ export const getUserProfile = async (uid: string) => {
     }
     return null;
   } catch (error: any) {
-    console.error('Error fetching user profile:', error);
+    console.warn('Error fetching user profile from Firestore (fallback to Auth data):', error);
     return null;
   }
 };
