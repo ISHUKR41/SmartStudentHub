@@ -9,7 +9,7 @@ const firebaseConfig = {
   projectId: "smart-student-hub-75",
   storageBucket: "smart-student-hub-75.firebasestorage.app",
   messagingSenderId: "77366186543",
-  appId: "1:77366186543:web:a1b2c3d4e5f6g7h8i9j0k1l2"
+  appId: "1:77366186543:web:a05fb48a11addde782acda"
 };
 
 // Initialize Firebase (prevent duplicate initialization)

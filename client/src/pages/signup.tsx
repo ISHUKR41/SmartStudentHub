@@ -32,7 +32,7 @@ const signupSchema = z.object({
   name: z.string()
     .min(2, "Name must be at least 2 characters")
     .max(50, "Name must not exceed 50 characters")
-    .regex(/^[a-zA-Z\\s]+$/, "Name should only contain letters and spaces"),
+    .regex(/^[a-zA-Z\s]+$/, "Name should only contain letters and spaces"),
   email: z.string()
     .email("Please enter a valid email address")
     .min(5, "Email must be at least 5 characters"),
@@ -56,7 +56,7 @@ const signupSchema = z.object({
     .max(60, "Age must not exceed 60 years"),
   password: z.string()
     .min(8, "Password must be at least 8 characters")
-    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]/, 
+    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/, 
       "Password must contain uppercase, lowercase, number, and special character"),
   confirmPassword: z.string()
 }).refine((data) => data.password === data.confirmPassword, {
@@ -92,7 +92,7 @@ export default function SignupPage() {
       
       // Redirect to signin after successful signup
       setTimeout(() => {
-        setLocation("/signin");
+        setLocation("/firebase-signin");
       }, 2000);
       
     } catch (error: any) {
