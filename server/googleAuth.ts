@@ -201,15 +201,18 @@ export function isAuthenticated(req: any, res: any, next: any) {
     (!process.env.GOOGLE_CLIENT_ID ||
       process.env.GOOGLE_CLIENT_ID === "dummy-client-id")
   ) {
-    // Mock authentication for development
+    // Mock authentication for development - use seeded user data
     req.user = {
-      id: "dev-user-123",
-      email: "student@example.com",
-      firstName: "Test",
-      lastName: "Student",
+      claims: {
+        sub: "1",
+      },
+      id: "1",
+      email: "ishu.kumar@student.nitdelhi.ac.in",
+      firstName: "ISHU",
+      lastName: "KUMAR",
       profileImageUrl: "",
-      rollNumber: "CS2021001",
-      department: "Computer Science",
+      rollNumber: "2021CSE001",
+      department: "Computer Science and Engineering",
       currentSemester: 6,
       role: "student",
     };
