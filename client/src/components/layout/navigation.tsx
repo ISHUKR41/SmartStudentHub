@@ -56,6 +56,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
+import { signOutUser } from "@/firebase/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -191,13 +192,16 @@ export default function Navigation() {
   /**
    * Logout Handler
    * 
-   * Handles secure user logout by redirecting to the institutional logout endpoint.
-   * Ensures proper session termination and security compliance with institutional standards.
-   * Integrates with institutional authentication systems for secure session management.
+   * Handles secure user logout using Firebase authentication.
+   * Signs out the user and redirects to the landing page.
    */
-  const handleLogout = () => {
-    // Redirect to institutional logout endpoint for secure session termination
-    window.location.href = "/api/logout";
+  const handleLogout = async () => {
+    try {
+      await signOutUser();
+      window.location.href = "/";
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
   };
 
   /**
