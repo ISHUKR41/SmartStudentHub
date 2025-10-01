@@ -38,9 +38,9 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  // Using in-memory storage - no database connection required
-  console.log("🚀 Starting Smart Student Hub with in-memory storage...");
-  console.log("✅ In-memory storage initialized - data will persist during this session");
+  // Using PostgreSQL database for persistent storage
+  console.log("🚀 Starting Smart Student Hub with PostgreSQL database...");
+  console.log("✅ Database storage initialized - data will persist across restarts");
 
   const server = await registerRoutes(app);
 
