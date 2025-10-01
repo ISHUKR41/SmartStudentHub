@@ -6,6 +6,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster as HotToaster } from 'react-hot-toast';
 import { useAuth } from "@/hooks/useAuth";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
+import { PulseLoader } from 'react-spinners';
+import { motion } from 'framer-motion';
 
 import NotFound from "@/pages/not-found";
 import Landing from "@/pages/landing";
@@ -30,11 +32,26 @@ function Router() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen w-full flex items-center justify-center bg-background">
-        <div className="flex items-center space-x-3">
-          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
-          <span className="text-sm font-medium text-foreground">Loading...</span>
-        </div>
+      <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-background via-background to-muted/20">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+          className="flex flex-col items-center space-y-6"
+        >
+          <div className="relative">
+            <div className="absolute inset-0 bg-primary/20 rounded-full blur-xl animate-pulse"></div>
+            <PulseLoader color="hsl(var(--primary))" size={15} margin={4} />
+          </div>
+          <motion.p
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="text-sm font-medium text-foreground"
+          >
+            Loading Smart Student Hub...
+          </motion.p>
+        </motion.div>
       </div>
     );
   }
