@@ -41,17 +41,13 @@ function Router() {
 
   return (
     <Switch>
-      {!isAuthenticated ? (
+      <Route path="/" component={Landing} />
+      <Route path="/firebase-signin" component={FirebaseSignin} />
+      <Route path="/firebase-signup" component={FirebaseSignup} />
+      <Route path="/email-verification" component={EmailVerification} />
+      
+      {isAuthenticated && (
         <>
-          <Route path="/" component={Landing} />
-          <Route path="/firebase-signin" component={FirebaseSignin} />
-          <Route path="/firebase-signup" component={FirebaseSignup} />
-          <Route path="/email-verification" component={EmailVerification} />
-        </>
-      ) : (
-        <>
-          <Route path="/" component={Landing} />
-          <Route path="/email-verification" component={EmailVerification} />
           <Route path="/dashboard">
             <DashboardLayout>
               <Dashboard />
@@ -114,6 +110,7 @@ function Router() {
           </Route>
         </>
       )}
+      
       <Route component={NotFound} />
     </Switch>
   );
