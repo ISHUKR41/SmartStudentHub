@@ -1,10 +1,21 @@
-# Student Activity Management System
+# Smart Student Hub - Complete Educational Platform
 
 ## Overview
-This project is a centralized digital platform for Higher Education Institutions (HEIs) to track and manage student activities from admission to graduation. It enables students to record achievements, faculty to verify activities, and administrators to generate reports for institutional analytics. The system aims to eliminate scattered paperwork, providing a single source of truth for all student activities, certificates, and achievements, with a focus on supporting NAAC and NIRF accreditation requirements for Indian HEIs.
+A comprehensive digital platform for educational institutions to manage student activities, attendance, assignments, exams, resources, events, and more. This system provides a centralized hub for students to track their academic journey with features like schedule management, QR code attendance, lost & found, and digital portfolios.
+
+## Recent Changes (October 1, 2025)
+Major rebuild in progress to create a focused, professional student hub with:
+- Clean architecture with only essential pages
+- Firebase authentication with mandatory email verification
+- Collapsible sidebar navigation
+- 12 core features: Dashboard, Schedule, Attendance, Assignments, Exams, Resources, Events, Notices, QR Scanner, Lost & Found, Profile, Settings
+- In-memory storage to ensure data persistence when shared
+- Fully responsive design for all devices
+- Modern UI with extensive library usage (Framer Motion, React Hook Form, TanStack Query, etc.)
 
 ## User Preferences
-Preferred communication style: Simple, everyday language.
+Preferred communication style: Simple, everyday language
+Storage preference: In-memory storage (no database) for easy sharing and deployment
 
 ## System Architecture
 
