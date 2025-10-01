@@ -38,70 +38,9 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  // Database startup logging and verification
-  try {
-    console.log("Starting database connection verification...");
-
-    // Import database with new Neon serverless configuration
-    const { db } = await import("./db");
-    console.log("Testing database connection with simple query...");
-
-    // Test database connection with timeout handling
-    const connectionTest = await Promise.race([
-      db.execute("SELECT 1 as connection_test, NOW() as server_time"),
-      new Promise((_, reject) =>
-        setTimeout(
-          () => reject(new Error("Connection test timeout after 10 seconds")),
-          10000
-        )
-      ),
-    ]);
-
-    console.log("Database connection successful!");
-    console.log("Neon serverless connection established");
-  } catch (error) {
-    console.error(
-      "Database connection failed:",
-      error instanceof Error ? error.message : String(error)
-    );
-    console.log("Warning: Continuing startup despite database issues...");
-  }
-
-  // Auto-seed database in development if empty
-  if (process.env.NODE_ENV === "development") {
-    try {
-      console.log("Checking if database needs seeding...");
-      const { db } = await import("./db");
-      const { users } = await import("@shared/schema");
-
-      // Check if database has any users with timeout protection
-      const userCheck = await Promise.race([
-        db.select().from(users).limit(1),
-        new Promise((_, reject) =>
-          setTimeout(
-            () => reject(new Error("User check timeout after 8 seconds")),
-            8000
-          )
-        ),
-      ]);
-
-      if (Array.isArray(userCheck) && userCheck.length === 0) {
-        console.log("No users found in database. Starting auto-seeding...");
-
-        const { seedDatabase } = await import("./seed");
-        await seedDatabase();
-
-        console.log("Database auto-seeding completed successfully!");
-      } else {
-        console.log("Database already contains data. Skipping auto-seeding.");
-      }
-    } catch (error) {
-      console.error(
-        "Warning: Auto-seeding failed, but continuing server startup:",
-        error instanceof Error ? error.message : String(error)
-      );
-    }
-  }
+  // Using in-memory storage - no database connection required
+  console.log("🚀 Starting Smart Student Hub with in-memory storage...");
+  console.log("✅ In-memory storage initialized - data will persist during this session");
 
   const server = await registerRoutes(app);
 
