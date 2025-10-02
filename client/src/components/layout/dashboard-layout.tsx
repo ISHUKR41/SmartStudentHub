@@ -133,7 +133,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     try {
       setIsMobileOpen(false);
       await signOutUser();
-      setLocation('/firebase-signin');
+      setLocation('/');
     } catch (error) {
       console.error('Logout failed:', error);
     }
