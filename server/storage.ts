@@ -34,6 +34,11 @@ import {
   assignments,
   assignmentSubmissions,
   assignmentSubmissionFiles,
+  exams,
+  examResults,
+  resources,
+  events,
+  eventRsvps,
   type User,
   type UpsertUser,
   type Activity,
@@ -61,7 +66,21 @@ import {
   type InsertAssignmentSubmission,
   type UpdateAssignmentSubmission,
   type AssignmentSubmissionFile,
-  type InsertAssignmentSubmissionFile
+  type InsertAssignmentSubmissionFile,
+  type Exam,
+  type InsertExam,
+  type UpdateExam,
+  type ExamResult,
+  type InsertExamResult,
+  type Resource,
+  type InsertResource,
+  type UpdateResource,
+  type Event,
+  type InsertEvent,
+  type UpdateEvent,
+  type EventRsvp,
+  type InsertEventRsvp,
+  type UpdateEventRsvp
 } from "@shared/schema";
 
 /**
@@ -269,6 +288,64 @@ export interface IStorage {
   addSubmissionFile(submissionId: string, fileName: string, filePath: string, fileType: string, fileSize: number): Promise<AssignmentSubmissionFile>;
   getSubmissionFiles(submissionId: string): Promise<AssignmentSubmissionFile[]>;
   deleteSubmissionFile(fileId: string): Promise<void>;
+
+  // Exam Management Operations
+  getAllExams(): Promise<Exam[]>;
+  getExamsByStudent(studentId: string, semester?: number): Promise<Exam[]>;
+  getExamById(examId: string): Promise<Exam | undefined>;
+  createExam(exam: InsertExam): Promise<Exam>;
+  updateExam(examId: string, updates: UpdateExam): Promise<Exam>;
+  deleteExam(examId: string): Promise<void>;
+  
+  // Exam Results Operations
+  getExamResult(examId: string, studentId: string): Promise<ExamResult | undefined>;
+  getExamResultsByStudent(studentId: string): Promise<ExamResult[]>;
+  getExamResultsByExam(examId: string): Promise<ExamResult[]>;
+  createExamResult(result: InsertExamResult): Promise<ExamResult>;
+  updateExamResult(resultId: string, updates: Partial<ExamResult>): Promise<ExamResult>;
+  getExamStats(studentId: string): Promise<{
+    averageScore: number;
+    totalExams: number;
+    passedExams: number;
+    failedExams: number;
+    highestScore: number;
+    lowestScore: number;
+    upcomingExams: number;
+    completedExams: number;
+    performanceTrend: Array<{ month: string; score: number }>;
+  }>;
+  
+  // Resource Management Operations
+  getAllResources(): Promise<Resource[]>;
+  getResourceById(resourceId: string): Promise<Resource | undefined>;
+  getResourcesByType(type: string): Promise<Resource[]>;
+  getResourcesBySubject(subject: string): Promise<Resource[]>;
+  searchResources(query: string, filters?: { type?: string; subject?: string; category?: string }): Promise<Resource[]>;
+  createResource(resource: InsertResource): Promise<Resource>;
+  updateResource(resourceId: string, updates: UpdateResource): Promise<Resource>;
+  deleteResource(resourceId: string): Promise<void>;
+  incrementResourceDownload(resourceId: string): Promise<void>;
+  incrementResourceView(resourceId: string): Promise<void>;
+  
+  // Event Management Operations
+  getAllEvents(): Promise<Event[]>;
+  getEventById(eventId: string): Promise<Event | undefined>;
+  getEventsByCategory(category: string): Promise<Event[]>;
+  getEventsByDateRange(startDate: Date, endDate: Date): Promise<Event[]>;
+  getUpcomingEvents(): Promise<Event[]>;
+  getPastEvents(): Promise<Event[]>;
+  searchEvents(query: string): Promise<Event[]>;
+  createEvent(event: InsertEvent): Promise<Event>;
+  updateEvent(eventId: string, updates: UpdateEvent): Promise<Event>;
+  deleteEvent(eventId: string): Promise<void>;
+  
+  // Event RSVP Operations
+  getEventRsvp(eventId: string, studentId: string): Promise<EventRsvp | undefined>;
+  getEventRsvps(eventId: string): Promise<EventRsvp[]>;
+  getStudentRsvps(studentId: string): Promise<EventRsvp[]>;
+  createOrUpdateRsvp(rsvp: InsertEventRsvp): Promise<EventRsvp>;
+  deleteRsvp(rsvpId: string): Promise<void>;
+  getEventAttendeeCount(eventId: string): Promise<{ going: number; maybe: number; notGoing: number; total: number }>;
 }
 
 /**

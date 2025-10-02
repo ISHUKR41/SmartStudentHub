@@ -495,6 +495,193 @@ export const assignmentSubmissionFiles = pgTable("assignment_submission_files", 
 });
 
 /**
+ * Exam Status Enumeration
+ * 
+ * Tracks the status of exams:
+ * - upcoming: Exam is scheduled for the future
+ * - completed: Exam has been conducted
+ * - cancelled: Exam has been cancelled
+ */
+export const examStatusEnum = pgEnum('exam_status', ['upcoming', 'completed', 'cancelled']);
+
+/**
+ * Exams Table
+ * 
+ * Stores exam schedule and details for students.
+ * 
+ * Features:
+ * - Exam scheduling with date, time, and duration
+ * - Subject and room information
+ * - Syllabus topics tracking
+ * - Total marks information
+ * - Status tracking (upcoming/completed/cancelled)
+ */
+export const exams = pgTable("exams", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  title: varchar("title").notNull(),
+  subject: varchar("subject").notNull(),
+  description: text("description"),
+  examDate: timestamp("exam_date").notNull(),
+  startTime: varchar("start_time").notNull(),
+  endTime: varchar("end_time").notNull(),
+  duration: varchar("duration").notNull(),
+  room: varchar("room").notNull(),
+  semester: integer("semester").notNull(),
+  totalMarks: integer("total_marks").notNull(),
+  syllabus: text("syllabus").array(),
+  status: examStatusEnum("status").default('upcoming').notNull(),
+  createdBy: varchar("created_by").references(() => users.id),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+/**
+ * Exam Results Table
+ * 
+ * Stores student exam results and grades.
+ * 
+ * Features:
+ * - Marks obtained by students
+ * - Grade calculation
+ * - Performance tracking
+ * - Result verification status
+ */
+export const examResults = pgTable("exam_results", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  examId: varchar("exam_id").references(() => exams.id, { onDelete: 'cascade' }).notNull(),
+  studentId: varchar("student_id").references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  marksObtained: integer("marks_obtained").notNull(),
+  grade: varchar("grade").notNull(),
+  remarks: text("remarks"),
+  verifiedBy: varchar("verified_by").references(() => users.id),
+  verifiedAt: timestamp("verified_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+/**
+ * Resource Type Enumeration
+ * 
+ * Types of educational resources:
+ * - notes: Study notes and lecture notes
+ * - books: Textbooks and reference books
+ * - videos: Video lectures and tutorials
+ * - links: External links and online resources
+ * - assignments: Assignment files and templates
+ * - papers: Research papers and articles
+ */
+export const resourceTypeEnum = pgEnum('resource_type', ['notes', 'books', 'videos', 'links', 'assignments', 'papers']);
+
+/**
+ * Resources Table
+ * 
+ * Educational resources and study materials for students.
+ * 
+ * Features:
+ * - Multiple resource types (notes, videos, books, etc.)
+ * - File storage with metadata
+ * - Subject and topic categorization
+ * - Tag-based organization
+ * - Download tracking
+ * - Search and filtering capabilities
+ */
+export const resources = pgTable("resources", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  title: varchar("title").notNull(),
+  description: text("description").notNull(),
+  type: resourceTypeEnum("type").notNull(),
+  category: varchar("category").notNull(),
+  subject: varchar("subject").notNull(),
+  topic: varchar("topic"),
+  tags: text("tags").array(),
+  fileUrl: varchar("file_url"),
+  externalUrl: varchar("external_url"),
+  fileName: varchar("file_name"),
+  fileSize: integer("file_size"),
+  fileType: varchar("file_type"),
+  thumbnailUrl: varchar("thumbnail_url"),
+  uploadedBy: varchar("uploaded_by").references(() => users.id).notNull(),
+  downloads: integer("downloads").default(0),
+  views: integer("views").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+/**
+ * Event Category Enumeration
+ * 
+ * Categories of campus events:
+ * - academic: Academic conferences, seminars, workshops
+ * - cultural: Cultural performances and celebrations
+ * - sports: Sports events and competitions
+ * - technical: Technical fests and hackathons
+ * - social: Social gatherings and meetups
+ */
+export const eventCategoryEnum = pgEnum('event_category', ['academic', 'cultural', 'sports', 'technical', 'social']);
+
+/**
+ * RSVP Status Enumeration
+ * 
+ * Student RSVP status for events:
+ * - going: Student confirmed attendance
+ * - maybe: Student unsure about attendance
+ * - not_going: Student not attending
+ */
+export const rsvpStatusEnum = pgEnum('rsvp_status', ['going', 'maybe', 'not_going']);
+
+/**
+ * Events Table
+ * 
+ * Campus events and activities management.
+ * 
+ * Features:
+ * - Event details with date, time, and venue
+ * - Category-based organization
+ * - Organizer tracking
+ * - Participant capacity management
+ * - Image and banner support
+ * - Registration tracking
+ */
+export const events = pgTable("events", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  title: varchar("title").notNull(),
+  description: text("description").notNull(),
+  category: eventCategoryEnum("category").notNull(),
+  eventDate: timestamp("event_date").notNull(),
+  startTime: varchar("start_time").notNull(),
+  endTime: varchar("end_time").notNull(),
+  venue: varchar("venue").notNull(),
+  organizer: varchar("organizer").notNull(),
+  organizerId: varchar("organizer_id").references(() => users.id),
+  imageUrl: varchar("image_url"),
+  maxParticipants: integer("max_participants"),
+  registrationDeadline: timestamp("registration_deadline"),
+  status: varchar("status").default('upcoming').notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+/**
+ * Event RSVPs Table
+ * 
+ * Student RSVP tracking for events.
+ * 
+ * Features:
+ * - RSVP status tracking (going/maybe/not going)
+ * - Attendance tracking
+ * - Timestamp tracking for registration
+ */
+export const eventRsvps = pgTable("event_rsvps", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  eventId: varchar("event_id").references(() => events.id, { onDelete: 'cascade' }).notNull(),
+  studentId: varchar("student_id").references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  status: rsvpStatusEnum("status").notNull(),
+  attended: boolean("attended").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+/**
  * Analytics Event Type Enumeration
  * 
  * Types of analytics events that can be tracked:
@@ -986,6 +1173,73 @@ export type InsertAssignmentSubmission = z.infer<typeof insertAssignmentSubmissi
 export type UpdateAssignmentSubmission = z.infer<typeof updateAssignmentSubmissionSchema>;
 export type AssignmentSubmissionFile = typeof assignmentSubmissionFiles.$inferSelect;
 export type InsertAssignmentSubmissionFile = z.infer<typeof insertAssignmentSubmissionFileSchema>;
+
+// Exam Schemas
+export const insertExamSchema = createInsertSchema(exams).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const updateExamSchema = insertExamSchema.partial();
+
+export const insertExamResultSchema = createInsertSchema(examResults).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const updateExamResultSchema = insertExamResultSchema.partial();
+
+// Exam Types
+export type Exam = typeof exams.$inferSelect;
+export type InsertExam = z.infer<typeof insertExamSchema>;
+export type UpdateExam = z.infer<typeof updateExamSchema>;
+export type ExamResult = typeof examResults.$inferSelect;
+export type InsertExamResult = z.infer<typeof insertExamResultSchema>;
+export type UpdateExamResult = z.infer<typeof updateExamResultSchema>;
+
+// Resource Schemas
+export const insertResourceSchema = createInsertSchema(resources).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  downloads: true,
+  views: true,
+});
+
+export const updateResourceSchema = insertResourceSchema.partial();
+
+// Resource Types
+export type Resource = typeof resources.$inferSelect;
+export type InsertResource = z.infer<typeof insertResourceSchema>;
+export type UpdateResource = z.infer<typeof updateResourceSchema>;
+
+// Event Schemas
+export const insertEventSchema = createInsertSchema(events).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const updateEventSchema = insertEventSchema.partial();
+
+export const insertEventRsvpSchema = createInsertSchema(eventRsvps).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  attended: true,
+});
+
+export const updateEventRsvpSchema = insertEventRsvpSchema.partial();
+
+// Event Types
+export type Event = typeof events.$inferSelect;
+export type InsertEvent = z.infer<typeof insertEventSchema>;
+export type UpdateEvent = z.infer<typeof updateEventSchema>;
+export type EventRsvp = typeof eventRsvps.$inferSelect;
+export type InsertEventRsvp = z.infer<typeof insertEventRsvpSchema>;
+export type UpdateEventRsvp = z.infer<typeof updateEventRsvpSchema>;
 
 // Analytics Types
 export type AnalyticsEvent = typeof analyticsEvents.$inferSelect;
