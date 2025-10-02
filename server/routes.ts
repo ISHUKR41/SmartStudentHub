@@ -39,6 +39,7 @@ import {
   insertAssignmentSchema,
   insertAssignmentSubmissionSchema,
   updateAssignmentSubmissionSchema,
+  insertExamResultSchema,
 } from "@shared/schema";
 import { AuthenticatedUser } from "../types/express";
 import { PDFPortfolioService } from "./pdfService";
@@ -2908,6 +2909,91 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error grading submission:", error);
       res.status(400).json({ message: "Failed to grade submission" });
+    }
+  });
+
+  // ===== EXAM ROUTES =====
+  
+  // Get all exams for student
+  app.get("/api/exams", isAuthenticated, async (req, res) => {
+    try {
+      const userId = (req.user as AuthenticatedUser).claims.sub;
+      const user = await storage.getUser(userId);
+      
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const exams = await storage.getExamsByStudent(userId, user.currentSemester || undefined);
+      res.json(exams);
+    } catch (error) {
+      console.error("Error fetching exams:", error);
+      res.status(500).json({ message: "Failed to fetch exams" });
+    }
+  });
+
+  // Get exam by ID
+  app.get("/api/exams/:id", isAuthenticated, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const exam = await storage.getExamById(id);
+      
+      if (!exam) {
+        return res.status(404).json({ message: "Exam not found" });
+      }
+
+      res.json(exam);
+    } catch (error) {
+      console.error("Error fetching exam:", error);
+      res.status(500).json({ message: "Failed to fetch exam" });
+    }
+  });
+
+  // Get exam results for student
+  app.get("/api/exam-results", isAuthenticated, async (req, res) => {
+    try {
+      const userId = (req.user as AuthenticatedUser).claims.sub;
+      const results = await storage.getExamResultsByStudent(userId);
+      res.json(results);
+    } catch (error) {
+      console.error("Error fetching exam results:", error);
+      res.status(500).json({ message: "Failed to fetch exam results" });
+    }
+  });
+
+  // Get exam statistics for student
+  app.get("/api/exams/stats", isAuthenticated, async (req, res) => {
+    try {
+      const userId = (req.user as AuthenticatedUser).claims.sub;
+      const stats = await storage.getExamStats(userId);
+      res.json(stats);
+    } catch (error) {
+      console.error("Error fetching exam stats:", error);
+      res.status(500).json({ message: "Failed to fetch exam stats" });
+    }
+  });
+
+  // Submit/update exam result (faculty/admin only)
+  app.post("/api/exam-results", isAuthenticated, async (req, res) => {
+    try {
+      const userId = (req.user as AuthenticatedUser).claims.sub;
+      const user = await storage.getUser(userId);
+      
+      if (!user || (user.role !== 'faculty' && user.role !== 'admin')) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const validatedData = insertExamResultSchema.parse({
+        ...req.body,
+        verifiedBy: userId,
+        verifiedAt: new Date(),
+      });
+
+      const result = await storage.createExamResult(validatedData);
+      res.status(201).json(result);
+    } catch (error) {
+      console.error("Error creating exam result:", error);
+      res.status(400).json({ message: "Failed to create exam result" });
     }
   });
 
