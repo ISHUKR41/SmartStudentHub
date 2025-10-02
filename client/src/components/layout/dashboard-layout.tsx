@@ -136,7 +136,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       await signOutUser();
       
       setTimeout(() => {
-        setLocation('/');
+        setLocation('/firebase-signin');
       }, 100);
     } catch (error) {
       console.error('Logout failed:', error);
