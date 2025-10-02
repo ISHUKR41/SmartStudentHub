@@ -124,6 +124,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   });
   
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   // Persist sidebar collapse state to localStorage
   useEffect(() => {
@@ -160,16 +161,18 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   }, []);
 
   const handleLogout = async () => {
+    if (isLoggingOut) return;
+    
     try {
+      setIsLoggingOut(true);
       setIsMobileOpen(false);
+      
       await signOutUser();
       
-      setTimeout(() => {
-        setLocation('/firebase-signin');
-      }, 100);
     } catch (error) {
       console.error('Logout failed:', error);
       toast.error('Failed to log out. Please try again.');
+      setIsLoggingOut(false);
     }
   };
 
@@ -309,9 +312,14 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                   Settings
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout} data-testid="menu-logout" className="cursor-pointer text-destructive focus:text-destructive min-h-[40px]">
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Logout
+                <DropdownMenuItem 
+                  onClick={handleLogout} 
+                  disabled={isLoggingOut}
+                  data-testid="menu-logout" 
+                  className="cursor-pointer text-destructive focus:text-destructive min-h-[40px] disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <LogOut className={cn("mr-2 h-4 w-4", isLoggingOut && "animate-spin")} />
+                  {isLoggingOut ? 'Logging out...' : 'Logout'}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -344,9 +352,13 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                   Settings
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-destructive focus:text-destructive min-h-[40px]">
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Logout
+                <DropdownMenuItem 
+                  onClick={handleLogout} 
+                  disabled={isLoggingOut}
+                  className="cursor-pointer text-destructive focus:text-destructive min-h-[40px] disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <LogOut className={cn("mr-2 h-4 w-4", isLoggingOut && "animate-spin")} />
+                  {isLoggingOut ? 'Logging out...' : 'Logout'}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
