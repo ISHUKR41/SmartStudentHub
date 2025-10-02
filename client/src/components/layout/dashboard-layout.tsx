@@ -131,28 +131,37 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     localStorage.setItem('sidebar-collapsed', JSON.stringify(isCollapsed));
   }, [isCollapsed]);
 
-  // Smart responsive behavior for different screen sizes
+  // Comprehensive responsive behavior for all device sizes
   useEffect(() => {
     const handleResize = () => {
       const width = window.innerWidth;
+      const saved = localStorage.getItem('sidebar-collapsed');
       
-      // Large Desktop/TV: 1920px+ - respect user preference or default expanded
+      // TV/Extra Large Desktop: 1920px+ - default expanded for maximum screen real estate
       if (width >= 1920) {
-        const saved = localStorage.getItem('sidebar-collapsed');
         if (saved === null) setIsCollapsed(false);
       }
-      // Desktop: 1440-1920px - respect user preference or default expanded
-      else if (width >= 1440) {
-        const saved = localStorage.getItem('sidebar-collapsed');
+      // Large Desktop: 1440-1919px - default expanded, respect user preference
+      else if (width >= 1440 && width < 1920) {
         if (saved === null) setIsCollapsed(false);
       }
-      // Small Desktop: 1024-1440px - auto-collapse for better space usage
+      // Desktop: 1024-1439px - auto-collapse for better content space
       else if (width >= 1024 && width < 1440) {
-        const saved = localStorage.getItem('sidebar-collapsed');
-        // Auto-collapse if no saved preference, otherwise respect user choice
         if (saved === null) setIsCollapsed(true);
       }
-      // Tablet/Mobile: < 1024px - uses mobile sidebar, collapse state irrelevant
+      // Tablet: 768-1023px - use mobile sidebar (collapse state handled separately)
+      else if (width >= 768 && width < 1024) {
+        // Mobile sidebar will be used, desktop sidebar hidden
+        setIsMobileOpen(false); // Close mobile menu if open
+      }
+      // Mobile: 320-767px - use mobile sidebar only
+      else if (width >= 320 && width < 768) {
+        setIsMobileOpen(false); // Close mobile menu if open
+      }
+      // Extra Small: < 320px - use mobile sidebar with optimizations
+      else {
+        setIsMobileOpen(false);
+      }
     };
 
     handleResize();
@@ -169,8 +178,10 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       
       await signOutUser();
       
-      // Direct navigation after successful signout
-      setLocation('/firebase-signin');
+      toast.success('Logged out successfully!');
+      
+      // Redirect to landing page after successful signout
+      setLocation('/');
       
     } catch (error) {
       console.error('Logout failed:', error);
@@ -500,7 +511,15 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-              className="lg:hidden fixed top-0 left-0 bottom-0 z-50 w-72 sm:w-80 max-w-[85vw] bg-card border-r flex flex-col shadow-2xl"
+              className={cn(
+                "lg:hidden fixed top-0 left-0 bottom-0 z-50 bg-card border-r flex flex-col shadow-2xl",
+                // Mobile (320-767px): 85% viewport width, max 280px
+                "w-[85vw] max-w-[280px]",
+                // Small mobile (320-479px): 90% viewport width for easier touch
+                "[@media(max-width:479px)]:w-[90vw] [@media(max-width:479px)]:max-w-[260px]",
+                // Tablet (768-1023px): Fixed 320px width for better layout
+                "sm:w-80 sm:max-w-[320px]"
+              )}
               data-testid="sidebar-mobile"
             >
               <SidebarContent />

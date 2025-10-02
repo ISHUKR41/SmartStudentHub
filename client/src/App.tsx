@@ -40,11 +40,15 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!isLoading) {
+      // Strictly enforce authentication and email verification
       if (!isLoggedIn) {
+        // User is not logged in - redirect to sign in
         setLocation('/firebase-signin');
       } else if (isLoggedIn && !emailVerified) {
+        // User is logged in but email is NOT verified - strictly redirect to verification page
         setLocation('/email-verification');
       }
+      // Only allow access if both isLoggedIn AND emailVerified are true
     }
   }, [isAuthenticated, isLoading, isLoggedIn, emailVerified, setLocation]);
 
@@ -74,7 +78,8 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
     );
   }
 
-  if (!isAuthenticated) {
+  // Strictly enforce: user must be authenticated (logged in AND email verified)
+  if (!isAuthenticated || !emailVerified) {
     return null;
   }
 
