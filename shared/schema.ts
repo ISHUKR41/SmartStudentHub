@@ -354,6 +354,59 @@ export const achievements = pgTable("achievements", {
 });
 
 /**
+ * Day of Week Enumeration
+ * 
+ * Days of the week for class scheduling:
+ * - monday to sunday: Standard week days
+ */
+export const dayOfWeekEnum = pgEnum('day_of_week', ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']);
+
+/**
+ * Recurrence Pattern Enumeration
+ * 
+ * Recurrence patterns for recurring classes:
+ * - none: Single occurrence class
+ * - weekly: Repeats every week on the same day
+ * - biweekly: Repeats every two weeks
+ */
+export const recurrencePatternEnum = pgEnum('recurrence_pattern', ['none', 'weekly', 'biweekly']);
+
+/**
+ * Classes/Schedule Table
+ * 
+ * Student class schedule and timetable management.
+ * Stores information about scheduled classes including time, location, and instructor details.
+ * 
+ * Features:
+ * - Subject and instructor tracking
+ * - Room/location management
+ * - Time slot management with start and end times
+ * - Day of week scheduling
+ * - Support for recurring classes (weekly/biweekly patterns)
+ * - Color coding for visual organization
+ * - Notes for additional information
+ */
+export const classes = pgTable("classes", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  studentId: varchar("student_id").references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  subjectId: varchar("subject_id").references(() => subjects.id, { onDelete: 'set null' }),
+  title: varchar("title").notNull(),
+  description: text("description"),
+  dayOfWeek: dayOfWeekEnum("day_of_week"),
+  startDate: timestamp("start_date"),
+  startTime: varchar("start_time").notNull(),
+  endTime: varchar("end_time").notNull(),
+  room: varchar("room"),
+  instructor: varchar("instructor"),
+  color: varchar("color").default('#3b82f6'),
+  recurrencePattern: recurrencePatternEnum("recurrence_pattern").default('none').notNull(),
+  recurrenceEndDate: timestamp("recurrence_end_date"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+/**
  * Analytics Event Type Enumeration
  * 
  * Types of analytics events that can be tracked:
@@ -511,6 +564,17 @@ export const achievementsRelations = relations(achievements, ({ one }) => ({
   }),
 }));
 
+export const classesRelations = relations(classes, ({ one }) => ({
+  student: one(users, {
+    fields: [classes.studentId],
+    references: [users.id],
+  }),
+  subject: one(subjects, {
+    fields: [classes.subjectId],
+    references: [subjects.id],
+  }),
+}));
+
 export const analyticsEventsRelations = relations(analyticsEvents, ({ one }) => ({
   student: one(users, {
     fields: [analyticsEvents.studentId],
@@ -595,6 +659,19 @@ export const insertAchievementSchema = createInsertSchema(achievements).omit({
   id: true,
   createdAt: true,
 });
+
+export const insertClassSchema = createInsertSchema(classes).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const updateClassSchema = createInsertSchema(classes).omit({
+  id: true,
+  studentId: true,
+  createdAt: true,
+  updatedAt: true,
+}).partial();
 
 export const insertAnalyticsEventSchema = createInsertSchema(analyticsEvents).omit({
   id: true,
@@ -751,6 +828,9 @@ export type Goal = typeof goals.$inferSelect;
 export type InsertGoal = z.infer<typeof insertGoalSchema>;
 export type Achievement = typeof achievements.$inferSelect;
 export type InsertAchievement = z.infer<typeof insertAchievementSchema>;
+export type Class = typeof classes.$inferSelect;
+export type InsertClass = z.infer<typeof insertClassSchema>;
+export type UpdateClass = z.infer<typeof updateClassSchema>;
 
 // Analytics Types
 export type AnalyticsEvent = typeof analyticsEvents.$inferSelect;

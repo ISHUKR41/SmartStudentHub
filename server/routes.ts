@@ -34,6 +34,8 @@ import {
   insertNotificationSchema,
   insertGoalSchema,
   insertAchievementSchema,
+  insertClassSchema,
+  updateClassSchema,
 } from "@shared/schema";
 import { AuthenticatedUser } from "../types/express";
 import { PDFPortfolioService } from "./pdfService";
@@ -1108,6 +1110,145 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } catch (error) {
         console.error("Error updating achievement:", error);
         res.status(400).json({ message: "Failed to update achievement" });
+      }
+    }
+  );
+
+  /**
+   * Schedule/Class Management API Routes
+   *
+   * Comprehensive class schedule management with CRUD operations and time conflict detection.
+   */
+  
+  // Get all classes for the authenticated student
+  app.get(
+    "/api/schedule/classes",
+    isAuthenticated,
+    async (req: Request, res: Response) => {
+      try {
+        const userId = (req.user as AuthenticatedUser).claims.sub;
+        const classes = await storage.getClassesByStudent(userId);
+        res.json(classes);
+      } catch (error) {
+        console.error("Error fetching classes:", error);
+        res.status(500).json({ message: "Failed to fetch classes" });
+      }
+    }
+  );
+
+  // Get a specific class by ID
+  app.get(
+    "/api/schedule/classes/:classId",
+    isAuthenticated,
+    async (req: Request, res: Response) => {
+      try {
+        const { classId } = req.params;
+        const classData = await storage.getClassById(classId);
+        if (!classData) {
+          return res.status(404).json({ message: "Class not found" });
+        }
+        res.json(classData);
+      } catch (error) {
+        console.error("Error fetching class:", error);
+        res.status(500).json({ message: "Failed to fetch class" });
+      }
+    }
+  );
+
+  // Create a new class
+  app.post(
+    "/api/schedule/classes",
+    isAuthenticated,
+    async (req: Request, res: Response) => {
+      try {
+        const userId = (req.user as AuthenticatedUser).claims.sub;
+        const classData = insertClassSchema.parse({
+          ...req.body,
+          studentId: userId,
+        });
+
+        // Check for time conflicts
+        const hasConflict = await storage.checkTimeConflict(
+          userId,
+          classData.dayOfWeek,
+          classData.startTime,
+          classData.endTime
+        );
+
+        if (hasConflict) {
+          return res.status(409).json({ 
+            message: "Time conflict detected. A class already exists at this time slot.",
+            conflict: true
+          });
+        }
+
+        const newClass = await storage.createClass(classData);
+        res.status(201).json(newClass);
+      } catch (error) {
+        console.error("Error creating class:", error);
+        res.status(400).json({ message: "Failed to create class" });
+      }
+    }
+  );
+
+  // Update an existing class
+  app.put(
+    "/api/schedule/classes/:classId",
+    isAuthenticated,
+    async (req: Request, res: Response) => {
+      try {
+        const userId = (req.user as AuthenticatedUser).claims.sub;
+        const { classId } = req.params;
+        const updates = updateClassSchema.parse(req.body);
+
+        // Check for time conflicts if time or day is being updated
+        if (updates.dayOfWeek || updates.startTime || updates.endTime) {
+          const existingClass = await storage.getClassById(classId);
+          if (!existingClass) {
+            return res.status(404).json({ message: "Class not found" });
+          }
+
+          const dayOfWeek = updates.dayOfWeek || existingClass.dayOfWeek;
+          const startTime = updates.startTime || existingClass.startTime;
+          const endTime = updates.endTime || existingClass.endTime;
+
+          const hasConflict = await storage.checkTimeConflict(
+            userId,
+            dayOfWeek,
+            startTime,
+            endTime,
+            classId
+          );
+
+          if (hasConflict) {
+            return res.status(409).json({ 
+              message: "Time conflict detected. Another class exists at this time slot.",
+              conflict: true
+            });
+          }
+        }
+
+        const updatedClass = await storage.updateClass(classId, updates);
+        res.json(updatedClass);
+      } catch (error) {
+        console.error("Error updating class:", error);
+        res.status(400).json({ message: "Failed to update class" });
+      }
+    }
+  );
+
+  // Delete a class
+  app.delete(
+    "/api/schedule/classes/:classId",
+    isAuthenticated,
+    async (req: Request, res: Response) => {
+      try {
+        const { classId } = req.params;
+        await storage.deleteClass(classId);
+        res.status(204).send();
+      } catch (error) {
+        console.error("Error deleting class:", error);
+        res.status(400).json({ message: "Failed to delete class" });
       }
     }
   );

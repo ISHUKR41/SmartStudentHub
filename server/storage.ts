@@ -30,6 +30,7 @@ import {
   notifications,
   goals,
   achievements,
+  classes,
   type User,
   type UpsertUser,
   type Activity,
@@ -47,7 +48,10 @@ import {
   type Goal,
   type InsertGoal,
   type Achievement,
-  type InsertAchievement
+  type InsertAchievement,
+  type Class,
+  type InsertClass,
+  type UpdateClass
 } from "@shared/schema";
 
 /**
@@ -211,6 +215,14 @@ export interface IStorage {
     avgTimeToComplete: number;
   }>;
 
+  // Schedule/Class Management Operations
+  getClassesByStudent(studentId: string): Promise<Class[]>;
+  getClassById(classId: string): Promise<Class | undefined>;
+  createClass(classData: InsertClass): Promise<Class>;
+  updateClass(classId: string, updates: UpdateClass): Promise<Class>;
+  deleteClass(classId: string): Promise<void>;
+  checkTimeConflict(studentId: string, dayOfWeek: string, startTime: string, endTime: string, excludeClassId?: string): Promise<boolean>;
+
   // Advanced Analytics Operations
   getDashboardSnapshots(studentId: string): Promise<{
     personalMetrics: {
@@ -248,6 +260,7 @@ export class MemStorage implements IStorage {
   private notifications: Map<string, Notification> = new Map();
   private goals: Map<string, Goal> = new Map();
   private achievements: Map<string, Achievement> = new Map();
+  private classes: Map<string, Class> = new Map();
   // Track student enrollment in subjects (studentId -> Set of subjectIds)
   private subjectEnrollments: Map<string, Set<string>> = new Map();
 
@@ -1165,6 +1178,75 @@ export class MemStorage implements IStorage {
     this.achievements.delete(achievementId);
   }
 
+  // Schedule/Class Management Operations
+  async getClassesByStudent(studentId: string): Promise<Class[]> {
+    return Array.from(this.classes.values()).filter(c => c.studentId === studentId);
+  }
+
+  async getClassById(classId: string): Promise<Class | undefined> {
+    return this.classes.get(classId);
+  }
+
+  async createClass(classData: InsertClass): Promise<Class> {
+    const newClass: Class = {
+      id: nanoid(),
+      ...classData,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    this.classes.set(newClass.id, newClass);
+    return newClass;
+  }
+
+  async updateClass(classId: string, updates: UpdateClass): Promise<Class> {
+    const existingClass = this.classes.get(classId);
+    if (!existingClass) throw new Error('Class not found');
+    
+    const updated = { ...existingClass, ...updates, updatedAt: new Date() };
+    this.classes.set(classId, updated);
+    return updated;
+  }
+
+  async deleteClass(classId: string): Promise<void> {
+    this.classes.delete(classId);
+  }
+
+  async checkTimeConflict(
+    studentId: string,
+    dayOfWeek: string,
+    startTime: string,
+    endTime: string,
+    excludeClassId?: string
+  ): Promise<boolean> {
+    const studentClasses = Array.from(this.classes.values()).filter(
+      c => c.studentId === studentId && c.dayOfWeek === dayOfWeek && c.id !== excludeClassId
+    );
+
+    // Convert times to minutes for easier comparison
+    const toMinutes = (time: string) => {
+      const [hours, minutes] = time.split(':').map(Number);
+      return hours * 60 + minutes;
+    };
+    
+    const newStart = toMinutes(startTime);
+    const newEnd = toMinutes(endTime);
+
+    // Check for time overlap
+    for (const existingClass of studentClasses) {
+      const oldStart = toMinutes(existingClass.startTime);
+      const oldEnd = toMinutes(existingClass.endTime);
+      
+      // Check if times overlap
+      if ((newStart >= oldStart && newStart < oldEnd) ||
+          (newEnd > oldStart && newEnd <= oldEnd) ||
+          (newStart <= oldStart && newEnd >= oldEnd)) {
+        return true; // Conflict found
+      }
+    }
+    
+    return false; // No conflict
+  }
+
   // Advanced Analytics
   async getDashboardSnapshots(studentId: string): Promise<{
     personalMetrics: {
@@ -1555,6 +1637,76 @@ export class DatabaseStorage implements IStorage {
 
   async deleteAchievement(achievementId: string): Promise<void> {
     await db!!.delete(achievements).where(eq(achievements.id, achievementId));
+  }
+
+  // Schedule/Class Management Operations
+  async getClassesByStudent(studentId: string): Promise<Class[]> {
+    return await db!!.select().from(classes).where(eq(classes.studentId, studentId)).orderBy(classes.dayOfWeek, classes.startTime);
+  }
+
+  async getClassById(classId: string): Promise<Class | undefined> {
+    const result = await db!!.select().from(classes).where(eq(classes.id, classId));
+    return result[0];
+  }
+
+  async createClass(classData: InsertClass): Promise<Class> {
+    const result = await db!!.insert(classes).values(classData).returning();
+    return result[0];
+  }
+
+  async updateClass(classId: string, updates: UpdateClass): Promise<Class> {
+    const result = await db!!.update(classes)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(classes.id, classId))
+      .returning();
+    return result[0];
+  }
+
+  async deleteClass(classId: string): Promise<void> {
+    await db!!.delete(classes).where(eq(classes.id, classId));
+  }
+
+  async checkTimeConflict(
+    studentId: string,
+    dayOfWeek: string,
+    startTime: string,
+    endTime: string,
+    excludeClassId?: string
+  ): Promise<boolean> {
+    const studentClasses = await db!!.select().from(classes)
+      .where(
+        and(
+          eq(classes.studentId, studentId),
+          eq(classes.dayOfWeek, dayOfWeek as any),
+          excludeClassId ? sqlOp`${classes.id} != ${excludeClassId}` : undefined
+        )
+      );
+
+    // Check for time overlap
+    for (const existingClass of studentClasses) {
+      const existingStart = existingClass.startTime;
+      const existingEnd = existingClass.endTime;
+      
+      // Convert times to minutes for easier comparison
+      const toMinutes = (time: string) => {
+        const [hours, minutes] = time.split(':').map(Number);
+        return hours * 60 + minutes;
+      };
+      
+      const newStart = toMinutes(startTime);
+      const newEnd = toMinutes(endTime);
+      const oldStart = toMinutes(existingStart);
+      const oldEnd = toMinutes(existingEnd);
+      
+      // Check if times overlap
+      if ((newStart >= oldStart && newStart < oldEnd) ||
+          (newEnd > oldStart && newEnd <= oldEnd) ||
+          (newStart <= oldStart && newEnd >= oldEnd)) {
+        return true; // Conflict found
+      }
+    }
+    
+    return false; // No conflict
   }
 
   // Analytics operations (using in-memory approach for complex analytics)
