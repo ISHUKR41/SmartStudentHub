@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Link, useLocation } from 'wouter';
+import { useLocation } from 'wouter';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import { signOutUser } from '@/firebase/auth';
@@ -213,23 +213,25 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               const Icon = item.icon;
               
               return (
-                <Link key={item.href} href={item.href}>
-                  <motion.button
-                    onClick={() => setIsMobileOpen(false)}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className={cn(
-                      "w-full flex items-center justify-center min-h-[44px] p-3 rounded-lg transition-all duration-200",
-                      "hover:bg-primary/10 hover:text-primary",
-                      isActive && "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground shadow-md",
-                      !isActive && "text-muted-foreground"
-                    )}
-                    data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
-                    title={item.label}
-                  >
-                    <Icon className="h-5 w-5 flex-shrink-0" />
-                  </motion.button>
-                </Link>
+                <motion.button
+                  key={item.href}
+                  onClick={() => {
+                    setLocation(item.href);
+                    setIsMobileOpen(false);
+                  }}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className={cn(
+                    "w-full flex items-center justify-center min-h-[44px] p-3 rounded-lg transition-all duration-200",
+                    "hover:bg-primary/10 hover:text-primary",
+                    isActive && "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground shadow-md",
+                    !isActive && "text-muted-foreground"
+                  )}
+                  data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
+                  title={item.label}
+                >
+                  <Icon className="h-5 w-5 flex-shrink-0" />
+                </motion.button>
               );
             })}
           </div>
@@ -262,24 +264,26 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                       const Icon = item.icon;
                       
                       return (
-                        <Link key={item.href} href={item.href}>
-                          <motion.button
-                            onClick={() => setIsMobileOpen(false)}
-                            whileHover={{ x: 4, scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                            transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                            className={cn(
-                              "w-full flex items-center gap-3 px-3 py-3 min-h-[44px] rounded-lg transition-all duration-200",
-                              "hover:bg-primary/10 hover:text-primary",
-                              isActive && "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground shadow-md ring-2 ring-primary/20",
-                              !isActive && "text-muted-foreground"
-                            )}
-                            data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
-                          >
-                            <Icon className="h-5 w-5 flex-shrink-0" />
-                            <span className="font-medium text-sm truncate">{item.label}</span>
-                          </motion.button>
-                        </Link>
+                        <motion.button
+                          key={item.href}
+                          onClick={() => {
+                            setLocation(item.href);
+                            setIsMobileOpen(false);
+                          }}
+                          whileHover={{ x: 4, scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                          className={cn(
+                            "w-full flex items-center gap-3 px-3 py-3 min-h-[44px] rounded-lg transition-all duration-200",
+                            "hover:bg-primary/10 hover:text-primary",
+                            isActive && "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground shadow-md ring-2 ring-primary/20",
+                            !isActive && "text-muted-foreground"
+                          )}
+                          data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
+                        >
+                          <Icon className="h-5 w-5 flex-shrink-0" />
+                          <span className="font-medium text-sm truncate">{item.label}</span>
+                        </motion.button>
                       );
                     })}
                   </motion.div>
