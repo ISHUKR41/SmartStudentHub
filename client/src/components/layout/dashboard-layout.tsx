@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import { signOutUser } from '@/firebase/auth';
 import { Button } from '@/components/ui/button';
+import toast from 'react-hot-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
   LayoutDashboard, 
@@ -133,9 +134,13 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     try {
       setIsMobileOpen(false);
       await signOutUser();
-      setLocation('/');
+      
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 100);
     } catch (error) {
       console.error('Logout failed:', error);
+      toast.error('Failed to log out. Please try again.');
     }
   };
 
