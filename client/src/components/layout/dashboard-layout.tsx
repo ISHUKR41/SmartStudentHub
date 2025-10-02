@@ -169,9 +169,14 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       
       await signOutUser();
       
+      // Direct navigation after successful signout
+      setLocation('/firebase-signin');
+      
     } catch (error) {
       console.error('Logout failed:', error);
       toast.error('Failed to log out. Please try again.');
+    } finally {
+      // Always reset loading state in finally block
       setIsLoggingOut(false);
     }
   };
@@ -229,16 +234,29 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             })}
           </div>
         ) : (
-          <Accordion type="multiple" defaultValue={menuSections.map(s => s.title)} className="space-y-2">
+          <Accordion 
+            type="multiple" 
+            defaultValue={menuSections.map(s => s.title)} 
+            className="space-y-2"
+          >
             {menuSections.map((section) => (
               <AccordionItem key={section.title} value={section.title} className="border-none">
-                <AccordionTrigger className="py-2.5 px-3 hover:no-underline hover:bg-muted/50 rounded-lg transition-all duration-200 text-sm font-semibold">
-                  <span className="flex items-center gap-2">
+                <AccordionTrigger className="py-2.5 px-3 hover:no-underline hover:bg-muted/50 rounded-lg transition-all duration-200 text-sm font-semibold [&[data-state=open]]:bg-muted/50">
+                  <motion.span 
+                    className="flex items-center gap-2 w-full"
+                    whileHover={{ x: 2 }}
+                    transition={{ duration: 0.2 }}
+                  >
                     <span className="text-xs font-bold text-primary uppercase tracking-wider">{section.title}</span>
-                  </span>
+                  </motion.span>
                 </AccordionTrigger>
                 <AccordionContent className="pb-2">
-                  <div className="space-y-1 pt-1">
+                  <motion.div 
+                    className="space-y-1 pt-1"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
                     {section.items.map((item) => {
                       const isActive = location === item.href;
                       const Icon = item.icon;
@@ -247,12 +265,13 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                         <Link key={item.href} href={item.href}>
                           <motion.button
                             onClick={() => setIsMobileOpen(false)}
-                            whileHover={{ x: 4 }}
+                            whileHover={{ x: 4, scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
+                            transition={{ type: "spring", stiffness: 400, damping: 17 }}
                             className={cn(
                               "w-full flex items-center gap-3 px-3 py-3 min-h-[44px] rounded-lg transition-all duration-200",
                               "hover:bg-primary/10 hover:text-primary",
-                              isActive && "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground shadow-md",
+                              isActive && "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground shadow-md ring-2 ring-primary/20",
                               !isActive && "text-muted-foreground"
                             )}
                             data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
@@ -263,7 +282,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                         </Link>
                       );
                     })}
-                  </div>
+                  </motion.div>
                 </AccordionContent>
               </AccordionItem>
             ))}
