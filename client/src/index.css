@@ -139,6 +139,62 @@
   --animation-fast: 150ms;
   --animation-normal: 250ms;
   --animation-slow: 350ms;
+  --animation-duration-100: 100ms;
+  --animation-duration-200: 200ms;
+  --animation-duration-300: 300ms;
+  --animation-duration-500: 500ms;
+  --animation-duration-700: 700ms;
+  --animation-duration-1000: 1000ms;
+  
+  /* Animation Easing Curves */
+  --ease-linear: linear;
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  --ease-smooth: cubic-bezier(0.25, 0.1, 0.25, 1);
+  
+  /* Gradient Variables */
+  --gradient-primary: linear-gradient(135deg, hsl(222, 84%, 24%), hsl(222, 84%, 48%));
+  --gradient-primary-hover: linear-gradient(135deg, hsl(222, 84%, 19%), hsl(222, 84%, 38%));
+  --gradient-secondary: linear-gradient(135deg, hsl(220, 18%, 96%), hsl(220, 18%, 85%));
+  --gradient-accent: linear-gradient(135deg, hsl(220, 16%, 95%), hsl(220, 16%, 92%));
+  --gradient-success: linear-gradient(135deg, hsl(139, 69%, 32%), hsl(139, 69%, 45%));
+  --gradient-warning: linear-gradient(135deg, hsl(30, 88%, 42%), hsl(30, 88%, 55%));
+  --gradient-info: linear-gradient(135deg, hsl(222, 84%, 50%), hsl(222, 84%, 65%));
+  --gradient-radial: radial-gradient(circle at center, hsl(222, 84%, 24%), hsl(222, 84%, 14%));
+  
+  /* Glassmorphism Effects */
+  --glass-background: rgba(255, 255, 255, 0.7);
+  --glass-background-strong: rgba(255, 255, 255, 0.9);
+  --glass-border: rgba(255, 255, 255, 0.2);
+  --glass-blur: blur(16px);
+  --glass-blur-strong: blur(24px);
+  --glass-blur-light: blur(8px);
+  
+  /* Chart Colors - Data Visualization Palette */
+  --chart-1: hsl(222, 84%, 48%);
+  --chart-2: hsl(30, 88%, 50%);
+  --chart-3: hsl(139, 69%, 42%);
+  --chart-4: hsl(280, 70%, 55%);
+  --chart-5: hsl(180, 70%, 45%);
+  --chart-6: hsl(0, 76%, 60%);
+  --chart-7: hsl(45, 90%, 55%);
+  --chart-8: hsl(330, 75%, 60%);
+  
+  /* Chart Color Variants */
+  --chart-primary: hsl(222, 84%, 48%);
+  --chart-secondary: hsl(220, 18%, 55%);
+  --chart-success: hsl(139, 69%, 42%);
+  --chart-warning: hsl(30, 88%, 50%);
+  --chart-danger: hsl(0, 76%, 60%);
+  --chart-info: hsl(222, 84%, 60%);
+  
+  /* Responsive Breakpoints (for reference in JS) */
+  --breakpoint-mobile: 640px;
+  --breakpoint-tablet: 1024px;
+  --breakpoint-desktop: 1536px;
+  --breakpoint-tv: 1920px;
 }
 
 .dark {
@@ -189,6 +245,41 @@
   --shadow-md: 0 4px 6px -1px hsl(0, 0%, 0%, 0.2), 0 2px 4px -1px hsl(0, 0%, 0%, 0.15);
   --shadow-lg: 0 10px 15px -3px hsl(0, 0%, 0%, 0.25), 0 4px 6px -2px hsl(0, 0%, 0%, 0.15);
   --shadow-xl: 0 20px 25px -5px hsl(0, 0%, 0%, 0.3), 0 10px 10px -5px hsl(0, 0%, 0%, 0.15);
+  
+  /* Dark Mode Gradients */
+  --gradient-primary: linear-gradient(135deg, hsl(215, 85%, 60%), hsl(215, 85%, 70%));
+  --gradient-primary-hover: linear-gradient(135deg, hsl(215, 85%, 55%), hsl(215, 85%, 65%));
+  --gradient-secondary: linear-gradient(135deg, hsl(215, 15%, 10%), hsl(215, 15%, 18%));
+  --gradient-accent: linear-gradient(135deg, hsl(215, 15%, 12%), hsl(215, 15%, 20%));
+  --gradient-success: linear-gradient(135deg, hsl(140, 75%, 55%), hsl(140, 75%, 65%));
+  --gradient-warning: linear-gradient(135deg, hsl(38, 85%, 60%), hsl(38, 85%, 70%));
+  --gradient-info: linear-gradient(135deg, hsl(215, 85%, 65%), hsl(215, 85%, 75%));
+  --gradient-radial: radial-gradient(circle at center, hsl(215, 20%, 10%), hsl(215, 20%, 4%));
+  
+  /* Dark Mode Glassmorphism */
+  --glass-background: rgba(17, 25, 40, 0.7);
+  --glass-background-strong: rgba(17, 25, 40, 0.9);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-blur: blur(16px);
+  --glass-blur-strong: blur(24px);
+  --glass-blur-light: blur(8px);
+  
+  /* Dark Mode Chart Colors */
+  --chart-1: hsl(222, 84%, 60%);
+  --chart-2: hsl(30, 88%, 60%);
+  --chart-3: hsl(139, 69%, 55%);
+  --chart-4: hsl(280, 70%, 65%);
+  --chart-5: hsl(180, 70%, 55%);
+  --chart-6: hsl(0, 76%, 65%);
+  --chart-7: hsl(45, 90%, 65%);
+  --chart-8: hsl(330, 75%, 65%);
+  
+  --chart-primary: hsl(222, 84%, 60%);
+  --chart-secondary: hsl(220, 18%, 65%);
+  --chart-success: hsl(139, 69%, 55%);
+  --chart-warning: hsl(30, 88%, 60%);
+  --chart-danger: hsl(0, 76%, 65%);
+  --chart-info: hsl(222, 84%, 70%);
 }
 
 @layer base {
