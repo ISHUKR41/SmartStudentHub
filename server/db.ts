@@ -13,6 +13,7 @@
  * 
  * Environment Requirements:
  * - DATABASE_URL: PostgreSQL connection string (provided by Replit)
+ *   OR individual variables: PGHOST, PGPORT, PGUSER, PGPASSWORD, PGDATABASE
  */
 
 import { Pool, neonConfig } from '@neondatabase/serverless';
@@ -23,8 +24,16 @@ import * as schema from "@shared/schema";
 // Configure Neon for serverless environment
 neonConfig.webSocketConstructor = ws;
 
-// Function to construct DATABASE_URL from individual PostgreSQL environment variables
-function constructDatabaseUrl(): string {
+// Get database URL from environment, with fallback to constructing from PG* variables
+function getDatabaseUrl(): string {
+  // First, try DATABASE_URL if it exists and is not empty
+  const databaseUrl = process.env.DATABASE_URL?.trim();
+  if (databaseUrl && databaseUrl.length > 0) {
+    console.log('✓ Using DATABASE_URL from environment');
+    return databaseUrl;
+  }
+
+  // If DATABASE_URL is not available, construct from individual PG* variables
   const pgHost = process.env.PGHOST?.trim();
   const pgPort = process.env.PGPORT?.trim() || '5432';
   const pgUser = process.env.PGUSER?.trim();
@@ -32,123 +41,43 @@ function constructDatabaseUrl(): string {
   const pgDatabase = process.env.PGDATABASE?.trim();
 
   if (pgHost && pgUser && pgPassword && pgDatabase) {
-    return `postgresql://${pgUser}:${pgPassword}@${pgHost}:${pgPort}/${pgDatabase}`;
-  }
-
-  return '';
-}
-
-// Robust database URL resolution with multiple fallback options
-function resolveDatabaseUrl(): string {
-  console.log('Resolving database connection...');
-
-  // Step 1: Check if DATABASE_URL is available and valid
-  const databaseUrl = process.env.DATABASE_URL?.trim();
-  console.log('DATABASE_URL debug info:');
-  console.log('- Status:', databaseUrl ? 'configured' : 'missing/empty');
-  console.log('- Type:', typeof process.env.DATABASE_URL);
-  console.log('- Length:', process.env.DATABASE_URL?.length);
-
-  if (databaseUrl && databaseUrl.length > 0) {
-    console.log('✓ Using DATABASE_URL from environment');
-    return databaseUrl;
-  }
-
-  // Step 2: Try to construct from individual PG variables
-  console.log('DATABASE_URL empty/missing, trying individual PG variables...');
-  const constructedUrl = constructDatabaseUrl();
-  
-  if (constructedUrl) {
-    console.log('✓ Successfully constructed DATABASE_URL from PG variables');
-    console.log('- PGHOST:', process.env.PGHOST ? 'set' : 'missing');
-    console.log('- PGPORT:', process.env.PGPORT || '5432 (default)');
-    console.log('- PGUSER:', process.env.PGUSER ? 'set' : 'missing');
-    console.log('- PGPASSWORD:', process.env.PGPASSWORD ? 'set' : 'missing');
-    console.log('- PGDATABASE:', process.env.PGDATABASE ? 'set' : 'missing');
+    const constructedUrl = `postgresql://${pgUser}:${pgPassword}@${pgHost}:${pgPort}/${pgDatabase}`;
+    console.log('✓ Constructed DATABASE_URL from PG* environment variables');
     return constructedUrl;
   }
 
-  // Step 3: Development environment fallback with retry mechanism
-  if (process.env.NODE_ENV === 'development') {
-    console.log('Development environment detected, checking for Replit database provisioning...');
-    
-    // Check if Replit has provided any database environment variables
-    const replitDbVars = Object.keys(process.env).filter(key => 
-      key.includes('DATABASE') || key.includes('POSTGRES') || key.includes('NEON')
-    );
-    
-    if (replitDbVars.length > 0) {
-      console.log('Available database-related environment variables:', replitDbVars);
-    }
-
-    console.warn('⚠️  Database URL not immediately available');
-    console.warn('   This is normal for Replit environments during initial startup.');
-    console.warn('   Using fallback connection strategy...');
-    
-    // Return a placeholder that we'll replace when database becomes available
-    return 'postgresql://placeholder:placeholder@localhost:5432/placeholder';
+  // Check if DATABASE_URL exists but is empty (common in Replit when secrets aren't populated)
+  if ('DATABASE_URL' in process.env) {
+    console.error('❌ DATABASE_URL exists but is empty.');
+    console.error('   This usually means the Replit PostgreSQL database was provisioned');
+    console.error('   but the environment variable value wasn\'t populated.');
+    console.error('');
+    console.error('   To fix this:');
+    console.error('   1. Open the "Secrets" tab in Replit (lock icon in left sidebar)');
+    console.error('   2. Check if DATABASE_URL has a value');
+    console.error('   3. If empty, click "Connect PostgreSQL Database" to re-provision');
+    console.error('   4. Or set DATABASE_URL manually with your PostgreSQL connection string');
   }
 
-  // Step 4: Production environment - strict requirements
-  console.error('❌ No valid database configuration found');
-  console.log('Available environment variables:', Object.keys(process.env).filter(key => 
-    key.includes('DATABASE') || key.includes('PG') || key.includes('POSTGRES')
-  ));
-  
+  // No valid database configuration found
   throw new Error(
-    'Database connection required but not configured. Please set DATABASE_URL or configure individual PostgreSQL environment variables (PGHOST, PGPORT, PGUSER, PGPASSWORD, PGDATABASE).'
+    'Database connection required but not configured. ' +
+    'DATABASE_URL must be set with a valid PostgreSQL connection string, ' +
+    'or provide PGHOST, PGPORT, PGUSER, PGPASSWORD, and PGDATABASE. ' +
+    'See the console output above for troubleshooting steps.'
   );
 }
 
-// Resolve the database URL with fallback logic
-const resolvedDatabaseUrl = resolveDatabaseUrl();
+const connectionString = getDatabaseUrl();
 
-// Log database configuration (masking sensitive info for security)
-const maskedUrl = resolvedDatabaseUrl.replace(/:(\/\/[^:]+:)[^@]+(@)/, ':$1***$2');
-console.log(`Database URL configured: ${maskedUrl}`);
-console.log(`Using Neon Serverless driver with WebSocket pooling`);
+// Create optimized connection pool for serverless environment
+export const pool = new Pool({ 
+  connectionString,
+  max: 1, // Single connection for serverless
+  idleTimeoutMillis: 10000, // Close idle connections quickly
+  connectionTimeoutMillis: 5000, // 5 second timeout
+});
 
-// Create database connection with improved error handling
-let pool: Pool;
-let db: any;
+export const db = drizzle(pool, { schema });
 
-try {
-  if (resolvedDatabaseUrl.includes('placeholder')) {
-    console.log('Using placeholder database URL - creating mock connection');
-    // Create a minimal mock for development startup
-    pool = new Pool({ 
-      connectionString: 'postgresql://placeholder:placeholder@localhost:5432/placeholder',
-      max: 1,
-      idleTimeoutMillis: 1000,
-      connectionTimeoutMillis: 1000,
-    });
-    db = drizzle(pool, { schema });
-  } else {
-    console.log('Creating production database connection');
-    // Create optimized connection pool for serverless environment
-    pool = new Pool({ 
-      connectionString: resolvedDatabaseUrl,
-      // Optimized settings for serverless environment
-      max: 1, // Single connection for serverless
-      idleTimeoutMillis: 10000, // Close idle connections quickly
-      connectionTimeoutMillis: 5000, // 5 second timeout
-    });
-    db = drizzle(pool, { schema });
-  }
-  
-  console.log(`Database connection pool initialized successfully`);
-} catch (error) {
-  console.error('Database initialization failed:', error);
-  console.log('Creating fallback database connection...');
-  
-  // Create a fallback connection that can be replaced later
-  pool = new Pool({ 
-    connectionString: 'postgresql://placeholder:placeholder@localhost:5432/placeholder',
-    max: 1,
-    idleTimeoutMillis: 1000,
-    connectionTimeoutMillis: 1000,
-  });
-  db = drizzle(pool, { schema });
-}
-
-export { pool, db };
+console.log('✅ Database connection configured successfully');
