@@ -112,17 +112,46 @@ interface DashboardLayoutProps {
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const [location, setLocation] = useLocation();
   const { user } = useAuth();
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  
+  // Initialize collapsed state from localStorage with smart defaults
+  const [isCollapsed, setIsCollapsed] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    const saved = localStorage.getItem('sidebar-collapsed');
+    if (saved !== null) return JSON.parse(saved);
+    
+    // Default based on screen size
+    return window.innerWidth < 1440 && window.innerWidth >= 1024;
+  });
+  
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
-  // Auto-collapse sidebar on smaller screens
+  // Persist sidebar collapse state to localStorage
+  useEffect(() => {
+    localStorage.setItem('sidebar-collapsed', JSON.stringify(isCollapsed));
+  }, [isCollapsed]);
+
+  // Smart responsive behavior for different screen sizes
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth < 1280) {
-        setIsCollapsed(true);
-      } else {
-        setIsCollapsed(false);
+      const width = window.innerWidth;
+      
+      // Large Desktop/TV: 1920px+ - respect user preference or default expanded
+      if (width >= 1920) {
+        const saved = localStorage.getItem('sidebar-collapsed');
+        if (saved === null) setIsCollapsed(false);
       }
+      // Desktop: 1440-1920px - respect user preference or default expanded
+      else if (width >= 1440) {
+        const saved = localStorage.getItem('sidebar-collapsed');
+        if (saved === null) setIsCollapsed(false);
+      }
+      // Small Desktop: 1024-1440px - auto-collapse for better space usage
+      else if (width >= 1024 && width < 1440) {
+        const saved = localStorage.getItem('sidebar-collapsed');
+        // Auto-collapse if no saved preference, otherwise respect user choice
+        if (saved === null) setIsCollapsed(true);
+      }
+      // Tablet/Mobile: < 1024px - uses mobile sidebar, collapse state irrelevant
     };
 
     handleResize();
@@ -146,21 +175,29 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
   const SidebarContent = () => (
     <>
-      <div className="p-3 sm:p-4 border-b bg-gradient-to-r from-primary/5 to-primary/10">
-        <div className="flex items-center gap-2 sm:gap-3">
-          <div className="p-1.5 sm:p-2 bg-primary/10 rounded-lg ring-2 ring-primary/20">
-            <GraduationCap className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
+      <div className="p-4 md:p-5 border-b bg-gradient-to-r from-primary/5 to-primary/10">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-primary/10 rounded-lg ring-2 ring-primary/20 flex-shrink-0">
+            <GraduationCap className="h-6 w-6 text-primary" />
           </div>
-          {!isCollapsed && (
-            <div className="flex-1 min-w-0">
-              <h2 className="font-bold text-base sm:text-lg truncate bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">Student Hub</h2>
-              <p className="text-xs text-muted-foreground truncate">Smart Learning Platform</p>
-            </div>
-          )}
+          <AnimatePresence mode="wait">
+            {!isCollapsed && (
+              <motion.div
+                initial={{ opacity: 0, width: 0 }}
+                animate={{ opacity: 1, width: 'auto' }}
+                exit={{ opacity: 0, width: 0 }}
+                transition={{ duration: 0.2 }}
+                className="flex-1 min-w-0"
+              >
+                <h2 className="font-bold text-base md:text-lg truncate bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">Student Hub</h2>
+                <p className="text-xs text-muted-foreground truncate">Smart Learning Platform</p>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </div>
 
-      <nav className="flex-1 overflow-y-auto p-2 sm:p-4">
+      <nav className="flex-1 overflow-y-auto p-3 md:p-4">
         {isCollapsed ? (
           <div className="space-y-2">
             {menuSections.flatMap(section => section.items).map((item) => {
@@ -169,11 +206,13 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               
               return (
                 <Link key={item.href} href={item.href}>
-                  <button
+                  <motion.button
                     onClick={() => setIsMobileOpen(false)}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                     className={cn(
-                      "w-full flex items-center justify-center p-2.5 rounded-lg transition-all duration-200",
-                      "hover:bg-primary/10 hover:text-primary hover:scale-105",
+                      "w-full flex items-center justify-center min-h-[44px] p-3 rounded-lg transition-all duration-200",
+                      "hover:bg-primary/10 hover:text-primary",
                       isActive && "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground shadow-md",
                       !isActive && "text-muted-foreground"
                     )}
@@ -181,7 +220,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                     title={item.label}
                   >
                     <Icon className="h-5 w-5 flex-shrink-0" />
-                  </button>
+                  </motion.button>
                 </Link>
               );
             })}
@@ -190,7 +229,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           <Accordion type="multiple" defaultValue={menuSections.map(s => s.title)} className="space-y-2">
             {menuSections.map((section) => (
               <AccordionItem key={section.title} value={section.title} className="border-none">
-                <AccordionTrigger className="py-2 px-3 hover:no-underline hover:bg-muted/50 rounded-lg transition-all duration-200 text-sm font-semibold">
+                <AccordionTrigger className="py-2.5 px-3 hover:no-underline hover:bg-muted/50 rounded-lg transition-all duration-200 text-sm font-semibold">
                   <span className="flex items-center gap-2">
                     <span className="text-xs font-bold text-primary uppercase tracking-wider">{section.title}</span>
                   </span>
@@ -203,19 +242,21 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                       
                       return (
                         <Link key={item.href} href={item.href}>
-                          <button
+                          <motion.button
                             onClick={() => setIsMobileOpen(false)}
+                            whileHover={{ x: 4 }}
+                            whileTap={{ scale: 0.98 }}
                             className={cn(
-                              "w-full flex items-center gap-3 px-3 py-2 sm:py-2.5 rounded-lg transition-all duration-200",
-                              "hover:bg-primary/10 hover:text-primary hover:translate-x-1",
+                              "w-full flex items-center gap-3 px-3 py-3 min-h-[44px] rounded-lg transition-all duration-200",
+                              "hover:bg-primary/10 hover:text-primary",
                               isActive && "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground shadow-md",
                               !isActive && "text-muted-foreground"
                             )}
                             data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
                           >
-                            <Icon className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
+                            <Icon className="h-5 w-5 flex-shrink-0" />
                             <span className="font-medium text-sm truncate">{item.label}</span>
-                          </button>
+                          </motion.button>
                         </Link>
                       );
                     })}
@@ -227,43 +268,48 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         )}
       </nav>
 
-      <div className="p-3 sm:p-4 border-t bg-gradient-to-r from-muted/30 to-muted/50">
+      <div className="p-4 md:p-5 border-t bg-gradient-to-r from-muted/30 to-muted/50">
         <div className={cn(
-          "flex items-center gap-2 sm:gap-3",
+          "flex items-center gap-3",
           isCollapsed && "justify-center"
         )}>
           {!isCollapsed ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-2 sm:gap-3 w-full p-2 rounded-lg hover:bg-muted transition-all duration-200 hover:shadow-md" data-testid="button-user-menu">
-                  <Avatar className="h-8 w-8 sm:h-9 sm:w-9 ring-2 ring-primary/20">
+                <motion.button 
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="flex items-center gap-3 w-full p-2.5 min-h-[48px] rounded-lg hover:bg-muted transition-all duration-200 hover:shadow-md" 
+                  data-testid="button-user-menu"
+                >
+                  <Avatar className="h-9 w-9 ring-2 ring-primary/20 flex-shrink-0">
                     <AvatarImage src="" />
-                    <AvatarFallback className="bg-gradient-to-br from-primary to-primary/70 text-primary-foreground font-semibold">
+                    <AvatarFallback className="bg-gradient-to-br from-primary to-primary/70 text-primary-foreground font-semibold text-sm">
                       {user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1 text-left min-w-0">
-                    <p className="font-semibold text-xs sm:text-sm truncate">
+                    <p className="font-semibold text-sm truncate">
                       {user?.firstName} {user?.lastName}
                     </p>
                     <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
                   </div>
                   <ChevronDown className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                </button>
+                </motion.button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel className="font-semibold">My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => { setLocation('/profile'); setIsMobileOpen(false); }} data-testid="menu-profile" className="cursor-pointer">
+                <DropdownMenuItem onClick={() => { setLocation('/profile'); setIsMobileOpen(false); }} data-testid="menu-profile" className="cursor-pointer min-h-[40px]">
                   <User className="mr-2 h-4 w-4" />
                   Profile
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => { setLocation('/settings'); setIsMobileOpen(false); }} data-testid="menu-settings" className="cursor-pointer">
+                <DropdownMenuItem onClick={() => { setLocation('/settings'); setIsMobileOpen(false); }} data-testid="menu-settings" className="cursor-pointer min-h-[40px]">
                   <Settings className="mr-2 h-4 w-4" />
                   Settings
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout} data-testid="menu-logout" className="cursor-pointer text-destructive focus:text-destructive">
+                <DropdownMenuItem onClick={handleLogout} data-testid="menu-logout" className="cursor-pointer text-destructive focus:text-destructive min-h-[40px]">
                   <LogOut className="mr-2 h-4 w-4" />
                   Logout
                 </DropdownMenuItem>
@@ -272,28 +318,33 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           ) : (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="p-2 rounded-lg hover:bg-muted transition-all duration-200 hover:shadow-md" data-testid="button-user-menu-collapsed">
-                  <Avatar className="h-8 w-8 ring-2 ring-primary/20">
+                <motion.button 
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="p-2.5 min-h-[44px] min-w-[44px] rounded-lg hover:bg-muted transition-all duration-200 hover:shadow-md flex items-center justify-center" 
+                  data-testid="button-user-menu-collapsed"
+                >
+                  <Avatar className="h-9 w-9 ring-2 ring-primary/20">
                     <AvatarImage src="" />
-                    <AvatarFallback className="text-xs bg-gradient-to-br from-primary to-primary/70 text-primary-foreground font-semibold">
+                    <AvatarFallback className="text-sm bg-gradient-to-br from-primary to-primary/70 text-primary-foreground font-semibold">
                       {user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}
                     </AvatarFallback>
                   </Avatar>
-                </button>
+                </motion.button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel className="font-semibold">My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => { setLocation('/profile'); setIsMobileOpen(false); }} className="cursor-pointer">
+                <DropdownMenuItem onClick={() => { setLocation('/profile'); setIsMobileOpen(false); }} className="cursor-pointer min-h-[40px]">
                   <User className="mr-2 h-4 w-4" />
                   Profile
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => { setLocation('/settings'); setIsMobileOpen(false); }} className="cursor-pointer">
+                <DropdownMenuItem onClick={() => { setLocation('/settings'); setIsMobileOpen(false); }} className="cursor-pointer min-h-[40px]">
                   <Settings className="mr-2 h-4 w-4" />
                   Settings
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-destructive focus:text-destructive">
+                <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-destructive focus:text-destructive min-h-[40px]">
                   <LogOut className="mr-2 h-4 w-4" />
                   Logout
                 </DropdownMenuItem>
@@ -310,7 +361,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       {/* Desktop Sidebar */}
       <motion.aside
         animate={{
-          width: isCollapsed ? "4rem" : "18rem"
+          width: isCollapsed ? "4.5rem" : "18rem"
         }}
         transition={{ duration: 0.3, ease: "easeInOut" }}
         className={cn(
@@ -320,45 +371,81 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       >
         <SidebarContent />
         
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setIsCollapsed(!isCollapsed)}
-          className="absolute -right-3 top-20 z-50 h-8 w-8 rounded-full border-2 border-primary/30 bg-card p-0 shadow-lg hover:shadow-xl hover:scale-110 hover:border-primary transition-all duration-200"
-          data-testid="button-toggle-sidebar"
+        <motion.div
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
         >
-          <motion.div
-            animate={{ rotate: isCollapsed ? 0 : 180 }}
-            transition={{ duration: 0.3 }}
-          >
-            <ChevronRight className="h-4 w-4 text-primary" />
-          </motion.div>
-        </Button>
-      </motion.aside>
-
-      {/* Mobile Header */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-card/95 backdrop-blur-md border-b shadow-md">
-        <div className="flex items-center justify-between p-3 sm:p-4">
-          <div className="flex items-center gap-2 sm:gap-3">
-            <div className="p-1.5 sm:p-2 bg-primary/10 rounded-lg ring-2 ring-primary/20">
-              <GraduationCap className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
-            </div>
-            <div>
-              <h2 className="font-bold text-sm sm:text-base bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">Student Hub</h2>
-              <p className="text-xs text-muted-foreground hidden sm:block">Smart Learning</p>
-            </div>
-          </div>
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setIsMobileOpen(!isMobileOpen)}
-            data-testid="button-mobile-menu"
-            className="hover:bg-primary/10 transition-all duration-200"
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="absolute -right-3 top-20 z-50 h-9 w-9 min-h-[36px] min-w-[36px] rounded-full border-2 border-primary/30 bg-card p-0 shadow-lg hover:shadow-xl hover:border-primary transition-all duration-200"
+            data-testid="button-toggle-sidebar"
+            aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
-            {isMobileOpen ? <X className="h-5 w-5 text-primary" /> : <Menu className="h-5 w-5 text-primary" />}
+            <motion.div
+              animate={{ rotate: isCollapsed ? 0 : 180 }}
+              transition={{ duration: 0.3 }}
+            >
+              <ChevronRight className="h-4 w-4 text-primary" />
+            </motion.div>
           </Button>
+        </motion.div>
+      </motion.aside>
+
+      {/* Mobile Header */}
+      <motion.div 
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-card/95 backdrop-blur-md border-b shadow-md"
+      >
+        <div className="flex items-center justify-between p-3 md:p-4 min-h-[64px]">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-primary/10 rounded-lg ring-2 ring-primary/20 flex-shrink-0">
+              <GraduationCap className="h-6 w-6 text-primary" />
+            </div>
+            <div>
+              <h2 className="font-bold text-sm md:text-base bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">Student Hub</h2>
+              <p className="text-xs text-muted-foreground hidden sm:block">Smart Learning</p>
+            </div>
+          </div>
+          <motion.div whileTap={{ scale: 0.95 }}>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsMobileOpen(!isMobileOpen)}
+              data-testid="button-mobile-menu"
+              className="hover:bg-primary/10 transition-all duration-200 min-h-[44px] min-w-[44px] p-2"
+              aria-label={isMobileOpen ? "Close menu" : "Open menu"}
+            >
+              <AnimatePresence mode="wait">
+                {isMobileOpen ? (
+                  <motion.div
+                    key="close"
+                    initial={{ rotate: -90, opacity: 0 }}
+                    animate={{ rotate: 0, opacity: 1 }}
+                    exit={{ rotate: 90, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <X className="h-6 w-6 text-primary" />
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="menu"
+                    initial={{ rotate: 90, opacity: 0 }}
+                    animate={{ rotate: 0, opacity: 1 }}
+                    exit={{ rotate: -90, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <Menu className="h-6 w-6 text-primary" />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </Button>
+          </motion.div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Mobile Sidebar */}
       <AnimatePresence>
@@ -371,13 +458,14 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               transition={{ duration: 0.2 }}
               className="lg:hidden fixed inset-0 z-40 bg-background/80 backdrop-blur-sm"
               onClick={() => setIsMobileOpen(false)}
+              data-testid="mobile-overlay"
             />
             <motion.aside
               initial={{ x: '-100%' }}
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-              className="lg:hidden fixed top-0 left-0 bottom-0 z-50 w-64 bg-card border-r flex flex-col"
+              className="lg:hidden fixed top-0 left-0 bottom-0 z-50 w-72 sm:w-80 max-w-[85vw] bg-card border-r flex flex-col shadow-2xl"
               data-testid="sidebar-mobile"
             >
               <SidebarContent />
@@ -389,7 +477,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       {/* Main Content */}
       <main className={cn(
         "flex-1 overflow-auto",
-        "lg:mt-0 mt-[73px]" // Add top margin on mobile for fixed header
+        "lg:mt-0 pt-[64px] lg:pt-0" // Responsive top padding for mobile header
       )}>
         {children}
       </main>
