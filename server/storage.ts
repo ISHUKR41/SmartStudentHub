@@ -1426,7 +1426,20 @@ export class MemStorage implements IStorage {
   async createClass(classData: InsertClass): Promise<Class> {
     const newClass: Class = {
       id: nanoid(),
-      ...classData,
+      studentId: classData.studentId,
+      title: classData.title,
+      startTime: classData.startTime,
+      endTime: classData.endTime,
+      description: classData.description ?? null,
+      subjectId: classData.subjectId ?? null,
+      dayOfWeek: classData.dayOfWeek ?? null,
+      startDate: classData.startDate ?? null,
+      room: classData.room ?? null,
+      instructor: classData.instructor ?? null,
+      color: classData.color ?? null,
+      recurrencePattern: classData.recurrencePattern ?? 'none',
+      recurrenceEndDate: classData.recurrenceEndDate ?? null,
+      notes: classData.notes ?? null,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -1561,7 +1574,12 @@ export class MemStorage implements IStorage {
   async createAssignment(assignment: InsertAssignment): Promise<Assignment> {
     const newAssignment: Assignment = {
       id: nanoid(),
-      ...assignment,
+      title: assignment.title,
+      description: assignment.description,
+      subject: assignment.subject,
+      dueDate: assignment.dueDate,
+      maxMarks: assignment.maxMarks,
+      createdBy: assignment.createdBy ?? null,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -1584,8 +1602,16 @@ export class MemStorage implements IStorage {
   async createSubmission(submission: InsertAssignmentSubmission): Promise<AssignmentSubmission> {
     const newSubmission: AssignmentSubmission = {
       id: nanoid(),
-      ...submission,
+      studentId: submission.studentId,
+      assignmentId: submission.assignmentId,
+      status: submission.status ?? 'submitted',
+      feedback: submission.feedback ?? null,
+      grade: submission.grade ?? null,
+      gradedBy: submission.gradedBy ?? null,
+      gradedAt: submission.gradedAt ?? null,
       submittedAt: new Date(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
     };
     return newSubmission;
   }
@@ -1632,7 +1658,20 @@ export class MemStorage implements IStorage {
   async createExam(exam: InsertExam): Promise<Exam> {
     const newExam: Exam = {
       id: nanoid(),
-      ...exam,
+      title: exam.title,
+      semester: exam.semester,
+      examDate: exam.examDate,
+      startTime: exam.startTime,
+      endTime: exam.endTime,
+      room: exam.room,
+      subject: exam.subject,
+      duration: exam.duration,
+      totalMarks: exam.totalMarks,
+      description: exam.description ?? null,
+      status: exam.status ?? 'upcoming',
+      instructions: exam.instructions ?? null,
+      passingMarks: exam.passingMarks ?? null,
+      syllabus: exam.syllabus ?? null,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -1663,8 +1702,15 @@ export class MemStorage implements IStorage {
   async createExamResult(result: InsertExamResult): Promise<ExamResult> {
     const newResult: ExamResult = {
       id: nanoid(),
-      ...result,
-      submittedAt: new Date(),
+      examId: result.examId,
+      studentId: result.studentId,
+      marksObtained: result.marksObtained,
+      grade: result.grade,
+      remarks: result.remarks ?? null,
+      verifiedBy: result.verifiedBy ?? null,
+      verifiedAt: result.verifiedAt ?? null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
     };
     return newResult;
   }
@@ -1721,7 +1767,18 @@ export class MemStorage implements IStorage {
   async createResource(resource: InsertResource): Promise<Resource> {
     const newResource: Resource = {
       id: nanoid(),
-      ...resource,
+      title: resource.title,
+      description: resource.description,
+      category: resource.category,
+      type: resource.type,
+      subject: resource.subject,
+      fileName: resource.fileName ?? null,
+      filePath: resource.filePath ?? null,
+      fileType: resource.fileType ?? null,
+      fileSize: resource.fileSize ?? null,
+      url: resource.url ?? null,
+      uploadedBy: resource.uploadedBy ?? null,
+      tags: resource.tags ?? null,
       downloads: 0,
       views: 0,
       createdAt: new Date(),
@@ -1778,7 +1835,19 @@ export class MemStorage implements IStorage {
   async createEvent(event: InsertEvent): Promise<Event> {
     const newEvent: Event = {
       id: nanoid(),
-      ...event,
+      title: event.title,
+      description: event.description,
+      category: event.category,
+      eventDate: event.eventDate,
+      startTime: event.startTime,
+      endTime: event.endTime,
+      venue: event.venue,
+      organizer: event.organizer,
+      organizerId: event.organizerId ?? null,
+      imageUrl: event.imageUrl ?? null,
+      maxParticipants: event.maxParticipants ?? null,
+      registrationDeadline: event.registrationDeadline ?? null,
+      status: event.status ?? 'upcoming',
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -1809,7 +1878,10 @@ export class MemStorage implements IStorage {
   async createOrUpdateRsvp(rsvp: InsertEventRsvp): Promise<EventRsvp> {
     const newRsvp: EventRsvp = {
       id: nanoid(),
-      ...rsvp,
+      studentId: rsvp.studentId,
+      eventId: rsvp.eventId,
+      status: rsvp.status,
+      attended: rsvp.attended ?? null,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -3005,128 +3077,6 @@ export class DatabaseStorage implements IStorage {
       .where(eq(assignmentSubmissionFiles.id, fileId));
   }
 
-  // Notification Operations
-  async getNotificationsByStudent(studentId: string): Promise<Notification[]> {
-    return await db!!.select().from(notifications).where(eq(notifications.studentId, studentId)).orderBy(desc(notifications.createdAt));
-  }
-
-  async createNotification(notification: InsertNotification): Promise<Notification> {
-    const result = await db!!.insert(notifications).values(notification).returning();
-    return result[0];
-  }
-
-  async markNotificationAsRead(notificationId: string): Promise<Notification> {
-    const result = await db!!.update(notifications).set({ read: true }).where(eq(notifications.id, notificationId)).returning();
-    return result[0];
-  }
-
-  async updateNotification(notificationId: string, updates: Partial<Notification>): Promise<Notification> {
-    const result = await db!!.update(notifications).set(updates).where(eq(notifications.id, notificationId)).returning();
-    return result[0];
-  }
-
-  async deleteNotification(notificationId: string): Promise<void> {
-    await db!!.delete(notifications).where(eq(notifications.id, notificationId));
-  }
-
-  async markAllNotificationsAsRead(studentId: string): Promise<void> {
-    await db!!.update(notifications).set({ read: true }).where(eq(notifications.studentId, studentId));
-  }
-
-  async getUnreadNotificationCount(studentId: string): Promise<number> {
-    const result = await db!!.select().from(notifications).where(and(eq(notifications.studentId, studentId), eq(notifications.read, false)));
-    return result.length;
-  }
-
-  // Goal Operations
-  async getGoalsByStudent(studentId: string): Promise<Goal[]> {
-    return await db!!.select().from(goals).where(eq(goals.studentId, studentId)).orderBy(desc(goals.createdAt));
-  }
-
-  async createGoal(goal: InsertGoal): Promise<Goal> {
-    const result = await db!!.insert(goals).values(goal).returning();
-    return result[0];
-  }
-
-  async updateGoal(goalId: string, updates: Partial<Goal>): Promise<Goal> {
-    const result = await db!!.update(goals).set(updates).where(eq(goals.id, goalId)).returning();
-    return result[0];
-  }
-
-  async deleteGoal(goalId: string): Promise<void> {
-    await db!!.delete(goals).where(eq(goals.id, goalId));
-  }
-
-  // Achievement Operations
-  async getAchievementsByStudent(studentId: string): Promise<Achievement[]> {
-    return await db!!.select().from(achievements).where(eq(achievements.studentId, studentId)).orderBy(desc(achievements.date));
-  }
-
-  async createAchievement(achievement: InsertAchievement): Promise<Achievement> {
-    const result = await db!!.insert(achievements).values(achievement).returning();
-    return result[0];
-  }
-
-  async updateAchievement(achievementId: string, updates: Partial<Achievement>): Promise<Achievement> {
-    const result = await db!!.update(achievements).set(updates).where(eq(achievements.id, achievementId)).returning();
-    return result[0];
-  }
-
-  async deleteAchievement(achievementId: string): Promise<void> {
-    await db!!.delete(achievements).where(eq(achievements.id, achievementId));
-  }
-
-  // Class Operations
-  async getClassesByStudent(studentId: string): Promise<Class[]> {
-    return await db!!.select().from(classes).where(eq(classes.studentId, studentId));
-  }
-
-  async getClassById(classId: string): Promise<Class | undefined> {
-    const result = await db!!.select().from(classes).where(eq(classes.id, classId));
-    return result[0];
-  }
-
-  async createClass(classData: InsertClass): Promise<Class> {
-    const result = await db!!.insert(classes).values(classData).returning();
-    return result[0];
-  }
-
-  async updateClass(classId: string, updates: UpdateClass): Promise<Class> {
-    const result = await db!!.update(classes).set(updates).where(eq(classes.id, classId)).returning();
-    return result[0];
-  }
-
-  async deleteClass(classId: string): Promise<void> {
-    await db!!.delete(classes).where(eq(classes.id, classId));
-  }
-
-  async checkTimeConflict(studentId: string, dayOfWeek: string, startTime: string, endTime: string, excludeClassId?: string): Promise<boolean> {
-    let query = db!!.select().from(classes).where(and(eq(classes.studentId, studentId), eq(classes.dayOfWeek, dayOfWeek)));
-    const studentClasses = await query;
-    const filtered = excludeClassId ? studentClasses.filter(c => c.id !== excludeClassId) : studentClasses;
-
-    const toMinutes = (time: string) => {
-      const [hours, minutes] = time.split(':').map(Number);
-      return hours * 60 + minutes;
-    };
-    
-    const newStart = toMinutes(startTime);
-    const newEnd = toMinutes(endTime);
-
-    for (const existingClass of filtered) {
-      const oldStart = toMinutes(existingClass.startTime);
-      const oldEnd = toMinutes(existingClass.endTime);
-      
-      if ((newStart >= oldStart && newStart < oldEnd) ||
-          (newEnd > oldStart && newEnd <= oldEnd) ||
-          (newStart <= oldStart && newEnd >= oldEnd)) {
-        return true;
-      }
-    }
-    
-    return false;
-  }
-
   // Exam Operations
   async getAllExams(): Promise<Exam[]> {
     return await db!!.select().from(exams).orderBy(desc(exams.examDate));
@@ -3194,12 +3144,12 @@ export class DatabaseStorage implements IStorage {
     performanceTrend: Array<{ month: string; score: number }>;
   }> {
     const results = await this.getExamResultsByStudent(studentId);
-    const scores = results.map(r => r.score || 0).filter(s => s > 0);
+    const scores = results.map(r => r.marksObtained || 0).filter(s => s > 0);
     return {
       averageScore: scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 0,
       totalExams: results.length,
-      passedExams: results.filter(r => (r.score || 0) >= 40).length,
-      failedExams: results.filter(r => (r.score || 0) < 40).length,
+      passedExams: results.filter(r => (r.marksObtained || 0) >= 40).length,
+      failedExams: results.filter(r => (r.marksObtained || 0) < 40).length,
       highestScore: scores.length > 0 ? Math.max(...scores) : 0,
       lowestScore: scores.length > 0 ? Math.min(...scores) : 0,
       upcomingExams: 0,
@@ -3268,7 +3218,7 @@ export class DatabaseStorage implements IStorage {
 
   // Event Operations
   async getAllEvents(): Promise<Event[]> {
-    return await db!!.select().from(events).orderBy(desc(events.startDate));
+    return await db!!.select().from(events).orderBy(desc(events.eventDate));
   }
 
   async getEventById(eventId: string): Promise<Event | undefined> {
@@ -3281,15 +3231,15 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getEventsByDateRange(startDate: Date, endDate: Date): Promise<Event[]> {
-    return await db!!.select().from(events).where(and(gte(events.startDate, startDate), lte(events.endDate, endDate)));
+    return await db!!.select().from(events).where(and(gte(events.eventDate, startDate), lte(events.eventDate, endDate)));
   }
 
   async getUpcomingEvents(): Promise<Event[]> {
-    return await db!!.select().from(events).where(gte(events.startDate, new Date())).orderBy(events.startDate);
+    return await db!!.select().from(events).where(gte(events.eventDate, new Date())).orderBy(events.eventDate);
   }
 
   async getPastEvents(): Promise<Event[]> {
-    return await db!!.select().from(events).where(lte(events.endDate, new Date())).orderBy(desc(events.endDate));
+    return await db!!.select().from(events).where(lte(events.eventDate, new Date())).orderBy(desc(events.eventDate));
   }
 
   async searchEvents(query: string): Promise<Event[]> {
