@@ -28,6 +28,11 @@ import LostFound from "@/pages/lost-found";
 import Profile from "@/pages/profile";
 import Settings from "@/pages/settings";
 import Alumni from "@/pages/alumni";
+import ActivityTracker from "@/pages/activity-tracker";
+import FacultyApprovals from "@/pages/faculty-approvals";
+import DigitalPortfolio from "@/pages/digital-portfolio";
+import Analytics from "@/pages/analytics";
+import AchievementsGoals from "@/pages/achievements-goals";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth();
@@ -35,10 +40,9 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      // Use window.location for more reliable navigation
-      window.location.href = '/firebase-signin';
+      setLocation('/firebase-signin');
     }
-  }, [isAuthenticated, isLoading]);
+  }, [isAuthenticated, isLoading, setLocation]);
 
   if (isLoading) {
     return (
@@ -209,6 +213,46 @@ function Router() {
         <ProtectedRoute>
           <DashboardLayout>
             <Alumni />
+          </DashboardLayout>
+        </ProtectedRoute>
+      </Route>
+      
+      <Route path="/activity-tracker">
+        <ProtectedRoute>
+          <DashboardLayout>
+            <ActivityTracker />
+          </DashboardLayout>
+        </ProtectedRoute>
+      </Route>
+      
+      <Route path="/faculty-approvals">
+        <ProtectedRoute>
+          <DashboardLayout>
+            <FacultyApprovals />
+          </DashboardLayout>
+        </ProtectedRoute>
+      </Route>
+      
+      <Route path="/digital-portfolio">
+        <ProtectedRoute>
+          <DashboardLayout>
+            <DigitalPortfolio />
+          </DashboardLayout>
+        </ProtectedRoute>
+      </Route>
+      
+      <Route path="/analytics">
+        <ProtectedRoute>
+          <DashboardLayout>
+            <Analytics />
+          </DashboardLayout>
+        </ProtectedRoute>
+      </Route>
+      
+      <Route path="/achievements-goals">
+        <ProtectedRoute>
+          <DashboardLayout>
+            <AchievementsGoals />
           </DashboardLayout>
         </ProtectedRoute>
       </Route>

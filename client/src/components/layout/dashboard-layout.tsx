@@ -25,7 +25,12 @@ import {
   ChevronRight,
   GraduationCap,
   ChevronDown,
-  Users
+  Users,
+  Activity,
+  Target,
+  BarChart3,
+  Award,
+  UserCheck
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
@@ -50,6 +55,7 @@ const menuSections = [
       { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
       { href: '/schedule', icon: Calendar, label: 'Schedule' },
       { href: '/attendance', icon: CheckCircle, label: 'Attendance' },
+      { href: '/analytics', icon: BarChart3, label: 'Analytics' },
     ]
   },
   {
@@ -58,6 +64,20 @@ const menuSections = [
       { href: '/assignments', icon: FileText, label: 'Assignments' },
       { href: '/exams', icon: BookOpen, label: 'Exams' },
       { href: '/resources', icon: FolderOpen, label: 'Resources' },
+    ]
+  },
+  {
+    title: 'Progress',
+    items: [
+      { href: '/activity-tracker', icon: Activity, label: 'Activity Tracker' },
+      { href: '/achievements-goals', icon: Target, label: 'Achievements & Goals' },
+      { href: '/digital-portfolio', icon: Award, label: 'Digital Portfolio' },
+    ]
+  },
+  {
+    title: 'Faculty',
+    items: [
+      { href: '/faculty-approvals', icon: UserCheck, label: 'Approvals' },
     ]
   },
   {
@@ -113,7 +133,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     try {
       setIsMobileOpen(false);
       await signOutUser();
-      // signOutUser now handles the redirect
+      setLocation('/firebase-signin');
     } catch (error) {
       console.error('Logout failed:', error);
     }

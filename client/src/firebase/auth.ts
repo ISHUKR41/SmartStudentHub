@@ -138,11 +138,7 @@ export const signOutUser = async () => {
   try {
     await signOut(auth);
     toast.success('Signed out successfully');
-    
-    // Force redirect to signin page after successful signout
-    setTimeout(() => {
-      window.location.href = '/firebase-signin';
-    }, 500);
+    return { success: true };
   } catch (error: any) {
     toast.error('Failed to sign out');
     throw new Error(error.message);
