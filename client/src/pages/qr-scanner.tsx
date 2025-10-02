@@ -2,8 +2,13 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { QrCode, Camera, History, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { QrCode, Camera, History, CheckCircle, XCircle, Clock, Loader2 } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useToast } from '@/hooks/use-toast';
+import { apiRequest } from '@/lib/queryClient';
+import type { Subject } from '@shared/schema';
 
 const scanHistory = [
   {
@@ -45,14 +50,69 @@ const scanHistory = [
 ];
 
 export default function QRScanner() {
-  const [isScanning, setIsScanning] = useState(false);
   const [activeTab, setActiveTab] = useState('scanner');
+  const [qrToken, setQrToken] = useState('');
+  const [scanResult, setScanResult] = useState<{ success: boolean; message: string; subjectName?: string } | null>(null);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
+  const { data: subjects = [] } = useQuery<Subject[]>({
+    queryKey: ['/api/subjects'],
+  });
+
+  const scanQRMutation = useMutation({
+    mutationFn: async (token: string) => {
+      const response = await apiRequest('/api/attendance/qr/scan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token }),
+      });
+      return response;
+    },
+    onSuccess: (data) => {
+      const subject = subjects.find(s => s.id === data.subjectId);
+      setScanResult({
+        success: true,
+        message: 'Attendance marked successfully!',
+        subjectName: subject?.name || 'Unknown Subject',
+      });
+      
+      toast({
+        title: "Success! ✓",
+        description: `Attendance marked for ${subject?.name || 'the class'}`,
+      });
+      
+      queryClient.invalidateQueries({ queryKey: ['/api/students/attendance'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/students/attendance/stats'] });
+      
+      setQrToken('');
+    },
+    onError: (error: any) => {
+      setScanResult({
+        success: false,
+        message: error.message || 'Failed to mark attendance',
+      });
+      
+      toast({
+        title: "Error",
+        description: error.message || "Failed to scan QR code. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
 
   const handleScan = () => {
-    setIsScanning(true);
-    setTimeout(() => {
-      setIsScanning(false);
-    }, 2000);
+    if (!qrToken.trim()) {
+      toast({
+        title: "Enter QR Token",
+        description: "Please enter or scan a valid QR token.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setScanResult(null);
+    scanQRMutation.mutate(qrToken.trim());
   };
 
   return (
@@ -81,53 +141,86 @@ export default function QRScanner() {
                 <Card data-testid="card-scanner">
                   <CardHeader>
                     <CardTitle>QR Code Scanner</CardTitle>
-                    <CardDescription>Position the QR code within the frame to scan</CardDescription>
+                    <CardDescription>Enter or scan a QR token to mark your attendance</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-6">
-                      <div className="relative aspect-square bg-muted rounded-lg flex items-center justify-center overflow-hidden">
-                        {isScanning ? (
-                          <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            className="absolute inset-0 bg-primary/20 flex items-center justify-center"
-                          >
-                            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary"></div>
-                          </motion.div>
-                        ) : (
-                          <div className="text-center p-8">
-                            <QrCode className="h-32 w-32 text-muted-foreground mx-auto mb-4" />
-                            <p className="text-sm text-muted-foreground">
-                              Click the button below to start scanning
-                            </p>
+                      {scanResult && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className={`p-4 rounded-lg border ${
+                            scanResult.success 
+                              ? 'bg-green-500/10 border-green-500/20' 
+                              : 'bg-red-500/10 border-red-500/20'
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            {scanResult.success ? (
+                              <CheckCircle className="h-6 w-6 text-green-600" />
+                            ) : (
+                              <XCircle className="h-6 w-6 text-red-600" />
+                            )}
+                            <div>
+                              <p className={`font-semibold ${
+                                scanResult.success ? 'text-green-600' : 'text-red-600'
+                              }`}>
+                                {scanResult.success ? 'Success!' : 'Error'}
+                              </p>
+                              <p className="text-sm text-muted-foreground">
+                                {scanResult.message}
+                              </p>
+                              {scanResult.subjectName && (
+                                <p className="text-sm text-muted-foreground mt-1">
+                                  Subject: {scanResult.subjectName}
+                                </p>
+                              )}
+                            </div>
                           </div>
-                        )}
-                        
-                        <div className="absolute inset-8 border-4 border-primary/50 rounded-lg pointer-events-none">
-                          <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-primary rounded-tl-lg"></div>
-                          <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-primary rounded-tr-lg"></div>
-                          <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-primary rounded-bl-lg"></div>
-                          <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-primary rounded-br-lg"></div>
-                        </div>
+                        </motion.div>
+                      )}
+
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">QR Token</label>
+                        <Input
+                          value={qrToken}
+                          onChange={(e) => setQrToken(e.target.value)}
+                          placeholder="Enter QR token or scan QR code"
+                          className="text-base"
+                          data-testid="input-qr-token"
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          Paste the token from the QR code shown by your professor
+                        </p>
                       </div>
 
                       <Button 
                         onClick={handleScan} 
-                        disabled={isScanning}
+                        disabled={scanQRMutation.isPending || !qrToken.trim()}
                         className="w-full gap-2" 
                         size="lg"
                         data-testid="button-scan"
                       >
-                        <Camera className="h-5 w-5" />
-                        {isScanning ? 'Scanning...' : 'Start Scanning'}
+                        {scanQRMutation.isPending ? (
+                          <>
+                            <Loader2 className="h-5 w-5 animate-spin" />
+                            Scanning...
+                          </>
+                        ) : (
+                          <>
+                            <Camera className="h-5 w-5" />
+                            Mark Attendance
+                          </>
+                        )}
                       </Button>
 
                       <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
-                        <h4 className="font-semibold text-sm mb-2 text-blue-600">How to Scan:</h4>
+                        <h4 className="font-semibold text-sm mb-2 text-blue-600">How to Mark Attendance:</h4>
                         <ul className="text-sm text-muted-foreground space-y-1">
-                          <li>• Click "Start Scanning" to activate the camera</li>
-                          <li>• Position the QR code within the frame</li>
-                          <li>• Hold steady until the code is recognized</li>
+                          <li>• Get the QR code displayed by your professor</li>
+                          <li>• Copy or scan the QR token</li>
+                          <li>• Paste it in the field above</li>
+                          <li>• Click "Mark Attendance" to submit</li>
                           <li>• You'll receive instant confirmation</li>
                         </ul>
                       </div>

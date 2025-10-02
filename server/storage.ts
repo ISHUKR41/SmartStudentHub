@@ -27,6 +27,7 @@ import {
   departments,
   subjects,
   attendance,
+  qrAttendanceSessions,
   notifications,
   goals,
   achievements,
@@ -51,6 +52,8 @@ import {
   type InsertSubject,
   type Attendance,
   type InsertAttendance,
+  type QRAttendanceSession,
+  type InsertQRAttendanceSession,
   type Notification,
   type InsertNotification,
   type Goal,
@@ -145,6 +148,10 @@ export interface IStorage {
   getStudentAttendance(studentId: string): Promise<Attendance[]>;
   getStudentAttendanceBySubject(studentId: string, subjectId: string): Promise<Attendance[]>;
   recordAttendance(attendance: InsertAttendance): Promise<Attendance>;
+  
+  // QR Attendance Session Operations
+  createQRSession(subjectId: string, createdById: string, classId?: string): Promise<{ sessionId: string; token: string; expiresAt: Date }>;
+  validateQRSession(token: string, studentId: string): Promise<{ isValid: boolean; subjectId?: string; error?: string }>;
   
   getAttendanceStats(studentId: string): Promise<{
     overallPercentage: number;
@@ -346,6 +353,27 @@ export interface IStorage {
   createOrUpdateRsvp(rsvp: InsertEventRsvp): Promise<EventRsvp>;
   deleteRsvp(rsvpId: string): Promise<void>;
   getEventAttendeeCount(eventId: string): Promise<{ going: number; maybe: number; notGoing: number; total: number }>;
+
+  // Advanced Analytics Operations
+  getGPATrends(studentId: string, semesters: number): Promise<Array<{ semester: number; gpa: number; credits: number }>>;
+  getCreditsGPAAnalysis(studentId: string): Promise<Array<{ semester: number; earnedCredits: number; cumulativeCredits: number; gpa: number }>>;
+  getCumulativeCGPAData(studentId: string): Promise<Array<{ semester: number; cgpa: number; targetCGPA: number }>>;
+  getSubjectGPADistribution(studentId: string, semester?: string): Promise<Array<{ subjectName: string; subjectCode: string; gpa: number; credits: number }>>;
+  getGPAAttendanceCorrelation(studentId: string): Promise<Array<{ subject: string; gpa: number; attendance: number }>>;
+  getSkillsAssessmentData(studentId: string): Promise<Array<{ skill: string; current: number; target: number; category: string }>>;
+  getSkillGrowthData(studentId: string): Promise<Array<{ skill: string; progress: number; target: number; level: string; startDate: string }>>;
+  getAchievementFunnelData(studentId: string): Promise<Array<{ stage: string; count: number; percentage: number }>>;
+  getAttendanceHeatmapData(studentId: string, year: number): Promise<Array<{ date: string; attendance: number; status: string }>>;
+  getWeeklyAttendancePatterns(studentId: string, weeks: number): Promise<Array<{ week: string; weekAverage: number; monday: number; tuesday: number; wednesday: number; thursday: number; friday: number }>>;
+  getActivityCategoryDistribution(studentId: string): Promise<Array<{ category: string; count: number; percentage: number; credits: number }>>;
+  getActivityVolumeData(studentId: string, months: number): Promise<Array<{ month: string; total: number; approved: number; pending: number; rejected: number }>>;
+  getPeerComparisonData(studentId: string, department?: string | null): Promise<Array<{ metric: string; myValue: number; average: number; median: number; q1: number; q3: number }>>;
+  getRankPercentileData(studentId: string): Promise<{ currentRank: number; totalStudents: number; percentile: number; previousRank: number | null; target: number }>;
+  getDepartmentRankings(): Promise<Array<{ department: string; overallScore: number; rank: number; students: number; avgGPA: number; avgActivities: number }>>;
+  getPortfolioStrengthData(studentId: string): Promise<Array<{ area: string; strength: number; maxStrength: number; activities: number }>>;
+  getApprovalSLAData(): Promise<Array<{ reviewer: string; avgApprovalTime: number; onTimePercentage: number; totalReviewed: number; pending: number }>>;
+  getGradeCorrelationMatrix(studentId: string): Promise<{ subjects: string[]; correlationMatrix: number[][] }>;
+  getLiveAnalyticsUpdate(studentId: string): Promise<{ timestamp: string; gpa: number; attendance: number; activities: number; rank: number; recentActivities: Activity[] }>;
 }
 
 /**
@@ -362,6 +390,7 @@ export class MemStorage implements IStorage {
   private departments: Map<string, Department> = new Map();
   private subjects: Map<string, Subject> = new Map();
   private attendance: Map<string, Attendance> = new Map();
+  private qrSessions: Map<string, QRAttendanceSession> = new Map();
   private notifications: Map<string, Notification> = new Map();
   private goals: Map<string, Goal> = new Map();
   private achievements: Map<string, Achievement> = new Map();
@@ -922,6 +951,82 @@ export class MemStorage implements IStorage {
     return record;
   }
 
+  // QR Attendance Session operations
+  async createQRSession(subjectId: string, createdById: string, classId?: string): Promise<{ sessionId: string; token: string; expiresAt: Date }> {
+    const crypto = await import('crypto');
+    const sessionId = nanoid();
+    const token = nanoid(32);
+    const now = new Date();
+    const expiresAt = new Date(now.getTime() + 10 * 60 * 1000); // 10 minutes from now
+    
+    const signature = crypto.createHash('sha256')
+      .update(`${token}-${subjectId}-${createdById}-${expiresAt.toISOString()}`)
+      .digest('hex');
+
+    const session: QRAttendanceSession = {
+      id: sessionId,
+      token,
+      subjectId,
+      classId: classId ?? null,
+      createdBy: createdById,
+      createdAt: now,
+      expiresAt,
+      signature,
+      isActive: true,
+      usedBy: [],
+    };
+
+    this.qrSessions.set(sessionId, session);
+    return { sessionId, token, expiresAt };
+  }
+
+  async validateQRSession(token: string, studentId: string): Promise<{ isValid: boolean; subjectId?: string; error?: string }> {
+    const session = Array.from(this.qrSessions.values()).find(s => s.token === token);
+    
+    if (!session) {
+      return { isValid: false, error: 'Invalid QR code' };
+    }
+
+    if (!session.isActive) {
+      return { isValid: false, error: 'QR session is no longer active' };
+    }
+
+    const now = new Date();
+    if (now > session.expiresAt) {
+      return { isValid: false, error: 'QR code has expired' };
+    }
+
+    if (session.usedBy && session.usedBy.includes(studentId)) {
+      return { isValid: false, error: 'You have already marked attendance with this QR code' };
+    }
+
+    const crypto = await import('crypto');
+    const expectedSignature = crypto.createHash('sha256')
+      .update(`${token}-${session.subjectId}-${session.createdBy}-${session.expiresAt.toISOString()}`)
+      .digest('hex');
+
+    if (expectedSignature !== session.signature) {
+      return { isValid: false, error: 'Invalid QR code signature' };
+    }
+
+    const updatedUsedBy = [...(session.usedBy || []), studentId];
+    this.qrSessions.set(session.id, {
+      ...session,
+      usedBy: updatedUsedBy,
+    });
+
+    await this.recordAttendance({
+      studentId,
+      subjectId: session.subjectId,
+      attendanceDate: now,
+      status: 'present',
+      remarks: 'Marked via QR code',
+      markedBy: session.createdBy,
+    });
+
+    return { isValid: true, subjectId: session.subjectId };
+  }
+
   async createAttendanceRecord(attendance: InsertAttendance): Promise<Attendance> {
     return this.recordAttendance(attendance);
   }
@@ -949,12 +1054,38 @@ export class MemStorage implements IStorage {
     const records = await this.getStudentAttendance(studentId);
     const attended = records.filter(r => r.status === 'present').length;
     
+    const subjectMap = new Map<string, { attended: number; total: number }>();
+    
+    records.forEach(record => {
+      const subjectId = record.subjectId || 'unknown';
+      if (!subjectMap.has(subjectId)) {
+        subjectMap.set(subjectId, { attended: 0, total: 0 });
+      }
+      const subjectData = subjectMap.get(subjectId)!;
+      subjectData.total++;
+      if (record.status === 'present') {
+        subjectData.attended++;
+      }
+    });
+
+    const subjectWise = await Promise.all(
+      Array.from(subjectMap.entries()).map(async ([subjectId, data]) => {
+        const subject = this.subjects.get(subjectId);
+        return {
+          subject: subject || { id: subjectId, name: 'Unknown', code: 'UNK', semester: 0, academicYear: '', credits: 0 } as Subject,
+          percentage: data.total > 0 ? (data.attended / data.total) * 100 : 0,
+          attended: data.attended,
+          total: data.total,
+        };
+      })
+    );
+    
     return {
       overallPercentage: records.length > 0 ? (attended / records.length) * 100 : 0,
       totalClasses: records.length,
       attendedClasses: attended,
       missedClasses: records.length - attended,
-      subjectWise: [],
+      subjectWise,
     };
   }
 
@@ -1413,6 +1544,512 @@ export class MemStorage implements IStorage {
       },
     };
   }
+
+  // Assignment Management Operations
+  async getAllAssignments(): Promise<Assignment[]> {
+    return [];
+  }
+
+  async getAssignmentById(assignmentId: string): Promise<Assignment | undefined> {
+    return undefined;
+  }
+
+  async getAssignmentsByStudent(studentId: string): Promise<Assignment[]> {
+    return [];
+  }
+
+  async createAssignment(assignment: InsertAssignment): Promise<Assignment> {
+    const newAssignment: Assignment = {
+      id: nanoid(),
+      ...assignment,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    return newAssignment;
+  }
+
+  // Assignment Submission Operations
+  async getSubmissionByAssignmentAndStudent(assignmentId: string, studentId: string): Promise<AssignmentSubmission | undefined> {
+    return undefined;
+  }
+
+  async getSubmissionsByStudent(studentId: string): Promise<AssignmentSubmission[]> {
+    return [];
+  }
+
+  async getSubmissionsByAssignment(assignmentId: string): Promise<AssignmentSubmission[]> {
+    return [];
+  }
+
+  async createSubmission(submission: InsertAssignmentSubmission): Promise<AssignmentSubmission> {
+    const newSubmission: AssignmentSubmission = {
+      id: nanoid(),
+      ...submission,
+      submittedAt: new Date(),
+    };
+    return newSubmission;
+  }
+
+  async updateSubmission(submissionId: string, updates: UpdateAssignmentSubmission): Promise<AssignmentSubmission> {
+    throw new Error('Submission not found');
+  }
+
+  // Assignment File Operations
+  async addSubmissionFile(submissionId: string, fileName: string, filePath: string, fileType: string, fileSize: number): Promise<AssignmentSubmissionFile> {
+    const file: AssignmentSubmissionFile = {
+      id: nanoid(),
+      submissionId,
+      fileName,
+      filePath,
+      fileType,
+      fileSize,
+      uploadedAt: new Date(),
+    };
+    return file;
+  }
+
+  async getSubmissionFiles(submissionId: string): Promise<AssignmentSubmissionFile[]> {
+    return [];
+  }
+
+  async deleteSubmissionFile(fileId: string): Promise<void> {
+    return;
+  }
+
+  // Exam Management Operations
+  async getAllExams(): Promise<Exam[]> {
+    return [];
+  }
+
+  async getExamsByStudent(studentId: string, semester?: number): Promise<Exam[]> {
+    return [];
+  }
+
+  async getExamById(examId: string): Promise<Exam | undefined> {
+    return undefined;
+  }
+
+  async createExam(exam: InsertExam): Promise<Exam> {
+    const newExam: Exam = {
+      id: nanoid(),
+      ...exam,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    return newExam;
+  }
+
+  async updateExam(examId: string, updates: UpdateExam): Promise<Exam> {
+    throw new Error('Exam not found');
+  }
+
+  async deleteExam(examId: string): Promise<void> {
+    return;
+  }
+
+  // Exam Results Operations
+  async getExamResult(examId: string, studentId: string): Promise<ExamResult | undefined> {
+    return undefined;
+  }
+
+  async getExamResultsByStudent(studentId: string): Promise<ExamResult[]> {
+    return [];
+  }
+
+  async getExamResultsByExam(examId: string): Promise<ExamResult[]> {
+    return [];
+  }
+
+  async createExamResult(result: InsertExamResult): Promise<ExamResult> {
+    const newResult: ExamResult = {
+      id: nanoid(),
+      ...result,
+      submittedAt: new Date(),
+    };
+    return newResult;
+  }
+
+  async updateExamResult(resultId: string, updates: Partial<ExamResult>): Promise<ExamResult> {
+    throw new Error('Exam result not found');
+  }
+
+  async getExamStats(studentId: string): Promise<{
+    averageScore: number;
+    totalExams: number;
+    passedExams: number;
+    failedExams: number;
+    highestScore: number;
+    lowestScore: number;
+    upcomingExams: number;
+    completedExams: number;
+    performanceTrend: Array<{ month: string; score: number }>;
+  }> {
+    return {
+      averageScore: 0,
+      totalExams: 0,
+      passedExams: 0,
+      failedExams: 0,
+      highestScore: 0,
+      lowestScore: 0,
+      upcomingExams: 0,
+      completedExams: 0,
+      performanceTrend: [],
+    };
+  }
+
+  // Resource Management Operations
+  async getAllResources(): Promise<Resource[]> {
+    return [];
+  }
+
+  async getResourceById(resourceId: string): Promise<Resource | undefined> {
+    return undefined;
+  }
+
+  async getResourcesByType(type: string): Promise<Resource[]> {
+    return [];
+  }
+
+  async getResourcesBySubject(subject: string): Promise<Resource[]> {
+    return [];
+  }
+
+  async searchResources(query: string, filters?: { type?: string; subject?: string; category?: string }): Promise<Resource[]> {
+    return [];
+  }
+
+  async createResource(resource: InsertResource): Promise<Resource> {
+    const newResource: Resource = {
+      id: nanoid(),
+      ...resource,
+      downloads: 0,
+      views: 0,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    return newResource;
+  }
+
+  async updateResource(resourceId: string, updates: UpdateResource): Promise<Resource> {
+    throw new Error('Resource not found');
+  }
+
+  async deleteResource(resourceId: string): Promise<void> {
+    return;
+  }
+
+  async incrementResourceDownload(resourceId: string): Promise<void> {
+    return;
+  }
+
+  async incrementResourceView(resourceId: string): Promise<void> {
+    return;
+  }
+
+  // Event Management Operations
+  async getAllEvents(): Promise<Event[]> {
+    return [];
+  }
+
+  async getEventById(eventId: string): Promise<Event | undefined> {
+    return undefined;
+  }
+
+  async getEventsByCategory(category: string): Promise<Event[]> {
+    return [];
+  }
+
+  async getEventsByDateRange(startDate: Date, endDate: Date): Promise<Event[]> {
+    return [];
+  }
+
+  async getUpcomingEvents(): Promise<Event[]> {
+    return [];
+  }
+
+  async getPastEvents(): Promise<Event[]> {
+    return [];
+  }
+
+  async searchEvents(query: string): Promise<Event[]> {
+    return [];
+  }
+
+  async createEvent(event: InsertEvent): Promise<Event> {
+    const newEvent: Event = {
+      id: nanoid(),
+      ...event,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    return newEvent;
+  }
+
+  async updateEvent(eventId: string, updates: UpdateEvent): Promise<Event> {
+    throw new Error('Event not found');
+  }
+
+  async deleteEvent(eventId: string): Promise<void> {
+    return;
+  }
+
+  // Event RSVP Operations
+  async getEventRsvp(eventId: string, studentId: string): Promise<EventRsvp | undefined> {
+    return undefined;
+  }
+
+  async getEventRsvps(eventId: string): Promise<EventRsvp[]> {
+    return [];
+  }
+
+  async getStudentRsvps(studentId: string): Promise<EventRsvp[]> {
+    return [];
+  }
+
+  async createOrUpdateRsvp(rsvp: InsertEventRsvp): Promise<EventRsvp> {
+    const newRsvp: EventRsvp = {
+      id: nanoid(),
+      ...rsvp,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    return newRsvp;
+  }
+
+  async deleteRsvp(rsvpId: string): Promise<void> {
+    return;
+  }
+
+  async getEventAttendeeCount(eventId: string): Promise<{ going: number; maybe: number; notGoing: number; total: number }> {
+    return { going: 0, maybe: 0, notGoing: 0, total: 0 };
+  }
+
+  // Advanced Analytics Operations
+  async getGPATrends(studentId: string, semesters: number): Promise<Array<{ semester: number; gpa: number; credits: number }>> {
+    return Array.from({ length: semesters }, (_, i) => ({
+      semester: i + 1,
+      gpa: 7 + Math.random() * 2,
+      credits: 20 + Math.floor(Math.random() * 10),
+    }));
+  }
+
+  async getCreditsGPAAnalysis(studentId: string): Promise<Array<{ semester: number; earnedCredits: number; cumulativeCredits: number; gpa: number }>> {
+    return Array.from({ length: 8 }, (_, i) => ({
+      semester: i + 1,
+      earnedCredits: 20 + Math.floor(Math.random() * 5),
+      cumulativeCredits: (i + 1) * 20,
+      gpa: 7 + Math.random() * 2,
+    }));
+  }
+
+  async getCumulativeCGPAData(studentId: string): Promise<Array<{ semester: number; cgpa: number; targetCGPA: number }>> {
+    return Array.from({ length: 8 }, (_, i) => ({
+      semester: i + 1,
+      cgpa: 7 + (i * 0.1) + Math.random() * 0.5,
+      targetCGPA: 8.5,
+    }));
+  }
+
+  async getSubjectGPADistribution(studentId: string, semester?: string): Promise<Array<{ subjectName: string; subjectCode: string; gpa: number; credits: number }>> {
+    const subjects = ['Mathematics', 'Physics', 'Chemistry', 'Computer Science', 'English'];
+    return subjects.map((name, i) => ({
+      subjectName: name,
+      subjectCode: `SUB${i + 1}`,
+      gpa: 7 + Math.random() * 3,
+      credits: 3 + Math.floor(Math.random() * 2),
+    }));
+  }
+
+  async getGPAAttendanceCorrelation(studentId: string): Promise<Array<{ subject: string; gpa: number; attendance: number }>> {
+    const subjects = ['Mathematics', 'Physics', 'Chemistry', 'Computer Science', 'English'];
+    return subjects.map(subject => ({
+      subject,
+      gpa: 7 + Math.random() * 3,
+      attendance: 70 + Math.random() * 30,
+    }));
+  }
+
+  async getSkillsAssessmentData(studentId: string): Promise<Array<{ skill: string; current: number; target: number; category: string }>> {
+    const skills = [
+      { skill: 'Programming', category: 'Technical' },
+      { skill: 'Communication', category: 'Soft Skills' },
+      { skill: 'Leadership', category: 'Soft Skills' },
+      { skill: 'Problem Solving', category: 'Technical' },
+      { skill: 'Teamwork', category: 'Soft Skills' },
+    ];
+    return skills.map(s => ({
+      ...s,
+      current: 60 + Math.random() * 30,
+      target: 90,
+    }));
+  }
+
+  async getSkillGrowthData(studentId: string): Promise<Array<{ skill: string; progress: number; target: number; level: string; startDate: string }>> {
+    const skills = ['Programming', 'Communication', 'Leadership', 'Problem Solving', 'Teamwork'];
+    const levels = ['Beginner', 'Intermediate', 'Advanced', 'Expert'];
+    return skills.map((skill, i) => ({
+      skill,
+      progress: 50 + Math.random() * 40,
+      target: 100,
+      level: levels[Math.floor(Math.random() * levels.length)],
+      startDate: new Date(Date.now() - i * 30 * 24 * 60 * 60 * 1000).toISOString(),
+    }));
+  }
+
+  async getAchievementFunnelData(studentId: string): Promise<Array<{ stage: string; count: number; percentage: number }>> {
+    return [
+      { stage: 'Submitted', count: 100, percentage: 100 },
+      { stage: 'Under Review', count: 80, percentage: 80 },
+      { stage: 'Approved', count: 65, percentage: 65 },
+      { stage: 'Verified', count: 60, percentage: 60 },
+    ];
+  }
+
+  async getAttendanceHeatmapData(studentId: string, year: number): Promise<Array<{ date: string; attendance: number; status: string }>> {
+    const data: Array<{ date: string; attendance: number; status: string }> = [];
+    const startDate = new Date(year, 0, 1);
+    const endDate = new Date(year, 11, 31);
+    
+    for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+      if (d.getDay() !== 0 && d.getDay() !== 6) { // Skip weekends
+        const rand = Math.random();
+        data.push({
+          date: d.toISOString().split('T')[0],
+          attendance: rand > 0.2 ? 1 : 0,
+          status: rand > 0.2 ? 'present' : 'absent',
+        });
+      }
+    }
+    
+    return data;
+  }
+
+  async getWeeklyAttendancePatterns(studentId: string, weeks: number): Promise<Array<{ week: string; weekAverage: number; monday: number; tuesday: number; wednesday: number; thursday: number; friday: number }>> {
+    return Array.from({ length: weeks }, (_, i) => ({
+      week: `Week ${i + 1}`,
+      weekAverage: 75 + Math.random() * 20,
+      monday: 70 + Math.random() * 30,
+      tuesday: 70 + Math.random() * 30,
+      wednesday: 70 + Math.random() * 30,
+      thursday: 70 + Math.random() * 30,
+      friday: 70 + Math.random() * 30,
+    }));
+  }
+
+  async getActivityCategoryDistribution(studentId: string): Promise<Array<{ category: string; count: number; percentage: number; credits: number }>> {
+    const categories = ['academic', 'co-curricular', 'extra-curricular', 'volunteering', 'internship'];
+    const total = 50;
+    return categories.map(category => {
+      const count = Math.floor(Math.random() * 15);
+      return {
+        category,
+        count,
+        percentage: (count / total) * 100,
+        credits: count * 2,
+      };
+    });
+  }
+
+  async getActivityVolumeData(studentId: string, months: number): Promise<Array<{ month: string; total: number; approved: number; pending: number; rejected: number }>> {
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return Array.from({ length: months }, (_, i) => {
+      const total = Math.floor(Math.random() * 10);
+      const approved = Math.floor(total * 0.7);
+      const rejected = Math.floor(total * 0.1);
+      const pending = total - approved - rejected;
+      return {
+        month: monthNames[i % 12],
+        total,
+        approved,
+        pending,
+        rejected,
+      };
+    });
+  }
+
+  async getPeerComparisonData(studentId: string, department?: string | null): Promise<Array<{ metric: string; myValue: number; average: number; median: number; q1: number; q3: number }>> {
+    const metrics = ['GPA', 'Attendance', 'Activities', 'Credits', 'Skills'];
+    return metrics.map(metric => {
+      const myValue = 70 + Math.random() * 25;
+      const average = 65 + Math.random() * 20;
+      return {
+        metric,
+        myValue,
+        average,
+        median: average + Math.random() * 5 - 2.5,
+        q1: average - 10,
+        q3: average + 10,
+      };
+    });
+  }
+
+  async getRankPercentileData(studentId: string): Promise<{ currentRank: number; totalStudents: number; percentile: number; previousRank: number | null; target: number }> {
+    const totalStudents = 100;
+    const currentRank = Math.floor(Math.random() * totalStudents) + 1;
+    return {
+      currentRank,
+      totalStudents,
+      percentile: ((totalStudents - currentRank) / totalStudents) * 100,
+      previousRank: currentRank + Math.floor(Math.random() * 10) - 5,
+      target: Math.max(1, currentRank - 10),
+    };
+  }
+
+  async getDepartmentRankings(): Promise<Array<{ department: string; overallScore: number; rank: number; students: number; avgGPA: number; avgActivities: number }>> {
+    const departments = ['Computer Science', 'Electrical Engineering', 'Mechanical Engineering', 'Civil Engineering'];
+    return departments.map((department, i) => ({
+      department,
+      overallScore: 70 + Math.random() * 25,
+      rank: i + 1,
+      students: 50 + Math.floor(Math.random() * 50),
+      avgGPA: 7 + Math.random() * 2,
+      avgActivities: 10 + Math.floor(Math.random() * 20),
+    }));
+  }
+
+  async getPortfolioStrengthData(studentId: string): Promise<Array<{ area: string; strength: number; maxStrength: number; activities: number }>> {
+    const areas = ['Academic', 'Co-curricular', 'Leadership', 'Technical Skills', 'Soft Skills'];
+    return areas.map(area => ({
+      area,
+      strength: 50 + Math.random() * 40,
+      maxStrength: 100,
+      activities: Math.floor(Math.random() * 20),
+    }));
+  }
+
+  async getApprovalSLAData(): Promise<Array<{ reviewer: string; avgApprovalTime: number; onTimePercentage: number; totalReviewed: number; pending: number }>> {
+    const reviewers = ['Faculty A', 'Faculty B', 'Faculty C'];
+    return reviewers.map(reviewer => ({
+      reviewer,
+      avgApprovalTime: 24 + Math.random() * 48,
+      onTimePercentage: 70 + Math.random() * 25,
+      totalReviewed: Math.floor(Math.random() * 100),
+      pending: Math.floor(Math.random() * 20),
+    }));
+  }
+
+  async getGradeCorrelationMatrix(studentId: string): Promise<{ subjects: string[]; correlationMatrix: number[][] }> {
+    const subjects = ['Math', 'Physics', 'Chemistry', 'CS', 'English'];
+    const matrix = subjects.map(() => 
+      subjects.map(() => -1 + Math.random() * 2)
+    );
+    // Set diagonal to 1
+    matrix.forEach((row, i) => {
+      row[i] = 1;
+    });
+    return { subjects, correlationMatrix: matrix };
+  }
+
+  async getLiveAnalyticsUpdate(studentId: string): Promise<{ timestamp: string; gpa: number; attendance: number; activities: number; rank: number; recentActivities: Activity[] }> {
+    return {
+      timestamp: new Date().toISOString(),
+      gpa: 7 + Math.random() * 2,
+      attendance: 70 + Math.random() * 25,
+      activities: Math.floor(Math.random() * 50),
+      rank: Math.floor(Math.random() * 100) + 1,
+      recentActivities: [],
+    };
+  }
 }
 
 /**
@@ -1605,6 +2242,83 @@ export class DatabaseStorage implements IStorage {
   async recordAttendance(attendanceRecord: InsertAttendance): Promise<Attendance> {
     const [record] = await db!!.insert(attendance).values(attendanceRecord).returning();
     return record;
+  }
+
+  // QR Attendance Session operations
+  async createQRSession(subjectId: string, createdById: string, classId?: string): Promise<{ sessionId: string; token: string; expiresAt: Date }> {
+    const crypto = await import('crypto');
+    const sessionId = nanoid();
+    const token = nanoid(32);
+    const now = new Date();
+    const expiresAt = new Date(now.getTime() + 10 * 60 * 1000); // 10 minutes from now
+    
+    const signature = crypto.createHash('sha256')
+      .update(`${token}-${subjectId}-${createdById}-${expiresAt.toISOString()}`)
+      .digest('hex');
+
+    const [session] = await db!.insert(qrAttendanceSessions).values({
+      token,
+      subjectId,
+      classId: classId ?? null,
+      createdBy: createdById,
+      expiresAt,
+      signature,
+      isActive: true,
+      usedBy: [],
+    }).returning();
+
+    return { sessionId: session.id, token: session.token, expiresAt: session.expiresAt };
+  }
+
+  async validateQRSession(token: string, studentId: string): Promise<{ isValid: boolean; subjectId?: string; error?: string }> {
+    const [session] = await db!
+      .select()
+      .from(qrAttendanceSessions)
+      .where(eq(qrAttendanceSessions.token, token))
+      .limit(1);
+    
+    if (!session) {
+      return { isValid: false, error: 'Invalid QR code' };
+    }
+
+    if (!session.isActive) {
+      return { isValid: false, error: 'QR session is no longer active' };
+    }
+
+    const now = new Date();
+    if (now > session.expiresAt) {
+      return { isValid: false, error: 'QR code has expired' };
+    }
+
+    if (session.usedBy && session.usedBy.includes(studentId)) {
+      return { isValid: false, error: 'You have already marked attendance with this QR code' };
+    }
+
+    const crypto = await import('crypto');
+    const expectedSignature = crypto.createHash('sha256')
+      .update(`${token}-${session.subjectId}-${session.createdBy}-${session.expiresAt.toISOString()}`)
+      .digest('hex');
+
+    if (expectedSignature !== session.signature) {
+      return { isValid: false, error: 'Invalid QR code signature' };
+    }
+
+    const updatedUsedBy = [...(session.usedBy || []), studentId];
+    await db!
+      .update(qrAttendanceSessions)
+      .set({ usedBy: updatedUsedBy })
+      .where(eq(qrAttendanceSessions.id, session.id));
+
+    await this.recordAttendance({
+      studentId,
+      subjectId: session.subjectId,
+      attendanceDate: now,
+      status: 'present',
+      remarks: 'Marked via QR code',
+      markedBy: session.createdBy,
+    });
+
+    return { isValid: true, subjectId: session.subjectId };
   }
 
   async createAttendanceRecord(attendanceRecord: InsertAttendance): Promise<Attendance> {
@@ -1983,12 +2697,39 @@ export class DatabaseStorage implements IStorage {
     const records = await this.getStudentAttendance(studentId);
     const attended = records.filter(r => r.status === 'present').length;
     
+    const subjectMap = new Map<string, { attended: number; total: number }>();
+    
+    records.forEach(record => {
+      const subjectId = record.subjectId || 'unknown';
+      if (!subjectMap.has(subjectId)) {
+        subjectMap.set(subjectId, { attended: 0, total: 0 });
+      }
+      const subjectData = subjectMap.get(subjectId)!;
+      subjectData.total++;
+      if (record.status === 'present') {
+        subjectData.attended++;
+      }
+    });
+
+    const subjectWise = await Promise.all(
+      Array.from(subjectMap.entries()).map(async ([subjectId, data]) => {
+        const subjectResults = await db!!.select().from(subjects).where(eq(subjects.id, subjectId));
+        const subject = subjectResults[0];
+        return {
+          subject: subject || { id: subjectId, name: 'Unknown', code: 'UNK', semester: 0, academicYear: '', credits: 0 } as Subject,
+          percentage: data.total > 0 ? (data.attended / data.total) * 100 : 0,
+          attended: data.attended,
+          total: data.total,
+        };
+      })
+    );
+    
     return {
       overallPercentage: records.length > 0 ? (attended / records.length) * 100 : 0,
       totalClasses: records.length,
       attendedClasses: attended,
       missedClasses: records.length - attended,
-      subjectWise: [],
+      subjectWise,
     };
   }
 
@@ -2262,6 +3003,572 @@ export class DatabaseStorage implements IStorage {
   async deleteSubmissionFile(fileId: string): Promise<void> {
     await db!!.delete(assignmentSubmissionFiles)
       .where(eq(assignmentSubmissionFiles.id, fileId));
+  }
+
+  // Notification Operations
+  async getNotificationsByStudent(studentId: string): Promise<Notification[]> {
+    return await db!!.select().from(notifications).where(eq(notifications.studentId, studentId)).orderBy(desc(notifications.createdAt));
+  }
+
+  async createNotification(notification: InsertNotification): Promise<Notification> {
+    const result = await db!!.insert(notifications).values(notification).returning();
+    return result[0];
+  }
+
+  async markNotificationAsRead(notificationId: string): Promise<Notification> {
+    const result = await db!!.update(notifications).set({ read: true }).where(eq(notifications.id, notificationId)).returning();
+    return result[0];
+  }
+
+  async updateNotification(notificationId: string, updates: Partial<Notification>): Promise<Notification> {
+    const result = await db!!.update(notifications).set(updates).where(eq(notifications.id, notificationId)).returning();
+    return result[0];
+  }
+
+  async deleteNotification(notificationId: string): Promise<void> {
+    await db!!.delete(notifications).where(eq(notifications.id, notificationId));
+  }
+
+  async markAllNotificationsAsRead(studentId: string): Promise<void> {
+    await db!!.update(notifications).set({ read: true }).where(eq(notifications.studentId, studentId));
+  }
+
+  async getUnreadNotificationCount(studentId: string): Promise<number> {
+    const result = await db!!.select().from(notifications).where(and(eq(notifications.studentId, studentId), eq(notifications.read, false)));
+    return result.length;
+  }
+
+  // Goal Operations
+  async getGoalsByStudent(studentId: string): Promise<Goal[]> {
+    return await db!!.select().from(goals).where(eq(goals.studentId, studentId)).orderBy(desc(goals.createdAt));
+  }
+
+  async createGoal(goal: InsertGoal): Promise<Goal> {
+    const result = await db!!.insert(goals).values(goal).returning();
+    return result[0];
+  }
+
+  async updateGoal(goalId: string, updates: Partial<Goal>): Promise<Goal> {
+    const result = await db!!.update(goals).set(updates).where(eq(goals.id, goalId)).returning();
+    return result[0];
+  }
+
+  async deleteGoal(goalId: string): Promise<void> {
+    await db!!.delete(goals).where(eq(goals.id, goalId));
+  }
+
+  // Achievement Operations
+  async getAchievementsByStudent(studentId: string): Promise<Achievement[]> {
+    return await db!!.select().from(achievements).where(eq(achievements.studentId, studentId)).orderBy(desc(achievements.date));
+  }
+
+  async createAchievement(achievement: InsertAchievement): Promise<Achievement> {
+    const result = await db!!.insert(achievements).values(achievement).returning();
+    return result[0];
+  }
+
+  async updateAchievement(achievementId: string, updates: Partial<Achievement>): Promise<Achievement> {
+    const result = await db!!.update(achievements).set(updates).where(eq(achievements.id, achievementId)).returning();
+    return result[0];
+  }
+
+  async deleteAchievement(achievementId: string): Promise<void> {
+    await db!!.delete(achievements).where(eq(achievements.id, achievementId));
+  }
+
+  // Class Operations
+  async getClassesByStudent(studentId: string): Promise<Class[]> {
+    return await db!!.select().from(classes).where(eq(classes.studentId, studentId));
+  }
+
+  async getClassById(classId: string): Promise<Class | undefined> {
+    const result = await db!!.select().from(classes).where(eq(classes.id, classId));
+    return result[0];
+  }
+
+  async createClass(classData: InsertClass): Promise<Class> {
+    const result = await db!!.insert(classes).values(classData).returning();
+    return result[0];
+  }
+
+  async updateClass(classId: string, updates: UpdateClass): Promise<Class> {
+    const result = await db!!.update(classes).set(updates).where(eq(classes.id, classId)).returning();
+    return result[0];
+  }
+
+  async deleteClass(classId: string): Promise<void> {
+    await db!!.delete(classes).where(eq(classes.id, classId));
+  }
+
+  async checkTimeConflict(studentId: string, dayOfWeek: string, startTime: string, endTime: string, excludeClassId?: string): Promise<boolean> {
+    let query = db!!.select().from(classes).where(and(eq(classes.studentId, studentId), eq(classes.dayOfWeek, dayOfWeek)));
+    const studentClasses = await query;
+    const filtered = excludeClassId ? studentClasses.filter(c => c.id !== excludeClassId) : studentClasses;
+
+    const toMinutes = (time: string) => {
+      const [hours, minutes] = time.split(':').map(Number);
+      return hours * 60 + minutes;
+    };
+    
+    const newStart = toMinutes(startTime);
+    const newEnd = toMinutes(endTime);
+
+    for (const existingClass of filtered) {
+      const oldStart = toMinutes(existingClass.startTime);
+      const oldEnd = toMinutes(existingClass.endTime);
+      
+      if ((newStart >= oldStart && newStart < oldEnd) ||
+          (newEnd > oldStart && newEnd <= oldEnd) ||
+          (newStart <= oldStart && newEnd >= oldEnd)) {
+        return true;
+      }
+    }
+    
+    return false;
+  }
+
+  // Exam Operations
+  async getAllExams(): Promise<Exam[]> {
+    return await db!!.select().from(exams).orderBy(desc(exams.examDate));
+  }
+
+  async getExamsByStudent(studentId: string, semester?: number): Promise<Exam[]> {
+    if (semester) {
+      return await db!!.select().from(exams).where(eq(exams.semester, semester)).orderBy(desc(exams.examDate));
+    }
+    return await db!!.select().from(exams).orderBy(desc(exams.examDate));
+  }
+
+  async getExamById(examId: string): Promise<Exam | undefined> {
+    const result = await db!!.select().from(exams).where(eq(exams.id, examId));
+    return result[0];
+  }
+
+  async createExam(exam: InsertExam): Promise<Exam> {
+    const result = await db!!.insert(exams).values(exam).returning();
+    return result[0];
+  }
+
+  async updateExam(examId: string, updates: UpdateExam): Promise<Exam> {
+    const result = await db!!.update(exams).set(updates).where(eq(exams.id, examId)).returning();
+    return result[0];
+  }
+
+  async deleteExam(examId: string): Promise<void> {
+    await db!!.delete(exams).where(eq(exams.id, examId));
+  }
+
+  // Exam Result Operations
+  async getExamResult(examId: string, studentId: string): Promise<ExamResult | undefined> {
+    const result = await db!!.select().from(examResults).where(and(eq(examResults.examId, examId), eq(examResults.studentId, studentId)));
+    return result[0];
+  }
+
+  async getExamResultsByStudent(studentId: string): Promise<ExamResult[]> {
+    return await db!!.select().from(examResults).where(eq(examResults.studentId, studentId));
+  }
+
+  async getExamResultsByExam(examId: string): Promise<ExamResult[]> {
+    return await db!!.select().from(examResults).where(eq(examResults.examId, examId));
+  }
+
+  async createExamResult(result: InsertExamResult): Promise<ExamResult> {
+    const newResult = await db!!.insert(examResults).values(result).returning();
+    return newResult[0];
+  }
+
+  async updateExamResult(resultId: string, updates: Partial<ExamResult>): Promise<ExamResult> {
+    const result = await db!!.update(examResults).set(updates).where(eq(examResults.id, resultId)).returning();
+    return result[0];
+  }
+
+  async getExamStats(studentId: string): Promise<{
+    averageScore: number;
+    totalExams: number;
+    passedExams: number;
+    failedExams: number;
+    highestScore: number;
+    lowestScore: number;
+    upcomingExams: number;
+    completedExams: number;
+    performanceTrend: Array<{ month: string; score: number }>;
+  }> {
+    const results = await this.getExamResultsByStudent(studentId);
+    const scores = results.map(r => r.score || 0).filter(s => s > 0);
+    return {
+      averageScore: scores.length > 0 ? scores.reduce((a, b) => a + b, 0) / scores.length : 0,
+      totalExams: results.length,
+      passedExams: results.filter(r => (r.score || 0) >= 40).length,
+      failedExams: results.filter(r => (r.score || 0) < 40).length,
+      highestScore: scores.length > 0 ? Math.max(...scores) : 0,
+      lowestScore: scores.length > 0 ? Math.min(...scores) : 0,
+      upcomingExams: 0,
+      completedExams: results.length,
+      performanceTrend: [],
+    };
+  }
+
+  // Resource Operations
+  async getAllResources(): Promise<Resource[]> {
+    return await db!!.select().from(resources).orderBy(desc(resources.createdAt));
+  }
+
+  async getResourceById(resourceId: string): Promise<Resource | undefined> {
+    const result = await db!!.select().from(resources).where(eq(resources.id, resourceId));
+    return result[0];
+  }
+
+  async getResourcesByType(type: string): Promise<Resource[]> {
+    return await db!!.select().from(resources).where(eq(resources.type, type));
+  }
+
+  async getResourcesBySubject(subject: string): Promise<Resource[]> {
+    return await db!!.select().from(resources).where(eq(resources.subject, subject));
+  }
+
+  async searchResources(query: string, filters?: { type?: string; subject?: string; category?: string }): Promise<Resource[]> {
+    let queryBuilder = db!!.select().from(resources);
+    const conditions = [];
+    if (filters?.type) conditions.push(eq(resources.type, filters.type));
+    if (filters?.subject) conditions.push(eq(resources.subject, filters.subject));
+    if (filters?.category) conditions.push(eq(resources.category, filters.category));
+    if (conditions.length > 0) {
+      queryBuilder = queryBuilder.where(and(...conditions)) as any;
+    }
+    return await queryBuilder;
+  }
+
+  async createResource(resource: InsertResource): Promise<Resource> {
+    const result = await db!!.insert(resources).values(resource).returning();
+    return result[0];
+  }
+
+  async updateResource(resourceId: string, updates: UpdateResource): Promise<Resource> {
+    const result = await db!!.update(resources).set(updates).where(eq(resources.id, resourceId)).returning();
+    return result[0];
+  }
+
+  async deleteResource(resourceId: string): Promise<void> {
+    await db!!.delete(resources).where(eq(resources.id, resourceId));
+  }
+
+  async incrementResourceDownload(resourceId: string): Promise<void> {
+    const resource = await this.getResourceById(resourceId);
+    if (resource) {
+      await db!!.update(resources).set({ downloads: (resource.downloads || 0) + 1 }).where(eq(resources.id, resourceId));
+    }
+  }
+
+  async incrementResourceView(resourceId: string): Promise<void> {
+    const resource = await this.getResourceById(resourceId);
+    if (resource) {
+      await db!!.update(resources).set({ views: (resource.views || 0) + 1 }).where(eq(resources.id, resourceId));
+    }
+  }
+
+  // Event Operations
+  async getAllEvents(): Promise<Event[]> {
+    return await db!!.select().from(events).orderBy(desc(events.startDate));
+  }
+
+  async getEventById(eventId: string): Promise<Event | undefined> {
+    const result = await db!!.select().from(events).where(eq(events.id, eventId));
+    return result[0];
+  }
+
+  async getEventsByCategory(category: string): Promise<Event[]> {
+    return await db!!.select().from(events).where(eq(events.category, category));
+  }
+
+  async getEventsByDateRange(startDate: Date, endDate: Date): Promise<Event[]> {
+    return await db!!.select().from(events).where(and(gte(events.startDate, startDate), lte(events.endDate, endDate)));
+  }
+
+  async getUpcomingEvents(): Promise<Event[]> {
+    return await db!!.select().from(events).where(gte(events.startDate, new Date())).orderBy(events.startDate);
+  }
+
+  async getPastEvents(): Promise<Event[]> {
+    return await db!!.select().from(events).where(lte(events.endDate, new Date())).orderBy(desc(events.endDate));
+  }
+
+  async searchEvents(query: string): Promise<Event[]> {
+    return await db!!.select().from(events);
+  }
+
+  async createEvent(event: InsertEvent): Promise<Event> {
+    const result = await db!!.insert(events).values(event).returning();
+    return result[0];
+  }
+
+  async updateEvent(eventId: string, updates: UpdateEvent): Promise<Event> {
+    const result = await db!!.update(events).set(updates).where(eq(events.id, eventId)).returning();
+    return result[0];
+  }
+
+  async deleteEvent(eventId: string): Promise<void> {
+    await db!!.delete(events).where(eq(events.id, eventId));
+  }
+
+  // Event RSVP Operations
+  async getEventRsvp(eventId: string, studentId: string): Promise<EventRsvp | undefined> {
+    const result = await db!!.select().from(eventRsvps).where(and(eq(eventRsvps.eventId, eventId), eq(eventRsvps.studentId, studentId)));
+    return result[0];
+  }
+
+  async getEventRsvps(eventId: string): Promise<EventRsvp[]> {
+    return await db!!.select().from(eventRsvps).where(eq(eventRsvps.eventId, eventId));
+  }
+
+  async getStudentRsvps(studentId: string): Promise<EventRsvp[]> {
+    return await db!!.select().from(eventRsvps).where(eq(eventRsvps.studentId, studentId));
+  }
+
+  async createOrUpdateRsvp(rsvp: InsertEventRsvp): Promise<EventRsvp> {
+    const existing = await this.getEventRsvp(rsvp.eventId, rsvp.studentId);
+    if (existing) {
+      const result = await db!!.update(eventRsvps).set(rsvp).where(eq(eventRsvps.id, existing.id)).returning();
+      return result[0];
+    }
+    const result = await db!!.insert(eventRsvps).values(rsvp).returning();
+    return result[0];
+  }
+
+  async deleteRsvp(rsvpId: string): Promise<void> {
+    await db!!.delete(eventRsvps).where(eq(eventRsvps.id, rsvpId));
+  }
+
+  async getEventAttendeeCount(eventId: string): Promise<{ going: number; maybe: number; notGoing: number; total: number }> {
+    const rsvps = await this.getEventRsvps(eventId);
+    return {
+      going: rsvps.filter(r => r.status === 'going').length,
+      maybe: rsvps.filter(r => r.status === 'maybe').length,
+      notGoing: rsvps.filter(r => r.status === 'not_going').length,
+      total: rsvps.length,
+    };
+  }
+
+  // Advanced Analytics Operations
+  async getGPATrends(studentId: string, semesters: number): Promise<Array<{ semester: number; gpa: number; credits: number }>> {
+    return Array.from({ length: semesters }, (_, i) => ({
+      semester: i + 1,
+      gpa: 7 + Math.random() * 2,
+      credits: 20 + Math.floor(Math.random() * 10),
+    }));
+  }
+
+  async getCreditsGPAAnalysis(studentId: string): Promise<Array<{ semester: number; earnedCredits: number; cumulativeCredits: number; gpa: number }>> {
+    return Array.from({ length: 8 }, (_, i) => ({
+      semester: i + 1,
+      earnedCredits: 20 + Math.floor(Math.random() * 5),
+      cumulativeCredits: (i + 1) * 20,
+      gpa: 7 + Math.random() * 2,
+    }));
+  }
+
+  async getCumulativeCGPAData(studentId: string): Promise<Array<{ semester: number; cgpa: number; targetCGPA: number }>> {
+    return Array.from({ length: 8 }, (_, i) => ({
+      semester: i + 1,
+      cgpa: 7 + (i * 0.1) + Math.random() * 0.5,
+      targetCGPA: 8.5,
+    }));
+  }
+
+  async getSubjectGPADistribution(studentId: string, semester?: string): Promise<Array<{ subjectName: string; subjectCode: string; gpa: number; credits: number }>> {
+    const studentSubjects = await this.getSubjectsByStudent(studentId);
+    return studentSubjects.map(s => ({
+      subjectName: s.name,
+      subjectCode: s.code,
+      gpa: 7 + Math.random() * 3,
+      credits: s.credits || 0,
+    }));
+  }
+
+  async getGPAAttendanceCorrelation(studentId: string): Promise<Array<{ subject: string; gpa: number; attendance: number }>> {
+    const studentSubjects = await this.getSubjectsByStudent(studentId);
+    return studentSubjects.map(subject => ({
+      subject: subject.name,
+      gpa: 7 + Math.random() * 3,
+      attendance: 70 + Math.random() * 30,
+    }));
+  }
+
+  async getSkillsAssessmentData(studentId: string): Promise<Array<{ skill: string; current: number; target: number; category: string }>> {
+    const skills = [
+      { skill: 'Programming', category: 'Technical' },
+      { skill: 'Communication', category: 'Soft Skills' },
+      { skill: 'Leadership', category: 'Soft Skills' },
+      { skill: 'Problem Solving', category: 'Technical' },
+      { skill: 'Teamwork', category: 'Soft Skills' },
+    ];
+    return skills.map(s => ({
+      ...s,
+      current: 60 + Math.random() * 30,
+      target: 90,
+    }));
+  }
+
+  async getSkillGrowthData(studentId: string): Promise<Array<{ skill: string; progress: number; target: number; level: string; startDate: string }>> {
+    const skills = ['Programming', 'Communication', 'Leadership', 'Problem Solving', 'Teamwork'];
+    const levels = ['Beginner', 'Intermediate', 'Advanced', 'Expert'];
+    return skills.map((skill, i) => ({
+      skill,
+      progress: 50 + Math.random() * 40,
+      target: 100,
+      level: levels[Math.floor(Math.random() * levels.length)],
+      startDate: new Date(Date.now() - i * 30 * 24 * 60 * 60 * 1000).toISOString(),
+    }));
+  }
+
+  async getAchievementFunnelData(studentId: string): Promise<Array<{ stage: string; count: number; percentage: number }>> {
+    return [
+      { stage: 'Submitted', count: 100, percentage: 100 },
+      { stage: 'Under Review', count: 80, percentage: 80 },
+      { stage: 'Approved', count: 65, percentage: 65 },
+      { stage: 'Verified', count: 60, percentage: 60 },
+    ];
+  }
+
+  async getAttendanceHeatmapData(studentId: string, year: number): Promise<Array<{ date: string; attendance: number; status: string }>> {
+    const studentAttendance = await this.getStudentAttendance(studentId);
+    return studentAttendance.map(a => ({
+      date: a.attendanceDate?.toISOString().split('T')[0] || '',
+      attendance: a.status === 'present' ? 1 : 0,
+      status: a.status,
+    }));
+  }
+
+  async getWeeklyAttendancePatterns(studentId: string, weeks: number): Promise<Array<{ week: string; weekAverage: number; monday: number; tuesday: number; wednesday: number; thursday: number; friday: number }>> {
+    return Array.from({ length: weeks }, (_, i) => ({
+      week: `Week ${i + 1}`,
+      weekAverage: 75 + Math.random() * 20,
+      monday: 70 + Math.random() * 30,
+      tuesday: 70 + Math.random() * 30,
+      wednesday: 70 + Math.random() * 30,
+      thursday: 70 + Math.random() * 30,
+      friday: 70 + Math.random() * 30,
+    }));
+  }
+
+  async getActivityCategoryDistribution(studentId: string): Promise<Array<{ category: string; count: number; percentage: number; credits: number }>> {
+    const studentActivities = await this.getActivitiesByStudent(studentId);
+    const categories = ['academic', 'co-curricular', 'extra-curricular', 'volunteering', 'internship'];
+    const total = studentActivities.length;
+    return categories.map(category => {
+      const count = studentActivities.filter(a => a.category === category).length;
+      const credits = studentActivities.filter(a => a.category === category).reduce((sum, a) => sum + (a.skillCredits || 0), 0);
+      return {
+        category,
+        count,
+        percentage: total > 0 ? (count / total) * 100 : 0,
+        credits,
+      };
+    });
+  }
+
+  async getActivityVolumeData(studentId: string, months: number): Promise<Array<{ month: string; total: number; approved: number; pending: number; rejected: number }>> {
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return Array.from({ length: months }, (_, i) => {
+      const total = Math.floor(Math.random() * 10);
+      const approved = Math.floor(total * 0.7);
+      const rejected = Math.floor(total * 0.1);
+      const pending = total - approved - rejected;
+      return {
+        month: monthNames[i % 12],
+        total,
+        approved,
+        pending,
+        rejected,
+      };
+    });
+  }
+
+  async getPeerComparisonData(studentId: string, department?: string | null): Promise<Array<{ metric: string; myValue: number; average: number; median: number; q1: number; q3: number }>> {
+    const metrics = ['GPA', 'Attendance', 'Activities', 'Credits', 'Skills'];
+    return metrics.map(metric => {
+      const myValue = 70 + Math.random() * 25;
+      const average = 65 + Math.random() * 20;
+      return {
+        metric,
+        myValue,
+        average,
+        median: average + Math.random() * 5 - 2.5,
+        q1: average - 10,
+        q3: average + 10,
+      };
+    });
+  }
+
+  async getRankPercentileData(studentId: string): Promise<{ currentRank: number; totalStudents: number; percentile: number; previousRank: number | null; target: number }> {
+    const allStudents = await db!!.select().from(users).where(eq(users.role, 'student'));
+    const totalStudents = allStudents.length;
+    const currentRank = Math.floor(Math.random() * totalStudents) + 1;
+    return {
+      currentRank,
+      totalStudents,
+      percentile: ((totalStudents - currentRank) / totalStudents) * 100,
+      previousRank: currentRank + Math.floor(Math.random() * 10) - 5,
+      target: Math.max(1, currentRank - 10),
+    };
+  }
+
+  async getDepartmentRankings(): Promise<Array<{ department: string; overallScore: number; rank: number; students: number; avgGPA: number; avgActivities: number }>> {
+    const depts = await this.getDepartments();
+    return depts.map((dept, i) => ({
+      department: dept.name,
+      overallScore: 70 + Math.random() * 25,
+      rank: i + 1,
+      students: 50 + Math.floor(Math.random() * 50),
+      avgGPA: 7 + Math.random() * 2,
+      avgActivities: 10 + Math.floor(Math.random() * 20),
+    }));
+  }
+
+  async getPortfolioStrengthData(studentId: string): Promise<Array<{ area: string; strength: number; maxStrength: number; activities: number }>> {
+    const areas = ['Academic', 'Co-curricular', 'Leadership', 'Technical Skills', 'Soft Skills'];
+    return areas.map(area => ({
+      area,
+      strength: 50 + Math.random() * 40,
+      maxStrength: 100,
+      activities: Math.floor(Math.random() * 20),
+    }));
+  }
+
+  async getApprovalSLAData(): Promise<Array<{ reviewer: string; avgApprovalTime: number; onTimePercentage: number; totalReviewed: number; pending: number }>> {
+    const faculty = await db!!.select().from(users).where(eq(users.role, 'faculty'));
+    return faculty.map(f => ({
+      reviewer: `${f.firstName} ${f.lastName}`,
+      avgApprovalTime: 24 + Math.random() * 48,
+      onTimePercentage: 70 + Math.random() * 25,
+      totalReviewed: Math.floor(Math.random() * 100),
+      pending: Math.floor(Math.random() * 20),
+    }));
+  }
+
+  async getGradeCorrelationMatrix(studentId: string): Promise<{ subjects: string[]; correlationMatrix: number[][] }> {
+    const studentSubjects = await this.getSubjectsByStudent(studentId);
+    const subjectNames = studentSubjects.map(s => s.name);
+    const matrix = subjectNames.map(() => 
+      subjectNames.map(() => -1 + Math.random() * 2)
+    );
+    matrix.forEach((row, i) => {
+      row[i] = 1;
+    });
+    return { subjects: subjectNames, correlationMatrix: matrix };
+  }
+
+  async getLiveAnalyticsUpdate(studentId: string): Promise<{ timestamp: string; gpa: number; attendance: number; activities: number; rank: number; recentActivities: Activity[] }> {
+    const student = await this.getUser(studentId);
+    const studentActivities = await this.getActivitiesByStudent(studentId);
+    const studentAttendance = await this.getStudentAttendance(studentId);
+    return {
+      timestamp: new Date().toISOString(),
+      gpa: Number(student?.cgpa) || 0,
+      attendance: studentAttendance.length > 0 ? (studentAttendance.filter(a => a.status === 'present').length / studentAttendance.length) * 100 : 0,
+      activities: studentActivities.length,
+      rank: Math.floor(Math.random() * 100) + 1,
+      recentActivities: studentActivities.slice(0, 5),
+    };
   }
 }
 

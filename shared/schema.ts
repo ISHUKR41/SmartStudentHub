@@ -279,6 +279,39 @@ export const attendance = pgTable("attendance", {
 });
 
 /**
+ * QR Attendance Sessions Table
+ * 
+ * Temporary QR code sessions for secure attendance marking.
+ * Sessions are created by faculty/admin and scanned by students.
+ * 
+ * Security Features:
+ * - Time-limited sessions (expire after 5-10 minutes)
+ * - Secure token generation with signature
+ * - One-time use validation to prevent duplicate scans
+ * - Association with specific class/subject for context
+ * 
+ * Workflow:
+ * 1. Faculty creates a QR session for a class/subject
+ * 2. System generates a secure token with expiration
+ * 3. QR code is displayed with the token
+ * 4. Students scan the QR code
+ * 5. System validates token and marks attendance
+ * 6. Session can be marked as used or expires automatically
+ */
+export const qrAttendanceSessions = pgTable("qr_attendance_sessions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  token: varchar("token").notNull().unique(),
+  subjectId: varchar("subject_id").references(() => subjects.id, { onDelete: 'cascade' }).notNull(),
+  classId: varchar("class_id"),
+  createdBy: varchar("created_by").references(() => users.id).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
+  signature: varchar("signature").notNull(),
+  isActive: boolean("is_active").default(true).notNull(),
+  usedBy: varchar("used_by").array(),
+});
+
+/**
  * Notifications Table
  * 
  * Student notification system for real-time updates and alerts.
@@ -950,6 +983,11 @@ export const insertAttendanceSchema = createInsertSchema(attendance).omit({
   createdAt: true,
 });
 
+export const insertQRAttendanceSessionSchema = createInsertSchema(qrAttendanceSessions).omit({
+  id: true,
+  createdAt: true,
+});
+
 export const insertNotificationSchema = createInsertSchema(notifications).omit({
   id: true,
   createdAt: true,
@@ -1155,6 +1193,8 @@ export type Subject = typeof subjects.$inferSelect;
 export type InsertSubject = z.infer<typeof insertSubjectSchema>;
 export type Attendance = typeof attendance.$inferSelect;
 export type InsertAttendance = z.infer<typeof insertAttendanceSchema>;
+export type QRAttendanceSession = typeof qrAttendanceSessions.$inferSelect;
+export type InsertQRAttendanceSession = z.infer<typeof insertQRAttendanceSessionSchema>;
 export type Notification = typeof notifications.$inferSelect;
 export type InsertNotification = z.infer<typeof insertNotificationSchema>;
 export type Goal = typeof goals.$inferSelect;

@@ -214,6 +214,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const { db } = await import("./db");
       const { users, activities, sql } = await import("@shared/schema");
 
+      if (!db) {
+        return res.status(500).json({
+          status: "unhealthy",
+          error: "Database connection not available",
+          timestamp: new Date().toISOString(),
+        });
+      }
+
       // Test basic connectivity
       const result = await db.execute(sql`SELECT 1 as test`);
 
@@ -738,13 +746,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         if (dateFrom) {
           const fromDate = new Date(dateFrom as string);
           filteredAttendance = filteredAttendance.filter(
-            (record) => new Date(record.date) >= fromDate
+            (record) => record.attendanceDate && new Date(record.attendanceDate) >= fromDate
           );
         }
         if (dateTo) {
           const toDate = new Date(dateTo as string);
           filteredAttendance = filteredAttendance.filter(
-            (record) => new Date(record.date) <= toDate
+            (record) => record.attendanceDate && new Date(record.attendanceDate) <= toDate
           );
         }
         if (status) {
@@ -815,6 +823,85 @@ export async function registerRoutes(app: Express): Promise<Server> {
         res
           .status(500)
           .json({ message: "Failed to fetch attendance analytics" });
+      }
+    }
+  );
+
+  /**
+   * QR Attendance Session Routes
+   * 
+   * Secure QR code-based attendance marking system.
+   * Faculty/Admin can create QR sessions, students can scan to mark attendance.
+   */
+  app.post(
+    "/api/attendance/qr/create",
+    isAuthenticated,
+    async (req: Request, res: Response) => {
+      try {
+        const userId = (req.user as AuthenticatedUser).claims.sub;
+        const user = await storage.getUser(userId);
+
+        if (!user || (user.role !== "faculty" && user.role !== "admin")) {
+          return res.status(403).json({ message: "Only faculty and admins can create QR attendance sessions" });
+        }
+
+        const { subjectId, classId } = req.body;
+
+        if (!subjectId) {
+          return res.status(400).json({ message: "Subject ID is required" });
+        }
+
+        const session = await storage.createQRSession(subjectId, userId, classId);
+
+        res.status(201).json({
+          success: true,
+          sessionId: session.sessionId,
+          token: session.token,
+          expiresAt: session.expiresAt,
+          message: "QR attendance session created successfully",
+        });
+      } catch (error) {
+        console.error("Error creating QR session:", error);
+        res.status(500).json({ message: "Failed to create QR attendance session" });
+      }
+    }
+  );
+
+  app.post(
+    "/api/attendance/qr/scan",
+    isAuthenticated,
+    async (req: Request, res: Response) => {
+      try {
+        const userId = (req.user as AuthenticatedUser).claims.sub;
+        const user = await storage.getUser(userId);
+
+        if (!user || user.role !== "student") {
+          return res.status(403).json({ message: "Only students can scan QR codes for attendance" });
+        }
+
+        const { token } = req.body;
+
+        if (!token) {
+          return res.status(400).json({ message: "QR token is required" });
+        }
+
+        const result = await storage.validateQRSession(token, userId);
+
+        if (!result.isValid) {
+          return res.status(400).json({
+            success: false,
+            message: result.error || "Invalid QR code",
+          });
+        }
+
+        res.json({
+          success: true,
+          subjectId: result.subjectId,
+          message: "Attendance marked successfully",
+        });
+      } catch (error) {
+        console.error("Error scanning QR code:", error);
+        res.status(500).json({ message: "Failed to scan QR code" });
       }
     }
   );
@@ -1182,9 +1269,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Check for time conflicts
         const hasConflict = await storage.checkTimeConflict(
           userId,
-          classData.dayOfWeek,
-          classData.startTime,
-          classData.endTime
+          classData.dayOfWeek || '',
+          classData.startTime || '',
+          classData.endTime || ''
         );
 
         if (hasConflict) {
@@ -1220,9 +1307,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
             return res.status(404).json({ message: "Class not found" });
           }
 
-          const dayOfWeek = updates.dayOfWeek || existingClass.dayOfWeek;
-          const startTime = updates.startTime || existingClass.startTime;
-          const endTime = updates.endTime || existingClass.endTime;
+          const dayOfWeek = updates.dayOfWeek || existingClass.dayOfWeek || '';
+          const startTime = updates.startTime || existingClass.startTime || '';
+          const endTime = updates.endTime || existingClass.endTime || '';
 
           const hasConflict = await storage.checkTimeConflict(
             userId,
