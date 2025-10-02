@@ -407,6 +407,94 @@ export const classes = pgTable("classes", {
 });
 
 /**
+ * Assignment Status Enumeration
+ * 
+ * Tracks the submission and grading status of assignments:
+ * - pending: Assignment created but not yet submitted by student
+ * - submitted: Student has submitted the assignment, awaiting grading
+ * - graded: Assignment has been graded by faculty
+ */
+export const assignmentStatusEnum = pgEnum('assignment_status', ['pending', 'submitted', 'graded']);
+
+/**
+ * Assignments Table
+ * 
+ * Course assignments created by faculty for students to complete.
+ * Stores assignment details including due dates, marks, and descriptions.
+ * 
+ * Features:
+ * - Assignment title, description, and instructions
+ * - Due date tracking
+ * - Maximum marks/points
+ * - Subject/course association
+ * - Created by faculty tracking
+ */
+export const assignments = pgTable("assignments", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  title: varchar("title").notNull(),
+  description: text("description").notNull(),
+  subject: varchar("subject").notNull(),
+  dueDate: timestamp("due_date").notNull(),
+  maxMarks: integer("max_marks").notNull(),
+  createdBy: varchar("created_by").references(() => users.id, { onDelete: 'set null' }),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+/**
+ * Assignment Submissions Table
+ * 
+ * Student submissions for assignments with file attachments.
+ * Tracks submission status, grades, and faculty feedback.
+ * 
+ * Workflow:
+ * 1. Student submits assignment with attached files
+ * 2. Submission starts in 'submitted' status
+ * 3. Faculty grades and provides feedback
+ * 4. Status changes to 'graded' with score and feedback
+ * 
+ * Features:
+ * - Multiple file attachments per submission
+ * - Grade and feedback from faculty
+ * - Submission timestamp tracking
+ * - Late submission detection
+ */
+export const assignmentSubmissions = pgTable("assignment_submissions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  assignmentId: varchar("assignment_id").references(() => assignments.id, { onDelete: 'cascade' }).notNull(),
+  studentId: varchar("student_id").references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  status: assignmentStatusEnum("status").default('submitted').notNull(),
+  submittedAt: timestamp("submitted_at").defaultNow().notNull(),
+  grade: integer("grade"),
+  feedback: text("feedback"),
+  gradedBy: varchar("graded_by").references(() => users.id),
+  gradedAt: timestamp("graded_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+/**
+ * Assignment Submission Files Table
+ * 
+ * Files attached to assignment submissions.
+ * Stores metadata for uploaded files including path, type, and size.
+ * 
+ * Security Features:
+ * - File type validation (PDF, DOC, DOCX, JPG, PNG)
+ * - File size limit enforcement (10MB)
+ * - Path validation to prevent directory traversal
+ */
+export const assignmentSubmissionFiles = pgTable("assignment_submission_files", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  submissionId: varchar("submission_id").references(() => assignmentSubmissions.id, { onDelete: 'cascade' }).notNull(),
+  fileName: varchar("file_name").notNull(),
+  filePath: varchar("file_path").notNull(),
+  fileType: varchar("file_type").notNull(),
+  fileSize: integer("file_size").notNull(),
+  uploadedAt: timestamp("uploaded_at").defaultNow(),
+});
+
+/**
  * Analytics Event Type Enumeration
  * 
  * Types of analytics events that can be tracked:
@@ -575,6 +663,37 @@ export const classesRelations = relations(classes, ({ one }) => ({
   }),
 }));
 
+export const assignmentsRelations = relations(assignments, ({ one, many }) => ({
+  createdBy: one(users, {
+    fields: [assignments.createdBy],
+    references: [users.id],
+  }),
+  submissions: many(assignmentSubmissions),
+}));
+
+export const assignmentSubmissionsRelations = relations(assignmentSubmissions, ({ one, many }) => ({
+  assignment: one(assignments, {
+    fields: [assignmentSubmissions.assignmentId],
+    references: [assignments.id],
+  }),
+  student: one(users, {
+    fields: [assignmentSubmissions.studentId],
+    references: [users.id],
+  }),
+  gradedBy: one(users, {
+    fields: [assignmentSubmissions.gradedBy],
+    references: [users.id],
+  }),
+  files: many(assignmentSubmissionFiles),
+}));
+
+export const assignmentSubmissionFilesRelations = relations(assignmentSubmissionFiles, ({ one }) => ({
+  submission: one(assignmentSubmissions, {
+    fields: [assignmentSubmissionFiles.submissionId],
+    references: [assignmentSubmissions.id],
+  }),
+}));
+
 export const analyticsEventsRelations = relations(analyticsEvents, ({ one }) => ({
   student: one(users, {
     fields: [analyticsEvents.studentId],
@@ -672,6 +791,33 @@ export const updateClassSchema = createInsertSchema(classes).omit({
   createdAt: true,
   updatedAt: true,
 }).partial();
+
+export const insertAssignmentSchema = createInsertSchema(assignments).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertAssignmentSubmissionSchema = createInsertSchema(assignmentSubmissions).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  submittedAt: true,
+});
+
+export const updateAssignmentSubmissionSchema = createInsertSchema(assignmentSubmissions).omit({
+  id: true,
+  assignmentId: true,
+  studentId: true,
+  createdAt: true,
+  updatedAt: true,
+  submittedAt: true,
+}).partial();
+
+export const insertAssignmentSubmissionFileSchema = createInsertSchema(assignmentSubmissionFiles).omit({
+  id: true,
+  uploadedAt: true,
+});
 
 export const insertAnalyticsEventSchema = createInsertSchema(analyticsEvents).omit({
   id: true,
@@ -831,6 +977,15 @@ export type InsertAchievement = z.infer<typeof insertAchievementSchema>;
 export type Class = typeof classes.$inferSelect;
 export type InsertClass = z.infer<typeof insertClassSchema>;
 export type UpdateClass = z.infer<typeof updateClassSchema>;
+
+// Assignment Types
+export type Assignment = typeof assignments.$inferSelect;
+export type InsertAssignment = z.infer<typeof insertAssignmentSchema>;
+export type AssignmentSubmission = typeof assignmentSubmissions.$inferSelect;
+export type InsertAssignmentSubmission = z.infer<typeof insertAssignmentSubmissionSchema>;
+export type UpdateAssignmentSubmission = z.infer<typeof updateAssignmentSubmissionSchema>;
+export type AssignmentSubmissionFile = typeof assignmentSubmissionFiles.$inferSelect;
+export type InsertAssignmentSubmissionFile = z.infer<typeof insertAssignmentSubmissionFileSchema>;
 
 // Analytics Types
 export type AnalyticsEvent = typeof analyticsEvents.$inferSelect;

@@ -36,6 +36,9 @@ import {
   insertAchievementSchema,
   insertClassSchema,
   updateClassSchema,
+  insertAssignmentSchema,
+  insertAssignmentSubmissionSchema,
+  updateAssignmentSubmissionSchema,
 } from "@shared/schema";
 import { AuthenticatedUser } from "../types/express";
 import { PDFPortfolioService } from "./pdfService";
@@ -96,13 +99,14 @@ function convertToCSV(data: any[]): string {
  * Configures multer middleware for secure file uploads.
  *
  * Security Features:
- * - File type restrictions (PDF, JPG, PNG only)
+ * - File type restrictions (PDF, DOC, DOCX, JPG, PNG only)
  * - File size limits (10MB maximum)
  * - Unique filename generation to prevent conflicts
  * - Secure file storage in uploads directory
  *
  * Supported File Types:
  * - PDF: For certificates and official documents
+ * - DOC/DOCX: For Word documents and assignments
  * - JPG/PNG: For images and scanned documents
  */
 const uploadDir = path.join(process.cwd(), "uploads");
@@ -122,16 +126,24 @@ const upload = multer({
     },
   }),
   fileFilter: (req, file, cb) => {
-    const allowedTypes = /jpeg|jpg|png|pdf/;
+    const allowedTypes = /jpeg|jpg|png|pdf|doc|docx/;
     const extname = allowedTypes.test(
       path.extname(file.originalname).toLowerCase()
     );
-    const mimetype = allowedTypes.test(file.mimetype);
+    const allowedMimeTypes = [
+      'image/jpeg',
+      'image/jpg',
+      'image/png',
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    ];
+    const mimetype = allowedMimeTypes.includes(file.mimetype);
 
     if (mimetype && extname) {
       return cb(null, true);
     } else {
-      cb(new Error("Only PDF, JPG, and PNG files are allowed"));
+      cb(new Error("Only PDF, DOC, DOCX, JPG, and PNG files are allowed"));
     }
   },
   limits: {
@@ -2601,6 +2613,214 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error downloading file:", error);
       res.status(500).json({ message: "Failed to download file" });
+    }
+  });
+
+  // ===== ASSIGNMENT ROUTES =====
+  
+  // Get all assignments
+  app.get("/api/assignments", isAuthenticated, async (req, res) => {
+    try {
+      const userId = (req.user as AuthenticatedUser).claims.sub;
+      const user = await storage.getUser(userId);
+      
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const assignments = await storage.getAllAssignments();
+      res.json(assignments);
+    } catch (error) {
+      console.error("Error fetching assignments:", error);
+      res.status(500).json({ message: "Failed to fetch assignments" });
+    }
+  });
+
+  // Get assignment by ID
+  app.get("/api/assignments/:id", isAuthenticated, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const assignment = await storage.getAssignmentById(id);
+      
+      if (!assignment) {
+        return res.status(404).json({ message: "Assignment not found" });
+      }
+
+      res.json(assignment);
+    } catch (error) {
+      console.error("Error fetching assignment:", error);
+      res.status(500).json({ message: "Failed to fetch assignment" });
+    }
+  });
+
+  // Create new assignment (faculty/admin only)
+  app.post("/api/assignments", isAuthenticated, async (req, res) => {
+    try {
+      const userId = (req.user as AuthenticatedUser).claims.sub;
+      const user = await storage.getUser(userId);
+      
+      if (!user || (user.role !== 'faculty' && user.role !== 'admin')) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const validatedData = insertAssignmentSchema.parse({
+        ...req.body,
+        createdBy: userId,
+      });
+
+      const assignment = await storage.createAssignment(validatedData);
+      res.status(201).json(assignment);
+    } catch (error) {
+      console.error("Error creating assignment:", error);
+      res.status(400).json({ message: "Failed to create assignment" });
+    }
+  });
+
+  // Get student submissions
+  app.get("/api/submissions", isAuthenticated, async (req, res) => {
+    try {
+      const userId = (req.user as AuthenticatedUser).claims.sub;
+      const user = await storage.getUser(userId);
+      
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const submissions = await storage.getSubmissionsByStudent(userId);
+      res.json(submissions);
+    } catch (error) {
+      console.error("Error fetching submissions:", error);
+      res.status(500).json({ message: "Failed to fetch submissions" });
+    }
+  });
+
+  // Get submission for specific assignment and student
+  app.get("/api/assignments/:assignmentId/submission", isAuthenticated, async (req, res) => {
+    try {
+      const { assignmentId } = req.params;
+      const userId = (req.user as AuthenticatedUser).claims.sub;
+      
+      const submission = await storage.getSubmissionByAssignmentAndStudent(assignmentId, userId);
+      
+      if (!submission) {
+        return res.status(404).json({ message: "Submission not found" });
+      }
+
+      const files = await storage.getSubmissionFiles(submission.id);
+      res.json({ ...submission, files });
+    } catch (error) {
+      console.error("Error fetching submission:", error);
+      res.status(500).json({ message: "Failed to fetch submission" });
+    }
+  });
+
+  // Submit assignment with files
+  app.post("/api/assignments/:assignmentId/submit", 
+    isAuthenticated,
+    upload.array('files', 10),
+    async (req, res) => {
+      try {
+        const { assignmentId } = req.params;
+        const userId = (req.user as AuthenticatedUser).claims.sub;
+        const files = req.files as Express.Multer.File[];
+
+        // Check if assignment exists
+        const assignment = await storage.getAssignmentById(assignmentId);
+        if (!assignment) {
+          return res.status(404).json({ message: "Assignment not found" });
+        }
+
+        // Check if student already has a submission
+        const existingSubmission = await storage.getSubmissionByAssignmentAndStudent(assignmentId, userId);
+        
+        let submission;
+        if (existingSubmission) {
+          // Update existing submission
+          submission = await storage.updateSubmission(existingSubmission.id, {
+            status: 'submitted',
+          });
+        } else {
+          // Create new submission
+          const validatedData = insertAssignmentSubmissionSchema.parse({
+            assignmentId,
+            studentId: userId,
+            status: 'submitted',
+          });
+          submission = await storage.createSubmission(validatedData);
+        }
+
+        // Add files to submission
+        const uploadedFiles = [];
+        for (const file of files) {
+          const uploadedFile = await storage.addSubmissionFile(
+            submission.id,
+            file.originalname,
+            file.filename,
+            file.mimetype,
+            file.size
+          );
+          uploadedFiles.push(uploadedFile);
+        }
+
+        res.status(201).json({ 
+          submission, 
+          files: uploadedFiles,
+          message: "Assignment submitted successfully" 
+        });
+      } catch (error) {
+        console.error("Error submitting assignment:", error);
+        res.status(400).json({ message: "Failed to submit assignment" });
+      }
+    }
+  );
+
+  // Get submission files
+  app.get("/api/submissions/:submissionId/files", isAuthenticated, async (req, res) => {
+    try {
+      const { submissionId } = req.params;
+      const files = await storage.getSubmissionFiles(submissionId);
+      res.json(files);
+    } catch (error) {
+      console.error("Error fetching submission files:", error);
+      res.status(500).json({ message: "Failed to fetch submission files" });
+    }
+  });
+
+  // Delete submission file
+  app.delete("/api/files/:fileId", isAuthenticated, async (req, res) => {
+    try {
+      const { fileId } = req.params;
+      await storage.deleteSubmissionFile(fileId);
+      res.json({ message: "File deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting file:", error);
+      res.status(500).json({ message: "Failed to delete file" });
+    }
+  });
+
+  // Grade submission (faculty/admin only)
+  app.patch("/api/submissions/:submissionId/grade", isAuthenticated, async (req, res) => {
+    try {
+      const { submissionId } = req.params;
+      const userId = (req.user as AuthenticatedUser).claims.sub;
+      const user = await storage.getUser(userId);
+      
+      if (!user || (user.role !== 'faculty' && user.role !== 'admin')) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      const validatedData = updateAssignmentSubmissionSchema.parse({
+        ...req.body,
+        status: 'graded',
+        gradedBy: userId,
+        gradedAt: new Date(),
+      });
+
+      const submission = await storage.updateSubmission(submissionId, validatedData);
+      res.json(submission);
+    } catch (error) {
+      console.error("Error grading submission:", error);
+      res.status(400).json({ message: "Failed to grade submission" });
     }
   });
 

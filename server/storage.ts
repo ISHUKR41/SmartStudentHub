@@ -31,6 +31,9 @@ import {
   goals,
   achievements,
   classes,
+  assignments,
+  assignmentSubmissions,
+  assignmentSubmissionFiles,
   type User,
   type UpsertUser,
   type Activity,
@@ -51,7 +54,14 @@ import {
   type InsertAchievement,
   type Class,
   type InsertClass,
-  type UpdateClass
+  type UpdateClass,
+  type Assignment,
+  type InsertAssignment,
+  type AssignmentSubmission,
+  type InsertAssignmentSubmission,
+  type UpdateAssignmentSubmission,
+  type AssignmentSubmissionFile,
+  type InsertAssignmentSubmissionFile
 } from "@shared/schema";
 
 /**
@@ -241,6 +251,24 @@ export interface IStorage {
       monthlyActivity: Array<{ month: string; activities: number }>;
     };
   }>;
+
+  // Assignment Management Operations
+  getAllAssignments(): Promise<Assignment[]>;
+  getAssignmentById(assignmentId: string): Promise<Assignment | undefined>;
+  getAssignmentsByStudent(studentId: string): Promise<Assignment[]>;
+  createAssignment(assignment: InsertAssignment): Promise<Assignment>;
+  
+  // Assignment Submission Operations
+  getSubmissionByAssignmentAndStudent(assignmentId: string, studentId: string): Promise<AssignmentSubmission | undefined>;
+  getSubmissionsByStudent(studentId: string): Promise<AssignmentSubmission[]>;
+  getSubmissionsByAssignment(assignmentId: string): Promise<AssignmentSubmission[]>;
+  createSubmission(submission: InsertAssignmentSubmission): Promise<AssignmentSubmission>;
+  updateSubmission(submissionId: string, updates: UpdateAssignmentSubmission): Promise<AssignmentSubmission>;
+  
+  // Assignment File Operations
+  addSubmissionFile(submissionId: string, fileName: string, filePath: string, fileType: string, fileSize: number): Promise<AssignmentSubmissionFile>;
+  getSubmissionFiles(submissionId: string): Promise<AssignmentSubmissionFile[]>;
+  deleteSubmissionFile(fileId: string): Promise<void>;
 }
 
 /**
@@ -2075,6 +2103,88 @@ export class DatabaseStorage implements IStorage {
         monthlyActivity: [],
       },
     };
+  }
+
+  // Assignment Management Operations
+  async getAllAssignments(): Promise<Assignment[]> {
+    return await db!!.select().from(assignments).orderBy(desc(assignments.dueDate));
+  }
+
+  async getAssignmentById(assignmentId: string): Promise<Assignment | undefined> {
+    const result = await db!!.select().from(assignments).where(eq(assignments.id, assignmentId));
+    return result[0];
+  }
+
+  async getAssignmentsByStudent(studentId: string): Promise<Assignment[]> {
+    return await db!!.select().from(assignments).orderBy(desc(assignments.dueDate));
+  }
+
+  async createAssignment(assignmentData: InsertAssignment): Promise<Assignment> {
+    const result = await db!!.insert(assignments).values(assignmentData).returning();
+    return result[0];
+  }
+
+  // Assignment Submission Operations
+  async getSubmissionByAssignmentAndStudent(assignmentId: string, studentId: string): Promise<AssignmentSubmission | undefined> {
+    const result = await db!!.select()
+      .from(assignmentSubmissions)
+      .where(
+        and(
+          eq(assignmentSubmissions.assignmentId, assignmentId),
+          eq(assignmentSubmissions.studentId, studentId)
+        )
+      );
+    return result[0];
+  }
+
+  async getSubmissionsByStudent(studentId: string): Promise<AssignmentSubmission[]> {
+    return await db!!.select()
+      .from(assignmentSubmissions)
+      .where(eq(assignmentSubmissions.studentId, studentId))
+      .orderBy(desc(assignmentSubmissions.submittedAt));
+  }
+
+  async getSubmissionsByAssignment(assignmentId: string): Promise<AssignmentSubmission[]> {
+    return await db!!.select()
+      .from(assignmentSubmissions)
+      .where(eq(assignmentSubmissions.assignmentId, assignmentId))
+      .orderBy(desc(assignmentSubmissions.submittedAt));
+  }
+
+  async createSubmission(submissionData: InsertAssignmentSubmission): Promise<AssignmentSubmission> {
+    const result = await db!!.insert(assignmentSubmissions).values(submissionData).returning();
+    return result[0];
+  }
+
+  async updateSubmission(submissionId: string, updates: UpdateAssignmentSubmission): Promise<AssignmentSubmission> {
+    const result = await db!!.update(assignmentSubmissions)
+      .set(updates)
+      .where(eq(assignmentSubmissions.id, submissionId))
+      .returning();
+    return result[0];
+  }
+
+  // Assignment File Operations
+  async addSubmissionFile(submissionId: string, fileName: string, filePath: string, fileType: string, fileSize: number): Promise<AssignmentSubmissionFile> {
+    const result = await db!!.insert(assignmentSubmissionFiles).values({
+      submissionId,
+      fileName,
+      filePath,
+      fileType,
+      fileSize,
+    }).returning();
+    return result[0];
+  }
+
+  async getSubmissionFiles(submissionId: string): Promise<AssignmentSubmissionFile[]> {
+    return await db!!.select()
+      .from(assignmentSubmissionFiles)
+      .where(eq(assignmentSubmissionFiles.submissionId, submissionId));
+  }
+
+  async deleteSubmissionFile(fileId: string): Promise<void> {
+    await db!!.delete(assignmentSubmissionFiles)
+      .where(eq(assignmentSubmissionFiles.id, fileId));
   }
 }
 
