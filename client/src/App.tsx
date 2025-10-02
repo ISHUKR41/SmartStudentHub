@@ -35,14 +35,18 @@ import Analytics from "@/pages/analytics";
 import AchievementsGoals from "@/pages/achievements-goals";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, isLoggedIn, emailVerified } = useAuth();
   const [, setLocation] = useLocation();
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      setLocation('/firebase-signin');
+    if (!isLoading) {
+      if (!isLoggedIn) {
+        setLocation('/firebase-signin');
+      } else if (isLoggedIn && !emailVerified) {
+        setLocation('/email-verification');
+      }
     }
-  }, [isAuthenticated, isLoading, setLocation]);
+  }, [isAuthenticated, isLoading, isLoggedIn, emailVerified, setLocation]);
 
   if (isLoading) {
     return (
