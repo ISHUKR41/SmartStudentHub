@@ -1,10 +1,10 @@
 /**
  * Database Schema Definition for Student Activity Record Management System
- * 
+ *
  * This file defines the complete database schema for a Higher Education Student Activity
  * Management System designed for NAAC/NIRF compliance. It includes tables for users,
  * activities, files, departments, and their relationships.
- * 
+ *
  * Key Features:
  * - Multi-role user system (student, faculty, admin)
  * - Activity tracking with verification workflow
@@ -13,10 +13,10 @@
  * - Comprehensive analytics and reporting
  */
 
-import { sql } from 'drizzle-orm';
+import { sql } from "drizzle-orm";
 // Export sql for use in other files
 export { sql };
-import { relations } from 'drizzle-orm';
+import { relations } from "drizzle-orm";
 import {
   index,
   jsonb,
@@ -27,14 +27,14 @@ import {
   integer,
   decimal,
   boolean,
-  pgEnum
+  pgEnum,
 } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
 /**
  * Session Storage Table
- * 
+ *
  * Stores user session data for Replit Authentication.
  * This table is required by the express-session middleware and Replit Auth integration.
  * Sessions are automatically cleaned up based on expiration time.
@@ -46,32 +46,40 @@ export const sessions = pgTable(
     sess: jsonb("sess").notNull(),
     expire: timestamp("expire").notNull(),
   },
-  (table) => [index("IDX_session_expire").on(table.expire)],
+  (table) => [index("IDX_session_expire").on(table.expire)]
 );
 
 /**
  * User Role Enumeration
- * 
+ *
  * Defines the three main user types in the system:
  * - student: Can upload activities, view portfolio, track progress
  * - faculty: Can approve/reject activities, provide feedback
  * - admin: Can view analytics, manage departments, generate reports
  */
-export const userRoleEnum = pgEnum('user_role', ['student', 'faculty', 'admin']);
+export const userRoleEnum = pgEnum("user_role", [
+  "student",
+  "faculty",
+  "admin",
+]);
 
 /**
  * Activity Status Enumeration
- * 
+ *
  * Tracks the verification status of student activities:
  * - pending: Recently uploaded, awaiting faculty review
  * - approved: Verified by faculty, counts toward student portfolio
  * - rejected: Not approved by faculty, requires revision or replacement
  */
-export const activityStatusEnum = pgEnum('activity_status', ['pending', 'approved', 'rejected']);
+export const activityStatusEnum = pgEnum("activity_status", [
+  "pending",
+  "approved",
+  "rejected",
+]);
 
 /**
  * Activity Category Enumeration
- * 
+ *
  * Categorizes student activities for portfolio organization and NAAC compliance:
  * - academic: Research papers, academic competitions, conferences
  * - co-curricular: College events, clubs, societies, sports
@@ -81,64 +89,82 @@ export const activityStatusEnum = pgEnum('activity_status', ['pending', 'approve
  * - leadership: Student government, team leadership roles
  * - mooc: Online courses, certifications, skill development
  */
-export const activityCategoryEnum = pgEnum('activity_category', [
-  'academic',
-  'co-curricular', 
-  'extra-curricular',
-  'volunteering',
-  'internship',
-  'leadership',
-  'mooc'
+export const activityCategoryEnum = pgEnum("activity_category", [
+  "academic",
+  "co-curricular",
+  "extra-curricular",
+  "volunteering",
+  "internship",
+  "leadership",
+  "mooc",
 ]);
 
 /**
  * Attendance Status Enumeration
- * 
+ *
  * Tracks student attendance status for each class:
  * - present: Student attended the class
  * - absent: Student was absent from the class
  * - late: Student attended but was late
  * - excused: Absence was excused (medical/official)
  */
-export const attendanceStatusEnum = pgEnum('attendance_status', ['present', 'absent', 'late', 'excused']);
+export const attendanceStatusEnum = pgEnum("attendance_status", [
+  "present",
+  "absent",
+  "late",
+  "excused",
+]);
 
 /**
  * Notification Type Enumeration
- * 
+ *
  * Types of notifications that can be sent to students:
  * - info: General information notifications
  * - success: Achievement and positive updates
  * - warning: Important warnings and reminders
  * - error: Critical issues that need attention
  */
-export const notificationTypeEnum = pgEnum('notification_type', ['info', 'success', 'warning', 'error']);
+export const notificationTypeEnum = pgEnum("notification_type", [
+  "info",
+  "success",
+  "warning",
+  "error",
+]);
 
 /**
  * Goal Priority Enumeration
- * 
+ *
  * Priority levels for student goals:
  * - low: Optional goals with flexible deadlines
  * - medium: Important goals for academic progress
  * - high: Critical goals that must be completed
  */
-export const goalPriorityEnum = pgEnum('goal_priority', ['low', 'medium', 'high']);
+export const goalPriorityEnum = pgEnum("goal_priority", [
+  "low",
+  "medium",
+  "high",
+]);
 
 /**
  * Goal Status Enumeration
- * 
+ *
  * Status of student goals:
  * - active: Currently working on this goal
  * - completed: Goal has been achieved
  * - overdue: Goal deadline has passed without completion
  */
-export const goalStatusEnum = pgEnum('goal_status', ['active', 'completed', 'overdue']);
+export const goalStatusEnum = pgEnum("goal_status", [
+  "active",
+  "completed",
+  "overdue",
+]);
 
 /**
  * Users Table
- * 
+ *
  * Central user management table supporting Replit Authentication.
  * Stores user profiles with role-based access control and academic information.
- * 
+ *
  * Key Features:
  * - UUID primary keys for security
  * - Role-based access (student/faculty/admin)
@@ -147,12 +173,14 @@ export const goalStatusEnum = pgEnum('goal_status', ['active', 'completed', 'ove
  * - Profile image support
  */
 export const users = pgTable("users", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
   email: varchar("email").unique(),
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
-  role: userRoleEnum("role").default('student').notNull(),
+  role: userRoleEnum("role").default("student").notNull(),
   rollNumber: varchar("roll_number").unique(),
   department: varchar("department"),
   currentSemester: integer("current_semester"),
@@ -163,10 +191,10 @@ export const users = pgTable("users", {
 
 /**
  * Activities Table
- * 
+ *
  * Core table storing student achievement and activity records.
  * Each activity goes through a verification workflow managed by faculty.
- * 
+ *
  * Workflow:
  * 1. Student uploads activity with details and certificates
  * 2. Activity starts in 'pending' status
@@ -174,14 +202,18 @@ export const users = pgTable("users", {
  * 4. Approved activities contribute to student portfolio and skill credits
  */
 export const activities = pgTable("activities", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  studentId: varchar("student_id").references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  studentId: varchar("student_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
   title: varchar("title").notNull(),
   description: text("description"),
   category: activityCategoryEnum("category").notNull(),
   organization: varchar("organization").notNull(),
   activityDate: timestamp("activity_date").notNull(),
-  status: activityStatusEnum("status").default('pending').notNull(),
+  status: activityStatusEnum("status").default("pending").notNull(),
   verifiedBy: varchar("verified_by").references(() => users.id),
   verificationDate: timestamp("verification_date"),
   feedback: text("feedback"),
@@ -192,18 +224,22 @@ export const activities = pgTable("activities", {
 
 /**
  * Activity Files Table
- * 
+ *
  * Stores metadata for files attached to activities (certificates, documents).
  * Files are stored on disk, this table tracks their metadata and relationships.
- * 
+ *
  * Security Features:
  * - Path validation to prevent directory traversal
  * - File type restrictions for security
  * - File size tracking for storage management
  */
 export const activityFiles = pgTable("activity_files", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  activityId: varchar("activity_id").references(() => activities.id, { onDelete: 'cascade' }).notNull(),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  activityId: varchar("activity_id")
+    .references(() => activities.id, { onDelete: "cascade" })
+    .notNull(),
   fileName: varchar("file_name").notNull(),
   filePath: varchar("file_path").notNull(),
   fileType: varchar("file_type").notNull(),
@@ -213,17 +249,19 @@ export const activityFiles = pgTable("activity_files", {
 
 /**
  * Departments Table
- * 
+ *
  * Organizational structure for academic departments.
  * Links users to their departments and supports department-level analytics.
- * 
+ *
  * Features:
  * - Unique department codes for easy reference
  * - Head of Department assignment
  * - Support for department-based reporting
  */
 export const departments = pgTable("departments", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
   name: varchar("name").notNull().unique(),
   code: varchar("code").notNull().unique(),
   headOfDepartment: varchar("head_of_department"),
@@ -232,10 +270,10 @@ export const departments = pgTable("departments", {
 
 /**
  * Subjects Table
- * 
+ *
  * Academic subjects/courses offered by the institution.
  * Links to departments and tracks course information for attendance monitoring.
- * 
+ *
  * Features:
  * - Subject codes for easy reference
  * - Department association
@@ -243,7 +281,9 @@ export const departments = pgTable("departments", {
  * - Semester and year mapping
  */
 export const subjects = pgTable("subjects", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
   name: varchar("name").notNull(),
   code: varchar("code").notNull().unique(),
   departmentId: varchar("department_id").references(() => departments.id),
@@ -256,10 +296,10 @@ export const subjects = pgTable("subjects", {
 
 /**
  * Attendance Table
- * 
+ *
  * Student attendance tracking for all subjects.
  * Records daily attendance with status and timestamp.
- * 
+ *
  * Features:
  * - Student and subject association
  * - Date and time tracking
@@ -267,9 +307,15 @@ export const subjects = pgTable("subjects", {
  * - Remarks for special cases
  */
 export const attendance = pgTable("attendance", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  studentId: varchar("student_id").references(() => users.id, { onDelete: 'cascade' }).notNull(),
-  subjectId: varchar("subject_id").references(() => subjects.id, { onDelete: 'cascade' }).notNull(),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  studentId: varchar("student_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  subjectId: varchar("subject_id")
+    .references(() => subjects.id, { onDelete: "cascade" })
+    .notNull(),
   attendanceDate: timestamp("attendance_date").notNull(),
   status: attendanceStatusEnum("status").notNull(),
   remarks: text("remarks"),
@@ -280,16 +326,16 @@ export const attendance = pgTable("attendance", {
 
 /**
  * QR Attendance Sessions Table
- * 
+ *
  * Temporary QR code sessions for secure attendance marking.
  * Sessions are created by faculty/admin and scanned by students.
- * 
+ *
  * Security Features:
  * - Time-limited sessions (expire after 5-10 minutes)
  * - Secure token generation with signature
  * - One-time use validation to prevent duplicate scans
  * - Association with specific class/subject for context
- * 
+ *
  * Workflow:
  * 1. Faculty creates a QR session for a class/subject
  * 2. System generates a secure token with expiration
@@ -299,11 +345,17 @@ export const attendance = pgTable("attendance", {
  * 6. Session can be marked as used or expires automatically
  */
 export const qrAttendanceSessions = pgTable("qr_attendance_sessions", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
   token: varchar("token").notNull().unique(),
-  subjectId: varchar("subject_id").references(() => subjects.id, { onDelete: 'cascade' }).notNull(),
+  subjectId: varchar("subject_id")
+    .references(() => subjects.id, { onDelete: "cascade" })
+    .notNull(),
   classId: varchar("class_id"),
-  createdBy: varchar("created_by").references(() => users.id).notNull(),
+  createdBy: varchar("created_by")
+    .references(() => users.id)
+    .notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   expiresAt: timestamp("expires_at").notNull(),
   signature: varchar("signature").notNull(),
@@ -313,10 +365,10 @@ export const qrAttendanceSessions = pgTable("qr_attendance_sessions", {
 
 /**
  * Notifications Table
- * 
+ *
  * Student notification system for real-time updates and alerts.
  * Stores system-generated and manual notifications for student engagement.
- * 
+ *
  * Features:
  * - Type-based notification categorization
  * - Read/unread status tracking
@@ -324,11 +376,15 @@ export const qrAttendanceSessions = pgTable("qr_attendance_sessions", {
  * - Timestamp tracking for chronological ordering
  */
 export const notifications = pgTable("notifications", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  studentId: varchar("student_id").references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  studentId: varchar("student_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
   title: varchar("title").notNull(),
   message: text("message").notNull(),
-  type: notificationTypeEnum("type").default('info').notNull(),
+  type: notificationTypeEnum("type").default("info").notNull(),
   read: boolean("read").default(false).notNull(),
   actionUrl: varchar("action_url"),
   createdAt: timestamp("created_at").defaultNow(),
@@ -336,10 +392,10 @@ export const notifications = pgTable("notifications", {
 
 /**
  * Goals Table
- * 
+ *
  * Student goal tracking and progress monitoring system.
  * Enables students to set and track academic and skill development goals.
- * 
+ *
  * Features:
  * - Target and current progress tracking
  * - Priority-based categorization
@@ -347,26 +403,30 @@ export const notifications = pgTable("notifications", {
  * - Status tracking (active/completed/overdue)
  */
 export const goals = pgTable("goals", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  studentId: varchar("student_id").references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  studentId: varchar("student_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
   title: varchar("title").notNull(),
   description: text("description"),
   target: integer("target").notNull(),
   current: integer("current").default(0).notNull(),
   deadline: timestamp("deadline").notNull(),
   category: varchar("category").notNull(),
-  priority: goalPriorityEnum("priority").default('medium').notNull(),
-  status: goalStatusEnum("status").default('active').notNull(),
+  priority: goalPriorityEnum("priority").default("medium").notNull(),
+  status: goalStatusEnum("status").default("active").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 /**
  * Achievements Table
- * 
+ *
  * Student achievement and milestone tracking system.
  * Records significant accomplishments, badges, and recognitions.
- * 
+ *
  * Features:
  * - Achievement categorization by type
  * - Verification status for credibility
@@ -374,8 +434,12 @@ export const goals = pgTable("goals", {
  * - Date tracking for chronological display
  */
 export const achievements = pgTable("achievements", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  studentId: varchar("student_id").references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  studentId: varchar("student_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
   title: varchar("title").notNull(),
   description: text("description").notNull(),
   date: timestamp("date").notNull(),
@@ -388,28 +452,40 @@ export const achievements = pgTable("achievements", {
 
 /**
  * Day of Week Enumeration
- * 
+ *
  * Days of the week for class scheduling:
  * - monday to sunday: Standard week days
  */
-export const dayOfWeekEnum = pgEnum('day_of_week', ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']);
+export const dayOfWeekEnum = pgEnum("day_of_week", [
+  "monday",
+  "tuesday",
+  "wednesday",
+  "thursday",
+  "friday",
+  "saturday",
+  "sunday",
+]);
 
 /**
  * Recurrence Pattern Enumeration
- * 
+ *
  * Recurrence patterns for recurring classes:
  * - none: Single occurrence class
  * - weekly: Repeats every week on the same day
  * - biweekly: Repeats every two weeks
  */
-export const recurrencePatternEnum = pgEnum('recurrence_pattern', ['none', 'weekly', 'biweekly']);
+export const recurrencePatternEnum = pgEnum("recurrence_pattern", [
+  "none",
+  "weekly",
+  "biweekly",
+]);
 
 /**
  * Classes/Schedule Table
- * 
+ *
  * Student class schedule and timetable management.
  * Stores information about scheduled classes including time, location, and instructor details.
- * 
+ *
  * Features:
  * - Subject and instructor tracking
  * - Room/location management
@@ -420,9 +496,15 @@ export const recurrencePatternEnum = pgEnum('recurrence_pattern', ['none', 'week
  * - Notes for additional information
  */
 export const classes = pgTable("classes", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  studentId: varchar("student_id").references(() => users.id, { onDelete: 'cascade' }).notNull(),
-  subjectId: varchar("subject_id").references(() => subjects.id, { onDelete: 'set null' }),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  studentId: varchar("student_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  subjectId: varchar("subject_id").references(() => subjects.id, {
+    onDelete: "set null",
+  }),
   title: varchar("title").notNull(),
   description: text("description"),
   dayOfWeek: dayOfWeekEnum("day_of_week"),
@@ -431,8 +513,10 @@ export const classes = pgTable("classes", {
   endTime: varchar("end_time").notNull(),
   room: varchar("room"),
   instructor: varchar("instructor"),
-  color: varchar("color").default('#3b82f6'),
-  recurrencePattern: recurrencePatternEnum("recurrence_pattern").default('none').notNull(),
+  color: varchar("color").default("#3b82f6"),
+  recurrencePattern: recurrencePatternEnum("recurrence_pattern")
+    .default("none")
+    .notNull(),
   recurrenceEndDate: timestamp("recurrence_end_date"),
   notes: text("notes"),
   createdAt: timestamp("created_at").defaultNow(),
@@ -441,20 +525,24 @@ export const classes = pgTable("classes", {
 
 /**
  * Assignment Status Enumeration
- * 
+ *
  * Tracks the submission and grading status of assignments:
  * - pending: Assignment created but not yet submitted by student
  * - submitted: Student has submitted the assignment, awaiting grading
  * - graded: Assignment has been graded by faculty
  */
-export const assignmentStatusEnum = pgEnum('assignment_status', ['pending', 'submitted', 'graded']);
+export const assignmentStatusEnum = pgEnum("assignment_status", [
+  "pending",
+  "submitted",
+  "graded",
+]);
 
 /**
  * Assignments Table
- * 
+ *
  * Course assignments created by faculty for students to complete.
  * Stores assignment details including due dates, marks, and descriptions.
- * 
+ *
  * Features:
  * - Assignment title, description, and instructions
  * - Due date tracking
@@ -463,29 +551,33 @@ export const assignmentStatusEnum = pgEnum('assignment_status', ['pending', 'sub
  * - Created by faculty tracking
  */
 export const assignments = pgTable("assignments", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
   title: varchar("title").notNull(),
   description: text("description").notNull(),
   subject: varchar("subject").notNull(),
   dueDate: timestamp("due_date").notNull(),
   maxMarks: integer("max_marks").notNull(),
-  createdBy: varchar("created_by").references(() => users.id, { onDelete: 'set null' }),
+  createdBy: varchar("created_by").references(() => users.id, {
+    onDelete: "set null",
+  }),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 /**
  * Assignment Submissions Table
- * 
+ *
  * Student submissions for assignments with file attachments.
  * Tracks submission status, grades, and faculty feedback.
- * 
+ *
  * Workflow:
  * 1. Student submits assignment with attached files
  * 2. Submission starts in 'submitted' status
  * 3. Faculty grades and provides feedback
  * 4. Status changes to 'graded' with score and feedback
- * 
+ *
  * Features:
  * - Multiple file attachments per submission
  * - Grade and feedback from faculty
@@ -493,10 +585,16 @@ export const assignments = pgTable("assignments", {
  * - Late submission detection
  */
 export const assignmentSubmissions = pgTable("assignment_submissions", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  assignmentId: varchar("assignment_id").references(() => assignments.id, { onDelete: 'cascade' }).notNull(),
-  studentId: varchar("student_id").references(() => users.id, { onDelete: 'cascade' }).notNull(),
-  status: assignmentStatusEnum("status").default('submitted').notNull(),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  assignmentId: varchar("assignment_id")
+    .references(() => assignments.id, { onDelete: "cascade" })
+    .notNull(),
+  studentId: varchar("student_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
+  status: assignmentStatusEnum("status").default("submitted").notNull(),
   submittedAt: timestamp("submitted_at").defaultNow().notNull(),
   grade: integer("grade"),
   feedback: text("feedback"),
@@ -508,40 +606,51 @@ export const assignmentSubmissions = pgTable("assignment_submissions", {
 
 /**
  * Assignment Submission Files Table
- * 
+ *
  * Files attached to assignment submissions.
  * Stores metadata for uploaded files including path, type, and size.
- * 
+ *
  * Security Features:
  * - File type validation (PDF, DOC, DOCX, JPG, PNG)
  * - File size limit enforcement (10MB)
  * - Path validation to prevent directory traversal
  */
-export const assignmentSubmissionFiles = pgTable("assignment_submission_files", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  submissionId: varchar("submission_id").references(() => assignmentSubmissions.id, { onDelete: 'cascade' }).notNull(),
-  fileName: varchar("file_name").notNull(),
-  filePath: varchar("file_path").notNull(),
-  fileType: varchar("file_type").notNull(),
-  fileSize: integer("file_size").notNull(),
-  uploadedAt: timestamp("uploaded_at").defaultNow(),
-});
+export const assignmentSubmissionFiles = pgTable(
+  "assignment_submission_files",
+  {
+    id: varchar("id")
+      .primaryKey()
+      .default(sql`gen_random_uuid()`),
+    submissionId: varchar("submission_id")
+      .references(() => assignmentSubmissions.id, { onDelete: "cascade" })
+      .notNull(),
+    fileName: varchar("file_name").notNull(),
+    filePath: varchar("file_path").notNull(),
+    fileType: varchar("file_type").notNull(),
+    fileSize: integer("file_size").notNull(),
+    uploadedAt: timestamp("uploaded_at").defaultNow(),
+  }
+);
 
 /**
  * Exam Status Enumeration
- * 
+ *
  * Tracks the status of exams:
  * - upcoming: Exam is scheduled for the future
  * - completed: Exam has been conducted
  * - cancelled: Exam has been cancelled
  */
-export const examStatusEnum = pgEnum('exam_status', ['upcoming', 'completed', 'cancelled']);
+export const examStatusEnum = pgEnum("exam_status", [
+  "upcoming",
+  "completed",
+  "cancelled",
+]);
 
 /**
  * Exams Table
- * 
+ *
  * Stores exam schedule and details for students.
- * 
+ *
  * Features:
  * - Exam scheduling with date, time, and duration
  * - Subject and room information
@@ -550,7 +659,9 @@ export const examStatusEnum = pgEnum('exam_status', ['upcoming', 'completed', 'c
  * - Status tracking (upcoming/completed/cancelled)
  */
 export const exams = pgTable("exams", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
   title: varchar("title").notNull(),
   subject: varchar("subject").notNull(),
   description: text("description"),
@@ -562,7 +673,7 @@ export const exams = pgTable("exams", {
   semester: integer("semester").notNull(),
   totalMarks: integer("total_marks").notNull(),
   syllabus: text("syllabus").array(),
-  status: examStatusEnum("status").default('upcoming').notNull(),
+  status: examStatusEnum("status").default("upcoming").notNull(),
   createdBy: varchar("created_by").references(() => users.id),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -570,9 +681,9 @@ export const exams = pgTable("exams", {
 
 /**
  * Exam Results Table
- * 
+ *
  * Stores student exam results and grades.
- * 
+ *
  * Features:
  * - Marks obtained by students
  * - Grade calculation
@@ -580,9 +691,15 @@ export const exams = pgTable("exams", {
  * - Result verification status
  */
 export const examResults = pgTable("exam_results", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  examId: varchar("exam_id").references(() => exams.id, { onDelete: 'cascade' }).notNull(),
-  studentId: varchar("student_id").references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  examId: varchar("exam_id")
+    .references(() => exams.id, { onDelete: "cascade" })
+    .notNull(),
+  studentId: varchar("student_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
   marksObtained: integer("marks_obtained").notNull(),
   grade: varchar("grade").notNull(),
   remarks: text("remarks"),
@@ -594,7 +711,7 @@ export const examResults = pgTable("exam_results", {
 
 /**
  * Resource Type Enumeration
- * 
+ *
  * Types of educational resources:
  * - notes: Study notes and lecture notes
  * - books: Textbooks and reference books
@@ -603,13 +720,20 @@ export const examResults = pgTable("exam_results", {
  * - assignments: Assignment files and templates
  * - papers: Research papers and articles
  */
-export const resourceTypeEnum = pgEnum('resource_type', ['notes', 'books', 'videos', 'links', 'assignments', 'papers']);
+export const resourceTypeEnum = pgEnum("resource_type", [
+  "notes",
+  "books",
+  "videos",
+  "links",
+  "assignments",
+  "papers",
+]);
 
 /**
  * Resources Table
- * 
+ *
  * Educational resources and study materials for students.
- * 
+ *
  * Features:
  * - Multiple resource types (notes, videos, books, etc.)
  * - File storage with metadata
@@ -619,7 +743,9 @@ export const resourceTypeEnum = pgEnum('resource_type', ['notes', 'books', 'vide
  * - Search and filtering capabilities
  */
 export const resources = pgTable("resources", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
   title: varchar("title").notNull(),
   description: text("description").notNull(),
   type: resourceTypeEnum("type").notNull(),
@@ -633,7 +759,9 @@ export const resources = pgTable("resources", {
   fileSize: integer("file_size"),
   fileType: varchar("file_type"),
   thumbnailUrl: varchar("thumbnail_url"),
-  uploadedBy: varchar("uploaded_by").references(() => users.id).notNull(),
+  uploadedBy: varchar("uploaded_by")
+    .references(() => users.id)
+    .notNull(),
   downloads: integer("downloads").default(0),
   views: integer("views").default(0),
   createdAt: timestamp("created_at").defaultNow(),
@@ -642,7 +770,7 @@ export const resources = pgTable("resources", {
 
 /**
  * Event Category Enumeration
- * 
+ *
  * Categories of campus events:
  * - academic: Academic conferences, seminars, workshops
  * - cultural: Cultural performances and celebrations
@@ -650,23 +778,33 @@ export const resources = pgTable("resources", {
  * - technical: Technical fests and hackathons
  * - social: Social gatherings and meetups
  */
-export const eventCategoryEnum = pgEnum('event_category', ['academic', 'cultural', 'sports', 'technical', 'social']);
+export const eventCategoryEnum = pgEnum("event_category", [
+  "academic",
+  "cultural",
+  "sports",
+  "technical",
+  "social",
+]);
 
 /**
  * RSVP Status Enumeration
- * 
+ *
  * Student RSVP status for events:
  * - going: Student confirmed attendance
  * - maybe: Student unsure about attendance
  * - not_going: Student not attending
  */
-export const rsvpStatusEnum = pgEnum('rsvp_status', ['going', 'maybe', 'not_going']);
+export const rsvpStatusEnum = pgEnum("rsvp_status", [
+  "going",
+  "maybe",
+  "not_going",
+]);
 
 /**
  * Events Table
- * 
+ *
  * Campus events and activities management.
- * 
+ *
  * Features:
  * - Event details with date, time, and venue
  * - Category-based organization
@@ -676,7 +814,9 @@ export const rsvpStatusEnum = pgEnum('rsvp_status', ['going', 'maybe', 'not_goin
  * - Registration tracking
  */
 export const events = pgTable("events", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
   title: varchar("title").notNull(),
   description: text("description").notNull(),
   category: eventCategoryEnum("category").notNull(),
@@ -689,25 +829,31 @@ export const events = pgTable("events", {
   imageUrl: varchar("image_url"),
   maxParticipants: integer("max_participants"),
   registrationDeadline: timestamp("registration_deadline"),
-  status: varchar("status").default('upcoming').notNull(),
+  status: varchar("status").default("upcoming").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 /**
  * Event RSVPs Table
- * 
+ *
  * Student RSVP tracking for events.
- * 
+ *
  * Features:
  * - RSVP status tracking (going/maybe/not going)
  * - Attendance tracking
  * - Timestamp tracking for registration
  */
 export const eventRsvps = pgTable("event_rsvps", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  eventId: varchar("event_id").references(() => events.id, { onDelete: 'cascade' }).notNull(),
-  studentId: varchar("student_id").references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
+  eventId: varchar("event_id")
+    .references(() => events.id, { onDelete: "cascade" })
+    .notNull(),
+  studentId: varchar("student_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
   status: rsvpStatusEnum("status").notNull(),
   attended: boolean("attended").default(false),
   createdAt: timestamp("created_at").defaultNow(),
@@ -716,72 +862,98 @@ export const eventRsvps = pgTable("event_rsvps", {
 
 /**
  * Analytics Event Type Enumeration
- * 
+ *
  * Types of analytics events that can be tracked:
  * - activity: Student activity submissions, approvals, rejections
  * - attendance: Class attendance records
  * - goal: Goal creation, updates, completion
  * - system: System-wide events and milestones
  */
-export const analyticsEventTypeEnum = pgEnum('analytics_event_type', ['activity', 'attendance', 'goal', 'system']);
+export const analyticsEventTypeEnum = pgEnum("analytics_event_type", [
+  "activity",
+  "attendance",
+  "goal",
+  "system",
+]);
 
 /**
  * Analytics Events Table
- * 
+ *
  * Real-time tracking of all student-related events for analytics and insights.
  * This table powers the real-time analytics dashboard with detailed event data.
- * 
+ *
  * Features:
  * - Real-time event tracking across all system activities
  * - Flexible payload structure using JSONB for custom data
  * - High-performance indexing for analytics queries
  * - Supports streaming analytics and live dashboard updates
  */
-export const analyticsEvents = pgTable("analytics_events", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  studentId: varchar("student_id").references(() => users.id, { onDelete: 'cascade' }).notNull(),
-  type: analyticsEventTypeEnum("type").notNull(),
-  ts: timestamp("ts").defaultNow().notNull(),
-  payload: jsonb("payload").notNull(),
-  createdAt: timestamp("created_at").defaultNow(),
-}, (table) => [
-  index("idx_analytics_events_student_ts").on(table.studentId, table.ts),
-  index("idx_analytics_events_type_ts").on(table.type, table.ts),
-]);
+export const analyticsEvents = pgTable(
+  "analytics_events",
+  {
+    id: varchar("id")
+      .primaryKey()
+      .default(sql`gen_random_uuid()`),
+    studentId: varchar("student_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    type: analyticsEventTypeEnum("type").notNull(),
+    ts: timestamp("ts").defaultNow().notNull(),
+    payload: jsonb("payload").notNull(),
+    createdAt: timestamp("created_at").defaultNow(),
+  },
+  (table) => [
+    index("idx_analytics_events_student_ts").on(table.studentId, table.ts),
+    index("idx_analytics_events_type_ts").on(table.type, table.ts),
+  ]
+);
 
 /**
  * Analytics Snapshots Table
- * 
+ *
  * Pre-computed analytics data for improved dashboard performance.
  * Stores cached results of complex analytics queries with automatic invalidation.
- * 
+ *
  * Features:
  * - Caching layer for expensive analytics computations
  * - Range-based data storage (daily, weekly, monthly, yearly)
  * - Automatic cache invalidation with computed timestamps
  * - Optimized for real-time dashboard loading
  */
-export const analyticsSnapshots = pgTable("analytics_snapshots", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  studentId: varchar("student_id").references(() => users.id, { onDelete: 'cascade' }).notNull(),
-  range: varchar("range").notNull(), // 'day', 'week', 'month', 'year'
-  computedAt: timestamp("computed_at").defaultNow().notNull(),
-  data: jsonb("data").notNull(),
-  createdAt: timestamp("created_at").defaultNow(),
-}, (table) => [
-  index("idx_analytics_snapshots_student_range").on(table.studentId, table.range),
-  index("idx_analytics_snapshots_computed").on(table.computedAt),
-]);
+export const analyticsSnapshots = pgTable(
+  "analytics_snapshots",
+  {
+    id: varchar("id")
+      .primaryKey()
+      .default(sql`gen_random_uuid()`),
+    studentId: varchar("student_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    range: varchar("range").notNull(), // 'day', 'week', 'month', 'year'
+    computedAt: timestamp("computed_at").defaultNow().notNull(),
+    data: jsonb("data").notNull(),
+    createdAt: timestamp("created_at").defaultNow(),
+  },
+  (table) => [
+    index("idx_analytics_snapshots_student_range").on(
+      table.studentId,
+      table.range
+    ),
+    index("idx_analytics_snapshots_computed").on(table.computedAt),
+  ]
+);
 
 /**
  * Database Relations
- * 
+ *
  * Defines the relationships between tables using Drizzle ORM relations.
  * These relations enable efficient joins and data fetching across related entities.
  */
 export const usersRelations = relations(users, ({ many, one }) => ({
-  activities: many(activities, { relationName: 'student_activities' }),
-  verifiedActivities: many(activities, { relationName: 'faculty_verifications' }),
+  activities: many(activities, { relationName: "student_activities" }),
+  verifiedActivities: many(activities, {
+    relationName: "faculty_verifications",
+  }),
   notifications: many(notifications),
   goals: many(goals),
   achievements: many(achievements),
@@ -798,12 +970,12 @@ export const activitiesRelations = relations(activities, ({ one, many }) => ({
   student: one(users, {
     fields: [activities.studentId],
     references: [users.id],
-    relationName: 'student_activities'
+    relationName: "student_activities",
   }),
   verifier: one(users, {
     fields: [activities.verifiedBy],
     references: [users.id],
-    relationName: 'faculty_verifications'
+    relationName: "faculty_verifications",
   }),
   files: many(activityFiles),
 }));
@@ -891,78 +1063,99 @@ export const assignmentsRelations = relations(assignments, ({ one, many }) => ({
   submissions: many(assignmentSubmissions),
 }));
 
-export const assignmentSubmissionsRelations = relations(assignmentSubmissions, ({ one, many }) => ({
-  assignment: one(assignments, {
-    fields: [assignmentSubmissions.assignmentId],
-    references: [assignments.id],
-  }),
-  student: one(users, {
-    fields: [assignmentSubmissions.studentId],
-    references: [users.id],
-  }),
-  gradedBy: one(users, {
-    fields: [assignmentSubmissions.gradedBy],
-    references: [users.id],
-  }),
-  files: many(assignmentSubmissionFiles),
-}));
+export const assignmentSubmissionsRelations = relations(
+  assignmentSubmissions,
+  ({ one, many }) => ({
+    assignment: one(assignments, {
+      fields: [assignmentSubmissions.assignmentId],
+      references: [assignments.id],
+    }),
+    student: one(users, {
+      fields: [assignmentSubmissions.studentId],
+      references: [users.id],
+    }),
+    gradedBy: one(users, {
+      fields: [assignmentSubmissions.gradedBy],
+      references: [users.id],
+    }),
+    files: many(assignmentSubmissionFiles),
+  })
+);
 
-export const assignmentSubmissionFilesRelations = relations(assignmentSubmissionFiles, ({ one }) => ({
-  submission: one(assignmentSubmissions, {
-    fields: [assignmentSubmissionFiles.submissionId],
-    references: [assignmentSubmissions.id],
-  }),
-}));
+export const assignmentSubmissionFilesRelations = relations(
+  assignmentSubmissionFiles,
+  ({ one }) => ({
+    submission: one(assignmentSubmissions, {
+      fields: [assignmentSubmissionFiles.submissionId],
+      references: [assignmentSubmissions.id],
+    }),
+  })
+);
 
-export const analyticsEventsRelations = relations(analyticsEvents, ({ one }) => ({
-  student: one(users, {
-    fields: [analyticsEvents.studentId],
-    references: [users.id],
-  }),
-}));
+export const analyticsEventsRelations = relations(
+  analyticsEvents,
+  ({ one }) => ({
+    student: one(users, {
+      fields: [analyticsEvents.studentId],
+      references: [users.id],
+    }),
+  })
+);
 
-export const analyticsSnapshotsRelations = relations(analyticsSnapshots, ({ one }) => ({
-  student: one(users, {
-    fields: [analyticsSnapshots.studentId],
-    references: [users.id],
-  }),
-}));
+export const analyticsSnapshotsRelations = relations(
+  analyticsSnapshots,
+  ({ one }) => ({
+    student: one(users, {
+      fields: [analyticsSnapshots.studentId],
+      references: [users.id],
+    }),
+  })
+);
 
 /**
  * Validation Schemas
- * 
+ *
  * Zod schemas derived from database tables for request validation.
  * These schemas ensure data integrity and type safety across the API.
- * 
+ *
  * Security Features:
  * - Input validation before database operations
  * - Type-safe data handling
  * - Automatic schema generation from database definitions
  */
-export const upsertUserSchema = createInsertSchema(users).pick({
-  id: true,
-  email: true,
-  firstName: true,
-  lastName: true,
-  profileImageUrl: true,
-  role: true,
-  rollNumber: true,
-  department: true,
-  currentSemester: true,
-  cgpa: true,
+export const upsertUserSchema = z.object({
+  id: z.string(),
+  email: z.string().email(),
+  firstName: z.string(),
+  lastName: z.string(),
+  profileImageUrl: z.string().nullable(),
+  role: z.enum(["student", "faculty", "admin"]),
+  rollNumber: z.string().nullable(),
+  department: z.string().nullable(),
+  currentSemester: z.number().nullable(),
+  cgpa: z.number().nullable(),
 });
 
-export const insertActivitySchema = createInsertSchema(activities).omit({
-  id: true,
-  status: true,
-  verifiedBy: true,
-  verificationDate: true,
-  createdAt: true,
-  updatedAt: true,
+export const insertActivitySchema = z.object({
+  studentId: z.string(),
+  title: z.string(),
+  description: z.string(),
+  category: z.enum([
+    "academic",
+    "sports",
+    "cultural",
+    "technical",
+    "social",
+    "volunteer",
+  ]),
+  points: z.number().default(0),
+  date: z.date(),
+  evidence: z.string().nullable(),
+  type: z.string(),
 });
 
 export const updateActivityStatusSchema = z.object({
-  status: z.enum(['pending', 'approved', 'rejected']),
+  status: z.enum(["pending", "approved", "rejected"]),
   feedback: z.string().optional(),
   skillCredits: z.number().optional(),
 });
@@ -983,7 +1176,9 @@ export const insertAttendanceSchema = createInsertSchema(attendance).omit({
   createdAt: true,
 });
 
-export const insertQRAttendanceSessionSchema = createInsertSchema(qrAttendanceSessions).omit({
+export const insertQRAttendanceSessionSchema = createInsertSchema(
+  qrAttendanceSessions
+).omit({
   id: true,
   createdAt: true,
 });
@@ -1010,12 +1205,14 @@ export const insertClassSchema = createInsertSchema(classes).omit({
   updatedAt: true,
 });
 
-export const updateClassSchema = createInsertSchema(classes).omit({
-  id: true,
-  studentId: true,
-  createdAt: true,
-  updatedAt: true,
-}).partial();
+export const updateClassSchema = createInsertSchema(classes)
+  .omit({
+    id: true,
+    studentId: true,
+    createdAt: true,
+    updatedAt: true,
+  })
+  .partial();
 
 export const insertAssignmentSchema = createInsertSchema(assignments).omit({
   id: true,
@@ -1023,40 +1220,52 @@ export const insertAssignmentSchema = createInsertSchema(assignments).omit({
   updatedAt: true,
 });
 
-export const insertAssignmentSubmissionSchema = createInsertSchema(assignmentSubmissions).omit({
+export const insertAssignmentSubmissionSchema = createInsertSchema(
+  assignmentSubmissions
+).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
   submittedAt: true,
 });
 
-export const updateAssignmentSubmissionSchema = createInsertSchema(assignmentSubmissions).omit({
-  id: true,
-  assignmentId: true,
-  studentId: true,
-  createdAt: true,
-  updatedAt: true,
-  submittedAt: true,
-}).partial();
+export const updateAssignmentSubmissionSchema = createInsertSchema(
+  assignmentSubmissions
+)
+  .omit({
+    id: true,
+    assignmentId: true,
+    studentId: true,
+    createdAt: true,
+    updatedAt: true,
+    submittedAt: true,
+  })
+  .partial();
 
-export const insertAssignmentSubmissionFileSchema = createInsertSchema(assignmentSubmissionFiles).omit({
+export const insertAssignmentSubmissionFileSchema = createInsertSchema(
+  assignmentSubmissionFiles
+).omit({
   id: true,
   uploadedAt: true,
 });
 
-export const insertAnalyticsEventSchema = createInsertSchema(analyticsEvents).omit({
+export const insertAnalyticsEventSchema = createInsertSchema(
+  analyticsEvents
+).omit({
   id: true,
   createdAt: true,
 });
 
-export const insertAnalyticsSnapshotSchema = createInsertSchema(analyticsSnapshots).omit({
+export const insertAnalyticsSnapshotSchema = createInsertSchema(
+  analyticsSnapshots
+).omit({
   id: true,
   createdAt: true,
 });
 
 /**
  * Authentication Form Validation Schemas
- * 
+ *
  * Professional validation schemas for login and signup forms in the Smart Student Hub.
  * These schemas ensure data integrity and provide user-friendly validation messages
  * suitable for a Higher Education Institution environment.
@@ -1064,7 +1273,7 @@ export const insertAnalyticsSnapshotSchema = createInsertSchema(analyticsSnapsho
 
 /**
  * Login Form Validation Schema
- * 
+ *
  * Validates user credentials for Replit Auth integration.
  * Since authentication is handled by Replit Auth, only email is collected for user identification.
  */
@@ -1078,7 +1287,7 @@ export const loginSchema = z.object({
 
 /**
  * Signup Form Validation Schema
- * 
+ *
  * Validation for new user registration in academic institutions.
  * Collects academic information only - authentication is handled by Replit Auth.
  * Includes academic-specific fields like roll number and department.
@@ -1106,10 +1315,11 @@ export const signupSchema = z.object({
     .min(1, "Roll number is required")
     .min(4, "Roll number must be at least 4 characters")
     .max(20, "Roll number must be less than 20 characters")
-    .regex(/^[A-Za-z0-9]+$/, "Roll number can only contain letters and numbers"),
-  department: z
-    .string()
-    .min(1, "Please select your department"),
+    .regex(
+      /^[A-Za-z0-9]+$/,
+      "Roll number can only contain letters and numbers"
+    ),
+  department: z.string().min(1, "Please select your department"),
   currentSemester: z
     .number()
     .min(1, "Semester must be at least 1")
@@ -1119,7 +1329,7 @@ export const signupSchema = z.object({
 
 /**
  * Department Options for Academic Institutions
- * 
+ *
  * Comprehensive list of common departments in Higher Education Institutions.
  * Used for dropdown selection in signup forms.
  */
@@ -1154,7 +1364,7 @@ export const departmentOptions = [
 
 /**
  * Semester Options for Academic Progression
- * 
+ *
  * Standard semester options for Higher Education tracking.
  */
 export const semesterOptions = [
@@ -1172,10 +1382,10 @@ export const semesterOptions = [
 
 /**
  * TypeScript Type Definitions
- * 
+ *
  * Exported types for use throughout the application.
  * These types ensure consistency between frontend and backend data handling.
- * 
+ *
  * Types are automatically inferred from database schemas and validation schemas,
  * ensuring they stay in sync with database structure changes.
  */
@@ -1194,7 +1404,9 @@ export type InsertSubject = z.infer<typeof insertSubjectSchema>;
 export type Attendance = typeof attendance.$inferSelect;
 export type InsertAttendance = z.infer<typeof insertAttendanceSchema>;
 export type QRAttendanceSession = typeof qrAttendanceSessions.$inferSelect;
-export type InsertQRAttendanceSession = z.infer<typeof insertQRAttendanceSessionSchema>;
+export type InsertQRAttendanceSession = z.infer<
+  typeof insertQRAttendanceSessionSchema
+>;
 export type Notification = typeof notifications.$inferSelect;
 export type InsertNotification = z.infer<typeof insertNotificationSchema>;
 export type Goal = typeof goals.$inferSelect;
@@ -1209,10 +1421,17 @@ export type UpdateClass = z.infer<typeof updateClassSchema>;
 export type Assignment = typeof assignments.$inferSelect;
 export type InsertAssignment = z.infer<typeof insertAssignmentSchema>;
 export type AssignmentSubmission = typeof assignmentSubmissions.$inferSelect;
-export type InsertAssignmentSubmission = z.infer<typeof insertAssignmentSubmissionSchema>;
-export type UpdateAssignmentSubmission = z.infer<typeof updateAssignmentSubmissionSchema>;
-export type AssignmentSubmissionFile = typeof assignmentSubmissionFiles.$inferSelect;
-export type InsertAssignmentSubmissionFile = z.infer<typeof insertAssignmentSubmissionFileSchema>;
+export type InsertAssignmentSubmission = z.infer<
+  typeof insertAssignmentSubmissionSchema
+>;
+export type UpdateAssignmentSubmission = z.infer<
+  typeof updateAssignmentSubmissionSchema
+>;
+export type AssignmentSubmissionFile =
+  typeof assignmentSubmissionFiles.$inferSelect;
+export type InsertAssignmentSubmissionFile = z.infer<
+  typeof insertAssignmentSubmissionFileSchema
+>;
 
 // Exam Schemas
 export const insertExamSchema = createInsertSchema(exams).omit({
@@ -1285,11 +1504,13 @@ export type UpdateEventRsvp = z.infer<typeof updateEventRsvpSchema>;
 export type AnalyticsEvent = typeof analyticsEvents.$inferSelect;
 export type InsertAnalyticsEvent = z.infer<typeof insertAnalyticsEventSchema>;
 export type AnalyticsSnapshot = typeof analyticsSnapshots.$inferSelect;
-export type InsertAnalyticsSnapshot = z.infer<typeof insertAnalyticsSnapshotSchema>;
+export type InsertAnalyticsSnapshot = z.infer<
+  typeof insertAnalyticsSnapshotSchema
+>;
 
 /**
  * Advanced Chart Data Type Schemas
- * 
+ *
  * Zod schemas for complex chart data structures used in the analytics dashboard.
  * These schemas ensure type safety for advanced visualizations.
  */
@@ -1298,20 +1519,20 @@ export type InsertAnalyticsSnapshot = z.infer<typeof insertAnalyticsSnapshotSche
 export const heatmapCellSchema = z.object({
   date: z.string(),
   hour: z.number().min(0).max(23),
-  value: z.number().min(0)
+  value: z.number().min(0),
 });
 
-// Sankey Diagram Data Schema  
+// Sankey Diagram Data Schema
 export const sankeyLinkSchema = z.object({
   source: z.string(),
   target: z.string(),
-  value: z.number().min(0)
+  value: z.number().min(0),
 });
 
 // Waterfall Chart Data Schema
 export const waterfallStepSchema = z.object({
   label: z.string(),
-  value: z.number()
+  value: z.number(),
 });
 
 // Gantt Timeline Data Schema
@@ -1321,7 +1542,7 @@ export const ganttTaskSchema = z.object({
   start: z.date(),
   end: z.date(),
   progress: z.number().min(0).max(100),
-  dependsOn: z.array(z.string()).optional()
+  dependsOn: z.array(z.string()).optional(),
 });
 
 // Analytics API Response Schemas
@@ -1331,7 +1552,7 @@ export const analyticsDataSchema = z.object({
   waterfallData: z.array(waterfallStepSchema),
   ganttData: z.array(ganttTaskSchema),
   computedAt: z.date(),
-  range: z.enum(['day', 'week', 'month', 'year'])
+  range: z.enum(["day", "week", "month", "year"]),
 });
 
 // Chart Data Type Exports
@@ -1343,7 +1564,7 @@ export type AnalyticsData = z.infer<typeof analyticsDataSchema>;
 
 /**
  * Authentication Form Type Definitions
- * 
+ *
  * Inferred types from validation schemas for type safety throughout the application.
  */
 export type LoginFormData = z.infer<typeof loginSchema>;
@@ -1351,7 +1572,7 @@ export type SignupFormData = z.infer<typeof signupSchema>;
 
 /**
  * PDF Portfolio Generation Types
- * 
+ *
  * Types specifically for generating student portfolio PDFs.
  * These types ensure type safety when generating professional portfolios.
  */
@@ -1375,7 +1596,7 @@ export interface PortfolioSection {
 }
 
 // Test exports to verify module resolution
-export const TEST_CONSTANT = 'test';
+export const TEST_CONSTANT = "test";
 export interface TestInterface {
   test: string;
 }
@@ -1386,10 +1607,17 @@ export interface Activity {
   studentId: string;
   title: string;
   description: string | null;
-  category: 'academic' | 'co-curricular' | 'extra-curricular' | 'volunteering' | 'internship' | 'leadership' | 'mooc';
+  category:
+    | "academic"
+    | "co-curricular"
+    | "extra-curricular"
+    | "volunteering"
+    | "internship"
+    | "leadership"
+    | "mooc";
   organization: string;
   activityDate: Date;
-  status: 'pending' | 'approved' | 'rejected';
+  status: "pending" | "approved" | "rejected";
   verifiedBy: string | null;
   verificationDate: Date | null;
   feedback: string | null;

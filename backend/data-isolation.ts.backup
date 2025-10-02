@@ -1,0 +1,459 @@
+/**
+ * DATA ISOLATION & SECURITY MIDDLEWARE FOR 100,000+ STUDENTS
+ *
+ * This middleware ensures:
+ * 1. Each student sees ONLY their own data
+ * 2. Faculty can see data of students in their courses only
+ * 3. Admin can see all data
+ * 4. No data leakage between users
+ *
+ * CRITICAL FOR PRIVACY & SECURITY! 🔒
+ */
+
+import type { Request, Response, NextFunction } from "express";
+import { db } from "../server/db";
+import { users, courseEnrollments, courses } from "./schema";
+import { eq, and, inArray } from "drizzle-orm";
+
+/**
+ * DATA ISOLATION RULES:
+ *
+ * STUDENT:
+ * - Can see only their own: grades, attendance, fees, assignments, activities
+ * - Can see courses they're enrolled in
+ * - Can see public data: events, notices, library books
+ * - CANNOT see other students' data
+ *
+ * FACULTY:
+ * - Can see students in their courses only
+ * - Can add grades, assignments for their courses
+ * - Can mark attendance for their courses
+ * - CANNOT see data of students not in their courses
+ *
+ * ADMIN:
+ * - Can see all data
+ * - Can modify all data
+ * - Full access to reports and analytics
+ *
+ * STAFF:
+ * - Can see public data
+ * - Can handle specific tasks (library, hostel, etc.)
+ * - Limited access based on department
+ */
+
+// Extend Request type with user property
+interface AuthenticatedRequest extends Request {
+  session: {
+    user: {
+      id: string;
+      email: string;
+      role: "student" | "faculty" | "admin" | "staff";
+      department?: string;
+    };
+  } & Express.Session;
+}
+
+/**
+ * Ensure user is authenticated
+ */
+export const requireAuth = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  if (!req.session?.user) {
+    return res.status(401).json({
+      error: "Unauthorized",
+      message: "Please login to access this resource",
+    });
+  }
+  next();
+};
+
+/**
+ * Require specific role(s)
+ */
+export const requireRole = (...roles: string[]) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    if (!req.session?.user) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+    if (!roles.includes(req.session.user.role)) {
+      return res.status(403).json({
+        error: "Forbidden",
+        message: "You don't have permission to access this resource",
+        requiredRole: roles,
+        yourRole: req.session.user.role,
+      });
+    }
+    next();
+  };
+};
+
+/**
+ * Ensure student can only access their own data
+ * This is the MOST IMPORTANT middleware for data isolation!
+ */
+export const requireOwnership = (resourceUserIdField: string = "studentId") => {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    const user = req.session?.user;
+
+    if (!user) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    // Admin can access all data
+    if (user.role === "admin") {
+      return next();
+    }
+
+    // For students, check if the resource belongs to them
+    if (user.role === "student") {
+      const resourceUserId =
+        req.body[resourceUserIdField] ||
+        req.params.studentId ||
+        req.query.studentId;
+
+      if (resourceUserId && resourceUserId !== user.id) {
+        return res.status(403).json({
+          error: "Forbidden",
+          message: "You can only access your own data",
+          attemptedAccess: resourceUserId,
+          yourId: user.id,
+        });
+      }
+    }
+
+    next();
+  };
+};
+
+/**
+ * Ensure faculty can only access students in their courses
+ */
+export const requireCourseAccess = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const user = req.session?.user;
+
+  if (!user) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  // Admin can access all courses
+  if (user.role === "admin") {
+    return next();
+  }
+
+  // Faculty can only access their courses
+  if (user.role === "faculty") {
+    const courseId = req.params.courseId || req.body.courseId;
+
+    if (!courseId) {
+      return next(); // No courseId to check
+    }
+
+    const course = await db.query.courses.findFirst({
+      where: and(eq(courses.id, courseId), eq(courses.instructorId, user.id)),
+    });
+
+    if (!course) {
+      return res.status(403).json({
+        error: "Forbidden",
+        message: "You can only access courses you teach",
+      });
+    }
+  }
+
+  next();
+};
+
+/**
+ * Automatically filter queries by userId for students
+ * This ensures students NEVER see other students' data
+ */
+export const autoFilterByUser = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const user = req.session?.user;
+
+  if (!user) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  // For students, automatically add userId filter
+  if (user.role === "student") {
+    // Add userId to query params so it's used in database queries
+    req.query.userId = user.id;
+
+    // Also add to body if it's a POST/PUT request
+    if (req.method === "POST" || req.method === "PUT") {
+      req.body.studentId = user.id;
+      req.body.userId = user.id;
+    }
+  }
+
+  next();
+};
+
+/**
+ * Validate that student is enrolled in a course before accessing course data
+ */
+export const requireEnrollment = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const user = req.session?.user;
+
+  if (!user) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+
+  // Admin and faculty can access all courses
+  if (user.role === "admin" || user.role === "faculty") {
+    return next();
+  }
+
+  // Check if student is enrolled in the course
+  const courseId =
+    req.params.courseId || req.body.courseId || req.query.courseId;
+
+  if (!courseId) {
+    return next(); // No courseId to check
+  }
+
+  const enrollment = await db.query.courseEnrollments.findFirst({
+    where: and(
+      eq(courseEnrollments.studentId, user.id),
+      eq(courseEnrollments.courseId, courseId),
+      eq(courseEnrollments.status, "active")
+    ),
+  });
+
+  if (!enrollment) {
+    return res.status(403).json({
+      error: "Forbidden",
+      message: "You must be enrolled in this course to access its data",
+      courseId,
+    });
+  }
+
+  next();
+};
+
+/**
+ * Sanitize response data - remove sensitive fields
+ */
+export const sanitizeResponse = (data: any, userRole: string): any => {
+  if (!data) return data;
+
+  // Fields to remove for non-admin users
+  const sensitiveFields = [
+    "password",
+    "passwordHash",
+    "privateEmail",
+    "aadharNumber",
+    "accountNumber",
+  ];
+
+  // If it's an array, sanitize each item
+  if (Array.isArray(data)) {
+    return data.map((item) => sanitizeResponse(item, userRole));
+  }
+
+  // If it's an object, remove sensitive fields
+  if (typeof data === "object") {
+    const sanitized = { ...data };
+
+    // Remove sensitive fields
+    sensitiveFields.forEach((field) => {
+      delete sanitized[field];
+    });
+
+    // For students, remove other students' personal info
+    if (userRole === "student" && sanitized.role === "student") {
+      delete sanitized.phoneNumber;
+      delete sanitized.address;
+      delete sanitized.emergencyContact;
+    }
+
+    return sanitized;
+  }
+
+  return data;
+};
+
+/**
+ * Rate limiting per user (prevent abuse)
+ */
+const userRequestCounts = new Map<
+  string,
+  { count: number; resetTime: number }
+>();
+
+export const userRateLimit = (
+  maxRequests: number = 100,
+  windowMs: number = 60000
+) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const userId = req.session?.user?.id;
+
+    if (!userId) {
+      return next(); // Not authenticated, skip rate limiting
+    }
+
+    const now = Date.now();
+    const userRecord = userRequestCounts.get(userId);
+
+    // Reset counter if window has passed
+    if (!userRecord || now > userRecord.resetTime) {
+      userRequestCounts.set(userId, {
+        count: 1,
+        resetTime: now + windowMs,
+      });
+      return next();
+    }
+
+    // Increment counter
+    userRecord.count++;
+
+    // Check if limit exceeded
+    if (userRecord.count > maxRequests) {
+      return res.status(429).json({
+        error: "Too Many Requests",
+        message: `You have exceeded the limit of ${maxRequests} requests per minute`,
+        retryAfter: Math.ceil((userRecord.resetTime - now) / 1000),
+      });
+    }
+
+    next();
+  };
+};
+
+/**
+ * Pagination middleware - ensure all lists are paginated
+ */
+export const paginate = (req: Request, res: Response, next: NextFunction) => {
+  const page = parseInt(req.query.page as string) || 1;
+  const limit = Math.min(parseInt(req.query.limit as string) || 20, 100); // Max 100 items per page
+  const offset = (page - 1) * limit;
+
+  // Add pagination params to request
+  req.query.page = page.toString();
+  req.query.limit = limit.toString();
+  req.query.offset = offset.toString();
+
+  next();
+};
+
+/**
+ * Audit log middleware - track sensitive operations
+ */
+const auditLog = async (
+  userId: string,
+  action: string,
+  resource: string,
+  details?: any
+) => {
+  console.log(
+    `[AUDIT] ${new Date().toISOString()} - User ${userId} - ${action} - ${resource}`,
+    details
+  );
+
+  // In production, save to audit_logs table
+  // await db.insert(auditLogs).values({
+  //   userId,
+  //   action,
+  //   resource,
+  //   details: JSON.stringify(details),
+  //   timestamp: new Date(),
+  // });
+};
+
+export const auditMiddleware = (action: string, resource: string) => {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    const userId = req.session?.user?.id;
+
+    if (userId) {
+      await auditLog(userId, action, resource, {
+        method: req.method,
+        path: req.path,
+        params: req.params,
+        query: req.query,
+      });
+    }
+
+    next();
+  };
+};
+
+/**
+ * Check if resource exists and user has permission to access it
+ */
+export const checkResourceAccess = (
+  resourceTable: any,
+  resourceIdParam: string = "id",
+  ownerField: string = "studentId"
+) => {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    const user = req.session?.user;
+
+    if (!user) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+
+    const resourceId = req.params[resourceIdParam];
+
+    if (!resourceId) {
+      return res.status(400).json({ error: "Resource ID is required" });
+    }
+
+    // Admin can access all resources
+    if (user.role === "admin") {
+      return next();
+    }
+
+    // Check if resource exists and belongs to user
+    const resource = await db.query[resourceTable._.name].findFirst({
+      where: eq(resourceTable.id, resourceId),
+    });
+
+    if (!resource) {
+      return res.status(404).json({ error: "Resource not found" });
+    }
+
+    // Check ownership for students
+    if (user.role === "student" && resource[ownerField] !== user.id) {
+      return res.status(403).json({
+        error: "Forbidden",
+        message: "You don't have permission to access this resource",
+      });
+    }
+
+    next();
+  };
+};
+
+/**
+ * Wrap all middleware exports
+ */
+export const dataIsolation = {
+  requireAuth,
+  requireRole,
+  requireOwnership,
+  requireCourseAccess,
+  autoFilterByUser,
+  requireEnrollment,
+  sanitizeResponse,
+  userRateLimit,
+  paginate,
+  auditMiddleware,
+  checkResourceAccess,
+};
+
+export default dataIsolation;

@@ -1,17 +1,17 @@
-import { useState, useEffect } from 'react';
-import { useLocation } from 'wouter';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useAuth } from '@/hooks/useAuth';
-import { signOutUser } from '@/firebase/auth';
-import { Button } from '@/components/ui/button';
-import toast from 'react-hot-toast';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { 
-  LayoutDashboard, 
-  Calendar, 
-  CheckCircle, 
-  FileText, 
-  BookOpen, 
+import { useState, useEffect } from "react";
+import { useLocation } from "wouter";
+import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "@/hooks/useAuth";
+import { signOutUser } from "@/firebase/auth";
+import { Button } from "@/components/ui/button";
+import toast from "react-hot-toast";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  LayoutDashboard,
+  Calendar,
+  CheckCircle,
+  FileText,
+  BookOpen,
   FolderOpen,
   Bell,
   Megaphone,
@@ -31,9 +31,29 @@ import {
   Target,
   BarChart3,
   Award,
-  UserCheck
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
+  UserCheck,
+  DollarSign,
+  Clock,
+  Library,
+  Home,
+  Bus,
+  UtensilsCrossed,
+  Users2,
+  Briefcase,
+  GraduationCapIcon,
+  MessageSquare,
+  Video,
+  HeartPulse,
+  HelpCircle,
+  Shield,
+  FileBarChart,
+  Building2,
+  UserCog,
+  FlaskConical,
+  Medal,
+  Brain,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -41,68 +61,81 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from "@/components/ui/dropdown-menu";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from '@/components/ui/accordion';
+} from "@/components/ui/accordion";
 
 const menuSections = [
   {
-    title: 'Main',
+    title: "Main",
     items: [
-      { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-      { href: '/schedule', icon: Calendar, label: 'Schedule' },
-      { href: '/attendance', icon: CheckCircle, label: 'Attendance' },
-      { href: '/analytics', icon: BarChart3, label: 'Analytics' },
-    ]
+      { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
+      { href: "/schedule", icon: Calendar, label: "Schedule" },
+      { href: "/attendance", icon: CheckCircle, label: "Attendance" },
+      { href: "/analytics", icon: BarChart3, label: "Analytics" },
+    ],
   },
   {
-    title: 'Academic',
+    title: "Academic",
     items: [
-      { href: '/assignments', icon: FileText, label: 'Assignments' },
-      { href: '/exams', icon: BookOpen, label: 'Exams' },
-      { href: '/resources', icon: FolderOpen, label: 'Resources' },
-    ]
+      { href: "/courses-management", icon: BookOpen, label: "Courses" },
+      { href: "/timetable", icon: Clock, label: "Timetable" },
+      { href: "/grade-book", icon: Award, label: "Grade Book" },
+      { href: "/study-materials", icon: FolderOpen, label: "Study Materials" },
+      { href: "/assignments", icon: FileText, label: "Assignments" },
+      { href: "/exams", icon: GraduationCap, label: "Exams" },
+      { href: "/resources", icon: Library, label: "Resources" },
+    ],
   },
   {
-    title: 'Progress',
+    title: "Financial",
     items: [
-      { href: '/activity-tracker', icon: Activity, label: 'Activity Tracker' },
-      { href: '/achievements-goals', icon: Target, label: 'Achievements & Goals' },
-      { href: '/digital-portfolio', icon: Award, label: 'Digital Portfolio' },
-    ]
+      { href: "/fees-payments", icon: DollarSign, label: "Fees & Payments" },
+      { href: "/scholarships", icon: Medal, label: "Scholarships" },
+    ],
   },
   {
-    title: 'Faculty',
+    title: "Progress",
     items: [
-      { href: '/faculty-approvals', icon: UserCheck, label: 'Approvals' },
-    ]
+      { href: "/activity-tracker", icon: Activity, label: "Activity Tracker" },
+      {
+        href: "/achievements-goals",
+        icon: Target,
+        label: "Achievements & Goals",
+      },
+      { href: "/digital-portfolio", icon: Award, label: "Digital Portfolio" },
+    ],
   },
   {
-    title: 'Campus',
+    title: "Faculty",
     items: [
-      { href: '/events', icon: Calendar, label: 'Events' },
-      { href: '/notices', icon: Megaphone, label: 'Notices' },
-      { href: '/qr-scanner', icon: QrCode, label: 'QR Scanner' },
-      { href: '/lost-found', icon: Package, label: 'Lost & Found' },
-    ]
+      { href: "/faculty-approvals", icon: UserCheck, label: "Approvals" },
+    ],
   },
   {
-    title: 'Network',
+    title: "Campus",
     items: [
-      { href: '/alumni', icon: Users, label: 'Alumni' },
-    ]
+      { href: "/events", icon: Calendar, label: "Events" },
+      { href: "/notices", icon: Megaphone, label: "Notices" },
+      { href: "/qr-scanner", icon: QrCode, label: "QR Scanner" },
+      { href: "/lost-found", icon: Package, label: "Lost & Found" },
+    ],
   },
   {
-    title: 'Account',
+    title: "Network",
+    items: [{ href: "/alumni", icon: Users, label: "Alumni" }],
+  },
+  {
+    title: "Account",
     items: [
-      { href: '/profile', icon: User, label: 'Profile' },
-      { href: '/settings', icon: Settings, label: 'Settings' },
-    ]
-  }
+      { href: "/profile", icon: User, label: "Profile" },
+      { href: "/settings", icon: Settings, label: "Settings" },
+    ],
+  },
 ];
 
 interface DashboardLayoutProps {
@@ -112,31 +145,31 @@ interface DashboardLayoutProps {
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const [location, setLocation] = useLocation();
   const { user } = useAuth();
-  
+
   // Initialize collapsed state from localStorage with smart defaults
   const [isCollapsed, setIsCollapsed] = useState(() => {
-    if (typeof window === 'undefined') return false;
-    const saved = localStorage.getItem('sidebar-collapsed');
+    if (typeof window === "undefined") return false;
+    const saved = localStorage.getItem("sidebar-collapsed");
     if (saved !== null) return JSON.parse(saved);
-    
+
     // Default based on screen size
     return window.innerWidth < 1440 && window.innerWidth >= 1024;
   });
-  
+
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   // Persist sidebar collapse state to localStorage
   useEffect(() => {
-    localStorage.setItem('sidebar-collapsed', JSON.stringify(isCollapsed));
+    localStorage.setItem("sidebar-collapsed", JSON.stringify(isCollapsed));
   }, [isCollapsed]);
 
   // Comprehensive responsive behavior for all device sizes
   useEffect(() => {
     const handleResize = () => {
       const width = window.innerWidth;
-      const saved = localStorage.getItem('sidebar-collapsed');
-      
+      const saved = localStorage.getItem("sidebar-collapsed");
+
       // TV/Extra Large Desktop: 1920px+ - default expanded for maximum screen real estate
       if (width >= 1920) {
         if (saved === null) setIsCollapsed(false);
@@ -165,27 +198,26 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     };
 
     handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   const handleLogout = async () => {
     if (isLoggingOut) return;
-    
+
     try {
       setIsLoggingOut(true);
       setIsMobileOpen(false);
-      
+
       await signOutUser();
-      
-      toast.success('Logged out successfully!');
-      
+
+      toast.success("Logged out successfully!");
+
       // Redirect to landing page after successful signout
-      setLocation('/');
-      
+      setLocation("/");
     } catch (error) {
-      console.error('Logout failed:', error);
-      toast.error('Failed to log out. Please try again.');
+      console.error("Logout failed:", error);
+      toast.error("Failed to log out. Please try again.");
     } finally {
       // Always reset loading state in finally block
       setIsLoggingOut(false);
@@ -203,13 +235,17 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             {!isCollapsed && (
               <motion.div
                 initial={{ opacity: 0, width: 0 }}
-                animate={{ opacity: 1, width: 'auto' }}
+                animate={{ opacity: 1, width: "auto" }}
                 exit={{ opacity: 0, width: 0 }}
                 transition={{ duration: 0.2 }}
                 className="flex-1 min-w-0"
               >
-                <h2 className="font-bold text-base md:text-lg truncate bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">Student Hub</h2>
-                <p className="text-xs text-muted-foreground truncate">Smart Learning Platform</p>
+                <h2 className="font-bold text-base md:text-lg truncate bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                  Student Hub
+                </h2>
+                <p className="text-xs text-muted-foreground truncate">
+                  Smart Learning Platform
+                </p>
               </motion.div>
             )}
           </AnimatePresence>
@@ -219,52 +255,63 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       <nav className="flex-1 overflow-y-auto p-3 md:p-4">
         {isCollapsed ? (
           <div className="space-y-2">
-            {menuSections.flatMap(section => section.items).map((item) => {
-              const isActive = location === item.href;
-              const Icon = item.icon;
-              
-              return (
-                <motion.button
-                  key={item.href}
-                  onClick={() => {
-                    setLocation(item.href);
-                    setIsMobileOpen(false);
-                  }}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className={cn(
-                    "w-full flex items-center justify-center min-h-[44px] p-3 rounded-lg transition-all duration-200",
-                    "hover:bg-primary/10 hover:text-primary",
-                    isActive && "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground shadow-md",
-                    !isActive && "text-muted-foreground"
-                  )}
-                  data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
-                  title={item.label}
-                >
-                  <Icon className="h-5 w-5 flex-shrink-0" />
-                </motion.button>
-              );
-            })}
+            {menuSections
+              .flatMap((section) => section.items)
+              .map((item) => {
+                const isActive = location === item.href;
+                const Icon = item.icon;
+
+                return (
+                  <motion.button
+                    key={item.href}
+                    onClick={() => {
+                      setLocation(item.href);
+                      setIsMobileOpen(false);
+                    }}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className={cn(
+                      "w-full flex items-center justify-center min-h-[44px] p-3 rounded-lg transition-all duration-200",
+                      "hover:bg-primary/10 hover:text-primary",
+                      isActive &&
+                        "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground shadow-md",
+                      !isActive && "text-muted-foreground"
+                    )}
+                    data-testid={`nav-${item.label
+                      .toLowerCase()
+                      .replace(/\s+/g, "-")}`}
+                    title={item.label}
+                  >
+                    <Icon className="h-5 w-5 flex-shrink-0" />
+                  </motion.button>
+                );
+              })}
           </div>
         ) : (
-          <Accordion 
-            type="multiple" 
-            defaultValue={menuSections.map(s => s.title)} 
+          <Accordion
+            type="multiple"
+            defaultValue={menuSections.map((s) => s.title)}
             className="space-y-2"
           >
             {menuSections.map((section) => (
-              <AccordionItem key={section.title} value={section.title} className="border-none">
+              <AccordionItem
+                key={section.title}
+                value={section.title}
+                className="border-none"
+              >
                 <AccordionTrigger className="py-2.5 px-3 hover:no-underline hover:bg-muted/50 rounded-lg transition-all duration-200 text-sm font-semibold [&[data-state=open]]:bg-muted/50">
-                  <motion.span 
+                  <motion.span
                     className="flex items-center gap-2 w-full"
                     whileHover={{ x: 2 }}
                     transition={{ duration: 0.2 }}
                   >
-                    <span className="text-xs font-bold text-primary uppercase tracking-wider">{section.title}</span>
+                    <span className="text-xs font-bold text-primary uppercase tracking-wider">
+                      {section.title}
+                    </span>
                   </motion.span>
                 </AccordionTrigger>
                 <AccordionContent className="pb-2">
-                  <motion.div 
+                  <motion.div
                     className="space-y-1 pt-1"
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -273,7 +320,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                     {section.items.map((item) => {
                       const isActive = location === item.href;
                       const Icon = item.icon;
-                      
+
                       return (
                         <motion.button
                           key={item.href}
@@ -283,17 +330,26 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                           }}
                           whileHover={{ x: 4, scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
-                          transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                          transition={{
+                            type: "spring",
+                            stiffness: 400,
+                            damping: 17,
+                          }}
                           className={cn(
                             "w-full flex items-center gap-3 px-3 py-3 min-h-[44px] rounded-lg transition-all duration-200",
                             "hover:bg-primary/10 hover:text-primary",
-                            isActive && "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground shadow-md ring-2 ring-primary/20",
+                            isActive &&
+                              "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground shadow-md ring-2 ring-primary/20",
                             !isActive && "text-muted-foreground"
                           )}
-                          data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
+                          data-testid={`nav-${item.label
+                            .toLowerCase()
+                            .replace(/\s+/g, "-")}`}
                         >
                           <Icon className="h-5 w-5 flex-shrink-0" />
-                          <span className="font-medium text-sm truncate">{item.label}</span>
+                          <span className="font-medium text-sm truncate">
+                            {item.label}
+                          </span>
                         </motion.button>
                       );
                     })}
@@ -306,93 +362,139 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       </nav>
 
       <div className="p-4 md:p-5 border-t bg-gradient-to-r from-muted/30 to-muted/50">
-        <div className={cn(
-          "flex items-center gap-3",
-          isCollapsed && "justify-center"
-        )}>
+        <div
+          className={cn(
+            "flex items-center gap-3",
+            isCollapsed && "justify-center"
+          )}
+        >
           {!isCollapsed ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <motion.button 
+                <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="flex items-center gap-3 w-full p-2.5 min-h-[48px] rounded-lg hover:bg-muted transition-all duration-200 hover:shadow-md" 
+                  className="flex items-center gap-3 w-full p-2.5 min-h-[48px] rounded-lg hover:bg-muted transition-all duration-200 hover:shadow-md"
                   data-testid="button-user-menu"
                 >
                   <Avatar className="h-9 w-9 ring-2 ring-primary/20 flex-shrink-0">
                     <AvatarImage src="" />
                     <AvatarFallback className="bg-gradient-to-br from-primary to-primary/70 text-primary-foreground font-semibold text-sm">
-                      {user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}
+                      {user?.firstName?.charAt(0)}
+                      {user?.lastName?.charAt(0)}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1 text-left min-w-0">
                     <p className="font-semibold text-sm truncate">
                       {user?.firstName} {user?.lastName}
                     </p>
-                    <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+                    <p className="text-xs text-muted-foreground truncate">
+                      {user?.email}
+                    </p>
                   </div>
                   <ChevronDown className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                 </motion.button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel className="font-semibold">My Account</DropdownMenuLabel>
+                <DropdownMenuLabel className="font-semibold">
+                  My Account
+                </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => { setLocation('/profile'); setIsMobileOpen(false); }} data-testid="menu-profile" className="cursor-pointer min-h-[40px]">
+                <DropdownMenuItem
+                  onClick={() => {
+                    setLocation("/profile");
+                    setIsMobileOpen(false);
+                  }}
+                  data-testid="menu-profile"
+                  className="cursor-pointer min-h-[40px]"
+                >
                   <User className="mr-2 h-4 w-4" />
                   Profile
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => { setLocation('/settings'); setIsMobileOpen(false); }} data-testid="menu-settings" className="cursor-pointer min-h-[40px]">
+                <DropdownMenuItem
+                  onClick={() => {
+                    setLocation("/settings");
+                    setIsMobileOpen(false);
+                  }}
+                  data-testid="menu-settings"
+                  className="cursor-pointer min-h-[40px]"
+                >
                   <Settings className="mr-2 h-4 w-4" />
                   Settings
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem 
-                  onClick={handleLogout} 
+                <DropdownMenuItem
+                  onClick={handleLogout}
                   disabled={isLoggingOut}
-                  data-testid="menu-logout" 
+                  data-testid="menu-logout"
                   className="cursor-pointer text-destructive focus:text-destructive min-h-[40px] disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <LogOut className={cn("mr-2 h-4 w-4", isLoggingOut && "animate-spin")} />
-                  {isLoggingOut ? 'Logging out...' : 'Logout'}
+                  <LogOut
+                    className={cn(
+                      "mr-2 h-4 w-4",
+                      isLoggingOut && "animate-spin"
+                    )}
+                  />
+                  {isLoggingOut ? "Logging out..." : "Logout"}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <motion.button 
+                <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="p-2.5 min-h-[44px] min-w-[44px] rounded-lg hover:bg-muted transition-all duration-200 hover:shadow-md flex items-center justify-center" 
+                  className="p-2.5 min-h-[44px] min-w-[44px] rounded-lg hover:bg-muted transition-all duration-200 hover:shadow-md flex items-center justify-center"
                   data-testid="button-user-menu-collapsed"
                 >
                   <Avatar className="h-9 w-9 ring-2 ring-primary/20">
                     <AvatarImage src="" />
                     <AvatarFallback className="text-sm bg-gradient-to-br from-primary to-primary/70 text-primary-foreground font-semibold">
-                      {user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}
+                      {user?.firstName?.charAt(0)}
+                      {user?.lastName?.charAt(0)}
                     </AvatarFallback>
                   </Avatar>
                 </motion.button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel className="font-semibold">My Account</DropdownMenuLabel>
+                <DropdownMenuLabel className="font-semibold">
+                  My Account
+                </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => { setLocation('/profile'); setIsMobileOpen(false); }} className="cursor-pointer min-h-[40px]">
+                <DropdownMenuItem
+                  onClick={() => {
+                    setLocation("/profile");
+                    setIsMobileOpen(false);
+                  }}
+                  className="cursor-pointer min-h-[40px]"
+                >
                   <User className="mr-2 h-4 w-4" />
                   Profile
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => { setLocation('/settings'); setIsMobileOpen(false); }} className="cursor-pointer min-h-[40px]">
+                <DropdownMenuItem
+                  onClick={() => {
+                    setLocation("/settings");
+                    setIsMobileOpen(false);
+                  }}
+                  className="cursor-pointer min-h-[40px]"
+                >
                   <Settings className="mr-2 h-4 w-4" />
                   Settings
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem 
-                  onClick={handleLogout} 
+                <DropdownMenuItem
+                  onClick={handleLogout}
                   disabled={isLoggingOut}
                   className="cursor-pointer text-destructive focus:text-destructive min-h-[40px] disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <LogOut className={cn("mr-2 h-4 w-4", isLoggingOut && "animate-spin")} />
-                  {isLoggingOut ? 'Logging out...' : 'Logout'}
+                  <LogOut
+                    className={cn(
+                      "mr-2 h-4 w-4",
+                      isLoggingOut && "animate-spin"
+                    )}
+                  />
+                  {isLoggingOut ? "Logging out..." : "Logout"}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -407,7 +509,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       {/* Desktop Sidebar */}
       <motion.aside
         animate={{
-          width: isCollapsed ? "4.5rem" : "18rem"
+          width: isCollapsed ? "4.5rem" : "18rem",
         }}
         transition={{ duration: 0.3, ease: "easeInOut" }}
         className={cn(
@@ -416,11 +518,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         data-testid="sidebar-desktop"
       >
         <SidebarContent />
-        
-        <motion.div
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.95 }}
-        >
+
+        <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
           <Button
             variant="ghost"
             size="sm"
@@ -440,7 +539,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       </motion.aside>
 
       {/* Mobile Header */}
-      <motion.div 
+      <motion.div
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
@@ -452,8 +551,12 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               <GraduationCap className="h-6 w-6 text-primary" />
             </div>
             <div>
-              <h2 className="font-bold text-sm md:text-base bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">Student Hub</h2>
-              <p className="text-xs text-muted-foreground hidden sm:block">Smart Learning</p>
+              <h2 className="font-bold text-sm md:text-base bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                Student Hub
+              </h2>
+              <p className="text-xs text-muted-foreground hidden sm:block">
+                Smart Learning
+              </p>
             </div>
           </div>
           <motion.div whileTap={{ scale: 0.95 }}>
@@ -507,10 +610,10 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               data-testid="mobile-overlay"
             />
             <motion.aside
-              initial={{ x: '-100%' }}
+              initial={{ x: "-100%" }}
               animate={{ x: 0 }}
-              exit={{ x: '-100%' }}
-              transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+              exit={{ x: "-100%" }}
+              transition={{ type: "spring", damping: 30, stiffness: 300 }}
               className={cn(
                 "lg:hidden fixed top-0 left-0 bottom-0 z-50 bg-card border-r flex flex-col shadow-2xl",
                 // Mobile (320-767px): 85% viewport width, max 280px
@@ -529,10 +632,12 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       </AnimatePresence>
 
       {/* Main Content */}
-      <main className={cn(
-        "flex-1 overflow-auto",
-        "lg:mt-0 pt-[64px] lg:pt-0" // Responsive top padding for mobile header
-      )}>
+      <main
+        className={cn(
+          "flex-1 overflow-auto",
+          "lg:mt-0 pt-[64px] lg:pt-0" // Responsive top padding for mobile header
+        )}
+      >
         {children}
       </main>
     </div>

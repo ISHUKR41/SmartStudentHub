@@ -1,0 +1,676 @@
+/**
+ * DATABASE SEED FILE
+ *
+ * Populate database with sample data for testing and development
+ * Run with: npm run seed
+ */
+
+import { db } from "./db";
+import {
+  users,
+  courses,
+  courseEnrollments,
+  timetable,
+  grades,
+  studyMaterials,
+  assignments,
+  exams,
+  attendance,
+  feeStructure,
+  feePayments,
+  scholarships,
+  libraryBooks,
+  hostelRooms,
+  busRoutes,
+  cafeteriaMenu,
+  clubs,
+  placements,
+  events,
+  notices,
+  activities,
+  goals,
+  achievements,
+} from "./schema";
+
+async function seed() {
+  console.log("🌱 Starting database seeding...");
+
+  if (!db) {
+    console.error("❌ Database connection not available");
+    process.exit(1);
+  }
+
+  try {
+    // ==================== SEED USERS ====================
+    console.log("👥 Seeding users...");
+
+    const [admin] = await db
+      .insert(users)
+      .values({
+        email: "admin@college.edu",
+        firstName: "Admin",
+        lastName: "User",
+        role: "admin",
+        department: "Administration",
+      })
+      .returning();
+
+    const [faculty1] = await db
+      .insert(users)
+      .values({
+        email: "faculty1@college.edu",
+        firstName: "Dr. Rajesh",
+        lastName: "Kumar",
+        role: "faculty",
+        department: "Computer Science",
+      })
+      .returning();
+
+    const [faculty2] = await db
+      .insert(users)
+      .values({
+        email: "faculty2@college.edu",
+        firstName: "Dr. Priya",
+        lastName: "Sharma",
+        role: "faculty",
+        department: "Electronics",
+      })
+      .returning();
+
+    const [student1] = await db
+      .insert(users)
+      .values({
+        email: "student1@college.edu",
+        firstName: "Rahul",
+        lastName: "Verma",
+        role: "student",
+        rollNumber: "21CSE001",
+        department: "Computer Science",
+        currentSemester: 6,
+        yearOfAdmission: 2021,
+        cgpa: "8.5",
+        phoneNumber: "9876543210",
+      })
+      .returning();
+
+    const [student2] = await db
+      .insert(users)
+      .values({
+        email: "student2@college.edu",
+        firstName: "Priya",
+        lastName: "Patel",
+        role: "student",
+        rollNumber: "21CSE002",
+        department: "Computer Science",
+        currentSemester: 6,
+        yearOfAdmission: 2021,
+        cgpa: "9.2",
+        phoneNumber: "9876543211",
+      })
+      .returning();
+
+    console.log(`✅ Created ${5} users`);
+
+    // ==================== SEED COURSES ====================
+    console.log("📚 Seeding courses...");
+
+    const [course1] = await db
+      .insert(courses)
+      .values({
+        courseCode: "CS401",
+        courseName: "Data Structures and Algorithms",
+        description: "Advanced data structures and algorithm design",
+        credits: 4,
+        semester: 6,
+        department: "Computer Science",
+        instructorId: faculty1.id,
+        maxCapacity: 60,
+        currentEnrollment: 2,
+      })
+      .returning();
+
+    const [course2] = await db
+      .insert(courses)
+      .values({
+        courseCode: "CS402",
+        courseName: "Database Management Systems",
+        description: "Relational databases, SQL, and NoSQL",
+        credits: 3,
+        semester: 6,
+        department: "Computer Science",
+        instructorId: faculty1.id,
+        maxCapacity: 60,
+        currentEnrollment: 2,
+      })
+      .returning();
+
+    const [course3] = await db
+      .insert(courses)
+      .values({
+        courseCode: "CS403",
+        courseName: "Operating Systems",
+        description: "OS concepts, process management, memory management",
+        credits: 4,
+        semester: 6,
+        department: "Computer Science",
+        instructorId: faculty1.id,
+        maxCapacity: 60,
+        currentEnrollment: 2,
+      })
+      .returning();
+
+    console.log(`✅ Created ${3} courses`);
+
+    // ==================== SEED ENROLLMENTS ====================
+    console.log("📝 Seeding course enrollments...");
+
+    await db.insert(courseEnrollments).values([
+      { studentId: student1.id, courseId: course1.id, status: "active" },
+      { studentId: student1.id, courseId: course2.id, status: "active" },
+      { studentId: student1.id, courseId: course3.id, status: "active" },
+      { studentId: student2.id, courseId: course1.id, status: "active" },
+      { studentId: student2.id, courseId: course2.id, status: "active" },
+      { studentId: student2.id, courseId: course3.id, status: "active" },
+    ]);
+
+    console.log(`✅ Created ${6} enrollments`);
+
+    // ==================== SEED TIMETABLE ====================
+    console.log("🗓️ Seeding timetable...");
+
+    await db.insert(timetable).values([
+      {
+        courseId: course1.id,
+        dayOfWeek: "Monday",
+        startTime: "09:00",
+        endTime: "10:00",
+        roomNumber: "CS-101",
+        classType: "lecture",
+        semester: 6,
+        academicYear: "2024-2025",
+      },
+      {
+        courseId: course2.id,
+        dayOfWeek: "Tuesday",
+        startTime: "10:00",
+        endTime: "11:00",
+        roomNumber: "CS-102",
+        classType: "lecture",
+        semester: 6,
+        academicYear: "2024-2025",
+      },
+      {
+        courseId: course3.id,
+        dayOfWeek: "Wednesday",
+        startTime: "11:00",
+        endTime: "12:00",
+        roomNumber: "CS-103",
+        classType: "lecture",
+        semester: 6,
+        academicYear: "2024-2025",
+      },
+    ]);
+
+    console.log(`✅ Created timetable entries`);
+
+    // ==================== SEED GRADES ====================
+    console.log("📊 Seeding grades...");
+
+    await db.insert(grades).values([
+      {
+        studentId: student1.id,
+        courseId: course1.id,
+        examType: "mid_term",
+        marksObtained: 42,
+        totalMarks: 50,
+        grade: "A",
+        examDate: new Date("2025-03-15"),
+      },
+      {
+        studentId: student2.id,
+        courseId: course1.id,
+        examType: "mid_term",
+        marksObtained: 47,
+        totalMarks: 50,
+        grade: "A+",
+        examDate: new Date("2025-03-15"),
+      },
+    ]);
+
+    console.log(`✅ Created grade records`);
+
+    // ==================== SEED STUDY MATERIALS ====================
+    console.log("📄 Seeding study materials...");
+
+    await db.insert(studyMaterials).values([
+      {
+        courseId: course1.id,
+        title: "Introduction to Data Structures",
+        description: "Basic concepts and implementations",
+        fileUrl: "/uploads/sample-ds-intro.pdf",
+        fileName: "ds-introduction.pdf",
+        fileType: "application/pdf",
+        fileSize: 1024000,
+        uploadedBy: faculty1.id,
+        category: "lecture_notes",
+      },
+      {
+        courseId: course2.id,
+        title: "SQL Tutorial",
+        description: "Complete SQL guide with examples",
+        fileUrl: "/uploads/sample-sql-tutorial.pdf",
+        fileName: "sql-tutorial.pdf",
+        fileType: "application/pdf",
+        fileSize: 2048000,
+        uploadedBy: faculty1.id,
+        category: "reference",
+      },
+    ]);
+
+    console.log(`✅ Created study materials`);
+
+    // ==================== SEED ASSIGNMENTS ====================
+    console.log("✏️ Seeding assignments...");
+
+    await db.insert(assignments).values([
+      {
+        courseId: course1.id,
+        title: "Implement Binary Search Tree",
+        description: "Create a BST with insert, delete, and search operations",
+        dueDate: new Date("2025-10-15"),
+        totalMarks: 20,
+        createdBy: faculty1.id,
+      },
+      {
+        courseId: course2.id,
+        title: "Database Design Project",
+        description: "Design a database for library management system",
+        dueDate: new Date("2025-10-20"),
+        totalMarks: 25,
+        createdBy: faculty1.id,
+      },
+    ]);
+
+    console.log(`✅ Created assignments`);
+
+    // ==================== SEED EXAMS ====================
+    console.log("📝 Seeding exams...");
+
+    await db.insert(exams).values([
+      {
+        courseId: course1.id,
+        examName: "End Semester Exam",
+        examType: "end_term",
+        examDate: new Date("2025-11-15"),
+        startTime: "09:00",
+        duration: 180,
+        totalMarks: 100,
+        roomNumber: "Exam Hall A",
+      },
+    ]);
+
+    console.log(`✅ Created exam schedules`);
+
+    // ==================== SEED ATTENDANCE ====================
+    console.log("✅ Seeding attendance...");
+
+    await db.insert(attendance).values([
+      {
+        studentId: student1.id,
+        courseId: course1.id,
+        date: new Date("2025-10-01"),
+        status: "present",
+        markedBy: faculty1.id,
+      },
+      {
+        studentId: student2.id,
+        courseId: course1.id,
+        date: new Date("2025-10-01"),
+        status: "present",
+        markedBy: faculty1.id,
+      },
+    ]);
+
+    console.log(`✅ Created attendance records`);
+
+    // ==================== SEED FEE STRUCTURE ====================
+    console.log("💰 Seeding fee structure...");
+
+    await db.insert(feeStructure).values([
+      {
+        semester: 6,
+        academicYear: "2024-2025",
+        department: "Computer Science",
+        tuitionFee: 50000,
+        labFee: 5000,
+        libraryFee: 2000,
+        sportsFee: 1000,
+        otherFees: 2000,
+        totalFee: 60000,
+      },
+    ]);
+
+    console.log(`✅ Created fee structure`);
+
+    // ==================== SEED SCHOLARSHIPS ====================
+    console.log("🎓 Seeding scholarships...");
+
+    await db.insert(scholarships).values([
+      {
+        name: "Merit Scholarship",
+        description: "For students with CGPA > 9.0",
+        amount: 25000,
+        eligibilityCriteria: "CGPA >= 9.0, No backlogs",
+        category: "merit",
+        deadline: new Date("2025-11-30"),
+        provider: "college",
+        totalSlots: 50,
+        availableSlots: 48,
+      },
+      {
+        name: "Need-Based Scholarship",
+        description: "For economically weaker sections",
+        amount: 30000,
+        eligibilityCriteria: "Family income < 3 Lakhs per year",
+        category: "need_based",
+        deadline: new Date("2025-11-30"),
+        provider: "government",
+        totalSlots: 100,
+        availableSlots: 95,
+      },
+    ]);
+
+    console.log(`✅ Created scholarships`);
+
+    // ==================== SEED LIBRARY ====================
+    console.log("📚 Seeding library books...");
+
+    await db.insert(libraryBooks).values([
+      {
+        isbn: "978-0262033848",
+        title: "Introduction to Algorithms",
+        author: "Thomas H. Cormen",
+        publisher: "MIT Press",
+        edition: "3rd",
+        category: "Computer Science",
+        totalCopies: 5,
+        availableCopies: 4,
+        shelfLocation: "CS-A-101",
+      },
+      {
+        isbn: "978-0132350884",
+        title: "Clean Code",
+        author: "Robert C. Martin",
+        publisher: "Prentice Hall",
+        edition: "1st",
+        category: "Computer Science",
+        totalCopies: 3,
+        availableCopies: 3,
+        shelfLocation: "CS-A-102",
+      },
+    ]);
+
+    console.log(`✅ Created library books`);
+
+    // ==================== SEED HOSTEL ====================
+    console.log("🏠 Seeding hostel rooms...");
+
+    await db.insert(hostelRooms).values([
+      {
+        hostelName: "Boys Hostel A",
+        roomNumber: "101",
+        floor: 1,
+        capacity: 2,
+        currentOccupancy: 1,
+        status: "occupied",
+        monthlyRent: 5000,
+        amenities: "AC, WiFi, Attached Bathroom",
+      },
+      {
+        hostelName: "Girls Hostel A",
+        roomNumber: "201",
+        floor: 2,
+        capacity: 2,
+        currentOccupancy: 0,
+        status: "vacant",
+        monthlyRent: 5000,
+        amenities: "AC, WiFi, Attached Bathroom",
+      },
+    ]);
+
+    console.log(`✅ Created hostel rooms`);
+
+    // ==================== SEED TRANSPORTATION ====================
+    console.log("🚌 Seeding bus routes...");
+
+    await db.insert(busRoutes).values([
+      {
+        routeNumber: "R1",
+        routeName: "Main Campus - City Center",
+        stops: JSON.stringify([
+          "Main Gate",
+          "Bus Stand",
+          "Railway Station",
+          "City Center",
+        ]),
+        departureTime: "07:30",
+        arrivalTime: "08:30",
+        busNumber: "DL-01-A-1234",
+        capacity: 50,
+        fare: 20,
+      },
+    ]);
+
+    console.log(`✅ Created bus routes`);
+
+    // ==================== SEED CAFETERIA ====================
+    console.log("🍽️ Seeding cafeteria menu...");
+
+    await db.insert(cafeteriaMenu).values([
+      {
+        itemName: "Veg Thali",
+        description: "4 Roti, Dal, Rice, Sabzi, Salad",
+        price: 80,
+        category: "lunch",
+        isAvailable: true,
+      },
+      {
+        itemName: "Masala Dosa",
+        description: "South Indian crispy dosa with potato filling",
+        price: 50,
+        category: "breakfast",
+        isAvailable: true,
+      },
+      {
+        itemName: "Coffee",
+        description: "Hot filter coffee",
+        price: 20,
+        category: "beverages",
+        isAvailable: true,
+      },
+    ]);
+
+    console.log(`✅ Created cafeteria menu`);
+
+    // ==================== SEED CLUBS ====================
+    console.log("🎭 Seeding clubs...");
+
+    await db.insert(clubs).values([
+      {
+        clubName: "Coding Club",
+        description: "Learn programming, participate in hackathons",
+        category: "technical",
+        facultyCoordinator: faculty1.id,
+        totalMembers: 45,
+        establishedDate: new Date("2020-08-15"),
+      },
+      {
+        clubName: "Drama Club",
+        description: "Theatre, plays, and cultural performances",
+        category: "cultural",
+        facultyCoordinator: faculty2.id,
+        totalMembers: 30,
+        establishedDate: new Date("2019-09-01"),
+      },
+    ]);
+
+    console.log(`✅ Created clubs`);
+
+    // ==================== SEED PLACEMENTS ====================
+    console.log("💼 Seeding placements...");
+
+    await db.insert(placements).values([
+      {
+        companyName: "Tech Corp India",
+        jobTitle: "Software Engineer",
+        description: "Full-stack development role",
+        eligibilityCriteria: "CGPA >= 7.0, No active backlogs",
+        salary: 800000,
+        location: "Bangalore",
+        jobType: "full_time",
+        status: "open",
+        applicationDeadline: new Date("2025-11-30"),
+        visitDate: new Date("2025-12-15"),
+        totalPositions: 10,
+        filledPositions: 0,
+      },
+    ]);
+
+    console.log(`✅ Created placement opportunities`);
+
+    // ==================== SEED EVENTS ====================
+    console.log("🎉 Seeding events...");
+
+    await db.insert(events).values([
+      {
+        title: "Annual Tech Fest",
+        description:
+          "Three-day technical festival with workshops, competitions, and guest lectures",
+        eventDate: new Date("2025-11-20"),
+        endDate: new Date("2025-11-22"),
+        location: "Main Auditorium",
+        organizer: faculty1.id,
+        category: "technical",
+        maxParticipants: 500,
+        currentParticipants: 0,
+        status: "upcoming",
+        registrationDeadline: new Date("2025-11-15"),
+      },
+      {
+        title: "Cultural Night",
+        description: "Music, dance, and drama performances",
+        eventDate: new Date("2025-12-05"),
+        location: "Open Air Theatre",
+        organizer: faculty2.id,
+        category: "cultural",
+        maxParticipants: 1000,
+        currentParticipants: 0,
+        status: "upcoming",
+        registrationDeadline: new Date("2025-11-30"),
+      },
+    ]);
+
+    console.log(`✅ Created events`);
+
+    // ==================== SEED NOTICES ====================
+    console.log("📢 Seeding notices...");
+
+    await db.insert(notices).values([
+      {
+        title: "Holiday Notice - Diwali",
+        content:
+          "College will remain closed from 1st Nov to 5th Nov for Diwali vacation. Classes will resume on 6th November.",
+        category: "administrative",
+        priority: "high",
+        status: "published",
+        publishedBy: admin.id,
+        targetAudience: "all",
+        expiresAt: new Date("2025-11-05"),
+      },
+      {
+        title: "Library Hours Extended",
+        content: "Library will now remain open till 10 PM during exam season.",
+        category: "academic",
+        priority: "medium",
+        status: "published",
+        publishedBy: admin.id,
+        targetAudience: "students",
+      },
+    ]);
+
+    console.log(`✅ Created notices`);
+
+    // ==================== SEED ACTIVITIES ====================
+    console.log("🏆 Seeding activities...");
+
+    await db.insert(activities).values([
+      {
+        studentId: student2.id,
+        title: "Won First Prize in Hackathon",
+        description: "Developed AI-based solution for healthcare",
+        category: "academic",
+        organization: "Tech Fest 2025",
+        activityDate: new Date("2025-09-15"),
+        status: "approved",
+        verifiedBy: faculty1.id,
+        verificationDate: new Date("2025-09-16"),
+        skillCredits: 10,
+      },
+    ]);
+
+    console.log(`✅ Created activities`);
+
+    // ==================== SEED GOALS ====================
+    console.log("🎯 Seeding goals...");
+
+    await db.insert(goals).values([
+      {
+        studentId: student1.id,
+        title: "Complete AWS Certification",
+        description: "Get AWS Solutions Architect certification",
+        targetDate: new Date("2025-12-31"),
+        priority: "high",
+        status: "active",
+        progress: 40,
+        category: "certification",
+      },
+    ]);
+
+    console.log(`✅ Created goals`);
+
+    // ==================== SEED ACHIEVEMENTS ====================
+    console.log("🏅 Seeding achievements...");
+
+    await db.insert(achievements).values([
+      {
+        studentId: student2.id,
+        title: "Dean's List - Semester 5",
+        description: "Secured top 5 rank in semester",
+        achievedDate: new Date("2025-06-01"),
+        category: "academic",
+      },
+    ]);
+
+    console.log(`✅ Created achievements`);
+
+    console.log("\n🎉 Database seeding completed successfully!");
+    console.log("✨ You can now login with:");
+    console.log("   Admin: admin@college.edu");
+    console.log("   Faculty: faculty1@college.edu");
+    console.log("   Student: student1@college.edu or student2@college.edu");
+  } catch (error) {
+    console.error("❌ Error seeding database:", error);
+    throw error;
+  }
+}
+
+// Run seed function
+seed()
+  .then(() => {
+    console.log("✅ Seed completed");
+    process.exit(0);
+  })
+  .catch((error) => {
+    console.error("❌ Seed failed:", error);
+    process.exit(1);
+  });

@@ -1,10 +1,10 @@
 /**
  * Navigation Component for Smart Student Hub
- * 
+ *
  * This comprehensive navigation component serves as the primary institutional header
  * for the Smart Student Hub platform, providing essential navigation, user management,
  * and institutional branding elements for Higher Education Institution environments.
- * 
+ *
  * Core Institutional Features:
  * - Professional institutional branding with official logo and title
  * - Main navigation menu with academic sections and functionality
@@ -13,7 +13,7 @@
  * - Role-based user profile management with authentication controls
  * - Professional dropdown menus with institutional-grade options
  * - Responsive design optimized for academic environments with mobile hamburger menu
- * 
+ *
  * Navigation Components:
  * - Institution Logo: Professional branding element with institutional identity
  * - Main Menu: Academic Dashboard, Activities, Achievement Submission, Portfolio
@@ -22,20 +22,20 @@
  * - User Profile: Avatar, name, role display with dropdown menu for account management
  * - Authentication: Login/Signup buttons for guests, logout functionality for users
  * - Mobile Menu: Responsive hamburger menu for small screen devices
- * 
+ *
  * User Experience Design:
  * - Clean, professional interface suitable for academic institutional environments
  * - Consistent with Higher Education Institution design standards and accessibility guidelines
  * - Responsive layout ensuring optimal display across desktop, tablet, and mobile devices
  * - Professional color scheme aligned with institutional branding requirements
  * - Accessible design following WCAG guidelines for inclusive education environments
- * 
+ *
  * Security & Authentication:
  * - Integrated with institutional authentication systems (LDAP, SAML, OAuth)
  * - Role-based access control reflecting institutional hierarchy (student, faculty, admin)
  * - Secure session management with automatic timeout for institutional security compliance
  * - Protected routes ensuring appropriate access to institutional data and functionality
- * 
+ *
  * Technical Implementation:
  * - Built with React functional components and modern hooks for optimal performance
  * - TypeScript integration ensuring type safety and maintainable codebase
@@ -43,7 +43,7 @@
  * - Accessible ARIA labels and semantic HTML for inclusive design
  * - Real-time state management for notifications and user status updates
  * - Mobile-first responsive design with proper breakpoints
- * 
+ *
  * Integration Points:
  * - Authentication hook integration for user state management and role verification
  * - Notification system integration for real-time alerts and faculty communications
@@ -53,35 +53,40 @@
  * - Routing integration with wouter for seamless navigation throughout the platform
  */
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/useAuth";
 import { signOutUser } from "@/firebase/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
-import { 
-  GraduationCap, 
-  Search, 
-  Bell, 
-  ChevronDown, 
-  User, 
-  Settings, 
-  LogOut, 
+import {
+  GraduationCap,
+  Search,
+  Bell,
+  ChevronDown,
+  User,
+  Settings,
+  LogOut,
   Menu,
   LayoutDashboard,
   ClipboardList,
   Upload,
-  FolderOpen
+  FolderOpen,
 } from "lucide-react";
 
 /**
  * Navigation Menu Items Configuration
- * 
+ *
  * Defines the main navigation items available to all users in the Smart Student Hub.
  * Each item includes routing information, display text, and iconography for consistent
  * institutional navigation experience.
@@ -91,34 +96,34 @@ const navigationItems = [
     href: "/",
     label: "Academic Dashboard",
     icon: LayoutDashboard,
-    testId: "nav-academic-dashboard"
+    testId: "nav-academic-dashboard",
   },
   {
     href: "/activities",
     label: "Academic Activities",
     icon: ClipboardList,
-    testId: "nav-academic-activities"
+    testId: "nav-academic-activities",
   },
   {
     href: "/upload",
     label: "Submit Achievement",
     icon: Upload,
-    testId: "nav-submit-achievement"
+    testId: "nav-submit-achievement",
   },
   {
     href: "/portfolio",
     label: "Academic Portfolio",
     icon: FolderOpen,
-    testId: "nav-academic-portfolio"
-  }
+    testId: "nav-academic-portfolio",
+  },
 ];
 
 /**
  * Navigation Link Component
- * 
+ *
  * Renders individual navigation links with proper styling and active state management.
  * Provides consistent styling for both desktop and mobile navigation menus.
- * 
+ *
  * @param href - Route path for the navigation link
  * @param label - Display text for the navigation item
  * @param icon - Lucide icon component for visual identification
@@ -135,37 +140,60 @@ interface NavLinkProps {
   onClick?: () => void;
 }
 
-function NavLink({ href, label, icon: Icon, testId, className, onClick }: NavLinkProps) {
+function NavLink({
+  href,
+  label,
+  icon: Icon,
+  testId,
+  className,
+  onClick,
+}: NavLinkProps) {
   const [location] = useLocation();
   const isActive = location === href;
 
+  const handleClick = useCallback(
+    (e: React.MouseEvent<HTMLAnchorElement>) => {
+      // Prevent multiple rapid clicks
+      e.currentTarget.style.pointerEvents = "none";
+      setTimeout(() => {
+        e.currentTarget.style.pointerEvents = "auto";
+      }, 300);
+
+      if (onClick) {
+        onClick();
+      }
+    },
+    [onClick]
+  );
+
   return (
-    <Button
-      variant={isActive ? "default" : "ghost"}
-      className={cn(
-        "flex items-center gap-2 justify-start transition-all duration-200",
-        "h-10 px-3 text-sm",
-        "min-h-[44px] min-w-[44px]", // Touch-friendly minimum size
-        "hover:scale-105 active:scale-95",
-        className
-      )}
-      data-testid={testId}
-      asChild
-    >
-      <Link href={href} onClick={onClick}>
+    <Link href={href} onClick={handleClick} className="no-underline">
+      <div
+        className={cn(
+          "flex items-center gap-2 justify-start px-3 py-2 rounded-lg",
+          "transition-colors duration-200 cursor-pointer",
+          "h-10 text-sm min-h-[44px] min-w-[44px]",
+          "select-none outline-none font-medium",
+          isActive
+            ? "bg-primary text-primary-foreground shadow-sm"
+            : "text-muted-foreground hover:text-foreground hover:bg-muted/60",
+          className
+        )}
+        data-testid={testId}
+      >
         <Icon className="w-4 h-4 flex-shrink-0" />
-        <span className="font-medium truncate">{label}</span>
-      </Link>
-    </Button>
+        <span className="truncate">{label}</span>
+      </div>
+    </Link>
   );
 }
 
 /**
  * Navigation Component
- * 
+ *
  * Main navigation header component providing institutional branding, main navigation menu,
  * search functionality, notifications, and user profile management for the Smart Student Hub platform.
- * 
+ *
  * Features:
  * - Professional institutional branding with logo and title
  * - Main navigation menu with academic sections (Dashboard, Activities, Submit, Portfolio)
@@ -175,23 +203,22 @@ function NavLink({ href, label, icon: Icon, testId, className, onClick }: NavLin
  * - Login and Signup buttons for unauthenticated users
  * - Responsive design with mobile hamburger menu for all device types
  * - Role-based access control and secure authentication
- * 
+ *
  * @returns {JSX.Element} Complete navigation header with all institutional features
  */
 export default function Navigation() {
   // Authentication hook for user state management and role verification
   const { user } = useAuth();
-  
-  
+
   // Local state for search functionality with institutional record integration
   const [searchQuery, setSearchQuery] = useState("");
-  
+
   // Mobile menu open state for hamburger menu control
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   /**
    * Logout Handler
-   * 
+   *
    * Handles secure user logout using Firebase authentication.
    * Signs out the user and redirects to the signin page.
    */
@@ -207,7 +234,7 @@ export default function Navigation() {
 
   /**
    * Mobile Menu Close Handler
-   * 
+   *
    * Closes the mobile navigation menu when a navigation item is selected.
    * Provides smooth user experience on mobile devices.
    */
@@ -216,32 +243,49 @@ export default function Navigation() {
   };
 
   return (
-    <header className="bg-card border-b border-border sticky top-0 z-50 shadow-sm" data-testid="navigation-header">
+    <header
+      className="bg-card border-b border-border sticky top-0 z-50 shadow-sm"
+      data-testid="navigation-header"
+    >
       <div className="container max-w-none px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between min-h-[64px] lg:min-h-[72px]">
-        
           {/* Institutional Logo and Branding Section */}
           <div className="flex items-center gap-3 lg:gap-4">
             {/* Professional Institution Logo with simplified responsive sizing */}
-            <Link href="/" className="focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg">
-              <div className="w-12 h-12 lg:w-14 lg:h-14 bg-primary rounded-lg flex items-center justify-center cursor-pointer transition-all duration-200 hover:scale-105" data-testid="logo-institution">
+            <Link
+              href="/"
+              className="focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg"
+            >
+              <div
+                className="w-12 h-12 lg:w-14 lg:h-14 bg-primary rounded-lg flex items-center justify-center cursor-pointer transition-all duration-200 hover:scale-105"
+                data-testid="logo-institution"
+              >
                 <GraduationCap className="w-7 h-7 lg:w-8 lg:h-8 text-primary-foreground" />
               </div>
             </Link>
-            
+
             {/* Institutional Name and System Designation - Simplified sizing */}
             <div className="hidden sm:block">
-              <h1 className="text-lg lg:text-xl font-semibold text-foreground leading-tight" data-testid="text-app-title">
+              <h1
+                className="text-lg lg:text-xl font-semibold text-foreground leading-tight"
+                data-testid="text-app-title"
+              >
                 Smart Student Hub
               </h1>
-              <p className="text-sm text-muted-foreground" data-testid="text-app-subtitle">
+              <p
+                className="text-sm text-muted-foreground"
+                data-testid="text-app-subtitle"
+              >
                 Excellence Management System
               </p>
             </div>
           </div>
 
           {/* Desktop Navigation Menu - Simplified responsive breakpoints */}
-          <nav className="hidden lg:flex items-center gap-2" data-testid="nav-desktop-menu">
+          <nav
+            className="hidden lg:flex items-center gap-2"
+            data-testid="nav-desktop-menu"
+          >
             {navigationItems.map((item) => (
               <NavLink
                 key={item.href}
@@ -256,7 +300,6 @@ export default function Navigation() {
 
           {/* Navigation Actions and User Interface Section */}
           <div className="flex items-center gap-3">
-            
             {/* Advanced Search Bar for Institutional Records (Authenticated Users Only) */}
             {user && (
               <div className="relative hidden sm:block">
@@ -275,16 +318,16 @@ export default function Navigation() {
 
             {/* Real-time Notification System (Authenticated Users Only) */}
             {user && (
-              <Button 
-                variant="ghost" 
-                size="icon" 
+              <Button
+                variant="ghost"
+                size="icon"
                 className="relative h-10 w-10 transition-all duration-200 hover:bg-accent"
                 data-testid="button-notifications"
               >
                 <Bell className="w-5 h-5" />
                 {/* Notification Badge for Real-time Alerts */}
-                <Badge 
-                  variant="destructive" 
+                <Badge
+                  variant="destructive"
                   className="absolute -top-1 -right-1 w-2.5 h-2.5 p-0 rounded-full animate-pulse"
                   data-testid="badge-notification-count"
                 />
@@ -294,15 +337,22 @@ export default function Navigation() {
             {/* Authentication Buttons for Unauthenticated Users */}
             {!user && (
               <div className="hidden sm:flex items-center gap-2">
-                <Button variant="ghost" size="sm" className="h-10 px-4 text-sm" data-testid="button-login" asChild>
-                  <Link href="/login">
-                    Login
-                  </Link>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-10 px-4 text-sm"
+                  data-testid="button-login"
+                  asChild
+                >
+                  <Link href="/login">Login</Link>
                 </Button>
-                <Button size="sm" className="h-10 px-4 text-sm" data-testid="button-signup" asChild>
-                  <Link href="/signup">
-                    Sign Up
-                  </Link>
+                <Button
+                  size="sm"
+                  className="h-10 px-4 text-sm"
+                  data-testid="button-signup"
+                  asChild
+                >
+                  <Link href="/signup">Sign Up</Link>
                 </Button>
               </div>
             )}
@@ -311,8 +361,8 @@ export default function Navigation() {
             {user && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button 
-                    variant="ghost" 
+                  <Button
+                    variant="ghost"
                     className="group flex items-center gap-2 p-2 transition-all duration-200"
                     data-testid="button-user-menu"
                   >
@@ -320,43 +370,61 @@ export default function Navigation() {
                     <Avatar className="w-8 h-8 ring-2 ring-transparent hover:ring-primary/20 transition-all duration-200">
                       <AvatarImage src={user.profileImageUrl || ""} />
                       <AvatarFallback className="text-sm font-semibold">
-                        {user.firstName?.[0]}{user.lastName?.[0]}
+                        {user.firstName?.[0]}
+                        {user.lastName?.[0]}
                       </AvatarFallback>
                     </Avatar>
-                    
+
                     {/* User Information Display */}
                     <div className="hidden lg:block text-left">
-                      <div className="text-sm font-medium text-foreground truncate max-w-32" data-testid="text-user-name">
+                      <div
+                        className="text-sm font-medium text-foreground truncate max-w-32"
+                        data-testid="text-user-name"
+                      >
                         {user.firstName} {user.lastName}
                       </div>
-                      <div className="text-xs text-muted-foreground capitalize truncate" data-testid="text-user-role">
+                      <div
+                        className="text-xs text-muted-foreground capitalize truncate"
+                        data-testid="text-user-role"
+                      >
                         {user.role}
                       </div>
                     </div>
-                    
+
                     {/* Dropdown Indicator Icon */}
                     <ChevronDown className="hidden sm:block w-4 h-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                   </Button>
                 </DropdownMenuTrigger>
-                
+
                 {/* User Account Management Menu */}
                 <DropdownMenuContent align="end" className="w-56 shadow-lg">
                   {/* Account Profile Management */}
-                  <DropdownMenuItem className="min-h-[44px]" data-testid="menu-item-profile" asChild>
+                  <DropdownMenuItem
+                    className="min-h-[44px]"
+                    data-testid="menu-item-profile"
+                    asChild
+                  >
                     <Link href="/profile">
                       <User className="mr-3 h-4 w-4" />
                       <span className="text-sm">Account Profile</span>
                     </Link>
                   </DropdownMenuItem>
-                  
+
                   {/* System Preferences and Settings */}
-                  <DropdownMenuItem className="min-h-[44px]" data-testid="menu-item-settings">
+                  <DropdownMenuItem
+                    className="min-h-[44px]"
+                    data-testid="menu-item-settings"
+                  >
                     <Settings className="mr-3 h-4 w-4" />
                     <span className="text-sm">System Preferences</span>
                   </DropdownMenuItem>
-                  
+
                   {/* Secure Logout Functionality */}
-                  <DropdownMenuItem onClick={handleLogout} className="min-h-[44px] text-destructive hover:text-destructive" data-testid="menu-item-logout">
+                  <DropdownMenuItem
+                    onClick={handleLogout}
+                    className="min-h-[44px] text-destructive hover:text-destructive"
+                    data-testid="menu-item-logout"
+                  >
                     <LogOut className="mr-3 h-4 w-4" />
                     <span className="text-sm">Sign Out</span>
                   </DropdownMenuItem>
@@ -367,9 +435,9 @@ export default function Navigation() {
             {/* Mobile Menu Trigger (Hamburger Button) - Enhanced touch target */}
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
               <SheetTrigger asChild>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
+                <Button
+                  variant="ghost"
+                  size="icon"
                   className="lg:hidden h-10 w-10 transition-all duration-200 hover:bg-accent active:scale-95"
                   data-testid="button-mobile-menu"
                   aria-label="Open mobile navigation menu"
@@ -377,24 +445,34 @@ export default function Navigation() {
                   <Menu className="w-6 h-6" />
                 </Button>
               </SheetTrigger>
-            
+
               {/* Mobile Navigation Menu Content */}
-              <SheetContent side="right" className="w-[85vw] max-w-sm" data-testid="sheet-mobile-menu">
+              <SheetContent
+                side="right"
+                className="w-[85vw] max-w-sm"
+                data-testid="sheet-mobile-menu"
+              >
                 <div className="flex flex-col h-full">
-                  
                   {/* Mobile Menu Header */}
                   <div className="flex items-center gap-4 pb-6 border-b border-border/50">
                     <div className="w-14 h-14 bg-primary rounded-xl flex items-center justify-center shadow-lg">
                       <GraduationCap className="w-8 h-8 text-primary-foreground" />
                     </div>
                     <div>
-                      <h2 className="text-lg font-bold text-foreground leading-tight">Smart Student Hub</h2>
-                      <p className="text-sm text-muted-foreground leading-snug">Excellence Management</p>
+                      <h2 className="text-lg font-bold text-foreground leading-tight">
+                        Smart Student Hub
+                      </h2>
+                      <p className="text-sm text-muted-foreground leading-snug">
+                        Excellence Management
+                      </p>
                     </div>
                   </div>
-                
+
                   {/* Mobile Navigation Menu Items */}
-                  <nav className="flex flex-col gap-2 py-6" data-testid="nav-mobile-menu">
+                  <nav
+                    className="flex flex-col gap-2 py-6"
+                    data-testid="nav-mobile-menu"
+                  >
                     {navigationItems.map((item) => (
                       <NavLink
                         key={item.href}
@@ -407,17 +485,26 @@ export default function Navigation() {
                       />
                     ))}
                   </nav>
-                
+
                   {/* Mobile Authentication Section */}
                   {!user && (
                     <div className="flex flex-col gap-4 pt-6 border-t border-border/50 mt-auto">
-                      <Button variant="ghost" className="w-full justify-start text-base rounded-xl border border-border/30 hover:border-primary/30 min-h-[44px]" data-testid="mobile-button-login" asChild>
+                      <Button
+                        variant="ghost"
+                        className="w-full justify-start text-base rounded-xl border border-border/30 hover:border-primary/30 min-h-[44px]"
+                        data-testid="mobile-button-login"
+                        asChild
+                      >
                         <Link href="/login" onClick={closeMobileMenu}>
                           <User className="w-5 h-5 mr-4" />
                           Login to Account
                         </Link>
                       </Button>
-                      <Button className="w-full justify-start text-base rounded-xl shadow-md min-h-[44px]" data-testid="mobile-button-signup" asChild>
+                      <Button
+                        className="w-full justify-start text-base rounded-xl shadow-md min-h-[44px]"
+                        data-testid="mobile-button-signup"
+                        asChild
+                      >
                         <Link href="/signup" onClick={closeMobileMenu}>
                           <User className="w-5 h-5 mr-4" />
                           Create Account
@@ -425,7 +512,7 @@ export default function Navigation() {
                       </Button>
                     </div>
                   )}
-                
+
                   {/* Mobile User Section (Authenticated Users) */}
                   {user && (
                     <div className="flex flex-col gap-4 pt-6 border-t border-border/50 mt-auto">
@@ -434,7 +521,8 @@ export default function Navigation() {
                         <Avatar className="w-14 h-14 ring-2 ring-primary/20">
                           <AvatarImage src={user.profileImageUrl || ""} />
                           <AvatarFallback className="text-lg font-semibold">
-                            {user.firstName?.[0]}{user.lastName?.[0]}
+                            {user.firstName?.[0]}
+                            {user.lastName?.[0]}
                           </AvatarFallback>
                         </Avatar>
                         <div className="flex-1 min-w-0">
@@ -446,21 +534,30 @@ export default function Navigation() {
                           </div>
                         </div>
                       </div>
-                      
+
                       {/* Mobile User Menu Actions */}
-                      <Button variant="ghost" className="w-full justify-start text-base rounded-xl border border-border/30 hover:border-primary/30 min-h-[44px]" data-testid="mobile-menu-item-profile" asChild>
+                      <Button
+                        variant="ghost"
+                        className="w-full justify-start text-base rounded-xl border border-border/30 hover:border-primary/30 min-h-[44px]"
+                        data-testid="mobile-menu-item-profile"
+                        asChild
+                      >
                         <Link href="/profile">
                           <User className="w-5 h-5 mr-4" />
                           Account Profile
                         </Link>
                       </Button>
-                      <Button variant="ghost" className="w-full justify-start text-base rounded-xl border border-border/30 hover:border-primary/30 min-h-[44px]" data-testid="mobile-menu-item-settings">
+                      <Button
+                        variant="ghost"
+                        className="w-full justify-start text-base rounded-xl border border-border/30 hover:border-primary/30 min-h-[44px]"
+                        data-testid="mobile-menu-item-settings"
+                      >
                         <Settings className="w-5 h-5 mr-4" />
                         System Preferences
                       </Button>
-                      <Button 
-                        variant="ghost" 
-                        className="w-full justify-start text-base text-destructive hover:text-destructive rounded-xl border border-destructive/30 hover:border-destructive/50 min-h-[44px]" 
+                      <Button
+                        variant="ghost"
+                        className="w-full justify-start text-base text-destructive hover:text-destructive rounded-xl border border-destructive/30 hover:border-destructive/50 min-h-[44px]"
                         onClick={handleLogout}
                         data-testid="mobile-menu-item-logout"
                       >

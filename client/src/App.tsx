@@ -3,12 +3,12 @@ import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { Toaster as HotToaster } from 'react-hot-toast';
+import { Toaster as HotToaster } from "react-hot-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { DashboardLayout } from "@/components/layout/dashboard-layout";
-import { PulseLoader } from 'react-spinners';
-import { motion } from 'framer-motion';
-import { useEffect } from 'react';
+import { PulseLoader } from "react-spinners";
+import { motion } from "framer-motion";
+import { useEffect } from "react";
 
 import NotFound from "@/pages/not-found";
 import Landing from "@/pages/landing";
@@ -33,6 +33,16 @@ import FacultyApprovals from "@/pages/faculty-approvals";
 import DigitalPortfolio from "@/pages/digital-portfolio";
 import Analytics from "@/pages/analytics";
 import AchievementsGoals from "@/pages/achievements-goals";
+// New Academic Management Pages
+import CoursesManagement from "@/pages/courses-management";
+import Timetable from "@/pages/timetable";
+import GradeBook from "@/pages/grade-book";
+import StudyMaterials from "@/pages/study-materials";
+// New Financial Pages
+import FeesPayments from "@/pages/fees-payments";
+import Scholarships from "@/pages/scholarships";
+// Data Isolation Demo
+import DataIsolationDemo from "@/pages/data-isolation-demo";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading, isLoggedIn, emailVerified } = useAuth();
@@ -43,10 +53,10 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
       // Strictly enforce authentication and email verification
       if (!isLoggedIn) {
         // User is not logged in - redirect to sign in
-        setLocation('/firebase-signin');
+        setLocation("/firebase-signin");
       } else if (isLoggedIn && !emailVerified) {
         // User is logged in but email is NOT verified - strictly redirect to verification page
-        setLocation('/email-verification');
+        setLocation("/email-verification");
       }
       // Only allow access if both isLoggedIn AND emailVerified are true
     }
@@ -121,7 +131,7 @@ function Router() {
       <Route path="/firebase-signin" component={FirebaseSignin} />
       <Route path="/firebase-signup" component={FirebaseSignup} />
       <Route path="/email-verification" component={EmailVerification} />
-      
+
       <Route path="/dashboard">
         <ProtectedRoute>
           <DashboardLayout>
@@ -129,7 +139,7 @@ function Router() {
           </DashboardLayout>
         </ProtectedRoute>
       </Route>
-      
+
       <Route path="/schedule">
         <ProtectedRoute>
           <DashboardLayout>
@@ -137,7 +147,7 @@ function Router() {
           </DashboardLayout>
         </ProtectedRoute>
       </Route>
-      
+
       <Route path="/attendance">
         <ProtectedRoute>
           <DashboardLayout>
@@ -145,7 +155,7 @@ function Router() {
           </DashboardLayout>
         </ProtectedRoute>
       </Route>
-      
+
       <Route path="/assignments">
         <ProtectedRoute>
           <DashboardLayout>
@@ -153,7 +163,7 @@ function Router() {
           </DashboardLayout>
         </ProtectedRoute>
       </Route>
-      
+
       <Route path="/exams">
         <ProtectedRoute>
           <DashboardLayout>
@@ -161,7 +171,7 @@ function Router() {
           </DashboardLayout>
         </ProtectedRoute>
       </Route>
-      
+
       <Route path="/resources">
         <ProtectedRoute>
           <DashboardLayout>
@@ -169,7 +179,7 @@ function Router() {
           </DashboardLayout>
         </ProtectedRoute>
       </Route>
-      
+
       <Route path="/events">
         <ProtectedRoute>
           <DashboardLayout>
@@ -177,7 +187,7 @@ function Router() {
           </DashboardLayout>
         </ProtectedRoute>
       </Route>
-      
+
       <Route path="/notices">
         <ProtectedRoute>
           <DashboardLayout>
@@ -185,7 +195,7 @@ function Router() {
           </DashboardLayout>
         </ProtectedRoute>
       </Route>
-      
+
       <Route path="/qr-scanner">
         <ProtectedRoute>
           <DashboardLayout>
@@ -193,7 +203,7 @@ function Router() {
           </DashboardLayout>
         </ProtectedRoute>
       </Route>
-      
+
       <Route path="/lost-found">
         <ProtectedRoute>
           <DashboardLayout>
@@ -201,7 +211,7 @@ function Router() {
           </DashboardLayout>
         </ProtectedRoute>
       </Route>
-      
+
       <Route path="/profile">
         <ProtectedRoute>
           <DashboardLayout>
@@ -209,7 +219,7 @@ function Router() {
           </DashboardLayout>
         </ProtectedRoute>
       </Route>
-      
+
       <Route path="/settings">
         <ProtectedRoute>
           <DashboardLayout>
@@ -217,7 +227,7 @@ function Router() {
           </DashboardLayout>
         </ProtectedRoute>
       </Route>
-      
+
       <Route path="/alumni">
         <ProtectedRoute>
           <DashboardLayout>
@@ -225,7 +235,7 @@ function Router() {
           </DashboardLayout>
         </ProtectedRoute>
       </Route>
-      
+
       <Route path="/activity-tracker">
         <ProtectedRoute>
           <DashboardLayout>
@@ -233,7 +243,7 @@ function Router() {
           </DashboardLayout>
         </ProtectedRoute>
       </Route>
-      
+
       <Route path="/faculty-approvals">
         <ProtectedRoute>
           <DashboardLayout>
@@ -241,7 +251,7 @@ function Router() {
           </DashboardLayout>
         </ProtectedRoute>
       </Route>
-      
+
       <Route path="/digital-portfolio">
         <ProtectedRoute>
           <DashboardLayout>
@@ -249,7 +259,7 @@ function Router() {
           </DashboardLayout>
         </ProtectedRoute>
       </Route>
-      
+
       <Route path="/analytics">
         <ProtectedRoute>
           <DashboardLayout>
@@ -257,7 +267,7 @@ function Router() {
           </DashboardLayout>
         </ProtectedRoute>
       </Route>
-      
+
       <Route path="/achievements-goals">
         <ProtectedRoute>
           <DashboardLayout>
@@ -265,7 +275,65 @@ function Router() {
           </DashboardLayout>
         </ProtectedRoute>
       </Route>
-      
+
+      {/* Academic Management Routes */}
+      <Route path="/courses-management">
+        <ProtectedRoute>
+          <DashboardLayout>
+            <CoursesManagement />
+          </DashboardLayout>
+        </ProtectedRoute>
+      </Route>
+
+      <Route path="/timetable">
+        <ProtectedRoute>
+          <DashboardLayout>
+            <Timetable />
+          </DashboardLayout>
+        </ProtectedRoute>
+      </Route>
+
+      <Route path="/grade-book">
+        <ProtectedRoute>
+          <DashboardLayout>
+            <GradeBook />
+          </DashboardLayout>
+        </ProtectedRoute>
+      </Route>
+
+      <Route path="/study-materials">
+        <ProtectedRoute>
+          <DashboardLayout>
+            <StudyMaterials />
+          </DashboardLayout>
+        </ProtectedRoute>
+      </Route>
+
+      {/* Financial Routes */}
+      <Route path="/fees-payments">
+        <ProtectedRoute>
+          <DashboardLayout>
+            <FeesPayments />
+          </DashboardLayout>
+        </ProtectedRoute>
+      </Route>
+
+      <Route path="/scholarships">
+        <ProtectedRoute>
+          <DashboardLayout>
+            <Scholarships />
+          </DashboardLayout>
+        </ProtectedRoute>
+      </Route>
+
+      <Route path="/data-isolation-demo">
+        <ProtectedRoute>
+          <DashboardLayout>
+            <DataIsolationDemo />
+          </DashboardLayout>
+        </ProtectedRoute>
+      </Route>
+
       <Route component={NotFound} />
     </Switch>
   );
@@ -281,26 +349,26 @@ function App() {
           toastOptions={{
             duration: 5000,
             style: {
-              background: 'hsl(var(--card))',
-              color: 'hsl(var(--card-foreground))',
-              border: '1px solid hsl(var(--border))',
-              borderRadius: '0.5rem',
-              fontSize: '0.875rem',
-              padding: '12px 16px',
-              boxShadow: '0 4px 12px hsl(var(--shadow) / 0.15)',
+              background: "hsl(var(--card))",
+              color: "hsl(var(--card-foreground))",
+              border: "1px solid hsl(var(--border))",
+              borderRadius: "0.5rem",
+              fontSize: "0.875rem",
+              padding: "12px 16px",
+              boxShadow: "0 4px 12px hsl(var(--shadow) / 0.15)",
             },
             success: {
               iconTheme: {
-                primary: 'hsl(var(--success))',
-                secondary: 'hsl(var(--success-foreground))'
-              }
+                primary: "hsl(var(--success))",
+                secondary: "hsl(var(--success-foreground))",
+              },
             },
             error: {
               iconTheme: {
-                primary: 'hsl(var(--destructive))',
-                secondary: 'hsl(var(--destructive-foreground))'
-              }
-            }
+                primary: "hsl(var(--destructive))",
+                secondary: "hsl(var(--destructive-foreground))",
+              },
+            },
           }}
         />
         <Router />
