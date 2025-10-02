@@ -1235,19 +1235,25 @@ export class MemStorage implements IStorage {
  * Data persists across server restarts for production-ready deployments.
  */
 export class DatabaseStorage implements IStorage {
+  constructor() {
+    if (!db!) {
+      throw new Error('Database connection is required for DatabaseStorage');
+    }
+  }
+
   // User operations
   async getUser(id: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.id, id));
+    const [user] = await db!!.select().from(users).where(eq(users.id, id));
     return user || undefined;
   }
 
   async getUserByEmail(email: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.email, email));
+    const [user] = await db!!.select().from(users).where(eq(users.email, email));
     return user || undefined;
   }
 
   async getUserByRollNumber(rollNumber: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.rollNumber, rollNumber));
+    const [user] = await db!!.select().from(users).where(eq(users.rollNumber, rollNumber));
     return user || undefined;
   }
 
@@ -1271,21 +1277,21 @@ export class DatabaseStorage implements IStorage {
     };
 
     if (existing) {
-      const [updated] = await db
+      const [updated] = await db!
         .update(users)
         .set(userPayload)
         .where(eq(users.id, existing.id))
         .returning();
       return updated;
     } else {
-      const [created] = await db.insert(users).values(userPayload).returning();
+      const [created] = await db!!.insert(users).values(userPayload).returning();
       return created;
     }
   }
 
   // Activity operations
   async getActivitiesByStudent(studentId: string): Promise<Activity[]> {
-    return await db
+    return await db!
       .select()
       .from(activities)
       .where(eq(activities.studentId, studentId))
@@ -1293,7 +1299,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getActivitiesByStatus(status: 'pending' | 'approved' | 'rejected'): Promise<Activity[]> {
-    return await db
+    return await db!
       .select()
       .from(activities)
       .where(eq(activities.status, status))
@@ -1301,16 +1307,16 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getAllActivities(): Promise<Activity[]> {
-    return await db.select().from(activities).orderBy(desc(activities.createdAt));
+    return await db!!.select().from(activities).orderBy(desc(activities.createdAt));
   }
 
   async createActivity(activity: InsertActivity): Promise<Activity> {
-    const [created] = await db.insert(activities).values(activity).returning();
+    const [created] = await db!!.insert(activities).values(activity).returning();
     return created;
   }
 
   async updateActivityStatus(activityId: string, updates: UpdateActivityStatus, verifierId: string): Promise<Activity> {
-    const [updated] = await db
+    const [updated] = await db!
       .update(activities)
       .set({
         ...updates,
@@ -1327,7 +1333,7 @@ export class DatabaseStorage implements IStorage {
 
   // File operations
   async addActivityFile(activityId: string, fileName: string, filePath: string, fileType: string, fileSize: number): Promise<ActivityFile> {
-    const [file] = await db
+    const [file] = await db!
       .insert(activityFiles)
       .values({ activityId, fileName, filePath, fileType, fileSize })
       .returning();
@@ -1335,29 +1341,29 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getActivityFiles(activityId: string): Promise<ActivityFile[]> {
-    return await db.select().from(activityFiles).where(eq(activityFiles.activityId, activityId));
+    return await db!!.select().from(activityFiles).where(eq(activityFiles.activityId, activityId));
   }
 
   // Department operations
   async getDepartments(): Promise<Department[]> {
-    return await db.select().from(departments);
+    return await db!!.select().from(departments);
   }
 
   async createDepartment(department: InsertDepartment): Promise<Department> {
-    const [created] = await db.insert(departments).values(department).returning();
+    const [created] = await db!!.insert(departments).values(department).returning();
     return created;
   }
 
   // Subject operations
   async getSubjects(): Promise<Subject[]> {
-    return await db.select().from(subjects);
+    return await db!!.select().from(subjects);
   }
 
   async getSubjectsByStudent(studentId: string): Promise<Subject[]> {
     const student = await this.getUser(studentId);
     if (!student) return [];
     
-    return await db
+    return await db!
       .select()
       .from(subjects)
       .where(
@@ -1369,12 +1375,12 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createSubject(subject: InsertSubject): Promise<Subject> {
-    const [created] = await db.insert(subjects).values(subject).returning();
+    const [created] = await db!!.insert(subjects).values(subject).returning();
     return created;
   }
 
   async updateSubject(subjectId: string, updates: Partial<Subject>): Promise<Subject> {
-    const [updated] = await db
+    const [updated] = await db!
       .update(subjects)
       .set(updates)
       .where(eq(subjects.id, subjectId))
@@ -1385,12 +1391,12 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deleteSubject(subjectId: string): Promise<void> {
-    await db.delete(subjects).where(eq(subjects.id, subjectId));
+    await db!!.delete(subjects).where(eq(subjects.id, subjectId));
   }
 
   // Attendance operations
   async getStudentAttendance(studentId: string): Promise<Attendance[]> {
-    return await db
+    return await db!
       .select()
       .from(attendance)
       .where(eq(attendance.studentId, studentId))
@@ -1398,7 +1404,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getStudentAttendanceBySubject(studentId: string, subjectId: string): Promise<Attendance[]> {
-    return await db
+    return await db!
       .select()
       .from(attendance)
       .where(
@@ -1410,7 +1416,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async recordAttendance(attendanceRecord: InsertAttendance): Promise<Attendance> {
-    const [record] = await db.insert(attendance).values(attendanceRecord).returning();
+    const [record] = await db!!.insert(attendance).values(attendanceRecord).returning();
     return record;
   }
 
@@ -1419,7 +1425,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateAttendanceRecord(attendanceId: string, updates: Partial<Attendance>): Promise<Attendance> {
-    const [updated] = await db
+    const [updated] = await db!
       .update(attendance)
       .set(updates)
       .where(eq(attendance.id, attendanceId))
@@ -1430,12 +1436,12 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deleteAttendanceRecord(attendanceId: string): Promise<void> {
-    await db.delete(attendance).where(eq(attendance.id, attendanceId));
+    await db!!.delete(attendance).where(eq(attendance.id, attendanceId));
   }
 
   // Notification operations
   async getNotificationsByStudent(studentId: string): Promise<Notification[]> {
-    return await db
+    return await db!
       .select()
       .from(notifications)
       .where(eq(notifications.studentId, studentId))
@@ -1443,12 +1449,12 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createNotification(notification: InsertNotification): Promise<Notification> {
-    const [created] = await db.insert(notifications).values(notification).returning();
+    const [created] = await db!!.insert(notifications).values(notification).returning();
     return created;
   }
 
   async markNotificationAsRead(notificationId: string): Promise<Notification> {
-    const [updated] = await db
+    const [updated] = await db!
       .update(notifications)
       .set({ read: true })
       .where(eq(notifications.id, notificationId))
@@ -1459,7 +1465,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async updateNotification(notificationId: string, updates: Partial<Notification>): Promise<Notification> {
-    const [updated] = await db
+    const [updated] = await db!
       .update(notifications)
       .set(updates)
       .where(eq(notifications.id, notificationId))
@@ -1470,18 +1476,18 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deleteNotification(notificationId: string): Promise<void> {
-    await db.delete(notifications).where(eq(notifications.id, notificationId));
+    await db!!.delete(notifications).where(eq(notifications.id, notificationId));
   }
 
   async markAllNotificationsAsRead(studentId: string): Promise<void> {
-    await db
+    await db!
       .update(notifications)
       .set({ read: true })
       .where(eq(notifications.studentId, studentId));
   }
 
   async getUnreadNotificationCount(studentId: string): Promise<number> {
-    const result = await db
+    const result = await db!
       .select({ count: count() })
       .from(notifications)
       .where(
@@ -1495,7 +1501,7 @@ export class DatabaseStorage implements IStorage {
 
   // Goal operations
   async getGoalsByStudent(studentId: string): Promise<Goal[]> {
-    return await db
+    return await db!
       .select()
       .from(goals)
       .where(eq(goals.studentId, studentId))
@@ -1503,12 +1509,12 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createGoal(goal: InsertGoal): Promise<Goal> {
-    const [created] = await db.insert(goals).values(goal).returning();
+    const [created] = await db!!.insert(goals).values(goal).returning();
     return created;
   }
 
   async updateGoal(goalId: string, updates: Partial<Goal>): Promise<Goal> {
-    const [updated] = await db
+    const [updated] = await db!
       .update(goals)
       .set({ ...updates, updatedAt: new Date() })
       .where(eq(goals.id, goalId))
@@ -1519,12 +1525,12 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deleteGoal(goalId: string): Promise<void> {
-    await db.delete(goals).where(eq(goals.id, goalId));
+    await db!!.delete(goals).where(eq(goals.id, goalId));
   }
 
   // Achievement operations
   async getAchievementsByStudent(studentId: string): Promise<Achievement[]> {
-    return await db
+    return await db!
       .select()
       .from(achievements)
       .where(eq(achievements.studentId, studentId))
@@ -1532,12 +1538,12 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createAchievement(achievement: InsertAchievement): Promise<Achievement> {
-    const [created] = await db.insert(achievements).values(achievement).returning();
+    const [created] = await db!!.insert(achievements).values(achievement).returning();
     return created;
   }
 
   async updateAchievement(achievementId: string, updates: Partial<Achievement>): Promise<Achievement> {
-    const [updated] = await db
+    const [updated] = await db!
       .update(achievements)
       .set(updates)
       .where(eq(achievements.id, achievementId))
@@ -1548,7 +1554,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deleteAchievement(achievementId: string): Promise<void> {
-    await db.delete(achievements).where(eq(achievements.id, achievementId));
+    await db!!.delete(achievements).where(eq(achievements.id, achievementId));
   }
 
   // Analytics operations (using in-memory approach for complex analytics)
@@ -1563,7 +1569,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getDepartmentStats(): Promise<{ department: string; studentCount: number; activityCount: number; avgActivitiesPerStudent: number }[]> {
-    const allUsers = await db.select().from(users).where(eq(users.role, 'student'));
+    const allUsers = await db!!.select().from(users).where(eq(users.role, 'student'));
     const allActivities = await this.getAllActivities();
     
     const deptMap = new Map<string, { students: Set<string>; activities: number }>();
@@ -1613,7 +1619,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getStudentSummary(): Promise<{ student: User; totalActivities: number; skillCredits: number; lastActivity: Date | null }[]> {
-    const students = await db.select().from(users).where(eq(users.role, 'student'));
+    const students = await db!!.select().from(users).where(eq(users.role, 'student'));
     
     return Promise.all(students.map(async (student: User) => {
       const studentActivities = await this.getActivitiesByStudent(student.id);
@@ -1693,7 +1699,7 @@ export class DatabaseStorage implements IStorage {
     facultyInvolvement: { totalFaculty: number; involvedFaculty: number; avgActivitiesSupervised: number };
     qualityMetrics: { approvalRate: number; avgCreditsPerActivity: number; diversityIndex: number };
   }> {
-    const students = await db.select().from(users).where(eq(users.role, 'student'));
+    const students = await db!!.select().from(users).where(eq(users.role, 'student'));
     const allActivities = await this.getAllActivities();
     
     const activeStudents = new Set(allActivities.map(a => a.studentId));
@@ -1753,7 +1759,7 @@ export class DatabaseStorage implements IStorage {
     monthlyTrends: Array<{ month: string; rate: number }>;
     subjectWise: Array<{ subject: string; rate: number; total: number; attended: number }>;
   }> {
-    let query = db.select().from(attendance);
+    let query = db!!.select().from(attendance);
     let conditions = [];
     
     if (studentId) conditions.push(eq(attendance.studentId, studentId));
@@ -1878,7 +1884,7 @@ export class DatabaseStorage implements IStorage {
     const student = await this.getUser(studentId);
     const studentActivities = await this.getActivitiesByStudent(studentId);
     const studentAttendance = await this.getStudentAttendance(studentId);
-    const students = await db.select().from(users).where(eq(users.role, 'student'));
+    const students = await db!!.select().from(users).where(eq(users.role, 'student'));
     
     const categoryDist = await this.getCategoryStats();
     const studentCategoryDist = categoryDist.map(c => {
@@ -1920,5 +1926,5 @@ export class DatabaseStorage implements IStorage {
   }
 }
 
-// Export storage instance - using DatabaseStorage for persistent data
-export const storage = new DatabaseStorage();
+// Export storage instance - using DatabaseStorage if available, otherwise MemStorage
+export const storage = db! ? new DatabaseStorage() : new MemStorage();

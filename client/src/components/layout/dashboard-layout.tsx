@@ -136,7 +136,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       await signOutUser();
       
       setTimeout(() => {
-        window.location.href = '/';
+        setLocation('/');
       }, 100);
     } catch (error) {
       console.error('Logout failed:', error);
