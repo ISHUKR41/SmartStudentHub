@@ -27,6 +27,7 @@ import QRScanner from "@/pages/qr-scanner";
 import LostFound from "@/pages/lost-found";
 import Profile from "@/pages/profile";
 import Settings from "@/pages/settings";
+import Alumni from "@/pages/alumni";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth();
@@ -34,9 +35,10 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      setLocation('/firebase-signin');
+      // Use window.location for more reliable navigation
+      window.location.href = '/firebase-signin';
     }
-  }, [isAuthenticated, isLoading, setLocation]);
+  }, [isAuthenticated, isLoading]);
 
   if (isLoading) {
     return (
@@ -199,6 +201,14 @@ function Router() {
         <ProtectedRoute>
           <DashboardLayout>
             <Settings />
+          </DashboardLayout>
+        </ProtectedRoute>
+      </Route>
+      
+      <Route path="/alumni">
+        <ProtectedRoute>
+          <DashboardLayout>
+            <Alumni />
           </DashboardLayout>
         </ProtectedRoute>
       </Route>

@@ -193,12 +193,13 @@ export default function Navigation() {
    * Logout Handler
    * 
    * Handles secure user logout using Firebase authentication.
-   * Signs out the user and redirects to the landing page.
+   * Signs out the user and redirects to the signin page.
    */
   const handleLogout = async () => {
     try {
+      closeMobileMenu();
       await signOutUser();
-      window.location.href = "/";
+      // signOutUser now handles the redirect
     } catch (error) {
       console.error("Logout failed:", error);
     }

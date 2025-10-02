@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'wouter';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
@@ -24,7 +24,8 @@ import {
   ChevronLeft,
   ChevronRight,
   GraduationCap,
-  ChevronDown
+  ChevronDown,
+  Users
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
@@ -69,6 +70,12 @@ const menuSections = [
     ]
   },
   {
+    title: 'Network',
+    items: [
+      { href: '/alumni', icon: Users, label: 'Alumni' },
+    ]
+  },
+  {
     title: 'Account',
     items: [
       { href: '/profile', icon: User, label: 'Profile' },
@@ -87,10 +94,26 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
 
+  // Auto-collapse sidebar on smaller screens
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 1280) {
+        setIsCollapsed(true);
+      } else {
+        setIsCollapsed(false);
+      }
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const handleLogout = async () => {
     try {
+      setIsMobileOpen(false);
       await signOutUser();
-      setLocation('/firebase-signin');
+      // signOutUser now handles the redirect
     } catch (error) {
       console.error('Logout failed:', error);
     }
@@ -260,10 +283,13 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
     <div className="min-h-screen bg-background flex">
       {/* Desktop Sidebar */}
-      <aside
+      <motion.aside
+        animate={{
+          width: isCollapsed ? "4rem" : "18rem"
+        }}
+        transition={{ duration: 0.3, ease: "easeInOut" }}
         className={cn(
-          "hidden lg:flex flex-col border-r bg-card/50 backdrop-blur-sm transition-all duration-300 shadow-lg",
-          isCollapsed ? "w-16 xl:w-20" : "w-64 xl:w-72"
+          "hidden lg:flex flex-col border-r bg-card/50 backdrop-blur-sm shadow-lg relative"
         )}
         data-testid="sidebar-desktop"
       >
@@ -273,16 +299,17 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           variant="ghost"
           size="sm"
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="absolute -right-3 top-20 z-50 h-7 w-7 rounded-full border-2 border-primary/20 bg-card p-0 shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-200"
+          className="absolute -right-3 top-20 z-50 h-8 w-8 rounded-full border-2 border-primary/30 bg-card p-0 shadow-lg hover:shadow-xl hover:scale-110 hover:border-primary transition-all duration-200"
           data-testid="button-toggle-sidebar"
         >
-          {isCollapsed ? (
+          <motion.div
+            animate={{ rotate: isCollapsed ? 0 : 180 }}
+            transition={{ duration: 0.3 }}
+          >
             <ChevronRight className="h-4 w-4 text-primary" />
-          ) : (
-            <ChevronLeft className="h-4 w-4 text-primary" />
-          )}
+          </motion.div>
         </Button>
-      </aside>
+      </motion.aside>
 
       {/* Mobile Header */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-card/95 backdrop-blur-md border-b shadow-md">
