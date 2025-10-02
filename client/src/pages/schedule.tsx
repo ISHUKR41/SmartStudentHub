@@ -19,6 +19,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import Skeleton from 'react-loading-skeleton';
 import 'react-loading-skeleton/dist/skeleton.css';
+import type { Class } from '@shared/schema';
 
 // Initialize moment localizer for react-big-calendar
 const localizer = momentLocalizer(moment);
@@ -88,7 +89,7 @@ export default function Schedule() {
   const [currentDate, setCurrentDate] = useState(new Date());
 
   // Fetch classes
-  const { data: classes = [], isLoading } = useQuery({
+  const { data: classes = [], isLoading } = useQuery<Class[]>({
     queryKey: ['/api/schedule/classes'],
   });
 
