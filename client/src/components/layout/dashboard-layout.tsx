@@ -164,43 +164,17 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     localStorage.setItem("sidebar-collapsed", JSON.stringify(isCollapsed));
   }, [isCollapsed]);
 
-  // Comprehensive responsive behavior for all device sizes
+  // Simplified responsive behavior - only close mobile menu on resize
   useEffect(() => {
     const handleResize = () => {
-      const width = window.innerWidth;
-      const saved = localStorage.getItem("sidebar-collapsed");
-
-      // TV/Extra Large Desktop: 1920px+ - default expanded for maximum screen real estate
-      if (width >= 1920) {
-        if (saved === null) setIsCollapsed(false);
-      }
-      // Large Desktop: 1440-1919px - default expanded, respect user preference
-      else if (width >= 1440 && width < 1920) {
-        if (saved === null) setIsCollapsed(false);
-      }
-      // Desktop: 1024-1439px - auto-collapse for better content space
-      else if (width >= 1024 && width < 1440) {
-        if (saved === null) setIsCollapsed(true);
-      }
-      // Tablet: 768-1023px - use mobile sidebar (collapse state handled separately)
-      else if (width >= 768 && width < 1024) {
-        // Mobile sidebar will be used, desktop sidebar hidden
-        setIsMobileOpen(false); // Close mobile menu if open
-      }
-      // Mobile: 320-767px - use mobile sidebar only
-      else if (width >= 320 && width < 768) {
-        setIsMobileOpen(false); // Close mobile menu if open
-      }
-      // Extra Small: < 320px - use mobile sidebar with optimizations
-      else {
+      if (isMobileOpen && window.innerWidth >= 1024) {
         setIsMobileOpen(false);
       }
     };
 
-    handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  }, [isMobileOpen]);
 
   const handleLogout = async () => {
     if (isLoggingOut) return;
@@ -262,17 +236,15 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 const Icon = item.icon;
 
                 return (
-                  <motion.button
+                  <button
                     key={item.href}
                     onClick={() => {
                       setLocation(item.href);
                       setIsMobileOpen(false);
                     }}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
                     className={cn(
-                      "w-full flex items-center justify-center min-h-[44px] p-3 rounded-lg transition-all duration-200",
-                      "hover:bg-primary/10 hover:text-primary",
+                      "w-full flex items-center justify-center min-h-[44px] p-3 rounded-lg transition-colors duration-200",
+                      "hover:bg-primary/10 hover:text-primary active:scale-95",
                       isActive &&
                         "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground shadow-md",
                       !isActive && "text-muted-foreground"
@@ -283,7 +255,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                     title={item.label}
                   >
                     <Icon className="h-5 w-5 flex-shrink-0" />
-                  </motion.button>
+                  </button>
                 );
               })}
           </div>
@@ -299,45 +271,29 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 value={section.title}
                 className="border-none"
               >
-                <AccordionTrigger className="py-2.5 px-3 hover:no-underline hover:bg-muted/50 rounded-lg transition-all duration-200 text-sm font-semibold [&[data-state=open]]:bg-muted/50">
-                  <motion.span
-                    className="flex items-center gap-2 w-full"
-                    whileHover={{ x: 2 }}
-                    transition={{ duration: 0.2 }}
-                  >
+                <AccordionTrigger className="py-2.5 px-3 hover:no-underline hover:bg-muted/50 rounded-lg transition-colors duration-200 text-sm font-semibold [&[data-state=open]]:bg-muted/50">
+                  <span className="flex items-center gap-2 w-full">
                     <span className="text-xs font-bold text-primary uppercase tracking-wider">
                       {section.title}
                     </span>
-                  </motion.span>
+                  </span>
                 </AccordionTrigger>
                 <AccordionContent className="pb-2">
-                  <motion.div
-                    className="space-y-1 pt-1"
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3 }}
-                  >
+                  <div className="space-y-1 pt-1">
                     {section.items.map((item) => {
                       const isActive = location === item.href;
                       const Icon = item.icon;
 
                       return (
-                        <motion.button
+                        <button
                           key={item.href}
                           onClick={() => {
                             setLocation(item.href);
                             setIsMobileOpen(false);
                           }}
-                          whileHover={{ x: 4, scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
-                          transition={{
-                            type: "spring",
-                            stiffness: 400,
-                            damping: 17,
-                          }}
                           className={cn(
-                            "w-full flex items-center gap-3 px-3 py-3 min-h-[44px] rounded-lg transition-all duration-200",
-                            "hover:bg-primary/10 hover:text-primary",
+                            "w-full flex items-center gap-3 px-3 py-3 min-h-[44px] rounded-lg transition-colors duration-200",
+                            "hover:bg-primary/10 hover:text-primary active:scale-95",
                             isActive &&
                               "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground shadow-md ring-2 ring-primary/20",
                             !isActive && "text-muted-foreground"
@@ -350,10 +306,10 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                           <span className="font-medium text-sm truncate">
                             {item.label}
                           </span>
-                        </motion.button>
+                        </button>
                       );
                     })}
-                  </motion.div>
+                  </div>
                 </AccordionContent>
               </AccordionItem>
             ))}
@@ -371,10 +327,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           {!isCollapsed ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="flex items-center gap-3 w-full p-2.5 min-h-[48px] rounded-lg hover:bg-muted transition-all duration-200 hover:shadow-md"
+                <button
+                  className="flex items-center gap-3 w-full p-2.5 min-h-[48px] rounded-lg hover:bg-muted transition-colors duration-200 hover:shadow-md"
                   data-testid="button-user-menu"
                 >
                   <Avatar className="h-9 w-9 ring-2 ring-primary/20 flex-shrink-0">
@@ -393,7 +347,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                     </p>
                   </div>
                   <ChevronDown className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                </motion.button>
+                </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel className="font-semibold">
@@ -442,10 +396,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           ) : (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="p-2.5 min-h-[44px] min-w-[44px] rounded-lg hover:bg-muted transition-all duration-200 hover:shadow-md flex items-center justify-center"
+                <button
+                  className="p-2.5 min-h-[44px] min-w-[44px] rounded-lg hover:bg-muted transition-colors duration-200 hover:shadow-md flex items-center justify-center"
                   data-testid="button-user-menu-collapsed"
                 >
                   <Avatar className="h-9 w-9 ring-2 ring-primary/20">
@@ -455,7 +407,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                       {user?.lastName?.charAt(0)}
                     </AvatarFallback>
                   </Avatar>
-                </motion.button>
+                </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel className="font-semibold">
@@ -507,44 +459,34 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
     <div className="min-h-screen bg-background flex">
       {/* Desktop Sidebar */}
-      <motion.aside
-        animate={{
-          width: isCollapsed ? "4.5rem" : "18rem",
-        }}
-        transition={{ duration: 0.3, ease: "easeInOut" }}
+      <aside
         className={cn(
-          "hidden lg:flex flex-col border-r bg-card/50 backdrop-blur-sm shadow-lg relative"
+          "hidden lg:flex flex-col border-r bg-card/50 backdrop-blur-sm shadow-lg relative transition-all duration-300 ease-in-out",
+          isCollapsed ? "w-[4.5rem]" : "w-72"
         )}
         data-testid="sidebar-desktop"
       >
         <SidebarContent />
 
-        <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            className="absolute -right-3 top-20 z-50 h-9 w-9 min-h-[36px] min-w-[36px] rounded-full border-2 border-primary/30 bg-card p-0 shadow-lg hover:shadow-xl hover:border-primary transition-all duration-200"
-            data-testid="button-toggle-sidebar"
-            aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="absolute -right-3 top-20 z-50 h-9 w-9 min-h-[36px] min-w-[36px] rounded-full border-2 border-primary/30 bg-card p-0 shadow-lg hover:shadow-xl hover:border-primary transition-all duration-200 active:scale-95"
+          data-testid="button-toggle-sidebar"
+          aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+        >
+          <div 
+            className="transition-transform duration-300"
+            style={{ transform: isCollapsed ? 'rotate(0deg)' : 'rotate(180deg)' }}
           >
-            <motion.div
-              animate={{ rotate: isCollapsed ? 0 : 180 }}
-              transition={{ duration: 0.3 }}
-            >
-              <ChevronRight className="h-4 w-4 text-primary" />
-            </motion.div>
-          </Button>
-        </motion.div>
-      </motion.aside>
+            <ChevronRight className="h-4 w-4 text-primary" />
+          </div>
+        </Button>
+      </aside>
 
       {/* Mobile Header */}
-      <motion.div
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        transition={{ type: "spring", stiffness: 300, damping: 30 }}
-        className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-card/95 backdrop-blur-md border-b shadow-md"
-      >
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-40 bg-card/95 backdrop-blur-md border-b shadow-md">
         <div className="flex items-center justify-between p-3 md:p-4 min-h-[64px]">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-primary/10 rounded-lg ring-2 ring-primary/20 flex-shrink-0">
@@ -559,42 +501,22 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               </p>
             </div>
           </div>
-          <motion.div whileTap={{ scale: 0.95 }}>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsMobileOpen(!isMobileOpen)}
-              data-testid="button-mobile-menu"
-              className="hover:bg-primary/10 transition-all duration-200 min-h-[44px] min-w-[44px] p-2"
-              aria-label={isMobileOpen ? "Close menu" : "Open menu"}
-            >
-              <AnimatePresence mode="wait">
-                {isMobileOpen ? (
-                  <motion.div
-                    key="close"
-                    initial={{ rotate: -90, opacity: 0 }}
-                    animate={{ rotate: 0, opacity: 1 }}
-                    exit={{ rotate: 90, opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <X className="h-6 w-6 text-primary" />
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key="menu"
-                    initial={{ rotate: 90, opacity: 0 }}
-                    animate={{ rotate: 0, opacity: 1 }}
-                    exit={{ rotate: -90, opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <Menu className="h-6 w-6 text-primary" />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </Button>
-          </motion.div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setIsMobileOpen(!isMobileOpen)}
+            data-testid="button-mobile-menu"
+            className="hover:bg-primary/10 transition-colors duration-200 min-h-[44px] min-w-[44px] p-2 active:scale-95"
+            aria-label={isMobileOpen ? "Close menu" : "Open menu"}
+          >
+            {isMobileOpen ? (
+              <X className="h-6 w-6 text-primary" />
+            ) : (
+              <Menu className="h-6 w-6 text-primary" />
+            )}
+          </Button>
         </div>
-      </motion.div>
+      </div>
 
       {/* Mobile Sidebar */}
       <AnimatePresence>

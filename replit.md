@@ -50,6 +50,7 @@ A comprehensive educational management platform for tracking student achievement
 2. ✅ **Sidebar accordion** - Smooth Framer Motion animations, proper hover states, ring effects
 3. ✅ **Dashboard performance** - Memoized ECharts data/options, individual collapsible states, lazy-loaded Confetti, canvas renderer for better performance
 4. ✅ **Dashboard bundle size** - Replaced Victory with Recharts, lazy loading reduces initial load from 12MB to normal
+5. ✅ **Sidebar blinking/unresponsive** - Fixed infinite render loop by debouncing resize handler and simplifying animations (Oct 3, 2025)
 
 ### 🟡 Remaining Issues
 1. **DATABASE_URL provisioned** but may need restart to connect properly
@@ -258,9 +259,20 @@ The system tracks institutional metrics required for:
 - **Features**: Comprehensive feature set with approval workflows
 - **Design**: Professional, modern, animated
 
-## 🔄 Recent Changes (October 2, 2025)
+## 🔄 Recent Changes (October 3, 2025)
 
-### Latest Session (Today - 13:26 to 13:43)
+### Latest Session (Today - 13:06)
+✅ **Fixed sidebar blinking/unresponsive issue**:
+  - **Problem**: Sidebar was blinking excessively, buttons not clickable, collapse/expand not working
+  - **Root Cause**: Infinite render loop caused by resize handler triggering continuous state updates
+  - **Solution**: 
+    - Added debouncing (150ms) to resize event handler to prevent excessive state updates
+    - Simplified animations by replacing motion.button with regular buttons
+    - Removed nested motion animations that were causing layout recalculations
+    - Optimized initial mount logic to run without debounce
+  - **Result**: Sidebar now works smoothly, buttons are clickable, animations are clean
+
+### Previous Session (October 2 - 13:26 to 13:43)
 ✅ **Fixed logout routing** - Added finally block, proper navigation to /firebase-signin
 ✅ **Enhanced sidebar** - Framer Motion animations, smooth accordion interactions, hover effects with ring
 ✅ **Massively enhanced Dashboard** (128% increase):
