@@ -425,7 +425,7 @@ export class MemStorage implements IStorage {
       rollNumber: userData.rollNumber ?? null,
       department: userData.department ?? null,
       currentSemester: userData.currentSemester ?? null,
-      cgpa: userData.cgpa ?? null,
+      cgpa: userData.cgpa !== null && userData.cgpa !== undefined ? String(userData.cgpa) : null,
       createdAt: existing?.createdAt ?? now,
       updatedAt: now,
     };
@@ -462,7 +462,7 @@ export class MemStorage implements IStorage {
       category: activity.category,
       organization: activity.organization,
       activityDate: activity.activityDate,
-      skillCredits: activity.skillCredits ?? null,
+      skillCredits: activity.skillCredits ?? 0,
       feedback: activity.feedback ?? null,
       status: 'pending',
       verifiedBy: null,

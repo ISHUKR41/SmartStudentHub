@@ -201,26 +201,36 @@ export const users = pgTable("users", {
  * 3. Faculty reviews and approves/rejects with feedback
  * 4. Approved activities contribute to student portfolio and skill credits
  */
-export const activities = pgTable("activities", {
-  id: varchar("id")
-    .primaryKey()
-    .default(sql`gen_random_uuid()`),
-  studentId: varchar("student_id")
-    .references(() => users.id, { onDelete: "cascade" })
-    .notNull(),
-  title: varchar("title").notNull(),
-  description: text("description"),
-  category: activityCategoryEnum("category").notNull(),
-  organization: varchar("organization").notNull(),
-  activityDate: timestamp("activity_date").notNull(),
-  status: activityStatusEnum("status").default("pending").notNull(),
-  verifiedBy: varchar("verified_by").references(() => users.id),
-  verificationDate: timestamp("verification_date"),
-  feedback: text("feedback"),
-  skillCredits: integer("skill_credits").default(0),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
+export const activities = pgTable(
+  "activities",
+  {
+    id: varchar("id")
+      .primaryKey()
+      .default(sql`gen_random_uuid()`),
+    studentId: varchar("student_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    title: varchar("title").notNull(),
+    description: text("description"),
+    category: activityCategoryEnum("category").notNull(),
+    organization: varchar("organization").notNull(),
+    activityDate: timestamp("activity_date").notNull(),
+    status: activityStatusEnum("status").default("pending").notNull(),
+    verifiedBy: varchar("verified_by").references(() => users.id),
+    verificationDate: timestamp("verification_date"),
+    feedback: text("feedback"),
+    skillCredits: integer("skill_credits").default(0),
+    createdAt: timestamp("created_at").defaultNow(),
+    updatedAt: timestamp("updated_at").defaultNow(),
+  },
+  (table) => [
+    index("idx_activities_student_id").on(table.studentId),
+    index("idx_activities_status").on(table.status),
+    index("idx_activities_activity_date").on(table.activityDate),
+    index("idx_activities_student_status").on(table.studentId, table.status),
+    index("idx_activities_verified_by").on(table.verifiedBy),
+  ]
+);
 
 /**
  * Activity Files Table
@@ -306,23 +316,32 @@ export const subjects = pgTable("subjects", {
  * - Status enumeration (present/absent/late/excused)
  * - Remarks for special cases
  */
-export const attendance = pgTable("attendance", {
-  id: varchar("id")
-    .primaryKey()
-    .default(sql`gen_random_uuid()`),
-  studentId: varchar("student_id")
-    .references(() => users.id, { onDelete: "cascade" })
-    .notNull(),
-  subjectId: varchar("subject_id")
-    .references(() => subjects.id, { onDelete: "cascade" })
-    .notNull(),
-  attendanceDate: timestamp("attendance_date").notNull(),
-  status: attendanceStatusEnum("status").notNull(),
-  remarks: text("remarks"),
-  markedBy: varchar("marked_by").references(() => users.id),
-  markedAt: timestamp("marked_at").defaultNow(),
-  createdAt: timestamp("created_at").defaultNow(),
-});
+export const attendance = pgTable(
+  "attendance",
+  {
+    id: varchar("id")
+      .primaryKey()
+      .default(sql`gen_random_uuid()`),
+    studentId: varchar("student_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    subjectId: varchar("subject_id")
+      .references(() => subjects.id, { onDelete: "cascade" })
+      .notNull(),
+    attendanceDate: timestamp("attendance_date").notNull(),
+    status: attendanceStatusEnum("status").notNull(),
+    remarks: text("remarks"),
+    markedBy: varchar("marked_by").references(() => users.id),
+    markedAt: timestamp("marked_at").defaultNow(),
+    createdAt: timestamp("created_at").defaultNow(),
+  },
+  (table) => [
+    index("idx_attendance_student_id").on(table.studentId),
+    index("idx_attendance_subject_id").on(table.subjectId),
+    index("idx_attendance_date").on(table.attendanceDate),
+    index("idx_attendance_student_subject").on(table.studentId, table.subjectId),
+  ]
+);
 
 /**
  * QR Attendance Sessions Table
@@ -375,20 +394,26 @@ export const qrAttendanceSessions = pgTable("qr_attendance_sessions", {
  * - Optional action URLs for navigation
  * - Timestamp tracking for chronological ordering
  */
-export const notifications = pgTable("notifications", {
-  id: varchar("id")
-    .primaryKey()
-    .default(sql`gen_random_uuid()`),
-  studentId: varchar("student_id")
-    .references(() => users.id, { onDelete: "cascade" })
-    .notNull(),
-  title: varchar("title").notNull(),
-  message: text("message").notNull(),
-  type: notificationTypeEnum("type").default("info").notNull(),
-  read: boolean("read").default(false).notNull(),
-  actionUrl: varchar("action_url"),
-  createdAt: timestamp("created_at").defaultNow(),
-});
+export const notifications = pgTable(
+  "notifications",
+  {
+    id: varchar("id")
+      .primaryKey()
+      .default(sql`gen_random_uuid()`),
+    studentId: varchar("student_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    title: varchar("title").notNull(),
+    message: text("message").notNull(),
+    type: notificationTypeEnum("type").default("info").notNull(),
+    read: boolean("read").default(false).notNull(),
+    actionUrl: varchar("action_url"),
+    createdAt: timestamp("created_at").defaultNow(),
+  },
+  (table) => [
+    index("idx_notifications_student_id").on(table.studentId),
+  ]
+);
 
 /**
  * Goals Table
@@ -402,24 +427,30 @@ export const notifications = pgTable("notifications", {
  * - Deadline management
  * - Status tracking (active/completed/overdue)
  */
-export const goals = pgTable("goals", {
-  id: varchar("id")
-    .primaryKey()
-    .default(sql`gen_random_uuid()`),
-  studentId: varchar("student_id")
-    .references(() => users.id, { onDelete: "cascade" })
-    .notNull(),
-  title: varchar("title").notNull(),
-  description: text("description"),
-  target: integer("target").notNull(),
-  current: integer("current").default(0).notNull(),
-  deadline: timestamp("deadline").notNull(),
-  category: varchar("category").notNull(),
-  priority: goalPriorityEnum("priority").default("medium").notNull(),
-  status: goalStatusEnum("status").default("active").notNull(),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
+export const goals = pgTable(
+  "goals",
+  {
+    id: varchar("id")
+      .primaryKey()
+      .default(sql`gen_random_uuid()`),
+    studentId: varchar("student_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    title: varchar("title").notNull(),
+    description: text("description"),
+    target: integer("target").notNull(),
+    current: integer("current").default(0).notNull(),
+    deadline: timestamp("deadline").notNull(),
+    category: varchar("category").notNull(),
+    priority: goalPriorityEnum("priority").default("medium").notNull(),
+    status: goalStatusEnum("status").default("active").notNull(),
+    createdAt: timestamp("created_at").defaultNow(),
+    updatedAt: timestamp("updated_at").defaultNow(),
+  },
+  (table) => [
+    index("idx_goals_student_id").on(table.studentId),
+  ]
+);
 
 /**
  * Achievements Table
@@ -433,22 +464,28 @@ export const goals = pgTable("goals", {
  * - Points system for gamification
  * - Date tracking for chronological display
  */
-export const achievements = pgTable("achievements", {
-  id: varchar("id")
-    .primaryKey()
-    .default(sql`gen_random_uuid()`),
-  studentId: varchar("student_id")
-    .references(() => users.id, { onDelete: "cascade" })
-    .notNull(),
-  title: varchar("title").notNull(),
-  description: text("description").notNull(),
-  date: timestamp("date").notNull(),
-  type: varchar("type").notNull(),
-  category: varchar("category").notNull(),
-  verified: boolean("verified").default(false).notNull(),
-  points: integer("points").default(0).notNull(),
-  createdAt: timestamp("created_at").defaultNow(),
-});
+export const achievements = pgTable(
+  "achievements",
+  {
+    id: varchar("id")
+      .primaryKey()
+      .default(sql`gen_random_uuid()`),
+    studentId: varchar("student_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    title: varchar("title").notNull(),
+    description: text("description").notNull(),
+    date: timestamp("date").notNull(),
+    type: varchar("type").notNull(),
+    category: varchar("category").notNull(),
+    verified: boolean("verified").default(false).notNull(),
+    points: integer("points").default(0).notNull(),
+    createdAt: timestamp("created_at").defaultNow(),
+  },
+  (table) => [
+    index("idx_achievements_student_id").on(table.studentId),
+  ]
+);
 
 /**
  * Day of Week Enumeration
@@ -584,25 +621,33 @@ export const assignments = pgTable("assignments", {
  * - Submission timestamp tracking
  * - Late submission detection
  */
-export const assignmentSubmissions = pgTable("assignment_submissions", {
-  id: varchar("id")
-    .primaryKey()
-    .default(sql`gen_random_uuid()`),
-  assignmentId: varchar("assignment_id")
-    .references(() => assignments.id, { onDelete: "cascade" })
-    .notNull(),
-  studentId: varchar("student_id")
-    .references(() => users.id, { onDelete: "cascade" })
-    .notNull(),
-  status: assignmentStatusEnum("status").default("submitted").notNull(),
-  submittedAt: timestamp("submitted_at").defaultNow().notNull(),
-  grade: integer("grade"),
-  feedback: text("feedback"),
-  gradedBy: varchar("graded_by").references(() => users.id),
-  gradedAt: timestamp("graded_at"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
+export const assignmentSubmissions = pgTable(
+  "assignment_submissions",
+  {
+    id: varchar("id")
+      .primaryKey()
+      .default(sql`gen_random_uuid()`),
+    assignmentId: varchar("assignment_id")
+      .references(() => assignments.id, { onDelete: "cascade" })
+      .notNull(),
+    studentId: varchar("student_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    status: assignmentStatusEnum("status").default("submitted").notNull(),
+    submittedAt: timestamp("submitted_at").defaultNow().notNull(),
+    grade: integer("grade"),
+    feedback: text("feedback"),
+    gradedBy: varchar("graded_by").references(() => users.id),
+    gradedAt: timestamp("graded_at"),
+    createdAt: timestamp("created_at").defaultNow(),
+    updatedAt: timestamp("updated_at").defaultNow(),
+  },
+  (table) => [
+    index("idx_assignment_submissions_assignment_id").on(table.assignmentId),
+    index("idx_assignment_submissions_student_id").on(table.studentId),
+    index("idx_assignment_submissions_status").on(table.status),
+  ]
+);
 
 /**
  * Assignment Submission Files Table
@@ -690,24 +735,31 @@ export const exams = pgTable("exams", {
  * - Performance tracking
  * - Result verification status
  */
-export const examResults = pgTable("exam_results", {
-  id: varchar("id")
-    .primaryKey()
-    .default(sql`gen_random_uuid()`),
-  examId: varchar("exam_id")
-    .references(() => exams.id, { onDelete: "cascade" })
-    .notNull(),
-  studentId: varchar("student_id")
-    .references(() => users.id, { onDelete: "cascade" })
-    .notNull(),
-  marksObtained: integer("marks_obtained").notNull(),
-  grade: varchar("grade").notNull(),
-  remarks: text("remarks"),
-  verifiedBy: varchar("verified_by").references(() => users.id),
-  verifiedAt: timestamp("verified_at"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
+export const examResults = pgTable(
+  "exam_results",
+  {
+    id: varchar("id")
+      .primaryKey()
+      .default(sql`gen_random_uuid()`),
+    examId: varchar("exam_id")
+      .references(() => exams.id, { onDelete: "cascade" })
+      .notNull(),
+    studentId: varchar("student_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    marksObtained: integer("marks_obtained").notNull(),
+    grade: varchar("grade").notNull(),
+    remarks: text("remarks"),
+    verifiedBy: varchar("verified_by").references(() => users.id),
+    verifiedAt: timestamp("verified_at"),
+    createdAt: timestamp("created_at").defaultNow(),
+    updatedAt: timestamp("updated_at").defaultNow(),
+  },
+  (table) => [
+    index("idx_exam_results_exam_id").on(table.examId),
+    index("idx_exam_results_student_id").on(table.studentId),
+  ]
+);
 
 /**
  * Resource Type Enumeration
@@ -1136,22 +1188,13 @@ export const upsertUserSchema = z.object({
   cgpa: z.number().nullable(),
 });
 
-export const insertActivitySchema = z.object({
-  studentId: z.string(),
-  title: z.string(),
-  description: z.string(),
-  category: z.enum([
-    "academic",
-    "sports",
-    "cultural",
-    "technical",
-    "social",
-    "volunteer",
-  ]),
-  points: z.number().default(0),
-  date: z.date(),
-  evidence: z.string().nullable(),
-  type: z.string(),
+export const insertActivitySchema = createInsertSchema(activities).omit({
+  id: true,
+  status: true,
+  verifiedBy: true,
+  verificationDate: true,
+  createdAt: true,
+  updatedAt: true,
 });
 
 export const updateActivityStatusSchema = z.object({
